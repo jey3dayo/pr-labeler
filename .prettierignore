@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+.vitest/
+
+# Caches
+.eslintcache
+.prettiercache
+*.cache
+.turbo/
+
+# Git
+.git/
+
+# Specify
+.specify/templates/
+
+# Package managers
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Markdown (selectively format)
+*.min.js
+*.min.css
+
+# Other
+licenses.txt

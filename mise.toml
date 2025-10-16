@@ -1,0 +1,135 @@
+[env]
+# 環境変数の読み込み
+_.file = [".env"]
+_.path = ['./node_modules/.bin']
+
+[tools]
+node = '22'
+"npm:pnpm" = '10.18.3'
+"npm:prettier" = 'latest'
+"npm:markdownlint-cli2" = 'latest'
+"npm:markdown-link-check" = 'latest'
+
+[tasks]
+# === 基本タスク (package.jsonのscriptsを呼び出し) ===
+# Development
+dev = "pnpm dev"
+"dev:debug" = { run = "tsx --inspect src/index.ts", env = { NODE_ENV = "development" } }
+build = "pnpm build"
+"build:watch" = "ncc build src/index.ts -o dist --watch"
+
+# Test
+test = "pnpm test"
+"test:watch" = "pnpm test:watch"
+"test:coverage" = "pnpm test:coverage"
+"test:ui" = "pnpm test:ui"
+"test:quick" = "pnpm test:quick"
+
+# Quality Check
+check = "pnpm check"
+"check:all" = "pnpm check:all"
+lint = "pnpm lint"
+"lint:fix" = "pnpm lint:fix"
+"type-check" = "pnpm type-check"
+format = "pnpm format"
+"format:check" = "pnpm format:check"
+
+# Fix
+fix = "pnpm fix"
+"fix:lint" = "pnpm fix:lint"
+"fix:format" = "pnpm fix:format"
+
+# === 統合タスク ===
+[tasks.ci]
+description = "CI/CD用の完全品質チェック"
+run = "pnpm check:all && pnpm build"
+
+[tasks.quick]
+description = "開発中のクイックチェック"
+run = "pnpm test:quick"
+
+# === セットアップ ===
+[tasks.setup]
+description = "プロジェクト初期セットアップ"
+run = [
+  "pnpm install",
+  "mise run build",
+  "mise run test"
+]
+
+# === リリース準備 (自前スクリプト呼び出し) ===
+[tasks."release"]
+description = "インタラクティブなリリース（バージョンタイプを選択）"
+run = '''
+echo "リリースタイプを選択してください:"
+echo "  1) patch (バグ修正)"
+echo "  2) minor (新機能)"
+echo "  3) major (破壊的変更)"
+read -p "選択 (1-3): " -n 1 -r choice
+echo
+case $choice in
+  1) ./.specify/scripts/release.sh patch ;;
+  2) ./.specify/scripts/release.sh minor ;;
+  3) ./.specify/scripts/release.sh major ;;
+  *) echo "無効な選択です"; exit 1 ;;
+esac
+'''
+
+[tasks."release:patch"]
+description = "パッチリリース (v1.0.x)"
+run = "./.specify/scripts/release.sh patch"
+
+[tasks."release:minor"]
+description = "マイナーリリース (v1.x.0)"
+run = "./.specify/scripts/release.sh minor"
+
+[tasks."release:major"]
+description = "メジャーリリース (vx.0.0)"
+run = "./.specify/scripts/release.sh major"
+
+# === ドキュメント検証 ===
+[tasks."docs:check"]
+description = "Markdownドキュメントのlintとリンクチェック"
+run = [
+  "markdownlint-cli2 '**/*.md' '!node_modules' '!dist'",
+  "markdown-link-check README.md CLAUDE.md"
+]
+
+[tasks."docs:fix"]
+description = "Markdownドキュメントの自動修正"
+run = "markdownlint-cli2 --fix '**/*.md' '!node_modules' '!dist'"
+
+# === GitHub Actions ===
+[tasks."action:test"]
+description = "GitHub Actionをローカルでテスト実行"
+run = "act pull_request -W .github/workflows/test.yml"
+
+# === クリーンアップ ===
+[tasks.clean]
+description = "ビルド成果物とキャッシュをクリア"
+run = [
+  'rm -rf dist',
+  'rm -rf coverage',
+  'rm -rf node_modules/.cache',
+  'rm -rf .vitest',
+  'rm -f .eslintcache',
+  'rm -f .prettiercache'
+]
+
+[tasks."clean:full"]
+description = "完全クリーンアップ（node_modules含む）"
+run = [
+  'mise run clean',
+  'rm -rf node_modules',
+  'rm -f pnpm-lock.yaml'
+]
+
+
+# === コミット前チェック ===
+[tasks."pre-commit"]
+description = "コミット前の自動チェックと修正"
+run = [
+  "pnpm format",
+  "pnpm test:quick",
+  "pnpm test:vitest"
+]

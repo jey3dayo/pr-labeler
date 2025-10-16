@@ -1,0 +1,71 @@
+{
+  "name": "pr-metrics-action",
+  "version": "1.0.0",
+  "description": "GitHub Action to check file sizes and line counts in PRs, automatically apply labels for large files",
+  "author": "jey3dayo",
+  "license": "MIT",
+  "homepage": "https://github.com/jey3dayo/pr-metrics-action",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jey3dayo/pr-metrics-action.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.18.3",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "test": "run-p lint type-check test:vitest",
+    "test:vitest": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:quick": "run-p lint type-check",
+    "check": "run-p lint type-check format:check",
+    "check:all": "run-s check test:vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "format": "run-s lint:fix format:prettier",
+    "format:prettier": "prettier --write . --log-level warn",
+    "format:check": "prettier --check .",
+    "fix": "run-s fix:lint fix:format",
+    "fix:lint": "eslint . --fix",
+    "fix:format": "prettier --write . --log-level warn"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "@octokit/rest": "^22.0.0",
+    "bytes": "^3.1.2",
+    "minimatch": "^10.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/bytes": "^3.1.5",
+    "@types/minimatch": "^6.0.0",
+    "@types/node": "^24.7.2",
+    "@vercel/ncc": "^0.38.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.37.0",
+    "eslint-config-prettier": "^10.1.8",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vitest": "^3.2.4"
+  },
+  "keywords": [
+    "github-action",
+    "pr-metrics",
+    "file-size",
+    "code-review",
+    "pull-request",
+    "label",
+    "automation"
+  ]
+}
