@@ -283,4 +283,142 @@ jobs:
 
 ## Requirements
 
-<!-- Will be generated in /kiro:spec-requirements phase -->
+## 概要
+
+PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツールです。プルリクエストに含まれるファイルのサイズ、行数、ファイル数を監視し、設定した制限値を超えた場合に自動的にラベルを付与し、コメントを投稿することで、コードレビューの効率化と品質向上を支援します。
+
+### 主要機能
+
+- **ファイル数制限機能**: PRに含まれるファイル数の制限チェック機能
+- **ラベルプレフィックス**: すべての自動付与ラベルに`auto:`プレフィックスを使用（例：`auto:large-file`）
+- **除外パターン**: デフォルトで13種類のパターンを自動除外（lockファイル、minifiedファイル、ビルド成果物等）
+- **文書化**: README.mdに包括的な使用方法とカスタマイズ例を提供
+
+### 技術的決定事項
+
+- **エラーハンドリング**: neverthrowライブラリによるResult<T, E>パターンを採用
+  - 型安全なエラー処理
+  - エラーの見落とし防止
+  - 関数型プログラミングパターンの活用
+  - チェーン可能なエラー処理（map, mapErr, andThen等）
+
+## 要件
+
+### 要件1: ファイルメトリクス分析
+
+**目的:** レビュアーとして、PRに含まれる個々のファイルのサイズと行数を自動的に検証したい。これにより、レビューが困難な大きすぎるファイルを早期に発見できる。
+
+#### 受け入れ基準
+
+1. WHEN プルリクエストが作成または更新された THEN PR Metrics Action SHALL 変更されたすべてのファイルを特定する
+2. WHEN ファイルが特定された THEN PR Metrics Action SHALL 各ファイルのサイズ（バイト単位）を計測する
+3. WHEN ファイルが特定された THEN PR Metrics Action SHALL 各ファイルの行数を計測する
+4. IF ファイルのサイズが`file_size_limit`を超えている THEN PR Metrics Action SHALL そのファイルを制限超過として記録する
+5. IF ファイルの行数が`file_lines_limit`を超えている THEN PR Metrics Action SHALL そのファイルを制限超過として記録する
+6. WHEN サイズ計測時に`100KB`、`1.5MB`、`2GB`などの単位付き文字列が指定された THEN PR Metrics Action SHALL それをバイト単位に変換する
+7. WHERE ファイルがデフォルト除外パターンに一致する THE PR Metrics Action SHALL そのファイルを分析から除外する
+   - デフォルト除外パターン: `*.lock`、`package-lock.json`、`pnpm-lock.yaml`、`yarn.lock`、`bun.lockb`、`*.min.js`、`*.min.css`、`*.bundle.js`、`*.generated.*`、`*.d.ts`、`dist/**/*`、`build/**/*`、`.next/**/*`
+8. WHERE 追加の除外パターンが`additional_exclude_patterns`で指定されている THE PR Metrics Action SHALL そのパターンに一致するファイルも分析から除外する
+
+### 要件2: PR全体メトリクス分析
+
+**目的:** レビュアーとして、PR全体の規模を把握し、大きすぎるPRを識別したい。これにより、レビューの計画と優先順位付けができる。
+
+#### 受け入れ基準
+
+1. WHEN プルリクエストが分析される THEN PR Metrics Action SHALL PR全体で追加された行数の合計を計算する
+2. WHEN プルリクエストが分析される THEN PR Metrics Action SHALL 変更されたファイルの総数を計算する（除外パターン適用後）
+3. IF PR全体の追加行数が`pr_additions_limit`を超えている THEN PR Metrics Action SHALL PRを制限超過として記録する
+4. IF PR内のファイル数が`pr_files_limit`を超えている THEN PR Metrics Action SHALL PRを制限超過として記録する
+5. WHEN 分析が完了した THEN PR Metrics Action SHALL `total_additions`として総追加行数を出力する
+6. WHEN 分析が完了した THEN PR Metrics Action SHALL `total_files`として総ファイル数を出力する
+
+### 要件3: 自動ラベル管理
+
+**目的:** 開発者として、制限超過状態を視覚的に把握できるように、自動的にラベルが付与・削除されることを期待する。
+
+#### 受け入れ基準
+
+1. IF `apply_labels`がtrueに設定されている AND ファイルサイズまたは行数が制限を超えている THEN PR Metrics Action SHALL `large_file_label`（デフォルト: auto:large-file）を追加する
+2. IF `apply_labels`がtrueに設定されている AND PR全体の追加行数が制限を超えている THEN PR Metrics Action SHALL `large_pr_label`（デフォルト: auto:large-pr）を追加する
+3. IF `apply_labels`がtrueに設定されている AND PRのファイル数が制限を超えている THEN PR Metrics Action SHALL `too_many_files_label`（デフォルト: auto:too-many-files）を追加する
+4. IF `auto_remove_labels`がtrueに設定されている AND 制限超過が解消された THEN PR Metrics Action SHALL 対応するラベルを削除する
+5. WHEN ラベル操作を実行する THEN PR Metrics Action SHALL GitHub APIを使用してラベルの追加・削除を行う
+6. IF ラベルがすでに存在する THEN PR Metrics Action SHALL 重複してラベルを追加しない
+7. WHEN 分析完了時 THEN PR Metrics Action SHALL `has_large_files`、`has_large_pr`、`has_too_many_files`の状態を出力する
+
+### 要件4: PRコメント投稿
+
+**目的:** レビュアーとして、制限超過の詳細情報をPRコメントで確認したい。これにより、問題点を素早く把握できる。
+
+#### 受け入れ基準
+
+1. IF `comment_on_pr`が'auto'に設定されている AND 制限超過が存在する THEN PR Metrics Action SHALL 詳細レポートをコメントとして投稿する
+2. IF `comment_on_pr`が'always'に設定されている THEN PR Metrics Action SHALL 制限超過の有無に関わらずレポートを投稿する
+3. IF `comment_on_pr`が'never'に設定されている THEN PR Metrics Action SHALL コメントを投稿しない
+4. WHEN コメントを投稿する AND 既存のPR Metrics Actionコメントが存在する THEN PR Metrics Action SHALL 既存コメントを更新する（新規作成しない）
+5. WHEN 制限超過レポートを作成する THEN PR Metrics Action SHALL 超過ファイル一覧、追加行数、ファイル数を含める
+6. WHEN 制限超過レポートを作成する THEN PR Metrics Action SHALL 表形式で見やすく情報を表示する
+7. IF `auto_remove_labels`が有効 AND すべての制限超過が解消された THEN PR Metrics Action SHALL 成功メッセージと削除されたラベル一覧を表示する
+
+### 要件5: Draft PR処理
+
+**目的:** 開発者として、作業中のDraft PRでは不要なチェックをスキップしたい。これにより、開発中の無駄な通知を避けられる。
+
+#### 受け入れ基準
+
+1. IF `skip_draft_pr`がtrueに設定されている AND PRがDraftステータスである THEN PR Metrics Action SHALL すべてのチェックをスキップする
+2. WHEN Draft PRのチェックをスキップする THEN PR Metrics Action SHALL ログにスキップした旨を記録する
+3. IF Draft PRがReady for reviewに変更された THEN PR Metrics Action SHALL 通常のチェックを実行する
+
+### 要件6: ワークフロー制御
+
+**目的:** CI/CD管理者として、制限超過時にビルドを失敗させるオプションが欲しい。これにより、品質基準を強制できる。
+
+#### 受け入れ基準
+
+1. IF `fail_on_violation`がtrueに設定されている AND いずれかの制限超過が検出された THEN PR Metrics Action SHALL ワークフローを失敗ステータスで終了する
+2. IF `fail_on_violation`がfalseに設定されている THEN PR Metrics Action SHALL 制限超過があっても成功ステータスで終了する
+3. WHEN ワークフローが失敗する THEN PR Metrics Action SHALL エラーメッセージで失敗理由を明確に示す
+4. WHILE 処理を実行中 THE PR Metrics Action SHALL 進捗状況をログに出力する
+5. WHEN エラーが発生した THEN PR Metrics Action SHALL エラーの詳細をログに記録し、適切にエラーハンドリングする
+6. WHEN エラー処理を実装する THEN PR Metrics Action SHALL neverthrowのResult型を使用して型安全にエラーを扱う
+7. WHERE エラー型を定義する THE PR Metrics Action SHALL 以下の型を含める
+   - `FileAnalysisError`: ファイル分析時のエラー
+   - `GitHubAPIError`: GitHub API呼び出しエラー
+   - `ConfigurationError`: 設定値の検証エラー
+   - `ParseError`: サイズパースエラー
+   - `FileSystemError`: ファイル読み取りエラー
+
+### 要件7: GitHub Actions統合
+
+**目的:** 開発者として、標準的なGitHub Actions形式でこのツールを使用したい。これにより、既存のワークフローに簡単に統合できる。
+
+#### 受け入れ基準
+
+1. WHEN GitHub Actionsで実行される THEN PR Metrics Action SHALL `@actions/core`と`@actions/github`ライブラリを使用する
+2. WHEN 実行される THEN PR Metrics Action SHALL 必須パラメータ`github_token`を受け取る
+3. WHEN 結果をサマリーに出力する THEN PR Metrics Action SHALL `$GITHUB_STEP_SUMMARY`環境変数を使用する
+4. WHERE Node.js環境で実行される THE PR Metrics Action SHALL Node.js 20で動作する
+5. WHEN 複数回実行される THEN PR Metrics Action SHALL 冪等性を保証し、同じ結果を生成する
+
+### 要件8: 文書化（README.md）
+
+**目的:** ユーザーとして、このActionの使い方を理解し、簡単に導入できるような明確なドキュメントが欲しい。これにより、迅速に利用開始できる。
+
+#### 受け入れ基準
+
+1. WHEN README.mdが作成される THEN PR Metrics Action SHALL 以下のセクションを含む
+   - 概要説明とバッジ（CI状態、バージョン、ライセンス）
+   - 主要機能の一覧（ファイルサイズ、行数、ファイル数のチェック、自動ラベリング、コメント投稿）
+   - クイックスタート（最小限の設定例）
+   - 入力パラメータの詳細表（名前、デフォルト値、説明、必須/任意）
+   - 出力値の詳細表（名前、説明、値の例）
+   - 使用例（基本、カスタムラベル、制限値変更、Draft PRスキップ、ビルド失敗設定）
+   - 除外パターンの説明とカスタマイズ例
+   - トラブルシューティングガイド
+   - ライセンス情報（MIT）
+2. WHERE 設定例が提示される THE PR Metrics Action SHALL 実際に動作するYAMLコードを含める
+3. WHEN デフォルト値が説明される THEN PR Metrics Action SHALL auto:プレフィックスを持つラベル名を明記する
+4. WHERE 除外パターンが説明される THE PR Metrics Action SHALL デフォルトの除外パターンリストを完全に記載する
+5. WHEN 使用例を提示する THEN PR Metrics Action SHALL 最低5つの異なるユースケースを含める
