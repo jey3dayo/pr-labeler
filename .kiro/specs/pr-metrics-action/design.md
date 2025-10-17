@@ -294,6 +294,7 @@ interface PullRequestInfo {
   pullNumber: number;
   baseSha: string;
   headSha: string;
+  isDraft?: boolean;  // Draft PRステータス
 }
 
 // ファイル差分情報
@@ -875,7 +876,8 @@ type AppError =
   | FileSystemError
   | ViolationError    // 追加
   | DiffError         // 追加
-  | PatternError;     // 追加
+  | PatternError      // 追加
+  | CacheError;       // 追加
 
 interface FileAnalysisError {
   type: 'FileAnalysisError';
@@ -923,6 +925,12 @@ interface DiffError {
 interface PatternError {
   type: 'PatternError';
   pattern: string;
+  message: string;
+}
+
+interface CacheError {
+  type: 'CacheError';
+  key?: string;
   message: string;
 }
 ```
@@ -1475,8 +1483,21 @@ export function extractPullRequestInfo(context: Context): PullRequestInfo {
     repo: context.repo.repo,
     pullNumber: context.issue.number,
     baseSha: context.payload.pull_request.base.sha,
-    headSha: context.payload.pull_request.head.sha
+    headSha: context.payload.pull_request.head.sha,
+    isDraft: context.payload.pull_request.draft || false
   };
+}
+
+// Draft PRチェック
+export function shouldSkipDraftPR(
+  isDraft: boolean,
+  config: Config
+): boolean {
+  if (config.skipDraftPr && isDraft) {
+    core.info('Skipping Draft PR analysis as configured');
+    return true;
+  }
+  return false;
 }
 
 // 冪等性保証付きラベル更新

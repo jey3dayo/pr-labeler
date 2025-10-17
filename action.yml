@@ -2,8 +2,8 @@ name: "PR Metrics Action"
 description: "Check file sizes and line counts in PRs, automatically apply labels for large files"
 author: "jey3dayo"
 branding:
-  icon: "check-circle"
-  color: "green"
+  icon: "file-text"
+  color: "purple"
 
 inputs:
   # 基本制限

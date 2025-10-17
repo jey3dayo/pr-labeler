@@ -39,7 +39,7 @@ description: 'Check file sizes and line counts in PRs, automatically apply label
 author: 'jey3dayo'
 branding:
   icon: 'file-text'
-  color: 'orange'
+  color: 'purple'
 
 inputs:
   # 基本制限
