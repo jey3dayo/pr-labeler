@@ -312,6 +312,7 @@ All files are within limits now.
     "bytes": "^3.1.2",
     "neverthrow": "^8.2.0"
   },
+  "注": "バイナリファイル判定は拡張子ベースの判定を推奨（design.md参照）。istextorbinaryライブラリは任意の依存関係として追加可能",
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@types/bytes": "^3.1.5",

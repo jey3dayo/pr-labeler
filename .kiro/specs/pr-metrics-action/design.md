@@ -328,23 +328,43 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
         (error) => ({ type: 'FileSystemError' as const, message: String(error) })
       ).map(parseGitDiff);
 
-    const fetchFromAPI: FetchFromAPI = (pr, octokit) =>
-      // GitHub API: pulls.listFiles（フォールバック）
-      ResultAsync.fromPromise(
-        octokit.rest.pulls.listFiles({
-          owner: pr.owner,
-          repo: pr.repo,
-          pull_number: pr.pullNumber,
-          per_page: 100
-        }),
-        (error) => ({ type: 'GitHubAPIError' as const, message: String(error) })
-      ).map(response => response.data.map(file => ({
-        filename: file.filename,
-        additions: file.additions,
-        deletions: file.deletions,
-        changes: file.changes,
-        status: file.status as FileDiff['status']
-      })));
+    const fetchFromAPI: FetchFromAPI = async (pr, octokit) => {
+      // GitHub API: pulls.listFiles with pagination（フォールバック）
+      const allFiles: FileDiff[] = [];
+      let page = 1;
+      const maxPages = 10;  // 最大1000ファイル（100件/ページ × 10ページ）
+
+      while (page <= maxPages) {
+        const result = await ResultAsync.fromPromise(
+          octokit.rest.pulls.listFiles({
+            owner: pr.owner,
+            repo: pr.repo,
+            pull_number: pr.pullNumber,
+            per_page: 100,
+            page
+          }),
+          (error) => ({ type: 'GitHubAPIError' as const, message: String(error) })
+        );
+
+        if (result.isErr()) return result;
+
+        const files = result.value.data.map(file => ({
+          filename: file.filename,
+          additions: file.additions,
+          deletions: file.deletions,
+          changes: file.changes,
+          status: file.status as FileDiff['status']
+        }));
+
+        allFiles.push(...files);
+
+        // ページネーション終了条件: 取得件数がper_page未満なら最終ページ
+        if (result.value.data.length < 100) break;
+        page++;
+      }
+
+      return okAsync(allFiles);
+    };
 
     // ローカル優先、APIフォールバック
     // フォールバック条件:
@@ -868,16 +888,17 @@ neverthrowのResult<T, E>パターンを全面採用し、Railway-Oriented Progr
 **エラー型定義**:
 
 ```typescript
+// AppError統合型（9種類のエラー型）
 type AppError =
-  | FileAnalysisError
-  | GitHubAPIError
-  | ConfigurationError
-  | ParseError
-  | FileSystemError
-  | ViolationError    // 追加
-  | DiffError         // 追加
-  | PatternError      // 追加
-  | CacheError;       // 追加
+  | FileAnalysisError      // 1. ファイル分析エラー
+  | GitHubAPIError         // 2. GitHub API呼び出しエラー
+  | ConfigurationError     // 3. 設定値検証エラー
+  | ParseError             // 4. パースエラー（サイズ、JSON等）
+  | FileSystemError        // 5. ファイルシステムエラー
+  | ViolationError         // 6. 制限違反検出エラー
+  | DiffError              // 7. 差分取得エラー
+  | PatternError           // 8. パターン検証エラー
+  | CacheError;            // 9. キャッシュ操作エラー
 
 interface FileAnalysisError {
   type: 'FileAnalysisError';
