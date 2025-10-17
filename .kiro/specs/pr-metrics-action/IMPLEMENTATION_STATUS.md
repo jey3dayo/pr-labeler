@@ -124,11 +124,29 @@ When implementation work resumes, follow this priority order:
 
 ## Build Artifact Status
 
-**dist/index.js**: Not yet generated
+**dist/index.js**: ✅ Generated and committed
 
-The specification defines `runs.main: dist/index.js` requiring @vercel/ncc build output. This file must be committed for the action to work.
+### Distribution Strategy: Commit Build Artifacts (Approach A)
 
-Build command: `pnpm build` (see requirements.md:296)
+The project follows the standard GitHub Actions distribution pattern by committing build artifacts to the repository.
+
+**Implementation Details**:
+
+1. **Build Output**: `dist/index.js` (1105kB bundled via @vercel/ncc)
+2. **Git Configuration**: Removed `dist/` from `.gitignore`
+3. **CI Automation**: `.github/workflows/quality.yml` includes:
+   - Build step: `pnpm build` after tests
+   - Auto-commit: Commits `dist/` on push to `main`/`develop` branches
+   - Commit message: `chore: update dist [skip ci]` to prevent CI loops
+
+**Build Command**: `pnpm build` (see requirements.md:296)
+
+**Rationale**: This approach provides:
+
+- Fast execution (pre-bundled dependencies)
+- Standard GitHub Actions pattern
+- No runtime build overhead
+- Dependency resolution at build time
 
 ## References
 
