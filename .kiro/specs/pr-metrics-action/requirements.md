@@ -71,15 +71,20 @@ inputs:
     required: false
     default: 'true'
 
-  large_file_label:
-    description: 'Label for large files'
+  apply_size_labels:
+    description: 'Apply size labels (size/S, size/M, size/L, size/XL)'
     required: false
-    default: 'auto:large-file'
+    default: 'true'
 
-  large_pr_label:
-    description: 'Label for large PRs'
+  size_label_thresholds:
+    description: 'JSON string for size label thresholds'
     required: false
-    default: 'auto:large-pr'
+    default: '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}'
+
+  large_files_label:
+    description: 'Label for files exceeding size or line limits'
+    required: false
+    default: 'auto:large-files'
 
   too_many_files_label:
     description: 'Label for PRs with too many files'
@@ -114,16 +119,22 @@ inputs:
     default: ${{ github.token }}
 
 outputs:
-  has_large_files:
-    description: 'Whether any files exceed limits'
-  has_large_pr:
-    description: 'Whether PR exceeds additions limit'
-  has_too_many_files:
-    description: 'Whether PR has too many files'
-  total_additions:
-    description: 'Total lines added'
-  total_files:
+  large_files:
+    description: 'JSON array of files exceeding size or line limits'
+  pr_additions:
+    description: 'Total lines added in PR'
+  pr_files:
     description: 'Total number of files in PR'
+  exceeds_file_size:
+    description: 'Whether any file exceeds size limit ("true" | "false")'
+  exceeds_file_lines:
+    description: 'Whether any file exceeds line limit ("true" | "false")'
+  exceeds_additions:
+    description: 'Whether PR exceeds total additions limit ("true" | "false")'
+  exceeds_file_count:
+    description: 'Whether PR exceeds file count limit ("true" | "false")'
+  has_violations:
+    description: 'Whether any violation exists ("true" | "false")'
 
 runs:
   using: 'node20'
@@ -136,19 +147,58 @@ runs:
 
 ```javascript
 const DEFAULT_EXCLUDES = [
+  // パッケージマネージャー
   '*.lock',
   'package-lock.json',
-  'pnpm-lock.yaml',
   'yarn.lock',
+  'pnpm-lock.yaml',
   'bun.lockb',
+
+  // 依存関係ディレクトリ
+  'node_modules/**',
+  'vendor/**',
+  '.yarn/**',
+  '.pnp.*',
+
+  // ビルド成果物
+  'dist/**',
+  'build/**',
+  'out/**',
   '*.min.js',
   '*.min.css',
   '*.bundle.js',
+
+  // 自動生成
   '*.generated.*',
+  '**/generated/**',
+
+  // TypeScript定義
   '*.d.ts',
-  'dist/**/*',
-  'build/**/*',
-  '.next/**/*'
+  '*.d.ts.map',
+
+  // IDE/エディタ
+  '.idea/**',
+  '.vscode/**',
+  '*.swp',
+  '*.swo',
+  '*~',
+
+  // システムファイル
+  '.git/**',
+  '.DS_Store',
+  'Thumbs.db',
+
+  // フレームワーク固有
+  '.next/**',
+  '.nuxt/**',
+  '.turbo/**',
+  '.svelte-kit/**',
+
+  // その他
+  '*.map',
+  '*.map.json',
+  'coverage/**',
+  '.cache/**'
 ];
 ```
 
@@ -171,10 +221,12 @@ parseSize('2GB')     // 2147483648
 
 #### 4. ラベル管理
 
-- apply_labels: trueの場合のみラベル操作
+- apply_labels: trueの場合、詳細問題ラベルを操作
+- apply_size_labels: trueの場合、PRサイズラベル（size/S, size/M, size/L, size/XL）を自動付与
 - auto_remove_labels: trueの場合、limit以下になったらラベル削除
 - GitHub APIでラベルの追加/削除
-- 対象ラベル: auto:large-file, auto:large-pr, auto:too-many-files
+- 詳細ラベル: auto:large-files, auto:too-many-files
+- サイズラベル: size/S, size/M, size/L, size/XL（総合判定）
 
 #### 5. コメント投稿
 
@@ -205,8 +257,8 @@ parseSize('2GB')     // 2147483648
 | `src/components/Dashboard.tsx` | 823 ⚠️ | 142KB ⚠️ |
 
 ### Labels Applied
-- `auto:large-file`
-- `auto:large-pr`
+- `size/XL` (PR size)
+- `auto:large-files`
 - `auto:too-many-files`
 ```
 
@@ -218,9 +270,9 @@ parseSize('2GB')     // 2147483648
 All files are within limits now.
 
 ### Labels Removed
-- Removed `auto:large-file`
-- Removed `auto:large-pr`
+- Removed `auto:large-files`
 - Removed `auto:too-many-files`
+- Updated size label to `size/M`
 ```
 
 ### package.json
@@ -238,7 +290,8 @@ All files are within limits now.
     "@actions/github": "^6.0.0",
     "@octokit/rest": "^20.0.0",
     "minimatch": "^9.0.0",
-    "bytes": "^3.1.2"
+    "bytes": "^3.1.2",
+    "neverthrow": "^8.2.0"
   }
 }
 ```
@@ -291,7 +344,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 
 - **ファイル数制限機能**: PRに含まれるファイル数の制限チェック機能
 - **ラベルプレフィックス**: すべての自動付与ラベルに`auto:`プレフィックスを使用（例：`auto:large-file`）
-- **除外パターン**: デフォルトで13種類のパターンを自動除外（lockファイル、minifiedファイル、ビルド成果物等）
+- **除外パターン**: デフォルトで40種類以上のパターンを自動除外（lockファイル、minifiedファイル、ビルド成果物、node_modules、IDEファイル等）
 - **文書化**: README.mdに包括的な使用方法とカスタマイズ例を提供
 
 ### 技術的決定事項
@@ -317,7 +370,16 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 5. IF ファイルの行数が`file_lines_limit`を超えている THEN PR Metrics Action SHALL そのファイルを制限超過として記録する
 6. WHEN サイズ計測時に`100KB`、`1.5MB`、`2GB`などの単位付き文字列が指定された THEN PR Metrics Action SHALL それをバイト単位に変換する
 7. WHERE ファイルがデフォルト除外パターンに一致する THE PR Metrics Action SHALL そのファイルを分析から除外する
-   - デフォルト除外パターン: `*.lock`、`package-lock.json`、`pnpm-lock.yaml`、`yarn.lock`、`bun.lockb`、`*.min.js`、`*.min.css`、`*.bundle.js`、`*.generated.*`、`*.d.ts`、`dist/**/*`、`build/**/*`、`.next/**/*`
+   - デフォルト除外パターン（完全リスト）:
+     - パッケージマネージャー: `*.lock`、`package-lock.json`、`yarn.lock`、`pnpm-lock.yaml`、`bun.lockb`
+     - 依存関係: `node_modules/**`、`vendor/**`、`.yarn/**`、`.pnp.*`
+     - ビルド成果物: `dist/**`、`build/**`、`out/**`、`*.min.js`、`*.min.css`、`*.bundle.js`
+     - 自動生成: `*.generated.*`、`**/generated/**`
+     - TypeScript: `*.d.ts`、`*.d.ts.map`
+     - IDE/エディタ: `.idea/**`、`.vscode/**`、`*.swp`、`*.swo`、`*~`
+     - システム: `.git/**`、`.DS_Store`、`Thumbs.db`
+     - フレームワーク: `.next/**`、`.nuxt/**`、`.turbo/**`、`.svelte-kit/**`
+     - その他: `*.map`、`*.map.json`、`coverage/**`、`.cache/**`
 8. WHERE 追加の除外パターンが`additional_exclude_patterns`で指定されている THE PR Metrics Action SHALL そのパターンに一致するファイルも分析から除外する
 
 ### 要件2: PR全体メトリクス分析
@@ -330,8 +392,8 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 2. WHEN プルリクエストが分析される THEN PR Metrics Action SHALL 変更されたファイルの総数を計算する（除外パターン適用後）
 3. IF PR全体の追加行数が`pr_additions_limit`を超えている THEN PR Metrics Action SHALL PRを制限超過として記録する
 4. IF PR内のファイル数が`pr_files_limit`を超えている THEN PR Metrics Action SHALL PRを制限超過として記録する
-5. WHEN 分析が完了した THEN PR Metrics Action SHALL `total_additions`として総追加行数を出力する
-6. WHEN 分析が完了した THEN PR Metrics Action SHALL `total_files`として総ファイル数を出力する
+5. WHEN 分析が完了した THEN PR Metrics Action SHALL `pr_additions`として総追加行数を出力する
+6. WHEN 分析が完了した THEN PR Metrics Action SHALL `pr_files`として総ファイル数を出力する
 
 ### 要件3: 自動ラベル管理
 
@@ -339,13 +401,25 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 
 #### 受け入れ基準
 
-1. IF `apply_labels`がtrueに設定されている AND ファイルサイズまたは行数が制限を超えている THEN PR Metrics Action SHALL `large_file_label`（デフォルト: auto:large-file）を追加する
-2. IF `apply_labels`がtrueに設定されている AND PR全体の追加行数が制限を超えている THEN PR Metrics Action SHALL `large_pr_label`（デフォルト: auto:large-pr）を追加する
-3. IF `apply_labels`がtrueに設定されている AND PRのファイル数が制限を超えている THEN PR Metrics Action SHALL `too_many_files_label`（デフォルト: auto:too-many-files）を追加する
+1. IF `apply_labels`がtrueに設定されている AND ファイルサイズまたは行数が制限を超えている THEN PR Metrics Action SHALL `large_files_label`（デフォルト: auto:large-files）を追加する
+2. IF `apply_labels`がtrueに設定されている AND PRのファイル数が制限を超えている THEN PR Metrics Action SHALL `too_many_files_label`（デフォルト: auto:too-many-files）を追加する
+3. IF `apply_size_labels`がtrueに設定されている THEN PR Metrics Action SHALL PR全体のサイズに基づいて適切なサイズラベル（size/S, size/M, size/L, size/XL）を追加する
 4. IF `auto_remove_labels`がtrueに設定されている AND 制限超過が解消された THEN PR Metrics Action SHALL 対応するラベルを削除する
 5. WHEN ラベル操作を実行する THEN PR Metrics Action SHALL GitHub APIを使用してラベルの追加・削除を行う
 6. IF ラベルがすでに存在する THEN PR Metrics Action SHALL 重複してラベルを追加しない
-7. WHEN 分析完了時 THEN PR Metrics Action SHALL `has_large_files`、`has_large_pr`、`has_too_many_files`の状態を出力する
+7. WHEN サイズラベルを適用する THEN PR Metrics Action SHALL `size_label_thresholds`の閾値に基づいて判定する
+   - size/S: additions ≤ 100 AND files ≤ 10
+   - size/M: additions ≤ 500 AND files ≤ 30
+   - size/L: additions ≤ 1000 AND files ≤ 50
+   - size/XL: 上記を超える場合
+8. WHEN サイズラベルが変更される THEN PR Metrics Action SHALL 古いサイズラベルを削除し新しいラベルを追加する
+9. WHEN 分析完了時 THEN PR Metrics Action SHALL 以下の状態を出力する:
+   - `exceeds_file_size`: ファイルサイズ制限超過の有無
+   - `exceeds_file_lines`: ファイル行数制限超過の有無
+   - `exceeds_additions`: PR追加行数制限超過の有無
+   - `exceeds_file_count`: PRファイル数制限超過の有無
+   - `has_violations`: いずれかの違反の有無
+   - `large_files`: 制限超過ファイルのJSON配列（詳細情報含む）
 
 ### 要件4: PRコメント投稿
 
@@ -389,6 +463,9 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
    - `ConfigurationError`: 設定値の検証エラー
    - `ParseError`: サイズパースエラー
    - `FileSystemError`: ファイル読み取りエラー
+   - `ViolationError`: 制限違反検出時のエラー
+   - `DiffError`: 差分取得エラー
+   - `PatternError`: パターン検証エラー
 
 ### 要件7: GitHub Actions統合
 

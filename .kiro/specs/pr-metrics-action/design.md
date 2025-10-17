@@ -125,25 +125,207 @@ sequenceDiagram
 **依存関係**
 
 - **インバウンド**: GitHub Actions Runtime
-- **アウトバウンド**: FileAnalyzer, LabelManager, CommentManager
+- **アウトバウンド**: InputMapper, FileAnalyzer, LabelManager, CommentManager
 - **外部**: @actions/core, @actions/github
 
 **サービスインターフェース**
 
 ```typescript
-interface PRMetricsAction {
-  run(): Promise<Result<void, ActionError>>;
-  validateConfig(inputs: ActionInputs): Result<ValidatedConfig, ConfigurationError>;
-  setOutputs(metrics: PRMetrics): void;
+// 関数型インターフェース
+type RunAction = () => Promise<Result<void, AppError>>;
+type ValidateConfig = (inputs: ActionInputs) => Result<ValidatedConfig, ConfigurationError>;
+type SetOutputs = (metrics: PRMetrics) => void;
+
+// 出力契約
+interface ActionOutputs {
+  large_files: string;         // JSON配列: サイズまたは行数制限を超えたファイル
+  pr_additions: string;        // PR全体の追加行数
+  pr_files: string;           // PR全体のファイル数
+  exceeds_file_size: string;  // いずれかのファイルがサイズ制限超過 ("true" | "false")
+  exceeds_file_lines: string; // いずれかのファイルが行数制限超過（ファイル単位） ("true" | "false")
+  exceeds_additions: string;  // PR全体の追加行数が制限超過 ("true" | "false")
+  exceeds_file_count: string; // PR全体のファイル数が制限超過 ("true" | "false")
+  has_violations: string;     // いずれかの違反が存在 ("true" | "false")
+}
+```
+
+#### InputMapper
+
+**責任と境界**
+
+- **主要責任**: action.ymlのsnake_case入力を内部のcamelCase設定に変換
+- **ドメイン境界**: アダプター層
+- **データ所有権**: パラメータマッピングルール
+- **トランザクション境界**: ステートレス変換
+
+**サービスインターフェース**
+
+```typescript
+// 関数型インターフェース
+type MapActionInputsToConfig = (inputs: ActionInputs) => Result<Config, ConfigurationError>;
+
+// 変換ルール
+const parseBoolean = (value: string, fieldName: string): boolean => {
+  const normalized = value.trim().toLowerCase();
+  // 許容値: true, 1, yes, on（大文字小文字不問、前後空白許容）
+  return ['true', '1', 'yes', 'on'].includes(normalized);
+};
+
+const parseExcludePatterns = (value: string): string[] => {
+  // カンマまたは改行で分割、空白トリム、空要素除去
+  return value
+    .split(/[,\n]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+};
+
+const parseCommentMode = (value: string): 'auto' | 'always' | 'never' => {
+  const normalized = value.trim().toLowerCase();
+  if (['always', 'never'].includes(normalized)) return normalized as 'always' | 'never';
+  return 'auto'; // デフォルト
+};
+
+const parseSizeThresholds = (value: string): Result<SizeThresholds, ParseError> => {
+  try {
+    const parsed = JSON.parse(value);
+    // 基本的な検証
+    if (!parsed.S || !parsed.M || !parsed.L) {
+      return err({ type: 'ParseError', input: value, message: 'Missing required size thresholds' });
+    }
+    return ok(parsed as SizeThresholds);
+  } catch (error) {
+    return err({ type: 'ParseError', input: value, message: 'Invalid JSON for size thresholds' });
+  }
+};
+
+// action.ymlの入力形式（snake_case）
+interface ActionInputs {
+  file_size_limit: string;
+  file_lines_limit: string;
+  pr_additions_limit: string;
+  pr_files_limit: string;
+  apply_labels: string;
+  auto_remove_labels: string;
+  apply_size_labels: string;
+  size_label_thresholds: string;
+  large_files_label: string;
+  too_many_files_label: string;
+  skip_draft_pr: string;
+  comment_on_pr: string;
+  fail_on_violation: string;
+  additional_exclude_patterns: string;
+  github_token: string;
 }
 
-type ActionError =
-  | ConfigurationError
-  | FileAnalysisError
-  | GitHubAPIError;
+// 内部設定形式（camelCase、パース済み）
+interface Config {
+  fileSizeLimit: number;      // バイト数に変換済み（SizeParser使用）
+  fileLinesLimit: number;      // 数値に変換済み
+  prAdditionsLimit: number;    // 数値に変換済み
+  prFilesLimit: number;        // 数値に変換済み
+  applyLabels: boolean;
+  autoRemoveLabels: boolean;
+  applySizeLabels: boolean;
+  sizeThresholds: SizeThresholds;  // パース済みのサイズ閾値
+  largeFilesLabel: string;
+  tooManyFilesLabel: string;
+  skipDraftPr: boolean;
+  commentOnPr: 'auto' | 'always' | 'never';
+  failOnViolation: boolean;
+  additionalExcludePatterns: string[];  // 検証済みパターンのみ含む
+  githubToken: string;
+}
+
+// サイズ閾値の型定義
+interface SizeThresholds {
+  S: { additions: number; files: number };
+  M: { additions: number; files: number };
+  L: { additions: number; files: number };
+}
 ```
 
 ### Analysis Layer
+
+#### DiffStrategy
+
+**責任と境界**
+
+- **主要責任**: PR差分の取得と正規化
+- **ドメイン境界**: データ取得層
+- **データ所有権**: 差分データの取得方法
+- **トランザクション境界**: API呼び出しまたはgit操作単位
+
+**依存関係**
+
+- **インバウンド**: FileAnalyzer
+- **アウトバウンド**: なし
+- **外部**: @octokit/rest（API優先）、child_process（gitフォールバック）
+
+**サービスインターフェース**
+
+```typescript
+// PR情報
+interface PullRequestInfo {
+  owner: string;
+  repo: string;
+  pullNumber: number;
+  baseSha: string;
+  headSha: string;
+}
+
+// ファイル差分情報
+interface FileDiff {
+  filename: string;
+  additions: number;
+  deletions: number;
+  changes: number;
+  status: 'added' | 'removed' | 'modified' | 'renamed';
+}
+
+// API優先アプローチ（推奨）
+type FetchFromAPI = (pr: PullRequestInfo, octokit: Octokit) => ResultAsync<FileDiff[], GitHubAPIError>;
+type FetchFromGit = (pr: PullRequestInfo) => ResultAsync<FileDiff[], FileSystemError>;
+
+// DiffStrategy インターフェース
+type CreateDiffStrategy = (octokit: Octokit) => {
+  fetchDiff: (pr: PullRequestInfo) => ResultAsync<FileDiff[], DiffError>;
+};
+
+const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
+  fetchDiff: (pr) => {
+    const fetchFromAPI: FetchFromAPI = (pr, octokit) =>
+      // GitHub API: pulls.listFiles
+      ResultAsync.fromPromise(
+        octokit.rest.pulls.listFiles({
+          owner: pr.owner,
+          repo: pr.repo,
+          pull_number: pr.pullNumber,
+          per_page: 100
+        }),
+        (error) => ({ type: 'GitHubAPIError' as const, message: String(error) })
+      ).map(response => response.data.map(file => ({
+        filename: file.filename,
+        additions: file.additions,
+        deletions: file.deletions,
+        changes: file.changes,
+        status: file.status as FileDiff['status']
+      })));
+
+    const fetchFromGit: FetchFromGit = (pr) =>
+      // git diff --numstat base...head
+      ResultAsync.fromPromise(
+        exec(`git diff --numstat ${pr.baseSha}...${pr.headSha}`),
+        (error) => ({ type: 'FileSystemError' as const, message: String(error) })
+      ).map(parseGitDiff);
+
+    return fetchFromAPI(pr, octokit)
+      .orElse(() => {
+        core.warning('GitHub API failed, falling back to git commands');
+        return fetchFromGit(pr);
+      });
+  }
+});
+```
 
 #### FileAnalyzer
 
@@ -157,23 +339,23 @@ type ActionError =
 **依存関係**
 
 - **インバウンド**: PRMetricsAction
-- **アウトバウンド**: SizeParser, PatternMatcher
-- **外部**: fs/promises, child_process (git commands)
+- **アウトバウンド**: SizeParser, PatternMatcher, DiffStrategy
+- **外部**: fs/promises（ファイルサイズ取得）
 
 **サービスインターフェース**
 
 ```typescript
-interface FileAnalyzer {
-  analyzeFiles(
-    files: string[],
-    config: AnalysisConfig
-  ): ResultAsync<FileMetrics, FileAnalysisError>;
+// 関数型インターフェース
+type AnalyzeFiles = (
+  pr: PullRequestInfo,
+  config: AnalysisConfig,
+  diffStrategy: DiffStrategy
+) => ResultAsync<FileMetrics, FileAnalysisError>;
 
-  checkViolations(
-    metrics: FileMetrics,
-    limits: LimitConfig
-  ): Result<Violations, never>;
-}
+type CheckViolations = (
+  metrics: FileMetrics,
+  limits: LimitConfig
+) => Result<Violations, never>;
 
 interface FileMetrics {
   files: FileInfo[];
@@ -188,6 +370,25 @@ interface FileInfo {
   additions: number;
   deletions: number;
 }
+
+// 違反の優先度定義
+interface Violations {
+  largeFiles: ViolationDetail[];      // 優先度1: ファイルサイズ違反
+  exceedsFileLines: ViolationDetail[]; // 優先度2: ファイル行数違反
+  exceedsAdditions: boolean;          // 優先度3: PR追加行数違反
+  exceedsFileCount: boolean;          // 優先度4: ファイル数違反
+}
+
+// 違反表示順序を取得する関数
+type GetPrioritizedViolationList = (violations: Violations) => ViolationSummary[];
+
+interface ViolationDetail {
+  file: string;
+  actualValue: number;              // 実際の値（サイズまたは行数）
+  limit: number;
+  violationType: 'size' | 'lines';  // 違反タイプ
+  severity: 'critical' | 'warning';
+}
 ```
 
 #### SizeParser
@@ -201,12 +402,11 @@ interface FileInfo {
 **サービスインターフェース**
 
 ```typescript
-interface SizeParser {
-  parse(input: string): Result<number, ParseError>;
-  // "100KB" -> 102400
-  // "1.5MB" -> 1572864
-  // "500000" -> 500000
-}
+// 関数型インターフェース
+type ParseSize = (input: string) => Result<number, ParseError>;
+// "100KB" -> 102400
+// "1.5MB" -> 1572864
+// "500000" -> 500000
 ```
 
 #### PatternMatcher
@@ -216,19 +416,125 @@ interface SizeParser {
 - **主要責任**: ファイルパスが除外パターンに一致するか判定
 - **ドメイン境界**: ユーティリティ層
 - **データ所有権**: デフォルト除外パターンリスト
+- **パターン正規化**: globパターンの標準化とバリデーション
+
+**除外パターン仕様**
+
+```typescript
+// デフォルト除外パターン（ハードコード）
+const DEFAULT_PATTERNS = [
+  // パッケージマネージャー
+  '*.lock',
+  'package-lock.json',
+  'yarn.lock',
+  'pnpm-lock.yaml',
+  'bun.lockb',
+
+  // 依存関係ディレクトリ
+  'node_modules/**',
+  'vendor/**',
+  '.yarn/**',
+  '.pnp.*',
+
+  // ビルド成果物
+  'dist/**',
+  'build/**',
+  'out/**',
+  '*.min.js',
+  '*.min.css',
+  '*.bundle.js',
+
+  // 自動生成
+  '*.generated.*',
+  '**/generated/**',
+
+  // TypeScript定義
+  '*.d.ts',
+  '*.d.ts.map',
+
+  // IDE/エディタ
+  '.idea/**',
+  '.vscode/**',
+  '*.swp',
+  '*.swo',
+  '*~',
+
+  // システムファイル
+  '.git/**',
+  '.DS_Store',
+  'Thumbs.db',
+
+  // フレームワーク固有
+  '.next/**',
+  '.nuxt/**',
+  '.turbo/**',
+  '.svelte-kit/**',
+
+  // その他
+  '*.map',
+  '*.map.json',
+  'coverage/**',
+  '.cache/**'
+];
+```
 
 **サービスインターフェース**
 
 ```typescript
-interface PatternMatcher {
-  isExcluded(
-    filePath: string,
-    patterns: string[]
-  ): boolean;
+// 関数型インターフェース
+// パス正規化（OS非依存）
+type NormalizePath = (path: string) => string;
 
-  getDefaultPatterns(): string[];
-  // Returns: ["*.lock", "*.min.js", "dist/**/*", etc.]
-}
+const normalizePath: NormalizePath = (path) => {
+  return path
+    .replace(/^\/+/, '')      // 先頭スラッシュ除去
+    .replace(/\/+/g, '/')     // 重複スラッシュ除去
+    .replace(/\\/g, '/');     // Windows パス区切り統一
+};
+
+// パターンマッチング（minimatch使用）
+type IsExcluded = (
+  filePath: string,
+  patterns: string[]
+) => boolean;
+
+const isExcluded: IsExcluded = (filePath, patterns) => {
+  const normalizedPath = normalizePath(filePath);
+  return patterns.some(pattern =>
+    minimatch(normalizedPath, normalizePattern(pattern))
+  );
+};
+
+// パターンの正規化
+type NormalizePattern = (pattern: string) => string;
+
+const normalizePattern: NormalizePattern = (pattern) => {
+  return pattern
+    .trim()
+    .replace(/^\/+/, '')      // 先頭スラッシュ除去
+    .replace(/\/+/g, '/')     // 重複スラッシュ除去
+    .replace(/\\/g, '/');     // Windows パス区切り統一
+};
+
+// デフォルトパターン取得
+type GetDefaultPatterns = () => string[];
+
+// パターン検証
+type ValidatePattern = (pattern: string) => Result<string, PatternError>;
+
+const validatePattern: ValidatePattern = (pattern) => {
+  try {
+    // minimatchによる構文チェック
+    new minimatch.Minimatch(pattern);
+    return ok(normalizePattern(pattern));
+  } catch (error) {
+    return err({
+      type: 'PatternError' as const,
+      pattern,
+      message: `Invalid glob pattern: ${pattern}`
+    });
+  }
+};
 ```
 
 ### Integration Layer
@@ -251,17 +557,38 @@ interface PatternMatcher {
 **サービスインターフェース**
 
 ```typescript
-interface LabelManager {
-  applyLabels(
-    violations: Violations,
-    config: LabelConfig
-  ): ResultAsync<LabelResult, GitHubAPIError>;
+// 関数型インターフェース
+type ApplyLabels = (
+  violations: Violations,
+  metrics: PRMetrics,
+  config: LabelConfig
+) => ResultAsync<LabelResult, GitHubAPIError>;
 
-  removeLabels(
-    labels: string[],
-    config: LabelConfig
-  ): ResultAsync<void, GitHubAPIError>;
-}
+type RemoveLabels = (
+  labels: string[],
+  config: LabelConfig
+) => ResultAsync<void, GitHubAPIError>;
+
+// PRサイズ判定
+type DeterminePRSize = (
+  metrics: PRMetrics,
+  thresholds: SizeThresholds
+) => 'S' | 'M' | 'L' | 'XL';
+
+const determinePRSize: DeterminePRSize = (metrics, thresholds) => {
+  const { totalAdditions, totalFiles } = metrics;
+
+  if (totalAdditions <= thresholds.S.additions && totalFiles <= thresholds.S.files) {
+    return 'S';
+  }
+  if (totalAdditions <= thresholds.M.additions && totalFiles <= thresholds.M.files) {
+    return 'M';
+  }
+  if (totalAdditions <= thresholds.L.additions && totalFiles <= thresholds.L.files) {
+    return 'L';
+  }
+  return 'XL';
+};
 
 interface LabelResult {
   added: string[];
@@ -285,18 +612,66 @@ interface LabelResult {
 - **アウトバウンド**: CommentFormatter
 - **外部**: @octokit/rest
 
+**コメント識別仕様**
+
+```typescript
+// HTMLコメントによる署名
+const COMMENT_SIGNATURE = '<!-- pr-metrics-action -->';
+
+// コメントフォーマット
+const formatComment = (metrics: FileMetrics, violations: Violations): string => {
+  return `${COMMENT_SIGNATURE}
+## 📊 PR Metrics Report
+
+${formatViolations(violations)}
+${formatSummary(metrics)}
+
+<details>
+<summary>📋 詳細</summary>
+
+${formatDetails(metrics)}
+
+</details>
+
+---
+_Generated by [PR Metrics Action](https://github.com/jey3dayo/pr-metrics-action)_
+`;
+};
+```
+
 **サービスインターフェース**
 
 ```typescript
-interface CommentManager {
-  postOrUpdateComment(
-    metrics: FileMetrics,
-    violations: Violations,
-    config: CommentConfig
-  ): ResultAsync<void, GitHubAPIError>;
+// 関数型インターフェース
+type PostOrUpdateComment = (
+  metrics: FileMetrics,
+  violations: Violations,
+  config: CommentConfig
+) => ResultAsync<void, GitHubAPIError>;
 
-  findExistingComment(): ResultAsync<number | null, GitHubAPIError>;
-}
+// 署名でコメントを識別
+type FindExistingComment = () => ResultAsync<number | null, GitHubAPIError>;
+
+const findExistingComment: FindExistingComment = () => {
+  return listComments()
+    .map(comments =>
+      comments.find(c => c.body?.includes(COMMENT_SIGNATURE))?.id || null
+    );
+};
+
+// コメント投稿戦略
+type ShouldPostComment = (
+  config: CommentConfig,
+  hasViolations: boolean
+) => boolean;
+
+const shouldPostComment: ShouldPostComment = (config, hasViolations) => {
+  switch (config.commentOnPr) {
+    case 'always': return true;
+    case 'never': return false;
+    case 'auto': return hasViolations;
+  }
+};
 ```
 
 ## データモデル
@@ -322,34 +697,15 @@ interface CommentManager {
 **構造定義**:
 
 ```typescript
-// 設定値
-interface Config {
-  fileSizeLimit: string;
-  fileLinesLimit: number;
-  prAdditionsLimit: number;
-  prFilesLimit: number;
-  applyLabels: boolean;
-  autoRemoveLabels: boolean;
-  largeFileLabel: string;
-  largePrLabel: string;
-  tooManyFilesLabel: string;
-  skipDraftPr: boolean;
-  commentOnPr: 'auto' | 'always' | 'never';
-  failOnViolation: boolean;
-  additionalExcludePatterns: string[];
-  githubToken: string;
-}
+// 設定値（この部分は既に更新済みで、InputMapperセクションの設定を参照）
+// Config インターフェースは InputMapper セクションで定義済み
 
 // 分析結果
 interface PRMetrics {
   files: FileInfo[];
   totalAdditions: number;
   totalFiles: number;
-  violations: {
-    largeFiles: string[];
-    exceedsAdditions: boolean;
-    exceedsFileCount: boolean;
-  };
+  violations: Violations;  // 型を統一
 }
 ```
 
@@ -369,7 +725,10 @@ type AppError =
   | GitHubAPIError
   | ConfigurationError
   | ParseError
-  | FileSystemError;
+  | FileSystemError
+  | ViolationError    // 追加
+  | DiffError         // 追加
+  | PatternError;     // 追加
 
 interface FileAnalysisError {
   type: 'FileAnalysisError';
@@ -389,6 +748,36 @@ interface ConfigurationError {
   value: unknown;
   message: string;
 }
+
+interface ParseError {
+  type: 'ParseError';
+  input: string;
+  message: string;
+}
+
+interface FileSystemError {
+  type: 'FileSystemError';
+  path?: string;
+  message: string;
+}
+
+interface ViolationError {
+  type: 'ViolationError';
+  violations: Violations;
+  message: string;
+}
+
+interface DiffError {
+  type: 'DiffError';
+  source: 'api' | 'git';
+  message: string;
+}
+
+interface PatternError {
+  type: 'PatternError';
+  pattern: string;
+  message: string;
+}
 ```
 
 **エラー処理フロー**:
@@ -397,11 +786,250 @@ interface ConfigurationError {
 - **システムエラー（API失敗）**: リトライとグレースフルデグラデーション
 - **ビジネスロジックエラー（制限違反）**: ラベル付与とコメント投稿で可視化
 
+### 失敗ポリシー
+
+**failOnViolation設定の動作**:
+
+```typescript
+// メインエントリーポイントでの処理
+async function run(): Promise<void> {
+  const result = await PRMetricsAction.run();
+
+  result.match(
+    // 成功時
+    () => {
+      core.info('✅ PR metrics check completed');
+    },
+    // エラー時
+    (error) => {
+      // エラータイプによる処理分岐
+      if (error.type === 'ViolationError' && config.failOnViolation) {
+        // 違反エラー かつ failOnViolation=true の場合
+        core.setFailed(`❌ PR violates limits: ${error.message}`);
+      } else if (error.type === 'ConfigurationError') {
+        // 設定エラーは常に失敗
+        core.setFailed(`⚠️ Configuration error: ${error.message}`);
+      } else {
+        // その他のエラーは警告として扱う
+        core.warning(`⚠️ ${error.message}`);
+      }
+    }
+  );
+}
+
+// Result型の伝播例（関数型アプローチ）
+const runPRMetricsAction = (
+  config: Config,
+  pr: PullRequestInfo
+): ResultAsync<void, AppError> => {
+  return validateConfig(config)
+    .asyncAndThen(validatedConfig =>
+      analyzeFiles(pr, validatedConfig, createDiffStrategy(octokit))
+    )
+    .andThen(metrics => checkViolations(metrics, config))
+    .asyncAndThen(violations =>
+      handleViolations(violations, config)
+        .map(() => {
+          // 違反があり、failOnViolation=trueの場合はエラーとして返す
+          const hasViolations =
+            violations.largeFiles.length > 0 ||
+            violations.exceedsFileLines.length > 0 ||
+            violations.exceedsAdditions ||
+            violations.exceedsFileCount;
+
+          if (hasViolations && config.failOnViolation) {
+            return err<void, ViolationError>({
+              type: 'ViolationError',
+              violations,
+              message: 'PR violates configured limits'
+            });
+          }
+          return ok(undefined);
+        })
+    );
+};
+```
+
 ### モニタリング
 
 - core.debugによる詳細ログ出力
 - core.errorによるエラー記録
 - GitHub Actions Summaryへの結果出力
+
+## パフォーマンス最適化
+
+### API呼び出し最適化
+
+**ページング戦略**:
+
+```typescript
+interface PaginationConfig {
+  perPage: 100;  // 最大値を使用
+  maxPages: 10;  // 最大1000ファイルまで
+}
+
+async function* fetchAllFiles(
+  octokit: Octokit,
+  params: PullRequestParams
+): AsyncGenerator<FileInfo[]> {
+  let page = 1;
+  while (page <= config.maxPages) {
+    const response = await octokit.rest.pulls.listFiles({
+      ...params,
+      per_page: config.perPage,
+      page
+    });
+
+    yield response.data;
+
+    if (response.data.length < config.perPage) break;
+    page++;
+  }
+}
+```
+
+**並列処理**:
+
+```typescript
+// ファイルメトリクス取得の並列化
+async function analyzeFilesParallel(
+  files: string[]
+): ResultAsync<FileMetrics[], FileAnalysisError> {
+  // バッチサイズで分割（メモリ制約考慮）
+  const BATCH_SIZE = 10;
+  const batches = chunk(files, BATCH_SIZE);
+
+  const results = await Promise.all(
+    batches.map(batch =>
+      Promise.all(batch.map(file => analyzeFile(file)))
+    )
+  );
+
+  return ResultAsync.combine(results.flat());
+}
+```
+
+### リトライ戦略
+
+**指数バックオフ**:
+
+```typescript
+interface RetryConfig {
+  maxRetries: 3;
+  initialDelayMs: 1000;
+  maxDelayMs: 10000;
+  backoffFactor: 2;
+}
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  config: RetryConfig
+): Promise<Result<T, Error>> {
+  let delay = config.initialDelayMs;
+
+  for (let i = 0; i <= config.maxRetries; i++) {
+    try {
+      const result = await fn();
+      return ok(result);
+    } catch (error) {
+      if (i === config.maxRetries) {
+        return err(error as Error);
+      }
+
+      core.debug(`Retry ${i + 1}/${config.maxRetries} after ${delay}ms`);
+      await sleep(delay);
+      delay = Math.min(delay * config.backoffFactor, config.maxDelayMs);
+    }
+  }
+}
+```
+
+### キャッシュ戦略
+
+**ファイルサイズキャッシュ**:
+
+```typescript
+// 関数型キャッシュ実装
+interface FileSizeCache {
+  get: (key: string) => number | undefined;
+  set: (key: string, value: number) => void;
+  has: (key: string) => boolean;
+}
+
+const createFileSizeCache = (): FileSizeCache => {
+  const cache = new Map<string, number>();
+
+  return {
+    get: (key: string) => cache.get(key),
+    set: (key: string, value: number) => { cache.set(key, value); },
+    has: (key: string) => cache.has(key)
+  };
+};
+
+// GitHub APIからのETagを利用
+const getFileSizeWithCache = (
+  cache: FileSizeCache,
+  path: string,
+  etag?: string
+): ResultAsync<number, CacheError> => {
+  const cacheKey = `${path}:${etag || 'no-etag'}`;
+
+  if (cache.has(cacheKey)) {
+    return okAsync(cache.get(cacheKey)!);
+  }
+
+  return fetchFileSize(path)
+    .map(size => {
+      cache.set(cacheKey, size);
+      return size;
+    });
+};
+```
+
+### メモリ最適化
+
+**ストリーミング処理**:
+
+```typescript
+// 大きなファイルリストのストリーミング処理
+const processLargeFileList = async (
+  fileGenerator: AsyncGenerator<FileInfo[]>
+): ResultAsync<Metrics, ProcessError> => {
+  // 関数型のアキュムレーター
+  const createMetricsAccumulator = () => {
+    let metrics: Metrics = { files: [], totalAdditions: 0, totalFiles: 0 };
+
+    return {
+      add: (batch: Metrics) => {
+        metrics = {
+          files: [...metrics.files, ...batch.files],
+          totalAdditions: metrics.totalAdditions + batch.totalAdditions,
+          totalFiles: metrics.totalFiles + batch.totalFiles
+        };
+      },
+      get: () => metrics
+    };
+  };
+
+  const accumulator = createMetricsAccumulator();
+
+  for await (const batch of fileGenerator) {
+    // バッチごとに処理してメモリを解放
+    const batchResult = await processBatch(batch);
+    if (batchResult.isErr()) return err(batchResult.error);
+
+    accumulator.add(batchResult.value);
+
+    // メモリ使用量チェック
+    if (process.memoryUsage().heapUsed > MEMORY_LIMIT) {
+      core.warning('High memory usage detected, triggering GC');
+      global.gc?.();
+    }
+  }
+
+  return ok(accumulator.get());
+};
+```
 
 ## テスト戦略
 
