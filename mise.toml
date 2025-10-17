@@ -12,38 +12,42 @@ node = '22'
 fd = 'latest'
 
 [tasks]
-# === 基本タスク (package.jsonのscriptsを呼び出し) ===
-# Development
-dev = "pnpm dev"
-"dev:debug" = { run = "tsx --inspect src/index.ts", env = { NODE_ENV = "development" } }
-build = "pnpm build"
-"build:watch" = "ncc build src/index.ts -o dist --watch"
-
-# Test
-test = "pnpm test"
-"test:watch" = "pnpm test:watch"
-"test:coverage" = "pnpm test:coverage"
-"test:ui" = "pnpm test:ui"
-"test:quick" = "pnpm test:quick"
-
-# Quality Check
-check = "pnpm check"
-"check:all" = "pnpm check:all"
-lint = "pnpm lint"
-"lint:fix" = "pnpm lint:fix"
-"type-check" = "pnpm type-check"
-format = "pnpm format"
-"format:check" = "pnpm format:check"
-
-# Fix
-fix = "pnpm fix"
-"fix:lint" = "pnpm fix:lint"
-"fix:format" = "pnpm fix:format"
-
 # === 統合タスク ===
+format.run = [
+  "pnpm format",
+  "markdownlint-cli2 --fix '**/*.md'",
+]
+
+lint.run = [
+  "pnpm lint",
+  "pnpm type-check",
+  "markdownlint-cli2 '**/*.md'",
+]
+
+test.run = ["pnpm test"]
+
+build.run = ["pnpm build"]
+
+# === 開発支援 ===
+[tasks."dev:debug"]
+description = "デバッグモードで開発サーバー起動"
+run = "tsx --inspect src/index.ts"
+env = { NODE_ENV = "development" }
+
+[tasks."build:watch"]
+description = "ビルドをwatchモードで実行"
+run = "ncc build src/index.ts -o dist --watch"
+
+# === CI/CD ===
 [tasks.ci]
 description = "CI/CD用の完全品質チェック"
-run = "pnpm check:all && pnpm build"
+run = [
+  "mise run format",
+  "mise run lint",
+  "mise run test",
+  "mise run build",
+  "mise run docs:check",
+]
 
 [tasks.quick]
 description = "開発中のクイックチェック"
@@ -55,11 +59,11 @@ description = "プロジェクト初期セットアップ"
 run = [
   "pnpm install",
   "mise run build",
-  "mise run test"
+  "mise run test",
 ]
 
-# === リリース準備 (自前スクリプト呼び出し) ===
-[tasks."release"]
+# === リリース準備 ===
+[tasks.release]
 description = "インタラクティブなリリース（バージョンタイプを選択）"
 run = '''
 echo "リリースタイプを選択してください:"
@@ -88,20 +92,22 @@ run = "./.specify/scripts/release.sh minor"
 description = "メジャーリリース (vx.0.0)"
 run = "./.specify/scripts/release.sh major"
 
-# === ドキュメント検証 ===
+# === ドキュメント ===
+[tasks."docs:lint"]
+description = "Markdownファイルのlint"
+run = "markdownlint-cli2 '**/*.md'"
+
+[tasks."docs:links"]
+description = "Markdownリンクチェック"
+run = "fd -e md -X markdown-link-check --config .markdown-link-check.json --quiet"
+
+[tasks."docs:links:verbose"]
+description = "Markdownリンクチェック（詳細）"
+run = "fd -e md -X markdown-link-check --config .markdown-link-check.json --verbose"
+
 [tasks."docs:check"]
 description = "全Markdownドキュメントのlintとリンクチェック"
-run = [
-  "markdownlint-cli2 '**/*.md'",
-  "fd -e md -X markdown-link-check --config .markdown-link-check.json --quiet"
-]
-
-[tasks."docs:check:verbose"]
-description = "詳細出力でMarkdownチェック（デバッグ用）"
-run = [
-  "markdownlint-cli2 '**/*.md'",
-  "fd -e md -X markdown-link-check --config .markdown-link-check.json --verbose"
-]
+depends = ["docs:lint", "docs:links"]
 
 [tasks."docs:fix"]
 description = "Markdownドキュメントの自動修正"
@@ -121,7 +127,7 @@ run = [
   'rm -rf node_modules/.cache',
   'rm -rf .vitest',
   'rm -f .eslintcache',
-  'rm -f .prettiercache'
+  'rm -f .prettiercache',
 ]
 
 [tasks."clean:full"]
@@ -129,16 +135,13 @@ description = "完全クリーンアップ（node_modules含む）"
 run = [
   'mise run clean',
   'rm -rf node_modules',
-  'rm -f pnpm-lock.yaml'
+  'rm -f pnpm-lock.yaml',
 ]
-
 
 # === コミット前チェック ===
 [tasks."pre-commit"]
 description = "コミット前の自動チェックと修正"
 run = [
-  "pnpm format",
-  "markdownlint-cli2 --fix '**/*.md'",
+  "mise run format",
   "pnpm test:quick",
-  "pnpm test:vitest"
 ]
