@@ -22,6 +22,7 @@ export interface AnalysisResult {
 interface RepoContext {
     owner: string;
     repo: string;
+    headSha?: string;
 }
 interface AnalysisConfig {
     fileSizeLimit: number;

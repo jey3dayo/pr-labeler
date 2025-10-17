@@ -20,6 +20,10 @@ export interface LabelConfig {
     large: number;
     xlarge: number;
   };
+  applySizeLabels?: boolean; // If false, skip size label updates
+  autoRemoveLabels?: boolean; // If false, don't remove old labels
+  largeFilesLabel?: string; // Custom label for large files
+  tooManyFilesLabel?: string; // Custom label for too many files
 }
 
 /**
@@ -81,11 +85,14 @@ export function getSizeLabel(totalAdditions: number, thresholds: LabelConfig['si
 /**
  * Get detail labels based on violations
  */
-export function getDetailLabels(violations: Violations): string[] {
+export function getDetailLabels(
+  violations: Violations,
+  customLabels?: { largeFiles?: string; tooManyFiles?: string },
+): string[] {
   const labels: string[] = [];
 
   if (violations.largeFiles.length > 0) {
-    labels.push(VIOLATION_LABELS.largeFiles);
+    labels.push(customLabels?.largeFiles || VIOLATION_LABELS.largeFiles);
   }
 
   if (violations.exceedsFileLines.length > 0) {
@@ -97,7 +104,7 @@ export function getDetailLabels(violations: Violations): string[] {
   }
 
   if (violations.exceedsFileCount) {
-    labels.push(VIOLATION_LABELS.tooManyFiles);
+    labels.push(customLabels?.tooManyFiles || VIOLATION_LABELS.tooManyFiles);
   }
 
   return labels;
@@ -215,31 +222,50 @@ export async function updateLabels(
   }
   const currentLabels = currentLabelsResult.value;
 
-  // Determine new size label
-  const newSizeLabel = getSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds);
+  const applySizeLabels = config.applySizeLabels !== false; // Default true
+  const autoRemoveLabels = config.autoRemoveLabels !== false; // Default true
 
-  // Determine new violation labels
-  const newViolationLabels = getDetailLabels(analysisResult.violations);
+  // Determine new size label (only if applySizeLabels is true)
+  const newSizeLabel = applySizeLabels
+    ? getSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds)
+    : null;
+
+  // Determine new violation labels with custom names
+  const customLabels: { largeFiles?: string; tooManyFiles?: string } = {};
+  if (config.largeFilesLabel) {
+    customLabels.largeFiles = config.largeFilesLabel;
+  }
+  if (config.tooManyFilesLabel) {
+    customLabels.tooManyFiles = config.tooManyFilesLabel;
+  }
+  const newViolationLabels = getDetailLabels(analysisResult.violations, customLabels);
 
   // Find labels to remove (old size labels and old auto labels)
   const labelsToRemove: string[] = [];
 
-  // Remove old size labels
-  for (const label of currentLabels) {
-    if (label.startsWith(SIZE_LABEL_PREFIX) && label !== newSizeLabel) {
-      labelsToRemove.push(label);
+  if (autoRemoveLabels) {
+    // Remove old size labels (only if applySizeLabels is true)
+    if (applySizeLabels) {
+      for (const label of currentLabels) {
+        if (label.startsWith(SIZE_LABEL_PREFIX) && label !== newSizeLabel) {
+          labelsToRemove.push(label);
+        }
+      }
     }
+
     // Remove auto labels that are no longer applicable
-    if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
-      labelsToRemove.push(label);
+    for (const label of currentLabels) {
+      if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
+        labelsToRemove.push(label);
+      }
     }
   }
 
   // Find labels to add
   const labelsToAdd: string[] = [];
 
-  // Add new size label if not present
-  if (!currentLabels.includes(newSizeLabel)) {
+  // Add new size label if not present (only if applySizeLabels is true)
+  if (applySizeLabels && newSizeLabel && !currentLabels.includes(newSizeLabel)) {
     labelsToAdd.push(newSizeLabel);
   }
 

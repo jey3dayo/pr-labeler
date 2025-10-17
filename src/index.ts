@@ -50,6 +50,13 @@ async function run(): Promise<void> {
     }
     const config = configResult.value;
 
+    // Step 4.5: Check if PR is draft and should be skipped
+    if (prContext.isDraft && config.skipDraftPr) {
+      logInfo('⏭️  Skipping draft PR as skip_draft_pr is enabled');
+      logInfo('✨ PR Metrics Action completed (skipped draft PR)');
+      return;
+    }
+
     // Step 5: Get diff files
     logInfo('📊 Getting PR diff files...');
     const diffResult = await getDiffFiles(
@@ -83,6 +90,7 @@ async function run(): Promise<void> {
       {
         owner: prContext.owner,
         repo: prContext.repo,
+        headSha: prContext.headSha,
       },
     );
     if (analysisResult.isErr()) {
@@ -133,6 +141,10 @@ async function run(): Promise<void> {
             large: config.sizeThresholds.L.additions,
             xlarge: config.sizeThresholds.L.additions * 2,
           },
+          applySizeLabels: config.applySizeLabels,
+          autoRemoveLabels: config.autoRemoveLabels,
+          largeFilesLabel: config.largeFilesLabel,
+          tooManyFilesLabel: config.tooManyFilesLabel,
         },
         token,
         {
@@ -179,7 +191,7 @@ async function run(): Promise<void> {
 
     // Step 9: Set outputs
     setActionOutputs({
-      large_files: JSON.stringify(analysis.violations.largeFiles.map(v => v.file)),
+      large_files: JSON.stringify(analysis.violations.largeFiles),
       pr_additions: analysis.metrics.totalAdditions.toString(),
       pr_files: analysis.metrics.totalFiles.toString(),
       exceeds_file_size: (analysis.violations.largeFiles.length > 0).toString(),

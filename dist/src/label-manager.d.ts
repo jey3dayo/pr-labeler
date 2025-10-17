@@ -8,6 +8,10 @@ export interface LabelConfig {
         large: number;
         xlarge: number;
     };
+    applySizeLabels?: boolean;
+    autoRemoveLabels?: boolean;
+    largeFilesLabel?: string;
+    tooManyFilesLabel?: string;
 }
 export interface LabelUpdate {
     added: string[];
@@ -20,7 +24,10 @@ interface PRContext {
     pullNumber: number;
 }
 export declare function getSizeLabel(totalAdditions: number, thresholds: LabelConfig['sizeLabelThresholds']): string;
-export declare function getDetailLabels(violations: Violations): string[];
+export declare function getDetailLabels(violations: Violations, customLabels?: {
+    largeFiles?: string;
+    tooManyFiles?: string;
+}): string[];
 export declare function getCurrentLabels(token: string, context: PRContext): Promise<Result<string[], GitHubAPIError>>;
 export declare function addLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function removeLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;

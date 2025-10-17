@@ -27,6 +27,7 @@ export interface ActionOutputs {
     exceeds_file_count: string;
     has_violations: string;
 }
+export declare function getEnvVar(key: string): string | undefined;
 export declare function getGitHubToken(): Result<string, ConfigurationError>;
 export declare function getActionInputs(): ActionInputs;
 export declare function setActionOutputs(outputs: ActionOutputs): void;
@@ -42,5 +43,6 @@ export declare function getPullRequestContext(): {
     pullNumber: number;
     baseSha: string;
     headSha: string;
+    isDraft: boolean;
 };
 //# sourceMappingURL=actions-io.d.ts.map

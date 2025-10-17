@@ -4,6 +4,7 @@
  */
 
 import * as core from '@actions/core';
+import * as github from '@actions/github';
 import { Result, ok, err } from 'neverthrow';
 import { createConfigurationError } from './errors';
 import type { ConfigurationError } from './errors';
@@ -44,11 +45,27 @@ export interface ActionOutputs {
 }
 
 /**
+ * Get environment variable (abstraction for testability)
+ */
+export function getEnvVar(key: string): string | undefined {
+  return process.env[key];
+}
+
+/**
+ * Resolve token value from input or environment variables
+ * Priority: input parameter > GITHUB_TOKEN > GH_TOKEN
+ * @internal
+ */
+function resolveTokenValue(): string | undefined {
+  return core.getInput('github_token') || getEnvVar('GITHUB_TOKEN') || getEnvVar('GH_TOKEN');
+}
+
+/**
  * Get GitHub token from input or environment variables
  * Priority: input parameter > GITHUB_TOKEN > GH_TOKEN
  */
 export function getGitHubToken(): Result<string, ConfigurationError> {
-  const token = core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'];
+  const token = resolveTokenValue();
 
   if (!token) {
     return err(
@@ -70,7 +87,7 @@ export function getGitHubToken(): Result<string, ConfigurationError> {
  */
 export function getActionInputs(): ActionInputs {
   return {
-    github_token: core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'] || '',
+    github_token: resolveTokenValue() || '',
     file_size_limit: core.getInput('file_size_limit') || '100KB',
     file_lines_limit: core.getInput('file_lines_limit') || '500',
     pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
@@ -148,6 +165,7 @@ export async function writeSummary(content: string): Promise<void> {
 
 /**
  * Get pull request context from GitHub Actions
+ * Uses @actions/github context for reliable PR information
  */
 export function getPullRequestContext(): {
   owner: string;
@@ -155,14 +173,24 @@ export function getPullRequestContext(): {
   pullNumber: number;
   baseSha: string;
   headSha: string;
+  isDraft: boolean;
 } {
-  const context = {
-    owner: process.env['GITHUB_REPOSITORY_OWNER'] || '',
-    repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] || '',
-    pullNumber: parseInt(process.env['GITHUB_EVENT_NUMBER'] || '0', 10),
-    baseSha: process.env['GITHUB_BASE_REF'] || '',
-    headSha: process.env['GITHUB_HEAD_REF'] || '',
-  };
+  const context = github.context;
+  const pullRequest = context.payload.pull_request;
 
-  return context;
+  if (!pullRequest) {
+    throw new Error(
+      'This action must be run in the context of a pull request. ' +
+        'Ensure the workflow is triggered by pull_request or pull_request_target events.',
+    );
+  }
+
+  return {
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    pullNumber: pullRequest.number,
+    baseSha: pullRequest['base'].sha,
+    headSha: pullRequest['head'].sha,
+    isDraft: pullRequest['draft'] === true,
+  };
 }

@@ -30657,6 +30657,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getEnvVar = getEnvVar;
 exports.getGitHubToken = getGitHubToken;
 exports.getActionInputs = getActionInputs;
 exports.setActionOutputs = setActionOutputs;
@@ -30668,10 +30669,17 @@ exports.setFailed = setFailed;
 exports.writeSummary = writeSummary;
 exports.getPullRequestContext = getPullRequestContext;
 const core = __importStar(__nccwpck_require__(6966));
+const github = __importStar(__nccwpck_require__(4903));
 const neverthrow_1 = __nccwpck_require__(734);
 const errors_1 = __nccwpck_require__(8847);
+function getEnvVar(key) {
+    return process.env[key];
+}
+function resolveTokenValue() {
+    return core.getInput('github_token') || getEnvVar('GITHUB_TOKEN') || getEnvVar('GH_TOKEN');
+}
 function getGitHubToken() {
-    const token = core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'];
+    const token = resolveTokenValue();
     if (!token) {
         return (0, neverthrow_1.err)((0, errors_1.createConfigurationError)('github_token', undefined, 'GitHub token is required. Set github_token input or GITHUB_TOKEN/GH_TOKEN environment variable'));
     }
@@ -30680,7 +30688,7 @@ function getGitHubToken() {
 }
 function getActionInputs() {
     return {
-        github_token: core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'] || '',
+        github_token: resolveTokenValue() || '',
         file_size_limit: core.getInput('file_size_limit') || '100KB',
         file_lines_limit: core.getInput('file_lines_limit') || '500',
         pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
@@ -30727,14 +30735,20 @@ async function writeSummary(content) {
     await core.summary.addRaw(content).write();
 }
 function getPullRequestContext() {
-    const context = {
-        owner: process.env['GITHUB_REPOSITORY_OWNER'] || '',
-        repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] || '',
-        pullNumber: parseInt(process.env['GITHUB_EVENT_NUMBER'] || '0', 10),
-        baseSha: process.env['GITHUB_BASE_REF'] || '',
-        headSha: process.env['GITHUB_HEAD_REF'] || '',
+    const context = github.context;
+    const pullRequest = context.payload.pull_request;
+    if (!pullRequest) {
+        throw new Error('This action must be run in the context of a pull request. ' +
+            'Ensure the workflow is triggered by pull_request or pull_request_target events.');
+    }
+    return {
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pullNumber: pullRequest.number,
+        baseSha: pullRequest['base'].sha,
+        headSha: pullRequest['head'].sha,
+        isDraft: pullRequest['draft'] === true,
     };
-    return context;
 }
 
 
@@ -31118,7 +31132,7 @@ async function getLocalGitDiff(context) {
         (0, actions_io_1.logDebug)('Attempting to get diff using local git command');
         const command = `git diff --numstat -M -C --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
         const { stdout, stderr } = await execAsync(command, {
-            cwd: process.env['GITHUB_WORKSPACE'] || process.cwd(),
+            cwd: (0, actions_io_1.getEnvVar)('GITHUB_WORKSPACE') || process.cwd(),
             maxBuffer: 16 * 1024 * 1024,
         });
         if (stderr) {
@@ -31477,6 +31491,7 @@ async function getFileSize(filePath, token, context) {
             owner: context.owner,
             repo: context.repo,
             path: filePath,
+            ...(context.headSha && { ref: context.headSha }),
         });
         if ('size' in response.data && response.data.type === 'file') {
             (0, actions_io_1.logDebug)(`Got size from GitHub API: ${response.data.size} bytes`);
@@ -31712,6 +31727,11 @@ async function run() {
             throw configResult.error;
         }
         const config = configResult.value;
+        if (prContext.isDraft && config.skipDraftPr) {
+            (0, actions_io_1.logInfo)('⏭️  Skipping draft PR as skip_draft_pr is enabled');
+            (0, actions_io_1.logInfo)('✨ PR Metrics Action completed (skipped draft PR)');
+            return;
+        }
         (0, actions_io_1.logInfo)('📊 Getting PR diff files...');
         const diffResult = await (0, diff_strategy_1.getDiffFiles)({
             owner: prContext.owner,
@@ -31735,6 +31755,7 @@ async function run() {
         }, token, {
             owner: prContext.owner,
             repo: prContext.repo,
+            headSha: prContext.headSha,
         });
         if (analysisResult.isErr()) {
             throw analysisResult.error;
@@ -31776,6 +31797,10 @@ async function run() {
                     large: config.sizeThresholds.L.additions,
                     xlarge: config.sizeThresholds.L.additions * 2,
                 },
+                applySizeLabels: config.applySizeLabels,
+                autoRemoveLabels: config.autoRemoveLabels,
+                largeFilesLabel: config.largeFilesLabel,
+                tooManyFilesLabel: config.tooManyFilesLabel,
             }, token, {
                 owner: prContext.owner,
                 repo: prContext.repo,
@@ -31812,7 +31837,7 @@ async function run() {
             }
         }
         (0, actions_io_1.setActionOutputs)({
-            large_files: JSON.stringify(analysis.violations.largeFiles.map(v => v.file)),
+            large_files: JSON.stringify(analysis.violations.largeFiles),
             pr_additions: analysis.metrics.totalAdditions.toString(),
             pr_files: analysis.metrics.totalFiles.toString(),
             exceeds_file_size: (analysis.violations.largeFiles.length > 0).toString(),
@@ -32025,10 +32050,10 @@ function getSizeLabel(totalAdditions, thresholds) {
         return SIZE_LABELS.XXL;
     }
 }
-function getDetailLabels(violations) {
+function getDetailLabels(violations, customLabels) {
     const labels = [];
     if (violations.largeFiles.length > 0) {
-        labels.push(VIOLATION_LABELS.largeFiles);
+        labels.push(customLabels?.largeFiles || VIOLATION_LABELS.largeFiles);
     }
     if (violations.exceedsFileLines.length > 0) {
         labels.push(VIOLATION_LABELS.tooManyLines);
@@ -32037,7 +32062,7 @@ function getDetailLabels(violations) {
         labels.push(VIOLATION_LABELS.excessiveChanges);
     }
     if (violations.exceedsFileCount) {
-        labels.push(VIOLATION_LABELS.tooManyFiles);
+        labels.push(customLabels?.tooManyFiles || VIOLATION_LABELS.tooManyFiles);
     }
     return labels;
 }
@@ -32114,19 +32139,36 @@ async function updateLabels(analysisResult, config, token, context) {
         return (0, neverthrow_1.err)(currentLabelsResult.error);
     }
     const currentLabels = currentLabelsResult.value;
-    const newSizeLabel = getSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds);
-    const newViolationLabels = getDetailLabels(analysisResult.violations);
+    const applySizeLabels = config.applySizeLabels !== false;
+    const autoRemoveLabels = config.autoRemoveLabels !== false;
+    const newSizeLabel = applySizeLabels
+        ? getSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds)
+        : null;
+    const customLabels = {};
+    if (config.largeFilesLabel) {
+        customLabels.largeFiles = config.largeFilesLabel;
+    }
+    if (config.tooManyFilesLabel) {
+        customLabels.tooManyFiles = config.tooManyFilesLabel;
+    }
+    const newViolationLabels = getDetailLabels(analysisResult.violations, customLabels);
     const labelsToRemove = [];
-    for (const label of currentLabels) {
-        if (label.startsWith(SIZE_LABEL_PREFIX) && label !== newSizeLabel) {
-            labelsToRemove.push(label);
+    if (autoRemoveLabels) {
+        if (applySizeLabels) {
+            for (const label of currentLabels) {
+                if (label.startsWith(SIZE_LABEL_PREFIX) && label !== newSizeLabel) {
+                    labelsToRemove.push(label);
+                }
+            }
         }
-        if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
-            labelsToRemove.push(label);
+        for (const label of currentLabels) {
+            if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
+                labelsToRemove.push(label);
+            }
         }
     }
     const labelsToAdd = [];
-    if (!currentLabels.includes(newSizeLabel)) {
+    if (applySizeLabels && newSizeLabel && !currentLabels.includes(newSizeLabel)) {
         labelsToAdd.push(newSizeLabel);
     }
     for (const label of newViolationLabels) {

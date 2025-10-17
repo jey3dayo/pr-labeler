@@ -7,7 +7,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as github from '@actions/github';
 import { createDiffError } from './errors';
-import { logDebug, logInfo, logWarning } from './actions-io';
+import { logDebug, logInfo, logWarning, getEnvVar } from './actions-io';
 import type { DiffError } from './errors';
 
 // Create execAsync using promisify
@@ -91,7 +91,7 @@ async function getLocalGitDiff(context: PullRequestContext): Promise<Result<Diff
     const command = `git diff --numstat -M -C --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
 
     const { stdout, stderr } = await execAsync(command, {
-      cwd: process.env['GITHUB_WORKSPACE'] || process.cwd(),
+      cwd: getEnvVar('GITHUB_WORKSPACE') || process.cwd(),
       maxBuffer: 16 * 1024 * 1024, // 16MB buffer for large diffs
     });
 

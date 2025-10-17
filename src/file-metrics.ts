@@ -50,6 +50,7 @@ export interface AnalysisResult {
 interface RepoContext {
   owner: string;
   repo: string;
+  headSha?: string; // Optional: HEAD SHA for ref-specific API calls
 }
 
 /**
@@ -190,6 +191,7 @@ export async function getFileSize(
       owner: context.owner,
       repo: context.repo,
       path: filePath,
+      ...(context.headSha && { ref: context.headSha }), // Use ref if headSha is provided
     });
 
     if ('size' in response.data && response.data.type === 'file') {
