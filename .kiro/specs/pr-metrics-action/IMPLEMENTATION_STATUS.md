@@ -1,6 +1,6 @@
 # Implementation Status
 
-**Last Updated**: 2025-10-17
+**Last Updated**: 2025-10-17 (Added review-codex.md findings)
 **Spec Phase**: tasks-generated
 **Implementation Phase**: Initial scaffolding only
 
@@ -88,6 +88,114 @@ This document tracks known gaps between the specification (requirements.md, desi
 
 **Impact**: Core functionality is not implemented.
 
+## Review Findings (review-codex.md)
+
+**Source**: PR #1 comprehensive review identifying spec-implementation misalignments
+
+### 🚨 Blockers (Must Fix Before Merge)
+
+#### B1. Input-Output Inconsistency
+
+- **Issue**: `action.yml` input/output definitions do not match implementation
+- **Impact**: Runtime cannot read configuration correctly; features will not work
+- **Status**: Covered by Section 1-2 above
+- **Priority**: P0 - Blocking all functionality
+
+#### B2. Feature Not Implemented
+
+- **Issue**: Core features exist as TODO comments only (src/index.ts:65-68)
+- **Details**: File size/line analysis, Draft PR skip, label add/remove, PR comment, violation control, exclude patterns
+- **Status**: Covered by Section 5 above
+- **Priority**: P0 - No actual functionality exists
+
+#### B3. Token Design Conflict
+
+- **Issue**: `github_token` marked `required: true` but description mentions `GITHUB_TOKEN`/`GH_TOKEN` fallback
+- **Current**: action.yml:86 (required: true) vs description (fallback mentioned)
+- **Recommendation**: Change to `required: false` and implement env var fallback in code
+- **Status**: ⚠️ Design decision needed
+- **Priority**: P1 - Affects user experience
+
+### 📋 Recommended Actions (Priority Order)
+
+From review-codex.md "推奨対応（優先順）" section:
+
+#### 1. Establish Input-Output Alignment (REQUIRED) ✅ Covered by Phase 1
+
+- [ ] Unify implementation input keys to match action.yml
+- [ ] Implement all `outputs` with `core.setOutput`
+- **Maps to**: Phase 1 (Section 1-2)
+
+#### 2. Implement Spec-Compliant Features (REQUIRED) ✅ Covered by Phase 2-5
+
+- [ ] PR info retrieval (`isDraft` check) and `skip_draft_pr` reflection
+- [ ] Complete file change retrieval (pagination: 100/page × multiple pages)
+- [ ] Binary file detection (priority: content check via istextorbinary → fallback: extension)
+- [ ] File size/line measurement, PR-wide additions/file count
+- [ ] Label strategy (`apply_labels`, `apply_size_labels`, `auto_remove_labels`, `size_label_thresholds`, `large_files_label`, `too_many_files_label`)
+- [ ] Comment strategy (`comment_on_pr` = auto/always/never)
+- [ ] Failure condition (`fail_on_violation`)
+- [ ] Exclude patterns (`additional_exclude_patterns`)
+- **Maps to**: Phase 2-5
+
+#### 3. Clarify Token Handling ⚠️ Design Decision
+
+- [ ] Consider making `github_token` `required: false`
+- [ ] Implement fallback: `process.env.GITHUB_TOKEN || process.env.GH_TOKEN`
+- **Status**: Requires design decision and action.yml update
+
+#### 4. Document Alignment
+
+- [ ] Unify `branding.color` (decide: orange or purple)
+  - **Current**: action.yml uses `purple`
+  - **Spec mention**: review-codex.md noted "orange" in spec document
+  - **Decision**: Keep `purple` (already in action.yml)
+- [ ] Reflect design details in code (pagination, binary detection, XL threshold definition)
+- **Maps to**: Phase 2-7 implementation
+
+#### 5. Add Tests ✅ Covered by Phase 7
+
+- [ ] Integration tests using mocks (GitHub API/FS/Context)
+- [ ] Cover main branches (draft/non-draft, violations, label add/remove, comment modes)
+- **Maps to**: Phase 7
+
+### 🗺️ Input Key Alignment Mapping (from review-codex.md)
+
+Reference for Phase 1 implementation:
+
+| Current (src/index.ts)     | Target (action.yml)           | Notes                                     |
+| -------------------------- | ----------------------------- | ----------------------------------------- |
+| `line_limit_pr`            | `pr_additions_limit`          | Rename                                    |
+| `line_limit_file`          | `file_lines_limit`            | Rename                                    |
+| `post_comment`             | `comment_on_pr`               | Boolean → Enum (auto/always/never)        |
+| `fail_on_large_files`      | `fail_on_violation`           | Rename                                    |
+| `exclude_patterns`         | `additional_exclude_patterns` | Rename                                    |
+| `check_only_changed_files` | (Remove or add to spec)       | Not in spec                               |
+| `skip_label`               | `skip_draft_pr`               | Different concept - change logic          |
+| `large_pr_label`           | (Integrate or remove)         | Not in spec, consider `apply_size_labels` |
+
+### 🔄 Next Action Proposal (4-Step from review-codex.md)
+
+Minimal incremental PRs can be prepared:
+
+- [x] **Step 1**: Input key unification + `outputs` implementation → **Phase 1**
+- [ ] **Step 2**: File change enumeration & aggregation (pagination support) → **Phase 2**
+- [ ] **Step 3**: Label/Comment/Failure condition implementation → **Phase 3-4**
+- [ ] **Step 4**: Mock integration tests → **Phase 7**
+
+### 📝 Additional Minor Findings
+
+From review-codex.md "追加の軽微指摘":
+
+1. **CI Node Version Mismatch**
+   - CI uses `setup-node: 22`, Action runtime uses `node20`
+   - **Action**: Add note to README if intentional
+   - **Priority**: P3 - Documentation
+
+2. **Dependency Cleanup**
+   - **Action**: Review and remove unused dependencies after implementation
+   - **Priority**: P3 - Post-implementation optimization
+
 ## Specification Improvements (Completed)
 
 ### ✅ Fixed Issues
@@ -104,6 +212,10 @@ This document tracks known gaps between the specification (requirements.md, desi
 3. **Binary File Detection Clarification** (requirements.md:315)
    - Added note recommending extension-based detection
    - Documented istextorbinary as optional dependency
+
+4. **Security Requirements Added** (requirements.md:591-607)
+   - Added 要件10: セキュリティ with 8 acceptance criteria
+   - Covers token handling, secrets masking, least privilege, Dependabot, bundling, input validation, security documentation
 
 ## Next Steps
 
