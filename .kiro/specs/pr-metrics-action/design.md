@@ -258,10 +258,12 @@ interface Config {
 }
 
 // サイズ閾値の型定義
+// 注: XLサイズはLの閾値を超えた場合（additions > 1000 OR files > 50）として判定
 interface SizeThresholds {
   S: { additions: number; files: number };
   M: { additions: number; files: number };
   L: { additions: number; files: number };
+  // XLは定義なし（Lを超えた場合に自動判定）
 }
 ```
 
@@ -319,9 +321,9 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
   fetchDiff: (pr) => {
     // ローカル優先：高速かつ安定
     const fetchFromLocal: FetchFromLocal = (pr) =>
-      // git diff --numstat base...head
+      // git diff --numstat --diff-filter=ACMR base...head (removed除外)
       ResultAsync.fromPromise(
-        exec(`git diff --numstat ${pr.baseSha}...${pr.headSha}`),
+        exec(`git diff --numstat --diff-filter=ACMR ${pr.baseSha}...${pr.headSha}`),
         (error) => ({ type: 'FileSystemError' as const, message: String(error) })
       ).map(parseGitDiff);
 
@@ -379,6 +381,25 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
   - checkoutされたファイルから`wc -l`またはNode.jsで行数を計測
   - ファイル全体の行数を取得（差分の追加行数ではない）
   - バイナリファイルや行数取得不可の場合はスキップしサイズのみ評価
+  - 実装注記: Linux環境前提で`wc -l`使用、またはNode.js実装（`fs.readFileSync`+`split('\\n')`）でクロスプラットフォーム対応
+
+- **バイナリファイル判定**:
+  - 実装アプローチ1（推奨）: `istextorbinary`ライブラリを使用
+    ```typescript
+    import { isBinary } from 'istextorbinary';
+    const checkBinary = (filePath: string): boolean => {
+      const buffer = fs.readFileSync(filePath, { encoding: null }).subarray(0, 512);
+      return isBinary(null, buffer);
+    };
+    ```
+  - 実装アプローチ2（軽量）: 拡張子ベースの簡易判定
+    ```typescript
+    const BINARY_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.zip', '.exe', '.dll'];
+    const isBinaryByExtension = (path: string): boolean => {
+      return BINARY_EXTENSIONS.some(ext => path.toLowerCase().endsWith(ext));
+    };
+    ```
+  - バイナリファイル検出時は行数カウントをスキップし、サイズチェックのみ実施
 
 - **変更種別の扱い**:
   - `added`、`modified`、`renamed`: 分析対象
@@ -786,6 +807,8 @@ interface PRMetrics {
 
 neverthrowのResult<T, E>パターンを全面採用し、Railway-Oriented Programmingによる関数合成を実現。
 
+**実装注意事項**: `ResultAsync.combine`、`okAsync`等のimport整合性に注意。型定義と実際の関数がマッチするよう実装時に検証が必要。
+
 ### エラーカテゴリと対応
 
 **エラー型定義**:
@@ -1018,19 +1041,20 @@ interface PaginationConfig {
 
 async function* fetchAllFiles(
   octokit: Octokit,
-  params: PullRequestParams
+  params: PullRequestParams,
+  paginationConfig: PaginationConfig
 ): AsyncGenerator<FileInfo[]> {
   let page = 1;
-  while (page <= config.maxPages) {
+  while (page <= paginationConfig.maxPages) {
     const response = await octokit.rest.pulls.listFiles({
       ...params,
-      per_page: config.perPage,
+      per_page: paginationConfig.perPage,
       page
     });
 
     yield response.data;
 
-    if (response.data.length < config.perPage) break;
+    if (response.data.length < paginationConfig.perPage) break;
     page++;
   }
 }
@@ -1290,8 +1314,9 @@ jobs:
 
 ### 認証と認可
 
-- GitHub Tokenは環境変数経由で安全に渡される
-- 最小権限原則: pull-requests:write, issues:write のみ要求
+- GitHub Tokenは環境変数経由で安全に渡される（GITHUB_TOKEN/GH_TOKEN環境変数へのフォールバックあり）
+- 最小権限原則: pull-requests:write（ラベル操作用）, issues:write（コメント投稿用）のみ要求
+- action.ymlでは`github_token`を`required: true`として、環境変数経由または入力パラメータで提供
 
 ### データ保護
 

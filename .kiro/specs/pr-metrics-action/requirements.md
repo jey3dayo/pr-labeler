@@ -14,10 +14,13 @@ GitHub Action実装プロンプト: PR Metrics Action
 
 ```
 jey3dayo/pr-metrics-action/
-├── action.yml           # Action定義ファイル
-├── index.js            # メインロジック
-├── package.json        # 依存関係
-├── package-lock.json
+├── action.yml           # Action定義ファイル (runs.main: dist/index.js)
+├── src/
+│   └── index.ts        # TypeScriptメインエントリー
+├── dist/
+│   └── index.js        # nccビルド出力（コミット対象）
+├── package.json        # 依存関係とビルドスクリプト
+├── tsconfig.json       # TypeScript設定
 ├── README.md          # 使用方法ドキュメント
 ├── LICENSE            # MITライセンス
 ├── .gitignore
@@ -114,9 +117,8 @@ inputs:
     default: ''
 
   github_token:
-    description: 'GitHub token'
+    description: 'GitHub token (GITHUB_TOKEN/GH_TOKEN環境変数へのフォールバックあり)'
     required: true
-    default: ${{ github.token }}
 
 outputs:
   large_files:
@@ -138,7 +140,7 @@ outputs:
 
 runs:
   using: 'node20'
-  main: 'index.js'
+  main: 'dist/index.js'
 ```
 
 ### 実装要件
@@ -282,16 +284,50 @@ All files are within limits now.
   "name": "pr-metrics-action",
   "version": "1.0.0",
   "description": "GitHub Action for PR file size and metrics checking",
-  "main": "index.js",
+  "main": "dist/index.js",
   "author": "jey3dayo",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.18.3",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "test": "run-p lint type-check test:vitest",
+    "test:vitest": "vitest run",
+    "check": "run-p lint type-check format:check",
+    "check:all": "run-s check test:vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
+    "format": "run-s lint:fix format:prettier",
+    "format:prettier": "prettier --write . --log-level warn",
+    "format:check": "prettier --check ."
+  },
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^6.0.0",
-    "@octokit/rest": "^20.0.0",
     "minimatch": "^9.0.0",
     "bytes": "^3.1.2",
     "neverthrow": "^8.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/bytes": "^3.1.5",
+    "@types/minimatch": "^6.0.0",
+    "@types/node": "^24.7.2",
+    "@vercel/ncc": "^0.38.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.37.0",
+    "eslint-config-prettier": "^10.1.8",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vitest": "^3.2.4"
   }
 }
 ```
@@ -302,7 +338,7 @@ All files are within limits now.
 name: Test PR Metrics
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -324,6 +360,20 @@ jobs:
           pr_additions_limit: '5000'
           pr_files_limit: '50'
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  # 開発用ビルド例
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm check:all
+      - run: pnpm build
 ```
 
 ### 重要な実装ポイント
@@ -343,7 +393,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 ### 主要機能
 
 - **ファイル数制限機能**: PRに含まれるファイル数の制限チェック機能
-- **ラベルプレフィックス**: すべての自動付与ラベルに`auto:`プレフィックスを使用（例：`auto:large-file`）
+- **ラベルプレフィックス**: すべての自動付与ラベルに`auto:`プレフィックスを使用（例：`auto:large-files`）
 - **除外パターン**: デフォルトで40種類以上のパターンを自動除外（lockファイル、minifiedファイル、ビルド成果物、node_modules、IDEファイル等）
 - **文書化**: README.mdに包括的な使用方法とカスタマイズ例を提供
 
@@ -414,7 +464,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
    - size/S: additions ≤ 100 AND files ≤ 10
    - size/M: additions ≤ 500 AND files ≤ 30
    - size/L: additions ≤ 1000 AND files ≤ 50
-   - size/XL: 上記を超える場合
+   - size/XL: Lの閾値（additions > 1000 OR files > 50）を超えた場合
 8. WHEN サイズラベルが変更される THEN PR Metrics Action SHALL 古いサイズラベルを削除し新しいラベルを追加する
 9. WHEN 分析完了時 THEN PR Metrics Action SHALL 以下の状態を出力する:
    - `exceeds_file_size`: ファイルサイズ制限超過の有無
@@ -423,6 +473,17 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
    - `exceeds_file_count`: PRファイル数制限超過の有無
    - `has_violations`: いずれかの違反の有無
    - `large_files`: 制限超過ファイルのJSON配列（詳細情報含む）
+     ```typescript
+     // large_files出力のJSONスキーマ定義
+     interface ViolationDetail {
+       file: string;           // ファイルパス
+       actualValue: number;    // 実際の値（サイズまたは行数）
+       limit: number;          // 制限値
+       violationType: 'size' | 'lines';  // 違反タイプ
+       severity: 'critical' | 'warning'; // 重要度
+     }
+     // 出力例: [{"file":"src/large.ts","actualValue":150000,"limit":102400,"violationType":"size","severity":"critical"}]
+     ```
 
 ### 要件4: PRコメント投稿
 
