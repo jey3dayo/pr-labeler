@@ -542,7 +542,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 6. WHILE 処理を実行中 THE PR Metrics Action SHALL 進捗状況をログに出力する
 7. WHEN エラーが発生した THEN PR Metrics Action SHALL エラーの詳細をログに記録し、適切にエラーハンドリングする
 8. WHEN エラー処理を実装する THEN PR Metrics Action SHALL neverthrowのResult型を使用して型安全にエラーを扱う
-9. WHERE エラー型を定義する THE PR Metrics Action SHALL 以下の型を含める
+9. WHERE エラー型を定義する THE PR Metrics Action SHALL 以下の9種類の型を含める
    - `FileAnalysisError`: ファイル分析時のエラー
    - `GitHubAPIError`: GitHub API呼び出しエラー
    - `ConfigurationError`: 設定値の検証エラー
@@ -551,6 +551,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
    - `ViolationError`: 制限違反検出時のエラー
    - `DiffError`: 差分取得エラー
    - `PatternError`: パターン検証エラー
+   - `CacheError`: キャッシュ操作エラー
 
 ### 要件8: GitHub Actions統合
 

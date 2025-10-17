@@ -82,7 +82,7 @@ inputs:
 
   # 認証
   github_token:
-    description: "GitHub token for API access. Falls back to GITHUB_TOKEN or GH_TOKEN env vars if not provided"
+    description: "GitHub token for API access (required). Provide explicitly or ensure GITHUB_TOKEN/GH_TOKEN environment variable is set"
     required: true
 
 outputs:
