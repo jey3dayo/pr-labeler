@@ -18,7 +18,6 @@ import {
   COMMENT_SIGNATURE,
 } from '../src/comment-manager';
 import type { AnalysisResult } from '../src/file-metrics';
-import type { Violations } from '../src/errors';
 
 describe('CommentManager', () => {
   let mockOctokit: any;

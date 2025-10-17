@@ -15,7 +15,6 @@ import {
   removeLabels,
   updateLabels,
   LabelConfig,
-  LabelUpdate,
 } from '../src/label-manager';
 import type { AnalysisResult } from '../src/file-metrics';
 import type { Violations } from '../src/errors';

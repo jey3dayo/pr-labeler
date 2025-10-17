@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
-import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as github from '@actions/github';
 
@@ -26,8 +25,6 @@ import {
   getFileLineCount,
   isBinaryFile,
   analyzeFiles,
-  FileMetrics,
-  AnalysisResult,
 } from '../src/file-metrics';
 import type { DiffFile } from '../src/diff-strategy';
 
