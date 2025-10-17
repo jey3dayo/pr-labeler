@@ -220,12 +220,17 @@ interface ActionInputs {
   github_token: string;
 }
 
+// 環境変数取得の抽象化（テスタビリティ向上）
+function getEnvVar(key: string): string | undefined {
+  return process.env[key];
+}
+
 // GitHub Token取得（環境変数フォールバック）
 const getGitHubToken = (): Result<string, ConfigurationError> => {
   const token =
     core.getInput('github_token') ||
-    process.env.GITHUB_TOKEN ||
-    process.env.GH_TOKEN;
+    getEnvVar('GITHUB_TOKEN') ||
+    getEnvVar('GH_TOKEN');
 
   if (!token) {
     return err({
@@ -411,6 +416,9 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
   1. fs.stat（ローカルファイル、最速）
   2. git ls-tree -l（gitオブジェクト、高速）
   3. GitHub API（ネットワーク経由、フォールバック）
+     - `repos.getContent` API を使用
+     - `ref` パラメータに `headSha` を指定して PR HEAD 時点のファイルを取得
+     - これにより、PR マージ前の正確なファイルサイズを保証
 
 - **行数取得戦略**:
   - checkoutされたファイルから`wc -l`またはNode.jsで行数を計測
@@ -1503,11 +1511,11 @@ export function checkViolations(
 ### ヘルパー関数
 
 ```typescript
-// GitHub Token取得
+// GitHub Token取得（getEnvVar抽象化を使用）
 export function getGitHubToken(): Result<string, ConfigurationError> {
   const token = core.getInput('github_token')
-    || process.env.GITHUB_TOKEN
-    || process.env.GH_TOKEN;
+    || getEnvVar('GITHUB_TOKEN')
+    || getEnvVar('GH_TOKEN');
 
   return token
     ? ok(token)
