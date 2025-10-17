@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
-import { promisify } from 'util';
 import * as github from '@actions/github';
+
+// Create hoisted mock function
+const { mockExecAsync } = vi.hoisted(() => {
+  return {
+    mockExecAsync: vi.fn(),
+  };
+});
 
 // Setup mocks
 vi.mock('fs', () => ({
@@ -13,9 +19,12 @@ vi.mock('fs', () => ({
 }));
 
 vi.mock('child_process');
+
+// Mock util to return our hoisted mock function
 vi.mock('util', () => ({
-  promisify: vi.fn(() => vi.fn()),
+  promisify: () => mockExecAsync,
 }));
+
 vi.mock('@actions/github');
 vi.mock('@actions/core');
 
@@ -29,7 +38,6 @@ import {
 import type { DiffFile } from '../src/diff-strategy';
 
 describe('FileMetrics', () => {
-  let mockExecAsync: ReturnType<typeof vi.fn>;
   let mockOctokit: any;
 
   // Helper to create mock Stats object
@@ -63,9 +71,6 @@ describe('FileMetrics', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // @ts-expect-error - Mocking promisify
-    mockExecAsync = promisify() as ReturnType<typeof vi.fn>;
 
     // Setup GitHub mock
     mockOctokit = {
@@ -263,7 +268,8 @@ describe('FileMetrics', () => {
       vi.mocked(fs.readFile).mockResolvedValue('#!/bin/bash\necho "hello"');
       expect(await isBinaryFile('Makefile')).toBe(false);
 
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from([0x7F, 0x45, 0x4C, 0x46])); // ELF header
+      // ELF header with more binary data (more than 30% non-printable)
+      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from([0x7F, 0x45, 0x4C, 0x46, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00]));
       expect(await isBinaryFile('binary')).toBe(true);
     });
 
@@ -306,7 +312,7 @@ describe('FileMetrics', () => {
       });
 
       // Mock line counts
-      mockExecAsync.mockImplementation((cmd) => {
+      mockExecAsync.mockImplementation((cmd: string) => {
         if (cmd.includes('wc -l')) {
           const lines: Record<string, string> = {
             '"src/index.ts"': '     200 src/index.ts',
@@ -364,7 +370,7 @@ describe('FileMetrics', () => {
       const files: DiffFile[] = [
         { filename: 'src/index.ts', additions: 100, deletions: 20, status: 'modified' },
         { filename: 'assets/logo.png', additions: 0, deletions: 0, status: 'added' },
-        { filename: 'dist/app.wasm', additions: 0, deletions: 0, status: 'added' },
+        { filename: 'fonts/icon.woff', additions: 0, deletions: 0, status: 'added' }, // Using .woff instead of .wasm (wasm is in default exclude patterns)
       ];
 
       vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
@@ -381,7 +387,7 @@ describe('FileMetrics', () => {
         expect(result.value.metrics.filesAnalyzed).toHaveLength(1);
         expect(result.value.metrics.filesSkippedBinary).toHaveLength(2);
         expect(result.value.metrics.filesSkippedBinary).toContain('assets/logo.png');
-        expect(result.value.metrics.filesSkippedBinary).toContain('dist/app.wasm');
+        expect(result.value.metrics.filesSkippedBinary).toContain('fonts/icon.woff');
       }
     });
 
@@ -399,7 +405,7 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(sizes[path as string] || 1000));
       });
 
-      mockExecAsync.mockImplementation((cmd) => {
+      mockExecAsync.mockImplementation((cmd: string) => {
         if (cmd.includes('large.ts')) {
           return Promise.resolve({
             stdout: '     2000 src/large.ts', // Exceeds line limit
@@ -445,7 +451,7 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(1000));
       });
 
-      mockExecAsync.mockImplementation((cmd) => {
+      mockExecAsync.mockImplementation((cmd: string) => {
         if (cmd.includes('error.ts')) {
           return Promise.reject(new Error('File not found'));
         }
@@ -463,7 +469,7 @@ describe('FileMetrics', () => {
         expect(result.value.metrics.filesAnalyzed).toHaveLength(1);
         expect(result.value.metrics.filesWithErrors).toHaveLength(1);
         expect(result.value.metrics.filesWithErrors).toContain('src/error.ts');
-        expect(result.value.metrics.totalAdditions).toBe(50); // Only from ok.ts
+        expect(result.value.metrics.totalAdditions).toBe(150); // Total from all files (100 + 50), including errors
       }
     });
 

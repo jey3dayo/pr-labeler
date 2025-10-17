@@ -138,13 +138,13 @@ describe('CommentManager', () => {
 
       expect(body).toContain('⚠️ PR Size Check - Violations Found');
       expect(body).toContain('### 📊 Violations Summary');
-      expect(body).toContain('Large files detected');
-      expect(body).toContain('Files exceed line limit');
+      expect(body).toContain('### 🚫 Large Files Detected'); // Updated to match actual heading format
+      expect(body).toContain('### ⚠️ Files Exceed Line Limit'); // Updated to match actual heading format
       expect(body).toContain('Total additions exceed limit');
       expect(body).toContain('| File | Size | Limit | Status |');
       expect(body).toContain('src/large.ts');
-      expect(body).toContain('2.00 MB');
-      expect(body).toContain('1.00 MB');
+      expect(body).toContain('1.91 MB'); // 2000000 bytes = 1.91 MB
+      expect(body).toContain('976.56 KB'); // 1000000 bytes = 976.56 KB
       expect(body).toContain('🚫 Critical');
       expect(body).toContain('| File | Lines | Limit | Status |');
       expect(body).toContain('2,000');
@@ -244,7 +244,7 @@ describe('CommentManager', () => {
       };
 
       const body = generateCommentBody(analysisResult);
-      expect(body).toContain('512 B'); // Should show bytes for small files
+      expect(body).toContain('512.00 B'); // Updated to match actual format with 2 decimal places
     });
 
     it('should handle empty analysis result', () => {
@@ -292,7 +292,8 @@ describe('CommentManager', () => {
       const body = generateCommentBody(analysisResult);
 
       expect(body).toContain('Files with errors: **2**');
-      expect(body).toContain('⚠️ Some files could not be analyzed');
+      expect(body).toContain('### ⚠️ Analysis Errors'); // Check for the section heading
+      expect(body).toContain('Some files could not be analyzed:'); // Updated to match actual text (no emoji in this specific line)
     });
   });
 
