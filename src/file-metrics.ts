@@ -71,7 +71,6 @@ const BINARY_EXTENSIONS = new Set([
   '.png',
   '.gif',
   '.bmp',
-  '.svg',
   '.ico',
   '.webp',
   '.tiff',
@@ -138,7 +137,6 @@ const BINARY_EXTENSIONS = new Set([
   '.sqlite3',
   // Other
   '.DS_Store',
-  '.lock',
 ]);
 
 /**

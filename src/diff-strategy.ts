@@ -87,9 +87,13 @@ async function getLocalGitDiff(context: PullRequestContext): Promise<Result<Diff
 
     // Use git diff with numstat to get file changes
     // --diff-filter=ACMR filters: Added, Copied, Modified, Renamed (excludes Deleted)
-    const command = `git diff --numstat --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
+    // -M/-C enables rename and copy detection for better accuracy
+    const command = `git diff --numstat -M -C --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
 
-    const { stdout, stderr } = await execAsync(command);
+    const { stdout, stderr } = await execAsync(command, {
+      cwd: process.env['GITHUB_WORKSPACE'] || process.cwd(),
+      maxBuffer: 16 * 1024 * 1024, // 16MB buffer for large diffs
+    });
 
     if (stderr) {
       logWarning(`Git command stderr: ${stderr}`);
