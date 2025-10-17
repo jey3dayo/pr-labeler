@@ -8,7 +8,7 @@ import {
   getActionInputs,
   getGitHubToken,
   getPullRequestContext,
-  setOutputs,
+  setActionOutputs,
   logInfo,
   logError,
   logWarning,
@@ -39,26 +39,7 @@ async function run(): Promise<void> {
     const token = tokenResult.value;
 
     // Step 3: Get PR context
-    const contextResult = getPullRequestContext();
-    if (contextResult.isErr()) {
-      // Check if it's a draft PR and skip_draft is enabled
-      if (inputs.skip_draft && contextResult.error.message.includes('draft')) {
-        logInfo('📝 Draft PR detected and skip_draft is enabled. Skipping analysis.');
-        setOutputs({
-          totalAdditions: 0,
-          totalFiles: 0,
-          hasViolations: false,
-          largeFiles: [],
-          exceedsAdditions: false,
-          exceedsFileCount: false,
-          exceedsFileLines: [],
-          sizeLabel: '',
-        });
-        return;
-      }
-      throw contextResult.error;
-    }
-    const prContext = contextResult.value;
+    const prContext = getPullRequestContext();
 
     logInfo(`📋 Analyzing PR #${prContext.pullNumber} in ${prContext.owner}/${prContext.repo}`);
 
@@ -93,10 +74,10 @@ async function run(): Promise<void> {
       files,
       {
         fileSizeLimit: config.fileSizeLimit,
-        fileLineLimit: config.fileLineLimit,
-        maxAddedLines: config.maxAddedLines,
-        maxFileCount: config.maxFileCount,
-        excludePatterns: config.excludePatterns,
+        fileLineLimit: config.fileLinesLimit,
+        maxAddedLines: config.prAdditionsLimit,
+        maxFileCount: config.prFilesLimit,
+        excludePatterns: config.additionalExcludePatterns,
       },
       token,
       {
@@ -146,7 +127,12 @@ async function run(): Promise<void> {
       const labelResult = await updateLabels(
         analysis,
         {
-          sizeLabelThresholds: config.sizeLabelThresholds,
+          sizeLabelThresholds: {
+            small: config.sizeThresholds.S.additions,
+            medium: config.sizeThresholds.M.additions,
+            large: config.sizeThresholds.L.additions,
+            xlarge: config.sizeThresholds.L.additions * 2,
+          },
         },
         token,
         {
@@ -169,12 +155,12 @@ async function run(): Promise<void> {
     }
 
     // Step 8: Manage comment (if enabled)
-    if (config.commentMode !== 'never') {
+    if (config.commentOnPr !== 'never') {
       logInfo('💬 Managing PR comment...');
       const commentResult = await manageComment(
         analysis,
         {
-          commentMode: config.commentMode,
+          commentMode: config.commentOnPr,
         },
         token,
         {
@@ -192,16 +178,15 @@ async function run(): Promise<void> {
     }
 
     // Step 9: Set outputs
-    const sizeLabel = getSizeLabel(analysis.metrics.totalAdditions, config.sizeLabelThresholds);
-    setOutputs({
-      totalAdditions: analysis.metrics.totalAdditions,
-      totalFiles: analysis.metrics.totalFiles,
-      hasViolations,
-      largeFiles: analysis.violations.largeFiles.map(v => v.file),
-      exceedsAdditions: analysis.violations.exceedsAdditions,
-      exceedsFileCount: analysis.violations.exceedsFileCount,
-      exceedsFileLines: analysis.violations.exceedsFileLines.map(v => v.file),
-      sizeLabel,
+    setActionOutputs({
+      large_files: JSON.stringify(analysis.violations.largeFiles.map(v => v.file)),
+      pr_additions: analysis.metrics.totalAdditions.toString(),
+      pr_files: analysis.metrics.totalFiles.toString(),
+      exceeds_file_size: (analysis.violations.largeFiles.length > 0).toString(),
+      exceeds_file_lines: (analysis.violations.exceedsFileLines.length > 0).toString(),
+      exceeds_additions: analysis.violations.exceedsAdditions.toString(),
+      exceeds_file_count: analysis.violations.exceedsFileCount.toString(),
+      has_violations: hasViolations.toString(),
     });
 
     // Step 10: Fail if violations and fail_on_violation is true
@@ -214,26 +199,6 @@ async function run(): Promise<void> {
     const errorMessage = getErrorMessage(error);
     logError(`❌ Action failed: ${errorMessage}`);
     core.setFailed(errorMessage);
-  }
-}
-
-/**
- * Get size label helper (imported from label-manager)
- */
-function getSizeLabel(
-  totalAdditions: number,
-  thresholds: { small: number; medium: number; large: number; xlarge: number },
-): string {
-  if (totalAdditions <= thresholds.small) {
-    return 'size:S';
-  } else if (totalAdditions <= thresholds.medium) {
-    return 'size:M';
-  } else if (totalAdditions <= thresholds.large) {
-    return 'size:L';
-  } else if (totalAdditions <= thresholds.xlarge) {
-    return 'size:XL';
-  } else {
-    return 'size:XXL';
   }
 }
 

@@ -32,6 +32,35 @@ describe('FileMetrics', () => {
   let mockExecAsync: ReturnType<typeof vi.fn>;
   let mockOctokit: any;
 
+  // Helper to create mock Stats object
+  const createMockStats = (size: number): any => ({
+    size,
+    isFile: () => true,
+    isDirectory: () => false,
+    isBlockDevice: () => false,
+    isCharacterDevice: () => false,
+    isSymbolicLink: () => false,
+    isFIFO: () => false,
+    isSocket: () => false,
+    mode: 0o644,
+    nlink: 1,
+    uid: 1000,
+    gid: 1000,
+    rdev: 0,
+    blksize: 4096,
+    ino: 123456,
+    blocks: Math.ceil(size / 512),
+    atime: new Date(),
+    mtime: new Date(),
+    ctime: new Date(),
+    birthtime: new Date(),
+    atimeMs: Date.now(),
+    mtimeMs: Date.now(),
+    ctimeMs: Date.now(),
+    birthtimeMs: Date.now(),
+    dev: 123,
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -55,13 +84,7 @@ describe('FileMetrics', () => {
 
   describe('getFileSize', () => {
     it('should get file size using fs.stat (preferred)', async () => {
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 1024,
-        isFile: () => true,
-        isDirectory: () => false,
-        // @ts-expect-error - Partial mock
-        mode: 0,
-      });
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1024));
 
       const result = await getFileSize('src/test.ts', 'token', {
         owner: 'owner',
@@ -279,13 +302,7 @@ describe('FileMetrics', () => {
           'src/utils.ts': 3000,
           'src/new.ts': 8000,
         };
-        return Promise.resolve({
-          size: sizes[path as string] || 1000,
-          isFile: () => true,
-          isDirectory: () => false,
-          // @ts-expect-error - Partial mock
-          mode: 0,
-        });
+        return Promise.resolve(createMockStats(sizes[path as string] || 1000));
       });
 
       // Mock line counts
@@ -324,13 +341,7 @@ describe('FileMetrics', () => {
         { filename: 'node_modules/lib/index.js', additions: 200, deletions: 0, status: 'added' },
       ];
 
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 1000,
-        isFile: () => true,
-        isDirectory: () => false,
-        // @ts-expect-error - Partial mock
-        mode: 0,
-      });
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
 
       mockExecAsync.mockResolvedValue({
         stdout: '     100 file',
@@ -356,13 +367,7 @@ describe('FileMetrics', () => {
         { filename: 'dist/app.wasm', additions: 0, deletions: 0, status: 'added' },
       ];
 
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 1000,
-        isFile: () => true,
-        isDirectory: () => false,
-        // @ts-expect-error - Partial mock
-        mode: 0,
-      });
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
 
       mockExecAsync.mockResolvedValue({
         stdout: '     100 file',
@@ -391,13 +396,7 @@ describe('FileMetrics', () => {
           'src/large.ts': 2000000, // 2MB - exceeds limit
           'src/normal.ts': 5000,
         };
-        return Promise.resolve({
-          size: sizes[path as string] || 1000,
-          isFile: () => true,
-          isDirectory: () => false,
-          // @ts-expect-error - Partial mock
-          mode: 0,
-        });
+        return Promise.resolve(createMockStats(sizes[path as string] || 1000));
       });
 
       mockExecAsync.mockImplementation((cmd) => {
@@ -443,13 +442,7 @@ describe('FileMetrics', () => {
         if (path === 'src/error.ts') {
           return Promise.reject(new Error('Permission denied'));
         }
-        return Promise.resolve({
-          size: 1000,
-          isFile: () => true,
-          isDirectory: () => false,
-          // @ts-expect-error - Partial mock
-          mode: 0,
-        });
+        return Promise.resolve(createMockStats(1000));
       });
 
       mockExecAsync.mockImplementation((cmd) => {
@@ -494,13 +487,7 @@ describe('FileMetrics', () => {
         status: 'modified' as const,
       }));
 
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 1000,
-        isFile: () => true,
-        isDirectory: () => false,
-        // @ts-expect-error - Partial mock
-        mode: 0,
-      });
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
 
       mockExecAsync.mockResolvedValue({
         stdout: '     100 file',
