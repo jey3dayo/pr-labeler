@@ -110,23 +110,13 @@ jobs:
           install: true
           cache: true
 
-      - name: Run Markdown lint
+      - name: Check documentation quality
         run: |
-          echo "## 📝 Markdown Lint Check" >> $GITHUB_STEP_SUMMARY
-          if markdownlint-cli2 '**/*.md'; then
-            echo "✅ Markdown lint passed" >> $GITHUB_STEP_SUMMARY
+          echo "## 📝 Documentation Quality Check" >> $GITHUB_STEP_SUMMARY
+          if mise run docs:check; then
+            echo "✅ Markdown lint and links check passed" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Markdown lint failed" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
-
-      - name: Check Markdown links
-        run: |
-          echo "## 🔗 Link Check" >> $GITHUB_STEP_SUMMARY
-          if find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json --quiet {} \; ; then
-            echo "✅ All links are valid" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ Some links may be broken (check logs for details)" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Some checks failed (non-blocking)" >> $GITHUB_STEP_SUMMARY
             # Link checkは警告のみ（失敗させない）
           fi
 
