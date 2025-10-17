@@ -1,0 +1,277 @@
+name: Quality Checks
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feat/**"
+      - "feature/**"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+
+concurrency:
+  # PRとpushで異なるグループを使用してコンフリクトを防止
+  group: quality-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      docs-only: ${{ steps.changes.outputs.docs-only }}
+      markdown-changed: ${{ steps.changes.outputs.markdown-changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect file changes
+        id: changes
+        run: |
+          set -euo pipefail
+
+          # PRの場合は base との差分を取得、pushの場合はGitHubコンテキストを使用
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base_ref="${{ github.event.pull_request.base.sha }}"
+
+            # フォークPRの場合のフォールバック処理
+            if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+              echo "Base SHA not accessible, trying base branch: ${{ github.event.pull_request.base.ref }}"
+              base_ref="origin/${{ github.event.pull_request.base.ref }}"
+
+              # それでもダメな場合は最終フォールバック
+              if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+                echo "Base branch not accessible, using HEAD~1 as fallback"
+                base_ref="HEAD~1"
+              fi
+            fi
+
+            changed_files=$(git diff --name-only $base_ref..HEAD)
+          else
+            # pushの場合はGitHubコンテキストを使用
+            before_sha="${{ github.event.before }}"
+            current_sha="${{ github.sha }}"
+
+            if [ -z "$before_sha" ] || [ "$before_sha" = "0000000000000000000000000000000000000000" ]; then
+              # 初回コミットまたは空の場合は全ファイルを対象
+              echo "Initial commit or empty before SHA detected, listing all files"
+              changed_files=$(git ls-tree -r --name-only $current_sha)
+            else
+              # 通常のpushの場合
+              echo "Using GitHub context: $before_sha..$current_sha"
+              changed_files=$(git diff --name-only $before_sha..$current_sha)
+            fi
+          fi
+
+          echo "Changed files:"
+          echo "$changed_files"
+
+          # 変更ファイルを分類
+          markdown_files=$(echo "$changed_files" | grep -E '\.md$' || true)
+          code_files=$(echo "$changed_files" | grep -vE '\.md$|^docs/' || true)
+
+          echo "Markdown files: $markdown_files"
+          echo "Code files: $code_files"
+
+          # Markdownファイルの変更があるかチェック
+          if [[ -n "$markdown_files" ]]; then
+            echo "markdown-changed=true" >> $GITHUB_OUTPUT
+            echo "Markdown files have been changed"
+          else
+            echo "markdown-changed=false" >> $GITHUB_OUTPUT
+            echo "No markdown files changed"
+          fi
+
+          # docs-onlyの判定（Markdownファイルのみの変更）
+          if [[ -n "$changed_files" && -z "$code_files" ]]; then
+            echo "docs-only=true" >> $GITHUB_OUTPUT
+            echo "This is a docs-only change"
+          else
+            echo "docs-only=false" >> $GITHUB_OUTPUT
+            echo "This includes code changes"
+          fi
+
+  docs-quality:
+    name: Documentation Quality
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs['markdown-changed'] == 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+        with:
+          install: true
+          cache: true
+
+      - name: Check documentation quality
+        run: |
+          echo "## 📝 Documentation Quality Check" >> $GITHUB_STEP_SUMMARY
+          if mise run docs:check; then
+            echo "✅ Markdown lint and links check passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Some checks failed (non-blocking)" >> $GITHUB_STEP_SUMMARY
+            # Link checkは警告のみ（失敗させない）
+          fi
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs['docs-only'] == 'false'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linting
+        run: |
+          echo "## 🔍 Code Linting" >> $GITHUB_STEP_SUMMARY
+          if pnpm lint; then
+            echo "✅ Linting passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Linting failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Run type checking
+        run: |
+          echo "## 📋 Type Checking" >> $GITHUB_STEP_SUMMARY
+          if pnpm type-check; then
+            echo "✅ Type check passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Type check failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Run tests
+        run: |
+          echo "## 🧪 Tests" >> $GITHUB_STEP_SUMMARY
+          if pnpm test; then
+            echo "✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Build action
+        run: |
+          echo "## 📦 Build" >> $GITHUB_STEP_SUMMARY
+          if pnpm build; then
+            echo "✅ Build passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Build failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Commit dist if changed
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          if [[ -n "$(git status --porcelain dist/)" ]]; then
+            git add dist/
+            git commit -m "chore: update dist [skip ci]"
+
+            # Retry push up to 3 times to handle race conditions
+            for attempt in 1 2 3; do
+              if git push; then
+                echo "✅ dist/ committed and pushed" >> $GITHUB_STEP_SUMMARY
+                exit 0
+              elif [[ $attempt -lt 3 ]]; then
+                echo "Push attempt $attempt failed, retrying after delay..."
+                sleep $((attempt * 2))
+              else
+                echo "❌ Failed to push dist/ after 3 attempts" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+            done
+          else
+            echo "ℹ️ No changes to dist/" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [detect-changes, docs-quality, code-quality]
+    if: always()
+
+    steps:
+      - name: Determine overall result
+        run: |
+          docs_only="${{ needs.detect-changes.outputs['docs-only'] }}"
+          markdown_changed="${{ needs.detect-changes.outputs['markdown-changed'] }}"
+          docs_result="${{ needs.docs-quality.result }}"
+          code_result="${{ needs.code-quality.result }}"
+
+          echo "## 🎯 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "$docs_only" == "true" ]]; then
+            # ドキュメントのみの変更
+            echo "📝 **Documentation-only PR detected**" >> $GITHUB_STEP_SUMMARY
+
+            if [[ "$docs_result" == "success" ]] || [[ "$docs_result" == "skipped" ]]; then
+              echo "✅ Documentation quality checks passed" >> $GITHUB_STEP_SUMMARY
+              echo "result=success" >> $GITHUB_OUTPUT
+              exit 0
+            else
+              echo "❌ Documentation quality checks failed" >> $GITHUB_STEP_SUMMARY
+              echo "result=failure" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          else
+            # コード変更を含む
+            echo "💻 **Code changes detected**" >> $GITHUB_STEP_SUMMARY
+
+            all_success=true
+
+            # コード品質チェック結果
+            if [[ "$code_result" == "success" ]]; then
+              echo "✅ Code quality checks passed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Code quality checks failed" >> $GITHUB_STEP_SUMMARY
+              all_success=false
+            fi
+
+            # Markdownファイルも変更されている場合
+            if [[ "$markdown_changed" == "true" ]]; then
+              if [[ "$docs_result" == "success" ]]; then
+                echo "✅ Documentation quality checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "❌ Documentation quality checks failed" >> $GITHUB_STEP_SUMMARY
+                all_success=false
+              fi
+            fi
+
+            if [[ "$all_success" == "true" ]]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "## ✅ All quality checks passed!" >> $GITHUB_STEP_SUMMARY
+              echo "result=success" >> $GITHUB_OUTPUT
+              exit 0
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "## ❌ Some quality checks failed" >> $GITHUB_STEP_SUMMARY
+              echo "result=failure" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          fi

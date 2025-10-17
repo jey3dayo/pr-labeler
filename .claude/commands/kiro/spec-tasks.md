@@ -170,7 +170,7 @@ Once tasks are approved, start implementation:
 - Use `/clear` if conversation becomes too long, then continue with spec commands
 - All spec files (.kiro/specs/) are preserved and will be reloaded as needed
 
-### Review Checklist (for user reference):
+### Review Checklist (for user reference)
 
 - [ ] Tasks are properly sized (1-3 hours each)
 - [ ] All requirements are covered by tasks

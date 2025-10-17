@@ -1,0 +1,24 @@
+{
+  "feature_name": "pr-metrics-action",
+  "created_at": "2025-01-16T00:00:00Z",
+  "updated_at": "2025-10-17T00:00:00Z",
+  "language": "ja",
+  "phase": "tasks-generated",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true,
+      "notes": "Critical fixes applied: API pagination (lines 331-367), error type documentation (lines 891-901), binary detection strategy clarified"
+    },
+    "tasks": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "ready_for_implementation": true,
+  "implementation_notes": "See IMPLEMENTATION_STATUS.md for detailed gap analysis between spec and current implementation"
+}
