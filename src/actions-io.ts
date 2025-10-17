@@ -1,0 +1,168 @@
+/**
+ * GitHub Actions I/O interface
+ * Handles input/output operations and logging for the action
+ */
+
+import * as core from '@actions/core';
+import { Result, ok, err } from 'neverthrow';
+import { createConfigurationError } from './errors';
+import type { ConfigurationError } from './errors';
+
+/**
+ * Action input parameters (snake_case from action.yml)
+ */
+export interface ActionInputs {
+  github_token: string;
+  file_size_limit: string;
+  file_lines_limit: string;
+  pr_additions_limit: string;
+  pr_files_limit: string;
+  apply_labels: string;
+  auto_remove_labels: string;
+  apply_size_labels: string;
+  size_label_thresholds: string;
+  large_files_label: string;
+  too_many_files_label: string;
+  skip_draft_pr: string;
+  comment_on_pr: string;
+  fail_on_violation: string;
+  additional_exclude_patterns: string;
+}
+
+/**
+ * Action output parameters
+ */
+export interface ActionOutputs {
+  large_files: string; // JSON array of files exceeding limits
+  pr_additions: string; // Total lines added in PR
+  pr_files: string; // Total number of files in PR
+  exceeds_file_size: string; // "true" | "false"
+  exceeds_file_lines: string; // "true" | "false"
+  exceeds_additions: string; // "true" | "false"
+  exceeds_file_count: string; // "true" | "false"
+  has_violations: string; // "true" | "false"
+}
+
+/**
+ * Get GitHub token from input or environment variables
+ * Priority: input parameter > GITHUB_TOKEN > GH_TOKEN
+ */
+export function getGitHubToken(): Result<string, ConfigurationError> {
+  const token = core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'];
+
+  if (!token) {
+    return err(
+      createConfigurationError(
+        'github_token',
+        undefined,
+        'GitHub token is required. Set github_token input or GITHUB_TOKEN/GH_TOKEN environment variable',
+      ),
+    );
+  }
+
+  // Mark token as secret to prevent it from being logged
+  core.setSecret(token);
+  return ok(token);
+}
+
+/**
+ * Get all action inputs with defaults
+ */
+export function getActionInputs(): ActionInputs {
+  return {
+    github_token: core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'] || '',
+    file_size_limit: core.getInput('file_size_limit') || '100KB',
+    file_lines_limit: core.getInput('file_lines_limit') || '500',
+    pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
+    pr_files_limit: core.getInput('pr_files_limit') || '50',
+    apply_labels: core.getInput('apply_labels') || 'true',
+    auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
+    apply_size_labels: core.getInput('apply_size_labels') || 'true',
+    size_label_thresholds:
+      core.getInput('size_label_thresholds') ||
+      '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}',
+    large_files_label: core.getInput('large_files_label') || 'auto:large-files',
+    too_many_files_label: core.getInput('too_many_files_label') || 'auto:too-many-files',
+    skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
+    comment_on_pr: core.getInput('comment_on_pr') || 'auto',
+    fail_on_violation: core.getInput('fail_on_violation') || 'false',
+    additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
+  };
+}
+
+/**
+ * Set action output values
+ */
+export function setActionOutputs(outputs: ActionOutputs): void {
+  core.setOutput('large_files', outputs.large_files);
+  core.setOutput('pr_additions', outputs.pr_additions);
+  core.setOutput('pr_files', outputs.pr_files);
+  core.setOutput('exceeds_file_size', outputs.exceeds_file_size);
+  core.setOutput('exceeds_file_lines', outputs.exceeds_file_lines);
+  core.setOutput('exceeds_additions', outputs.exceeds_additions);
+  core.setOutput('exceeds_file_count', outputs.exceeds_file_count);
+  core.setOutput('has_violations', outputs.has_violations);
+}
+
+/**
+ * Log info message
+ */
+export function logInfo(message: string): void {
+  core.info(message);
+}
+
+/**
+ * Log debug message
+ */
+export function logDebug(message: string): void {
+  core.debug(message);
+}
+
+/**
+ * Log warning message
+ */
+export function logWarning(message: string): void {
+  core.warning(message);
+}
+
+/**
+ * Log error message
+ */
+export function logError(message: string): void {
+  core.error(message);
+}
+
+/**
+ * Set action as failed
+ */
+export function setFailed(message: string): void {
+  core.setFailed(message);
+}
+
+/**
+ * Write to GitHub Actions Summary
+ */
+export async function writeSummary(content: string): Promise<void> {
+  await core.summary.addRaw(content).write();
+}
+
+/**
+ * Get pull request context from GitHub Actions
+ */
+export function getPullRequestContext(): {
+  owner: string;
+  repo: string;
+  pullNumber: number;
+  baseSha: string;
+  headSha: string;
+} {
+  const context = {
+    owner: process.env['GITHUB_REPOSITORY_OWNER'] || '',
+    repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] || '',
+    pullNumber: parseInt(process.env['GITHUB_EVENT_NUMBER'] || '0', 10),
+    baseSha: process.env['GITHUB_BASE_REF'] || '',
+    headSha: process.env['GITHUB_HEAD_REF'] || '',
+  };
+
+  return context;
+}

@@ -1,0 +1,375 @@
+/**
+ * File metrics analysis
+ * Measures file sizes, line counts, and aggregates metrics
+ */
+
+import { Result, ok, err } from 'neverthrow';
+import { promises as fs } from 'fs';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import * as path from 'path';
+import * as github from '@actions/github';
+import { createFileAnalysisError } from './errors';
+import { logDebug, logInfo, logWarning } from './actions-io';
+import { isExcluded, getDefaultExcludePatterns } from './pattern-matcher';
+import type { FileAnalysisError, Violations, ViolationDetail } from './errors';
+import type { DiffFile } from './diff-strategy';
+
+// Create execAsync using promisify
+const execAsync = promisify(exec);
+
+/**
+ * File metrics data
+ */
+export interface FileMetrics {
+  filename: string;
+  size: number;
+  lines: number;
+  additions: number;
+  deletions: number;
+}
+
+/**
+ * Analysis result with metrics and violations
+ */
+export interface AnalysisResult {
+  metrics: {
+    totalFiles: number;
+    totalAdditions: number;
+    filesAnalyzed: FileMetrics[];
+    filesExcluded: string[];
+    filesSkippedBinary: string[];
+    filesWithErrors: string[];
+  };
+  violations: Violations;
+}
+
+/**
+ * Repository context for API calls
+ */
+interface RepoContext {
+  owner: string;
+  repo: string;
+}
+
+/**
+ * Configuration for file analysis
+ */
+interface AnalysisConfig {
+  fileSizeLimit: number;
+  fileLineLimit: number;
+  maxAddedLines: number;
+  maxFileCount: number;
+  excludePatterns: string[];
+}
+
+// Common binary file extensions
+const BINARY_EXTENSIONS = new Set([
+  // Images
+  '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.ico', '.webp', '.tiff',
+  // Videos
+  '.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv', '.m4v',
+  // Audio
+  '.mp3', '.wav', '.flac', '.aac', '.ogg', '.wma', '.m4a',
+  // Archives
+  '.zip', '.tar', '.gz', '.bz2', '.xz', '.rar', '.7z', '.jar',
+  // Executables
+  '.exe', '.dll', '.so', '.dylib', '.bin', '.app', '.deb', '.rpm',
+  // Fonts
+  '.ttf', '.otf', '.woff', '.woff2', '.eot',
+  // Data
+  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+  // Compiled
+  '.pyc', '.pyo', '.class', '.o', '.a', '.lib', '.wasm',
+  // Database
+  '.db', '.sqlite', '.sqlite3',
+  // Other
+  '.DS_Store', '.lock',
+]);
+
+/**
+ * Get file size using multiple strategies
+ * Priority: fs.stat → git ls-tree → GitHub API
+ */
+export async function getFileSize(
+  filePath: string,
+  token: string,
+  context: RepoContext,
+): Promise<Result<number, FileAnalysisError>> {
+  logDebug(`Getting size for file: ${filePath}`);
+
+  // Strategy 1: Try fs.stat (fastest)
+  try {
+    const stats = await fs.stat(filePath);
+    if (stats.isFile()) {
+      logDebug(`Got size from fs.stat: ${stats.size} bytes`);
+      return ok(stats.size);
+    }
+  } catch (error) {
+    logDebug(`fs.stat failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  // Strategy 2: Try git ls-tree
+  try {
+    const { stdout } = await execAsync(`git ls-tree -l HEAD "${filePath}"`);
+    // Parse output: "100644 blob abc123    1234\tfilename"
+    // Split by tab first to separate metadata from filename
+    const tabParts = stdout.trim().split('\t');
+    if (tabParts.length >= 2 && tabParts[0]) {
+      // Now split the metadata part by spaces
+      const metaParts = tabParts[0].trim().split(/\s+/);
+      // Format: [mode, type, hash, size]
+      if (metaParts.length >= 4) {
+        const size = parseInt(metaParts[3] || '', 10);
+        if (!isNaN(size)) {
+          logDebug(`Got size from git ls-tree: ${size} bytes`);
+          return ok(size);
+        }
+      }
+    }
+  } catch (error) {
+    logDebug(`git ls-tree failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  // Strategy 3: Try GitHub API
+  try {
+    const octokit = github.getOctokit(token);
+    const response = await octokit.rest.repos.getContent({
+      owner: context.owner,
+      repo: context.repo,
+      path: filePath,
+    });
+
+    if ('size' in response.data && response.data.type === 'file') {
+      logDebug(`Got size from GitHub API: ${response.data.size} bytes`);
+      return ok(response.data.size);
+    }
+  } catch (error) {
+    logDebug(`GitHub API failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  return err(createFileAnalysisError(filePath, 'Failed to get file size using all strategies'));
+}
+
+/**
+ * Count lines in a file
+ * Priority: wc -l → Node.js implementation
+ */
+export async function getFileLineCount(
+  filePath: string,
+  maxLines?: number,
+): Promise<Result<number, FileAnalysisError>> {
+  logDebug(`Counting lines in file: ${filePath}`);
+
+  // Strategy 1: Try wc -l (fastest for large files)
+  try {
+    const { stdout } = await execAsync(`wc -l "${filePath}"`);
+    const match = stdout.match(/^\s*(\d+)/);
+    if (match && match[1]) {
+      const lines = parseInt(match[1], 10);
+      logDebug(`Got line count from wc -l: ${lines}`);
+      if (maxLines && lines > maxLines) {
+        return ok(maxLines);
+      }
+      return ok(lines);
+    }
+  } catch (error) {
+    logDebug(`wc -l failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+
+  // Strategy 2: Node.js implementation
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+
+    // Handle different line endings
+    const lines = content.split(/\r\n|\r|\n/);
+    let lineCount = lines.length;
+
+    // If last line is empty, don't count it
+    if (lines[lines.length - 1] === '') {
+      lineCount--;
+    }
+
+    // Apply max lines limit for early termination
+    if (maxLines && lineCount > maxLines) {
+      logDebug(`Line count exceeds max (${maxLines}), returning max`);
+      return ok(maxLines);
+    }
+
+    logDebug(`Got line count from Node.js: ${lineCount}`);
+    return ok(lineCount);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return err(createFileAnalysisError(filePath, `Failed to count lines: ${message}`));
+  }
+}
+
+/**
+ * Check if a file is binary based on extension or content
+ */
+export async function isBinaryFile(filePath: string): Promise<boolean> {
+  const ext = path.extname(filePath).toLowerCase();
+
+  // Check known binary extensions
+  if (BINARY_EXTENSIONS.has(ext)) {
+    return true;
+  }
+
+  // For unknown extensions, try content detection
+  try {
+    const buffer = await fs.readFile(filePath, { encoding: null });
+    const sample = buffer.slice(0, 8192); // Check first 8KB
+
+    // Check for null bytes (common in binary files)
+    for (let i = 0; i < sample.length; i++) {
+      if (sample[i] === 0) {
+        return true;
+      }
+    }
+
+    // Check if content is mostly non-printable
+    let nonPrintable = 0;
+    for (let i = 0; i < Math.min(sample.length, 512); i++) {
+      const byte = sample[i];
+      // Check if byte is outside printable ASCII range (excluding common whitespace)
+      if (byte !== undefined && (byte < 32 || byte > 126) && byte !== 9 && byte !== 10 && byte !== 13) {
+        nonPrintable++;
+      }
+    }
+
+    // If more than 30% non-printable, consider binary
+    return nonPrintable / Math.min(sample.length, 512) > 0.3;
+  } catch (error) {
+    // If we can't read the file, assume it's text
+    logDebug(`Could not read file for binary detection: ${error instanceof Error ? error.message : 'Unknown'}`);
+    return false;
+  }
+}
+
+/**
+ * Analyze files and calculate metrics and violations
+ */
+export async function analyzeFiles(
+  files: DiffFile[],
+  config: AnalysisConfig,
+  token: string,
+  context: RepoContext,
+): Promise<Result<AnalysisResult, FileAnalysisError>> {
+  logInfo(`Analyzing ${files.length} files`);
+
+  const result: AnalysisResult = {
+    metrics: {
+      totalFiles: files.length,
+      totalAdditions: 0,
+      filesAnalyzed: [],
+      filesExcluded: [],
+      filesSkippedBinary: [],
+      filesWithErrors: [],
+    },
+    violations: {
+      largeFiles: [],
+      exceedsFileLines: [],
+      exceedsAdditions: false,
+      exceedsFileCount: false,
+    },
+  };
+
+  // Check file count violation early
+  if (files.length > config.maxFileCount) {
+    result.violations.exceedsFileCount = true;
+    logWarning(`File count ${files.length} exceeds limit ${config.maxFileCount}`);
+  }
+
+  // Combine default and custom exclude patterns
+  const excludePatterns = [...getDefaultExcludePatterns(), ...config.excludePatterns];
+
+  // Calculate total additions from ALL files (including excluded)
+  for (const file of files) {
+    result.metrics.totalAdditions += file.additions;
+  }
+
+  // Process each file
+  let processedCount = 0;
+  for (const file of files) {
+    // Stop processing after maxFileCount
+    if (processedCount >= config.maxFileCount) {
+      logWarning(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
+      break;
+    }
+
+    // Check if file should be excluded
+    if (isExcluded(file.filename, excludePatterns)) {
+      result.metrics.filesExcluded.push(file.filename);
+      continue;
+    }
+
+    // Check if file is binary
+    if (await isBinaryFile(file.filename)) {
+      result.metrics.filesSkippedBinary.push(file.filename);
+      logDebug(`Skipping binary file: ${file.filename}`);
+      continue;
+    }
+
+    // Get file metrics
+    try {
+      const sizeResult = await getFileSize(file.filename, token, context);
+      const lineResult = await getFileLineCount(file.filename, config.fileLineLimit + 1);
+
+      if (sizeResult.isErr() || lineResult.isErr()) {
+        result.metrics.filesWithErrors.push(file.filename);
+        logWarning(`Failed to analyze file ${file.filename}`);
+        continue;
+      }
+
+      const metrics: FileMetrics = {
+        filename: file.filename,
+        size: sizeResult.value,
+        lines: lineResult.value,
+        additions: file.additions,
+        deletions: file.deletions,
+      };
+
+      result.metrics.filesAnalyzed.push(metrics);
+
+      // Check for violations
+      if (metrics.size > config.fileSizeLimit) {
+        const violation: ViolationDetail = {
+          file: file.filename,
+          actualValue: metrics.size,
+          limit: config.fileSizeLimit,
+          violationType: 'size',
+          severity: 'critical',
+        };
+        result.violations.largeFiles.push(violation);
+        logWarning(`File ${file.filename} exceeds size limit: ${metrics.size} > ${config.fileSizeLimit}`);
+      }
+
+      if (metrics.lines > config.fileLineLimit) {
+        const violation: ViolationDetail = {
+          file: file.filename,
+          actualValue: metrics.lines,
+          limit: config.fileLineLimit,
+          violationType: 'lines',
+          severity: 'warning',
+        };
+        result.violations.exceedsFileLines.push(violation);
+        logWarning(`File ${file.filename} exceeds line limit: ${metrics.lines} > ${config.fileLineLimit}`);
+      }
+
+      processedCount++;
+    } catch (error) {
+      result.metrics.filesWithErrors.push(file.filename);
+      logWarning(`Unexpected error analyzing file ${file.filename}: ${error instanceof Error ? error.message : 'Unknown'}`);
+    }
+  }
+
+  // Check total additions violation
+  if (result.metrics.totalAdditions > config.maxAddedLines) {
+    result.violations.exceedsAdditions = true;
+    logWarning(`Total additions ${result.metrics.totalAdditions} exceeds limit ${config.maxAddedLines}`);
+  }
+
+  logInfo(`Analysis complete: ${result.metrics.filesAnalyzed.length} files analyzed, ${result.metrics.filesExcluded.length} excluded, ${result.metrics.filesSkippedBinary.length} binary files skipped`);
+
+  return ok(result);
+}
