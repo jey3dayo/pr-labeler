@@ -63,10 +63,7 @@ export function parseSize(input: string): Result<number, ParseError> {
       return ok(Math.round(plainNumber));
     }
     return err(
-      createParseError(
-        input,
-        `Invalid size format: ${input}. Use formats like "100KB", "1.5MB", or plain numbers.`,
-      ),
+      createParseError(input, `Invalid size format: ${input}. Use formats like "100KB", "1.5MB", or plain numbers.`),
     );
   }
 

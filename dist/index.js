@@ -31116,8 +31116,11 @@ function parseGitDiffLine(line) {
 async function getLocalGitDiff(context) {
     try {
         (0, actions_io_1.logDebug)('Attempting to get diff using local git command');
-        const command = `git diff --numstat --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
-        const { stdout, stderr } = await execAsync(command);
+        const command = `git diff --numstat -M -C --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
+        const { stdout, stderr } = await execAsync(command, {
+            cwd: process.env['GITHUB_WORKSPACE'] || process.cwd(),
+            maxBuffer: 16 * 1024 * 1024,
+        });
         if (stderr) {
             (0, actions_io_1.logWarning)(`Git command stderr: ${stderr}`);
         }
@@ -31381,7 +31384,6 @@ const BINARY_EXTENSIONS = new Set([
     '.png',
     '.gif',
     '.bmp',
-    '.svg',
     '.ico',
     '.webp',
     '.tiff',
@@ -31439,7 +31441,6 @@ const BINARY_EXTENSIONS = new Set([
     '.sqlite',
     '.sqlite3',
     '.DS_Store',
-    '.lock',
 ]);
 async function getFileSize(filePath, token, context) {
     (0, actions_io_1.logDebug)(`Getting size for file: ${filePath}`);
@@ -32191,35 +32192,30 @@ function parseSize(input) {
     if (/(KB|MB|GB|kB)\s*(KB|MB|GB|B|K|M|G)/i.test(trimmed) || /[KMGB]{4,}/i.test(trimmed)) {
         return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. Multiple units detected.`));
     }
-    try {
-        if (/^\d+(\.\d+)?\s*K$/i.test(trimmed)) {
-            const numValue = parseFloat(trimmed.replace(/K$/i, ''));
-            return (0, neverthrow_1.ok)(Math.round(numValue * 1024));
-        }
-        if (/^\d+(\.\d+)?\s*M$/i.test(trimmed)) {
-            const numValue = parseFloat(trimmed.replace(/M$/i, ''));
-            return (0, neverthrow_1.ok)(Math.round(numValue * 1024 * 1024));
-        }
-        if (/^\d+(\.\d+)?\s*G$/i.test(trimmed)) {
-            const numValue = parseFloat(trimmed.replace(/G$/i, ''));
-            return (0, neverthrow_1.ok)(Math.round(numValue * 1024 * 1024 * 1024));
-        }
-        const parsed = bytes_1.default.parse(trimmed);
-        if (parsed === null) {
-            return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}`));
-        }
-        if (parsed < 0) {
-            return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, 'Size cannot be negative'));
-        }
-        return (0, neverthrow_1.ok)(Math.round(parsed));
+    if (/^\d+(\.\d+)?\s*K$/i.test(trimmed)) {
+        const numValue = parseFloat(trimmed.replace(/K$/i, ''));
+        return (0, neverthrow_1.ok)(Math.round(numValue * 1024));
     }
-    catch (_error) {
-        const plainNumber = parseFloat(trimmed);
-        if (!isNaN(plainNumber) && plainNumber >= 0) {
+    if (/^\d+(\.\d+)?\s*M$/i.test(trimmed)) {
+        const numValue = parseFloat(trimmed.replace(/M$/i, ''));
+        return (0, neverthrow_1.ok)(Math.round(numValue * 1024 * 1024));
+    }
+    if (/^\d+(\.\d+)?\s*G$/i.test(trimmed)) {
+        const numValue = parseFloat(trimmed.replace(/G$/i, ''));
+        return (0, neverthrow_1.ok)(Math.round(numValue * 1024 * 1024 * 1024));
+    }
+    const parsed = bytes_1.default.parse(trimmed);
+    if (parsed === null) {
+        const plainNumber = Number(trimmed);
+        if (Number.isFinite(plainNumber) && plainNumber >= 0) {
             return (0, neverthrow_1.ok)(Math.round(plainNumber));
         }
         return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. Use formats like "100KB", "1.5MB", or plain numbers.`));
     }
+    if (parsed < 0) {
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, 'Size cannot be negative'));
+    }
+    return (0, neverthrow_1.ok)(Math.round(parsed));
 }
 function parseSizes(inputs) {
     const results = [];
