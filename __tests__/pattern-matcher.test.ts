@@ -42,9 +42,7 @@ describe('PatternMatcher', () => {
 
       lockFiles.forEach(lockFile => {
         // Either the specific file or a pattern that matches it should be included
-        const hasPattern = patterns.some(
-          p => p === lockFile || p === '*.lock' || p === `**/${lockFile}`,
-        );
+        const hasPattern = patterns.some(p => p === lockFile || p === '*.lock' || p === `**/${lockFile}`);
         expect(hasPattern).toBe(true);
       });
     });
@@ -82,14 +80,7 @@ describe('PatternMatcher', () => {
     it('should include generated and cache patterns', () => {
       const patterns = getDefaultExcludePatterns();
 
-      const generatedPatterns = [
-        '*.generated.*',
-        '*.gen.ts',
-        '*.pb.go',
-        '.cache/**',
-        '.parcel-cache/**',
-        '.turbo/**',
-      ];
+      const generatedPatterns = ['*.generated.*', '*.gen.ts', '*.pb.go', '.cache/**', '.parcel-cache/**', '.turbo/**'];
 
       generatedPatterns.forEach(pattern => {
         expect(patterns).toContain(pattern);

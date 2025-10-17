@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-[![Test Coverage](https://img.shields.io/badge/Coverage-93%25-green.svg)]()
+![Test Coverage](https://img.shields.io/badge/Coverage-93%25-green.svg)
 
 PRのサイズと品質を自動的にチェックし、ラベル付けとコメント投稿を行うGitHub Actionです。
 

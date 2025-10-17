@@ -96,7 +96,10 @@ async function getLocalGitDiff(context: PullRequestContext): Promise<Result<Diff
     }
 
     // Parse the output
-    const lines = stdout.trim().split('\n').filter(line => line.length > 0);
+    const lines = stdout
+      .trim()
+      .split('\n')
+      .filter(line => line.length > 0);
     const files: DiffFile[] = [];
 
     for (const line of lines) {
@@ -122,10 +125,7 @@ async function getLocalGitDiff(context: PullRequestContext): Promise<Result<Diff
 /**
  * Get diff files using GitHub API
  */
-async function getGitHubAPIDiff(
-  context: PullRequestContext,
-  token: string,
-): Promise<Result<DiffFile[], DiffError>> {
+async function getGitHubAPIDiff(context: PullRequestContext, token: string): Promise<Result<DiffFile[], DiffError>> {
   try {
     logDebug('Attempting to get diff using GitHub API');
 
@@ -242,10 +242,7 @@ export class DiffStrategy {
  * Get diff files for a pull request
  * Tries local git first, then falls back to GitHub API
  */
-export async function getDiffFiles(
-  context: PullRequestContext,
-  token: string,
-): Promise<Result<DiffResult, DiffError>> {
+export async function getDiffFiles(context: PullRequestContext, token: string): Promise<Result<DiffResult, DiffError>> {
   const strategy = new DiffStrategy();
   return strategy.execute(context, token);
 }

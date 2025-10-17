@@ -29,12 +29,7 @@ vi.mock('@actions/github');
 vi.mock('@actions/core');
 
 // Import after mocking
-import {
-  getFileSize,
-  getFileLineCount,
-  isBinaryFile,
-  analyzeFiles,
-} from '../src/file-metrics';
+import { getFileSize, getFileLineCount, isBinaryFile, analyzeFiles } from '../src/file-metrics';
 import type { DiffFile } from '../src/diff-strategy';
 
 describe('FileMetrics', () => {
@@ -257,7 +252,7 @@ describe('FileMetrics', () => {
     });
 
     it('should use content detection for unknown extensions', async () => {
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from([0x00, 0x01, 0x02, 0xFF]));
+      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from([0x00, 0x01, 0x02, 0xff]));
       expect(await isBinaryFile('unknown.xyz')).toBe(true);
 
       vi.mocked(fs.readFile).mockResolvedValue('This is text content');
@@ -269,7 +264,9 @@ describe('FileMetrics', () => {
       expect(await isBinaryFile('Makefile')).toBe(false);
 
       // ELF header with more binary data (more than 30% non-printable)
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from([0x7F, 0x45, 0x4C, 0x46, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00]));
+      vi.mocked(fs.readFile).mockResolvedValue(
+        Buffer.from([0x7f, 0x45, 0x4c, 0x46, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00]),
+      );
       expect(await isBinaryFile('binary')).toBe(true);
     });
 
@@ -302,7 +299,7 @@ describe('FileMetrics', () => {
       ];
 
       // Mock file sizes
-      vi.mocked(fs.stat).mockImplementation((path) => {
+      vi.mocked(fs.stat).mockImplementation(path => {
         const sizes: Record<string, number> = {
           'src/index.ts': 5000,
           'src/utils.ts': 3000,
@@ -397,7 +394,7 @@ describe('FileMetrics', () => {
         { filename: 'src/normal.ts', additions: 100, deletions: 20, status: 'modified' },
       ];
 
-      vi.mocked(fs.stat).mockImplementation((path) => {
+      vi.mocked(fs.stat).mockImplementation(path => {
         const sizes: Record<string, number> = {
           'src/large.ts': 2000000, // 2MB - exceeds limit
           'src/normal.ts': 5000,
@@ -444,7 +441,7 @@ describe('FileMetrics', () => {
         { filename: 'src/ok.ts', additions: 50, deletions: 10, status: 'modified' },
       ];
 
-      vi.mocked(fs.stat).mockImplementation((path) => {
+      vi.mocked(fs.stat).mockImplementation(path => {
         if (path === 'src/error.ts') {
           return Promise.reject(new Error('Permission denied'));
         }

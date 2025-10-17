@@ -383,9 +383,7 @@ describe('LabelManager', () => {
     });
 
     it('should continue removing even if one fails', async () => {
-      mockRemoveLabel
-        .mockRejectedValueOnce(new Error('Label not found'))
-        .mockResolvedValueOnce({});
+      mockRemoveLabel.mockRejectedValueOnce(new Error('Label not found')).mockResolvedValueOnce({});
 
       const result = await removeLabels(['nonexistent', 'size:M'], 'token', {
         owner: 'owner',

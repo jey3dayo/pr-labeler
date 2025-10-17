@@ -106,10 +106,7 @@ export function getDetailLabels(violations: Violations): string[] {
 /**
  * Get current labels on the PR
  */
-export async function getCurrentLabels(
-  token: string,
-  context: PRContext,
-): Promise<Result<string[], GitHubAPIError>> {
+export async function getCurrentLabels(token: string, context: PRContext): Promise<Result<string[], GitHubAPIError>> {
   try {
     logDebug(`Getting current labels for PR #${context.pullNumber}`);
 
@@ -269,9 +266,7 @@ export async function updateLabels(
   }
 
   // Calculate final label list
-  const finalLabels = currentLabels
-    .filter(label => !labelsToRemove.includes(label))
-    .concat(labelsToAdd);
+  const finalLabels = currentLabels.filter(label => !labelsToRemove.includes(label)).concat(labelsToAdd);
 
   const result: LabelUpdate = {
     added: labelsToAdd,
@@ -282,7 +277,9 @@ export async function updateLabels(
   if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
     logInfo('No label changes needed');
   } else {
-    logInfo(`Label update complete. Added: ${labelsToAdd.join(', ') || 'none'}. Removed: ${labelsToRemove.join(', ') || 'none'}`);
+    logInfo(
+      `Label update complete. Added: ${labelsToAdd.join(', ') || 'none'}. Removed: ${labelsToRemove.join(', ') || 'none'}`,
+    );
   }
 
   return ok(result);

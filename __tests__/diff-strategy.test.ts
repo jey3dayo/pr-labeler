@@ -267,9 +267,7 @@ invalid line
 
       await getDiffFiles(context, 'test-token');
 
-      expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('git diff --numstat --diff-filter=ACMR'),
-      );
+      expect(mockExecAsync).toHaveBeenCalledWith(expect.stringContaining('git diff --numstat --diff-filter=ACMR'));
     });
 
     it('should handle GitHub API with removed files', async () => {

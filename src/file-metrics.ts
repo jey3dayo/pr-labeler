@@ -66,25 +66,79 @@ interface AnalysisConfig {
 // Common binary file extensions
 const BINARY_EXTENSIONS = new Set([
   // Images
-  '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.ico', '.webp', '.tiff',
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.bmp',
+  '.svg',
+  '.ico',
+  '.webp',
+  '.tiff',
   // Videos
-  '.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv', '.m4v',
+  '.mp4',
+  '.avi',
+  '.mov',
+  '.wmv',
+  '.flv',
+  '.webm',
+  '.mkv',
+  '.m4v',
   // Audio
-  '.mp3', '.wav', '.flac', '.aac', '.ogg', '.wma', '.m4a',
+  '.mp3',
+  '.wav',
+  '.flac',
+  '.aac',
+  '.ogg',
+  '.wma',
+  '.m4a',
   // Archives
-  '.zip', '.tar', '.gz', '.bz2', '.xz', '.rar', '.7z', '.jar',
+  '.zip',
+  '.tar',
+  '.gz',
+  '.bz2',
+  '.xz',
+  '.rar',
+  '.7z',
+  '.jar',
   // Executables
-  '.exe', '.dll', '.so', '.dylib', '.bin', '.app', '.deb', '.rpm',
+  '.exe',
+  '.dll',
+  '.so',
+  '.dylib',
+  '.bin',
+  '.app',
+  '.deb',
+  '.rpm',
   // Fonts
-  '.ttf', '.otf', '.woff', '.woff2', '.eot',
+  '.ttf',
+  '.otf',
+  '.woff',
+  '.woff2',
+  '.eot',
   // Data
-  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
   // Compiled
-  '.pyc', '.pyo', '.class', '.o', '.a', '.lib', '.wasm',
+  '.pyc',
+  '.pyo',
+  '.class',
+  '.o',
+  '.a',
+  '.lib',
+  '.wasm',
   // Database
-  '.db', '.sqlite', '.sqlite3',
+  '.db',
+  '.sqlite',
+  '.sqlite3',
   // Other
-  '.DS_Store', '.lock',
+  '.DS_Store',
+  '.lock',
 ]);
 
 /**
@@ -359,7 +413,9 @@ export async function analyzeFiles(
       processedCount++;
     } catch (error) {
       result.metrics.filesWithErrors.push(file.filename);
-      logWarning(`Unexpected error analyzing file ${file.filename}: ${error instanceof Error ? error.message : 'Unknown'}`);
+      logWarning(
+        `Unexpected error analyzing file ${file.filename}: ${error instanceof Error ? error.message : 'Unknown'}`,
+      );
     }
   }
 
@@ -369,7 +425,9 @@ export async function analyzeFiles(
     logWarning(`Total additions ${result.metrics.totalAdditions} exceeds limit ${config.maxAddedLines}`);
   }
 
-  logInfo(`Analysis complete: ${result.metrics.filesAnalyzed.length} files analyzed, ${result.metrics.filesExcluded.length} excluded, ${result.metrics.filesSkippedBinary.length} binary files skipped`);
+  logInfo(
+    `Analysis complete: ${result.metrics.filesAnalyzed.length} files analyzed, ${result.metrics.filesExcluded.length} excluded, ${result.metrics.filesSkippedBinary.length} binary files skipped`,
+  );
 
   return ok(result);
 }

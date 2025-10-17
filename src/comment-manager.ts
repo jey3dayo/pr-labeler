@@ -41,7 +41,9 @@ export const COMMENT_SIGNATURE = '<!-- pr-metrics-action -->';
  * Format bytes to human-readable string
  */
 function formatBytes(bytes: number): string {
-  if (bytes === 0) {return '0 B';}
+  if (bytes === 0) {
+    return '0 B';
+  }
 
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
@@ -145,9 +147,7 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
     body += '|------|------|-------|----------|\n';
 
     // Sort by size and take top 10
-    const topFiles = [...metrics.filesAnalyzed]
-      .sort((a, b) => b.size - a.size)
-      .slice(0, 10);
+    const topFiles = [...metrics.filesAnalyzed].sort((a, b) => b.size - a.size).slice(0, 10);
 
     for (const file of topFiles) {
       const changes = `+${file.additions}/-${file.deletions}`;
