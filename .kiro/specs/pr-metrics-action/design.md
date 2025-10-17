@@ -389,7 +389,10 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
   - バイナリファイルや行数取得不可の場合はスキップしサイズのみ評価
   - 実装注記: Linux環境前提で`wc -l`使用、またはNode.js実装（`fs.readFileSync`+`split('\\n')`）でクロスプラットフォーム対応
 
-- **バイナリファイル判定**:
+- **バイナリファイル判定（優先順位）**:
+  - 判定順序:
+    1. `istextorbinary`ライブラリによる内容ベース判定（最も正確）
+    2. 拡張子ベースの判定（フォールバック）
   - 実装アプローチ1（推奨）: `istextorbinary`ライブラリを使用
     ```typescript
     import { isBinary } from 'istextorbinary';
@@ -398,11 +401,24 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
       return isBinary(null, buffer);
     };
     ```
-  - 実装アプローチ2（軽量）: 拡張子ベースの簡易判定
+  - 実装アプローチ2（フォールバック）: 拡張子ベースの簡易判定
     ```typescript
     const BINARY_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.zip', '.exe', '.dll'];
     const isBinaryByExtension = (path: string): boolean => {
       return BINARY_EXTENSIONS.some(ext => path.toLowerCase().endsWith(ext));
+    };
+    ```
+  - バイナリ判定の統合実装:
+    ```typescript
+    const isBinaryFile = (filePath: string): boolean => {
+      try {
+        // 優先度1: istextorbinaryによる内容判定
+        const buffer = fs.readFileSync(filePath, { encoding: null }).subarray(0, 512);
+        return isBinary(null, buffer);
+      } catch {
+        // 優先度2: 拡張子による判定（ファイル読み込み失敗時）
+        return isBinaryByExtension(filePath);
+      }
     };
     ```
   - バイナリファイル検出時は行数カウントをスキップし、サイズチェックのみ実施
@@ -1084,9 +1100,15 @@ const shouldSkipDetailedAnalysis = (fileCount: number): boolean => {
 
 ```typescript
 interface PaginationConfig {
-  perPage: 100;  // 最大値を使用
-  maxPages: 10;  // 最大1000ファイルまで
+  perPage: 100;  // GitHub APIの標準最大値（100件/ページ）
+  maxPages: 10;  // 最大1000ファイルまで取得可能
 }
+
+// デフォルト設定
+const DEFAULT_PAGINATION: PaginationConfig = {
+  perPage: 100,    // GitHub API推奨の最大ページサイズ
+  maxPages: 10     // 合計最大1000ファイルまで
+};
 
 async function* fetchAllFiles(
   octokit: Octokit,

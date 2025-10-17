@@ -140,6 +140,13 @@ PR Metrics Actionの実装タスクリストです。各タスクは1-3時間で
   - CIでのテスト自動実行設定
   - _Requirements: 7.4_
 
+- [ ] 7.3 自己テスト用ワークフロー作成
+  - ドライラン用のテストワークフロー（.github/workflows/self-test.yml）作成
+  - モック環境でのラベル・コメント操作テスト
+  - 小規模・大規模・Draft PRのテストケース
+  - 違反検出時の挙動確認
+  - _Requirements: 品質保証全般_
+
 - [ ] 8. ドキュメント作成
 - [ ] 8.1 README.mdと使用例
   - プロジェクト概要とバッジ表示
@@ -148,6 +155,21 @@ PR Metrics Actionの実装タスクリストです。各タスクは1-3時間で
   - 5つ以上の使用例（基本、カスタム、Draft PR等）
   - トラブルシューティングガイド
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+
+- [ ] 8.2 権限とフォークPRドキュメント作成
+  - 最小権限スコープの文書化（pull-requests:write, issues:write）
+  - フォークPRでの制約事項と回避策
+  - `pull_request_target`イベント使用時のセキュリティ警告
+  - 権限不足時の挙動説明（分析は継続、ラベル・コメントはスキップ）
+  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+
+- [ ] 8.3 使用例集作成（examples/ディレクトリ）
+  - 標準的な使用例（examples/basic.yml）
+  - 厳格モード例（examples/strict.yml - fail_on_violation有効）
+  - コメント抑制例（examples/no-comment.yml）
+  - Draft PRスキップ例（examples/draft-skip.yml）
+  - フォークPR対応例（examples/fork-pr.yml）
+  - _Requirements: 8.5_
 
 ---
 
