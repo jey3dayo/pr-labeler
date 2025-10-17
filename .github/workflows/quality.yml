@@ -12,7 +12,8 @@ on:
     branches: [main, develop]
 
 concurrency:
-  group: quality-${{ github.ref }}
+  # PRとpushで異なるグループを使用してコンフリクトを防止
+  group: quality-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:

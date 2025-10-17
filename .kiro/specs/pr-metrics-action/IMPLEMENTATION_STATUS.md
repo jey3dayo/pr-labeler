@@ -14,38 +14,38 @@ This document tracks known gaps between the specification (requirements.md, desi
 
 ### 1. Input Parameter Name Mismatches
 
-| action.yml (Spec)             | src/index.ts (Current)   | Status                         |
-| ----------------------------- | ------------------------ | ------------------------------ |
-| `file_size_limit`             | ✅ Correct               | OK                             |
-| `file_lines_limit`            | ❌ `line_limit_file`     | **Mismatch**                   |
-| `pr_additions_limit`          | ❌ `line_limit_pr`       | **Mismatch**                   |
-| `pr_files_limit`              | Not implemented          | **Missing**                    |
-| `apply_labels`                | Not implemented          | **Missing**                    |
-| `auto_remove_labels`          | Not implemented          | **Missing**                    |
-| `apply_size_labels`           | Not implemented          | **Missing**                    |
-| `size_label_thresholds`       | Not implemented          | **Missing**                    |
-| `large_files_label`           | ✅ Correct               | OK                             |
-| `too_many_files_label`        | ❌ `large_pr_label`      | **Mismatch**                   |
-| `skip_draft_pr`               | ❌ `skip_label`          | **Mismatch** (wrong logic)     |
-| `comment_on_pr`               | ❌ `post_comment`        | **Mismatch** (boolean vs enum) |
-| `fail_on_violation`           | ❌ `fail_on_large_files` | **Mismatch**                   |
-| `additional_exclude_patterns` | ❌ `exclude_patterns`    | **Mismatch**                   |
-| `github_token`                | ✅ Correct               | OK                             |
+**Alignment Tasks** (src/index.ts line numbers in parentheses):
+
+- [x] `file_size_limit` - ✅ Correct
+- [ ] `file_lines_limit` → Fix from `line_limit_file` (line 20)
+- [ ] `pr_additions_limit` → Fix from `line_limit_pr` (line 21)
+- [ ] `pr_files_limit` - Implement new parameter (line 22)
+- [ ] `apply_labels` - Implement new parameter (line 23)
+- [ ] `auto_remove_labels` - Implement new parameter (line 24)
+- [ ] `apply_size_labels` - Implement new parameter (line 25)
+- [ ] `size_label_thresholds` - Implement new parameter (line 26)
+- [x] `large_files_label` - ✅ Correct
+- [ ] `too_many_files_label` → Fix from `large_pr_label` (line 28)
+- [ ] `skip_draft_pr` → Fix from `skip_label` (wrong logic, line 29)
+- [ ] `comment_on_pr` → Fix from `post_comment` (boolean vs enum, line 30)
+- [ ] `fail_on_violation` → Fix from `fail_on_large_files` (line 31)
+- [ ] `additional_exclude_patterns` → Fix from `exclude_patterns` (line 32)
+- [x] `github_token` - ✅ Correct
 
 **Impact**: Current implementation cannot read configuration correctly from action.yml inputs.
 
 ### 2. Missing Output Implementations
 
-All 8 outputs defined in action.yml are **not implemented** in src/index.ts:
+**Required Outputs** (all need implementation in src/index.ts):
 
-- ❌ `large_files`: JSON array of violations
-- ❌ `pr_additions`: Total added lines
-- ❌ `pr_files`: Total file count
-- ❌ `exceeds_file_size`: Boolean flag
-- ❌ `exceeds_file_lines`: Boolean flag
-- ❌ `exceeds_additions`: Boolean flag
-- ❌ `exceeds_file_count`: Boolean flag
-- ❌ `has_violations`: Boolean flag
+- [ ] `large_files` - JSON array of violations
+- [ ] `pr_additions` - Total added lines
+- [ ] `pr_files` - Total file count
+- [ ] `exceeds_file_size` - Boolean flag
+- [ ] `exceeds_file_lines` - Boolean flag
+- [ ] `exceeds_additions` - Boolean flag
+- [ ] `exceeds_file_count` - Boolean flag
+- [ ] `has_violations` - Boolean flag
 
 **Impact**: Downstream workflows cannot consume PR metrics data.
 
@@ -74,15 +74,17 @@ All 8 outputs defined in action.yml are **not implemented** in src/index.ts:
 
 ### 5. Missing Core Features
 
-- ❌ File size analysis
-- ❌ Line count analysis
-- ❌ PR-wide metrics calculation
-- ❌ Label management (add/remove)
-- ❌ Size labels (size/S, size/M, size/L, size/XL)
-- ❌ Comment posting with markdown reports
-- ❌ Exclude pattern matching (DEFAULT_EXCLUDES + additional)
-- ❌ Error handling with neverthrow Result types
-- ❌ API pagination for PRs with >100 files
+**Implementation Checklist**:
+
+- [ ] File size analysis
+- [ ] Line count analysis
+- [ ] PR-wide metrics calculation
+- [ ] Label management (add/remove)
+- [ ] Size labels (size/S, size/M, size/L, size/XL)
+- [ ] Comment posting with markdown reports
+- [ ] Exclude pattern matching (DEFAULT_EXCLUDES + additional)
+- [ ] Error handling with neverthrow Result types
+- [ ] API pagination for PRs with >100 files
 
 **Impact**: Core functionality is not implemented.
 
@@ -105,22 +107,25 @@ All 8 outputs defined in action.yml are **not implemented** in src/index.ts:
 
 ## Next Steps
 
-### For Specification
+### For Specification (Completed)
 
-- [ ] Update spec.json `ready_for_implementation: true` after final review
-- [ ] Update spec.json `design.approved: true` after approval
+- [x] Update spec.json `ready_for_implementation: true` ✅ (2025-10-17)
+- [x] Update spec.json `design.approved: true` ✅ (2025-10-17)
+- [x] Update spec.json `tasks.approved: true` ✅ (2025-10-17)
+- [x] Add CacheError to requirements.md error types ✅ (2025-10-17)
+- [x] Clarify github_token description in action.yml ✅ (2025-10-17)
 
 ### For Implementation (Future Work)
 
-When implementation work resumes, follow this priority order:
+**Implementation Phases** (follow priority order when work resumes):
 
-1. **Phase 1**: Fix input parameter names (Task 3.1)
-2. **Phase 2**: Implement core file analysis (Task 4.1-4.4)
-3. **Phase 3**: Implement label management (Task 5.1)
-4. **Phase 4**: Add comment system (Task 5.2)
-5. **Phase 5**: Complete Draft PR handling (Task 5.3)
-6. **Phase 6**: Add output variables and exit processing (Task 6.2)
-7. **Phase 7**: Integration testing (Task 7.2)
+- [ ] **Phase 1**: Fix input parameter names (Task 3.1)
+- [ ] **Phase 2**: Implement core file analysis (Task 4.1-4.4)
+- [ ] **Phase 3**: Implement label management (Task 5.1)
+- [ ] **Phase 4**: Add comment system (Task 5.2)
+- [ ] **Phase 5**: Complete Draft PR handling (Task 5.3)
+- [ ] **Phase 6**: Add output variables and exit processing (Task 6.2)
+- [ ] **Phase 7**: Integration testing (Task 7.2)
 
 ## Build Artifact Status
 

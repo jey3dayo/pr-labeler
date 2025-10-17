@@ -360,6 +360,14 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
 
         // ページネーション終了条件: 取得件数がper_page未満なら最終ページ
         if (result.value.data.length < 100) break;
+
+        // maxPages超過チェック
+        if (page >= maxPages) {
+          core.warning(`Reached pagination limit (${maxPages * 100} files). Some files may not be analyzed.`);
+          core.info(`Consider using local git diff for PRs with more than ${maxPages * 100} files.`);
+          break;
+        }
+
         page++;
       }
 
@@ -1197,6 +1205,7 @@ interface RetryConfig {
   initialDelayMs: 1000;
   maxDelayMs: 10000;
   backoffFactor: 2;
+  retryableErrors?: string[];  // エラーコードのリスト（例: ['ECONNRESET', 'ETIMEDOUT', 'RATE_LIMIT']）
 }
 
 async function withRetry<T>(
@@ -1210,7 +1219,14 @@ async function withRetry<T>(
       const result = await fn();
       return ok(result);
     } catch (error) {
-      if (i === config.maxRetries) {
+      // エラーがリトライ対象かチェック
+      const isRetryable = config.retryableErrors ?
+        config.retryableErrors.some(code =>
+          String(error).includes(code) ||
+          (error as any).code === code
+        ) : true;  // retryableErrorsが未定義の場合は全てリトライ
+
+      if (!isRetryable || i === config.maxRetries) {
         return err(error as Error);
       }
 

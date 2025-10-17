@@ -587,3 +587,21 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 3. WHEN デフォルト値が説明される THEN PR Metrics Action SHALL auto:プレフィックスを持つラベル名を明記する
 4. WHERE 除外パターンが説明される THE PR Metrics Action SHALL デフォルトの除外パターンリストを完全に記載する
 5. WHEN 使用例を提示する THEN PR Metrics Action SHALL 最低5つの異なるユースケースを含める
+
+### 要件10: セキュリティ
+
+**目的:** セキュリティ管理者として、このActionが安全に動作し、機密情報を適切に保護することを確認したい。これにより、組織のセキュリティポリシーに準拠できる。
+
+#### 受け入れ基準
+
+1. WHEN GitHub Tokenが使用される THEN PR Metrics Action SHALL 環境変数経由で安全に受け取る（`GITHUB_TOKEN`または`GH_TOKEN`へのフォールバック対応）
+2. WHERE センシティブ情報（トークン、認証情報）を扱う THE PR Metrics Action SHALL ログ出力時に自動マスキングする（`core.setSecret`使用）
+3. WHEN 最小権限を定義する THEN PR Metrics Action SHALL 以下の権限のみを要求する:
+   - `pull-requests: write`（ラベル操作用）
+   - `issues: write`（コメント投稿用）
+   - `contents: read`（ファイル読み取り用、オプション）
+4. WHERE 依存関係を管理する THE PR Metrics Action SHALL Dependabotによる自動更新設定を含める
+5. WHEN ビルド成果物を生成する THEN PR Metrics Action SHALL @vercel/nccにより依存関係をバンドルし、攻撃面を削減する
+6. IF ユーザー入力（パターン、サイズ等）を処理する THEN PR Metrics Action SHALL 適切な検証とサニタイゼーションを実施する
+7. WHERE セキュリティリスクを文書化する THE PR Metrics Action SHALL README.mdに`pull_request_target`使用時の注意事項を明記する
+8. WHEN エラーメッセージを生成する THEN PR Metrics Action SHALL システム内部情報を露出しない適切なメッセージを表示する
