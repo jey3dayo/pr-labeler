@@ -431,6 +431,9 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
      - フレームワーク: `.next/**`、`.nuxt/**`、`.turbo/**`、`.svelte-kit/**`
      - その他: `*.map`、`*.map.json`、`coverage/**`、`.cache/**`
 8. WHERE 追加の除外パターンが`additional_exclude_patterns`で指定されている THE PR Metrics Action SHALL そのパターンに一致するファイルも分析から除外する
+   - パターンのセパレータ: カンマ（`,`）または改行（`\n`）で区切り、前後の空白は自動トリム
+   - パターンの正規化: 大文字小文字は区別、パスはリポジトリルートからの相対パスとして評価
+   - 空のパターンは無視（空文字列、空白のみの行）
 9. WHEN ファイルがバイナリファイルまたは行数が取得できない場合 THEN PR Metrics Action SHALL サイズのみで評価し、行数制限チェックはスキップする
 10. WHEN 変更種別が`renamed`のファイルを分析する THEN PR Metrics Action SHALL 新しいパスで評価する
 11. WHERE 変更種別が`removed`のファイル THE PR Metrics Action SHALL サイズ/行数評価およびファイル数カウントから除外する
@@ -461,6 +464,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 5. WHEN ラベル操作を実行する THEN PR Metrics Action SHALL GitHub APIを使用してラベルの追加・削除を行う
 6. IF ラベルがすでに存在する THEN PR Metrics Action SHALL 重複してラベルを追加しない
 7. WHEN サイズラベルを適用する THEN PR Metrics Action SHALL `size_label_thresholds`の閾値に基づいて判定する
+   - サイズ判定ルール: `additions`と`files`をOR条件で評価（いずれか一方でも閾値を超えたらより大きいサイズとして判定）
    - size/S: additions ≤ 100 AND files ≤ 10
    - size/M: additions ≤ 500 AND files ≤ 30
    - size/L: additions ≤ 1000 AND files ≤ 50
@@ -499,7 +503,19 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 6. WHEN 制限超過レポートを作成する THEN PR Metrics Action SHALL 表形式で見やすく情報を表示する
 7. IF `auto_remove_labels`が有効 AND すべての制限超過が解消された THEN PR Metrics Action SHALL 成功メッセージと削除されたラベル一覧を表示する
 
-### 要件5: Draft PR処理
+### 要件5: フォークPRと権限処理
+
+**目的:** オープンソースプロジェクトの管理者として、フォークからのPRでも安全にメトリクス分析を実行したい。これにより、外部貢献者のコードも適切に評価できる。
+
+#### 受け入れ基準
+
+1. WHEN フォークPRで実行される AND 権限が不足している（`pull-requests: write`または`issues: write`がない） THEN PR Metrics Action SHALL ラベル/コメント操作をスキップし、分析処理は継続する
+2. IF 権限不足でラベル/コメント操作がスキップされた THEN PR Metrics Action SHALL `core.info`でスキップ理由をログ出力する（例：「Insufficient permissions to add labels. Skipping label management.」）
+3. WHERE 権限不足が検出された THE PR Metrics Action SHALL 出力変数（`exceeds_*`、`has_violations`等）は正常に設定し、ワークフローは成功として終了する
+4. WHEN `pull_request_target`イベントを使用する THE PR Metrics Action SHALL セキュリティリスクの警告をREADMEに記載する（信頼できないコードの実行リスク）
+5. IF GitHub Enterprise環境で実行される THEN PR Metrics Action SHALL `GITHUB_API_URL`環境変数を自動検出し、適切なAPIエンドポイントを使用する
+
+### 要件6: Draft PR処理
 
 **目的:** 開発者として、作業中のDraft PRでは不要なチェックをスキップしたい。これにより、開発中の無駄な通知を避けられる。
 
@@ -510,7 +526,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 3. IF Draft PRがReady for reviewに変更された THEN PR Metrics Action SHALL 通常のチェックを実行する
 4. WHERE GitHub Actions設定でイベントタイプを指定する THE PR Metrics Action SHALL `pull_request.types: [opened, synchronize, reopened, ready_for_review]`を推奨設定とする
 
-### 要件6: ワークフロー制御
+### 要件7: ワークフロー制御
 
 **目的:** CI/CD管理者として、制限超過時にビルドを失敗させるオプションが欲しい。これにより、品質基準を強制できる。
 
@@ -520,10 +536,11 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 2. IF `fail_on_violation`がfalseに設定されている THEN PR Metrics Action SHALL 制限超過があっても成功ステータスで終了する
 3. WHEN ワークフローが失敗する THEN PR Metrics Action SHALL エラーメッセージで失敗理由を明確に示す
 4. WHEN `fail_on_violation`によりワークフローが失敗する場合でも THEN PR Metrics Action SHALL `comment_on_pr`ポリシーに従いコメント投稿は独立して実行する（失敗とコメント投稿は独立した機能）
-5. WHILE 処理を実行中 THE PR Metrics Action SHALL 進捗状況をログに出力する
-6. WHEN エラーが発生した THEN PR Metrics Action SHALL エラーの詳細をログに記録し、適切にエラーハンドリングする
-7. WHEN エラー処理を実装する THEN PR Metrics Action SHALL neverthrowのResult型を使用して型安全にエラーを扱う
-8. WHERE エラー型を定義する THE PR Metrics Action SHALL 以下の型を含める
+5. IF `fail_on_violation`がtrueに設定されている THEN PR Metrics Action SHALL ラベル追加とコメント投稿を先に実行し、その後`core.setFailed`を呼び出す（処理順序: ラベル→コメント→setFailed）
+6. WHILE 処理を実行中 THE PR Metrics Action SHALL 進捗状況をログに出力する
+7. WHEN エラーが発生した THEN PR Metrics Action SHALL エラーの詳細をログに記録し、適切にエラーハンドリングする
+8. WHEN エラー処理を実装する THEN PR Metrics Action SHALL neverthrowのResult型を使用して型安全にエラーを扱う
+9. WHERE エラー型を定義する THE PR Metrics Action SHALL 以下の型を含める
    - `FileAnalysisError`: ファイル分析時のエラー
    - `GitHubAPIError`: GitHub API呼び出しエラー
    - `ConfigurationError`: 設定値の検証エラー
@@ -533,7 +550,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
    - `DiffError`: 差分取得エラー
    - `PatternError`: パターン検証エラー
 
-### 要件7: GitHub Actions統合
+### 要件8: GitHub Actions統合
 
 **目的:** 開発者として、標準的なGitHub Actions形式でこのツールを使用したい。これにより、既存のワークフローに簡単に統合できる。
 
@@ -544,8 +561,10 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 3. WHEN 結果をサマリーに出力する THEN PR Metrics Action SHALL `$GITHUB_STEP_SUMMARY`環境変数を使用する
 4. WHERE Node.js環境で実行される THE PR Metrics Action SHALL Node.js 20で動作する
 5. WHEN 複数回実行される THEN PR Metrics Action SHALL 冪等性を保証し、同じ結果を生成する
+6. IF 同一SHAで再実行される THEN PR Metrics Action SHALL 既存のラベル/コメントを維持し、重複を作成しない（冪等性保証）
+7. WHEN 差分取得をローカルgitで試行する AND gitコマンドが失敗する（checkout未実行、shallow clone等） THEN PR Metrics Action SHALL GitHub APIへ自動的にフォールバックする
 
-### 要件8: 文書化（README.md）
+### 要件9: 文書化（README.md）
 
 **目的:** ユーザーとして、このActionの使い方を理解し、簡単に導入できるような明確なドキュメントが欲しい。これにより、迅速に利用開始できる。
 

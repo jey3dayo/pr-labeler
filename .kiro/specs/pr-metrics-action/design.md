@@ -346,9 +346,15 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
       })));
 
     // ローカル優先、APIフォールバック
+    // フォールバック条件:
+    // 1. checkout未実行（ワークフロー設定ミス）
+    // 2. shallow clone（fetch-depth: 1）でベースSHAが存在しない
+    // 3. gitコマンドが使用不可（コンテナ環境等）
+    // 4. その他のgitエラー（権限、パス等）
     return fetchFromLocal(pr)
-      .orElse(() => {
-        core.warning('Local git commands failed, falling back to GitHub API');
+      .orElse((error) => {
+        core.warning(`Local git commands failed: ${error.message}`);
+        core.info('Falling back to GitHub API for diff retrieval');
         return fetchFromAPI(pr, octokit);
       });
   }
@@ -619,6 +625,30 @@ const validatePattern: ValidatePattern = (pattern) => {
 - **アウトバウンド**: なし
 - **外部**: @actions/github（getOctokit使用）
 
+**権限チェックと処理継続**
+
+フォークPRで権限が不足している場合、ラベル操作をスキップし分析は継続:
+
+```typescript
+// 権限チェック
+type CheckPermissions = () => ResultAsync<boolean, never>;
+
+const checkPermissions: CheckPermissions = () => {
+  return ResultAsync.fromPromise(
+    octokit.rest.repos.checkCollaborator({
+      owner,
+      repo,
+      username: context.actor
+    }),
+    () => false
+  ).map(() => true)
+   .orElse(() => {
+     core.info('Insufficient permissions to manage labels (fork PR). Skipping label operations.');
+     return okAsync(false);
+   });
+};
+```
+
 **サービスインターフェース**
 
 ```typescript
@@ -643,16 +673,23 @@ type DeterminePRSize = (
 const determinePRSize: DeterminePRSize = (metrics, thresholds) => {
   const { totalAdditions, totalFiles } = metrics;
 
-  if (totalAdditions <= thresholds.S.additions && totalFiles <= thresholds.S.files) {
-    return 'S';
+  // サイズ判定ロジック: OR条件で評価
+  // いずれか一方でも閾値を超えたらより大きいサイズとして判定
+
+  // XL: Lの閾値をadditionsまたはfilesのいずれかが超えた場合
+  if (totalAdditions > thresholds.L.additions || totalFiles > thresholds.L.files) {
+    return 'XL';
   }
-  if (totalAdditions <= thresholds.M.additions && totalFiles <= thresholds.M.files) {
-    return 'M';
-  }
-  if (totalAdditions <= thresholds.L.additions && totalFiles <= thresholds.L.files) {
+  // L: Mの閾値をadditionsまたはfilesのいずれかが超えた場合
+  if (totalAdditions > thresholds.M.additions || totalFiles > thresholds.M.files) {
     return 'L';
   }
-  return 'XL';
+  // M: Sの閾値をadditionsまたはfilesのいずれかが超えた場合
+  if (totalAdditions > thresholds.S.additions || totalFiles > thresholds.S.files) {
+    return 'M';
+  }
+  // S: 両方がS閾値以下
+  return 'S';
 };
 
 interface LabelResult {
@@ -886,29 +923,41 @@ interface PatternError {
 
 ```typescript
 // メインエントリーポイントでの処理
+// 処理順序: 分析→ラベル→コメント→setFailed（fail_on_violation時）
 async function run(): Promise<void> {
-  const result = await PRMetricsAction.run();
+  const analysisResult = await analyzeFiles(pr, config, diffStrategy);
 
-  result.match(
-    // 成功時
-    () => {
-      core.info('✅ PR metrics check completed');
-    },
-    // エラー時
-    (error) => {
-      // エラータイプによる処理分岐
-      if (error.type === 'ViolationError' && config.failOnViolation) {
-        // 違反エラー かつ failOnViolation=true の場合
-        core.setFailed(`❌ PR violates limits: ${error.message}`);
-      } else if (error.type === 'ConfigurationError') {
-        // 設定エラーは常に失敗
-        core.setFailed(`⚠️ Configuration error: ${error.message}`);
-      } else {
-        // その他のエラーは警告として扱う
-        core.warning(`⚠️ ${error.message}`);
-      }
+  if (analysisResult.isOk()) {
+    const metrics = analysisResult.value;
+
+    // 1. ラベル処理（権限があれば実行）
+    if (await hasLabelPermissions()) {
+      await applyLabels(metrics, config);
     }
-  );
+
+    // 2. コメント処理（権限があれば実行）
+    if (await hasCommentPermissions()) {
+      await postComment(metrics, config);
+    }
+
+    // 3. 違反時のfail処理（最後に実行）
+    if (hasViolations(metrics) && config.failOnViolation) {
+      // ラベルとコメントの後でsetFailedを呼ぶ
+      core.setFailed(`❌ PR violates limits`);
+    } else {
+      core.info('✅ PR metrics check completed');
+    }
+  } else {
+    // エラータイプによる処理分岐
+    const error = analysisResult.error;
+    if (error.type === 'ConfigurationError') {
+      // 設定エラーは常に失敗
+      core.setFailed(`⚠️ Configuration error: ${error.message}`);
+    } else {
+      // その他のエラーは警告として扱う
+      core.warning(`⚠️ ${error.message}`);
+    }
+  }
 }
 
 // Result型の伝播例（関数型アプローチ）
@@ -1309,6 +1358,119 @@ jobs:
 3. `dist/`ディレクトリをコミット
 4. GitHub Releasesでタグ付け
 5. GitHub Marketplaceへの公開（オプション）
+
+## 主要関数シグネチャ例
+
+### コアドメイン関数
+
+```typescript
+// メインエントリー
+export async function analyzeDiff(
+  context: Context,
+  config: Config
+): Promise<Result<Analysis, AppError>> {
+  const pr = extractPullRequestInfo(context);
+  const diffStrategy = createDiffStrategy(context.octokit);
+
+  return analyzeFiles(pr, config, diffStrategy)
+    .andThen(metrics => checkViolations(metrics, config.limits))
+    .map(violations => ({ metrics, violations }));
+}
+
+// ラベル適用
+export async function applyLabels(
+  pr: PullRequestRef,
+  analysis: Analysis,
+  options: LabelOptions
+): Promise<Result<void, AppError>> {
+  const hasPermission = await checkLabelPermissions(pr);
+  if (!hasPermission) {
+    core.info('Skipping labels: insufficient permissions');
+    return ok(undefined);
+  }
+
+  return determineSizeLabel(analysis.metrics, options.thresholds)
+    .andThen(sizeLabel => updateLabels(pr, [...analysis.violations, sizeLabel]));
+}
+
+// コメント投稿
+export async function postAnalysisComment(
+  pr: PullRequestRef,
+  analysis: Analysis,
+  mode: CommentMode
+): Promise<Result<void, AppError>> {
+  if (!shouldPostComment(mode, analysis.hasViolations)) {
+    return ok(undefined);
+  }
+
+  const hasPermission = await checkCommentPermissions(pr);
+  if (!hasPermission) {
+    core.info('Skipping comment: insufficient permissions');
+    return ok(undefined);
+  }
+
+  return findExistingComment(pr)
+    .andThen(commentId => updateOrCreateComment(pr, commentId, analysis));
+}
+
+// 違反検出
+export function checkViolations(
+  metrics: FileMetrics,
+  limits: LimitConfig
+): Result<Violations, never> {
+  return ok({
+    largeFiles: findLargeFiles(metrics.files, limits),
+    exceedsFileLines: findExceedingLineCount(metrics.files, limits),
+    exceedsAdditions: metrics.totalAdditions > limits.prAdditionsLimit,
+    exceedsFileCount: metrics.totalFiles > limits.prFilesLimit
+  });
+}
+```
+
+### ヘルパー関数
+
+```typescript
+// GitHub Token取得
+export function getGitHubToken(): Result<string, ConfigurationError> {
+  const token = core.getInput('github_token')
+    || process.env.GITHUB_TOKEN
+    || process.env.GH_TOKEN;
+
+  return token
+    ? ok(token)
+    : err({
+        type: 'ConfigurationError',
+        field: 'github_token',
+        value: undefined,
+        message: 'GitHub token required'
+      });
+}
+
+// PR情報抽出
+export function extractPullRequestInfo(context: Context): PullRequestInfo {
+  return {
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    pullNumber: context.issue.number,
+    baseSha: context.payload.pull_request.base.sha,
+    headSha: context.payload.pull_request.head.sha
+  };
+}
+
+// 冪等性保証付きラベル更新
+export async function ensureLabelsIdempotent(
+  pr: PullRequestRef,
+  targetLabels: string[]
+): Promise<Result<void, GitHubAPIError>> {
+  const currentLabels = await getCurrentLabels(pr);
+  const operations = calculateLabelOperations(currentLabels, targetLabels);
+
+  return Promise.all([
+    ...operations.toAdd.map(label => addLabel(pr, label)),
+    ...operations.toRemove.map(label => removeLabel(pr, label))
+  ]).then(results => combineResults(results));
+}
+```
 
 ## セキュリティ考慮事項
 
