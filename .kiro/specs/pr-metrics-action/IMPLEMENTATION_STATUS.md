@@ -116,10 +116,10 @@ When implementation work resumes, follow this priority order:
 
 1. **Phase 1**: Fix input parameter names (Task 3.1)
 2. **Phase 2**: Implement core file analysis (Task 4.1-4.4)
-3. **Phase 3**: Add output variables (Task 6.2)
-4. **Phase 4**: Implement label management (Task 5.1)
-5. **Phase 5**: Add comment system (Task 5.2)
-6. **Phase 6**: Complete Draft PR handling (Task 5.3)
+3. **Phase 3**: Implement label management (Task 5.1)
+4. **Phase 4**: Add comment system (Task 5.2)
+5. **Phase 5**: Complete Draft PR handling (Task 5.3)
+6. **Phase 6**: Add output variables and exit processing (Task 6.2)
 7. **Phase 7**: Integration testing (Task 7.2)
 
 ## Build Artifact Status
