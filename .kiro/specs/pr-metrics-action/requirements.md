@@ -478,6 +478,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
    - `exceeds_file_count`: PRファイル数制限超過の有無
    - `has_violations`: いずれかの違反の有無
    - `large_files`: 制限超過ファイルのJSON配列（詳細情報含む）
+
      ```typescript
      // large_files出力のJSONスキーマ定義
      interface ViolationDetail {

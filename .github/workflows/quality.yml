@@ -112,7 +112,7 @@ jobs:
       - name: Run Markdown lint
         run: |
           echo "## 📝 Markdown Lint Check" >> $GITHUB_STEP_SUMMARY
-          if markdownlint-cli2 --config .markdownlint.yml '**/*.md' '!node_modules' '!dist' '!.git'; then
+          if markdownlint-cli2 '**/*.md'; then
             echo "✅ Markdown lint passed" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ Markdown lint failed" >> $GITHUB_STEP_SUMMARY
@@ -122,7 +122,7 @@ jobs:
       - name: Check Markdown links
         run: |
           echo "## 🔗 Link Check" >> $GITHUB_STEP_SUMMARY
-          if markdown-link-check --config .markdown-link-check.json --quiet '**/*.md' '!node_modules' '!dist'; then
+          if find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json --quiet {} \; ; then
             echo "✅ All links are valid" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ Some links may be broken (check logs for details)" >> $GITHUB_STEP_SUMMARY

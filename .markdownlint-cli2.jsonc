@@ -1,0 +1,71 @@
+{
+  // Markdownlint-cli2 設定ファイル
+  // pr-metrics-action プロジェクト用
+  "config": {
+    // デフォルトルールを有効化
+    "default": true,
+
+    // MD003: 見出しスタイルの一貫性
+    "MD003": {
+      "style": "consistent"
+    },
+
+    // MD004: リストスタイルの一貫性
+    "MD004": {
+      "style": "consistent"
+    },
+
+    // MD007: ネストしたリストのインデント幅
+    "MD007": {
+      "indent": 2
+    },
+
+    // MD013: 行の長さ制限を無効化
+    // コマンドや長いURLが含まれるため
+    "MD013": false,
+
+    // MD024: 重複見出しを許可
+    // 仕様書では同じ見出し名が複数のセクションで使用されるため
+    "MD024": false,
+
+    // MD033: インラインHTML要素を許可
+    // Claudeコマンドファイルで使用されるカスタムタグ
+    "MD033": {
+      "allowed_elements": [
+        "details",
+        "summary",
+        "antml:thinking",
+        "antml:function_calls",
+        "example",
+        "reasoning",
+        "commentary",
+        "structured-document"
+      ]
+    },
+
+    // MD036: 見出しとして強調を使用することを許可
+    // コマンドファイルやドキュメントで使用されるため
+    "MD036": false,
+
+    // MD040: コードブロックの言語指定を強制しない
+    // 出力例やプレーンテキストブロックで言語指定がない場合があるため
+    "MD040": false,
+
+    // MD041: ファイル先頭のh1を強制しない
+    // コマンドファイルは特殊な構造のため
+    "MD041": false,
+
+    // MD046: コードブロックのフェンススタイル（バッククォート3つ）
+    "MD046": {
+      "style": "fenced"
+    },
+
+    // MD048: コードブロックのフェンススタイル統一
+    "MD048": {
+      "style": "backtick"
+    }
+  },
+
+  // 除外パターン
+  "ignores": ["**/node_modules/**", "**/dist/**", "**/.git/**"]
+}

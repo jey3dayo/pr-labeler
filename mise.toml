@@ -89,15 +89,29 @@ run = "./.specify/scripts/release.sh major"
 
 # === ドキュメント検証 ===
 [tasks."docs:check"]
-description = "Markdownドキュメントのlintとリンクチェック"
+description = "全Markdownドキュメントのlintとリンクチェック"
 run = [
-  "markdownlint-cli2 '**/*.md' '!node_modules' '!dist'",
-  "markdown-link-check README.md CLAUDE.md"
+  "markdownlint-cli2 '**/*.md'",
+  "find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json --quiet {} \\;"
+]
+
+[tasks."docs:check:verbose"]
+description = "詳細出力でMarkdownチェック（デバッグ用）"
+run = [
+  "markdownlint-cli2 '**/*.md'",
+  "find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json --verbose {} \\;"
 ]
 
 [tasks."docs:fix"]
 description = "Markdownドキュメントの自動修正"
-run = "markdownlint-cli2 --fix '**/*.md' '!node_modules' '!dist'"
+run = [
+  "markdownlint-cli2 --fix '**/*.md'",
+  "echo '✅ Markdown files formatted'"
+]
+
+[tasks."docs:links"]
+description = "Markdownファイル内のリンクのみをチェック"
+run = "find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json {} \\;"
 
 # === GitHub Actions ===
 [tasks."action:test"]
@@ -130,6 +144,7 @@ run = [
 description = "コミット前の自動チェックと修正"
 run = [
   "pnpm format",
+  "markdownlint-cli2 --fix '**/*.md'",
   "pnpm test:quick",
   "pnpm test:vitest"
 ]

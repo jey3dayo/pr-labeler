@@ -43,11 +43,11 @@ Intelligently create or update steering documents in `.kiro/steering/` to mainta
 
 Based on the existing files check above, this command will:
 
-### For NEW files (showing "📝 Not found"):
+### For NEW files (showing "📝 Not found")
 
 Generate comprehensive initial content covering all aspects of the project.
 
-### For EXISTING files (showing "✅ EXISTS"):
+### For EXISTING files (showing "✅ EXISTS")
 
 1. **Preserve user customizations** - Any manual edits or custom sections
 2. **Update factual information** - Dependencies, file structures, commands
@@ -75,7 +75,7 @@ The three core steering files (product.md, tech.md, structure.md) are designed t
 
 ### 1. Product Overview (`product.md`)
 
-#### For NEW file:
+#### For NEW file
 
 Generate comprehensive product overview including:
 
@@ -84,7 +84,7 @@ Generate comprehensive product overview including:
 - **Target Use Case**: Specific scenarios the product addresses
 - **Key Value Proposition**: Unique benefits and differentiators
 
-#### For EXISTING file:
+#### For EXISTING file
 
 Update only if there are:
 
@@ -95,7 +95,7 @@ Update only if there are:
 
 ### 2. Technology Stack (`tech.md`)
 
-#### For NEW file:
+#### For NEW file
 
 Document the complete technology landscape:
 
@@ -107,7 +107,7 @@ Document the complete technology landscape:
 - **Environment Variables**: Key configuration variables
 - **Port Configuration**: Standard ports used by services
 
-#### For EXISTING file:
+#### For EXISTING file
 
 Check for changes in:
 
@@ -120,7 +120,7 @@ Check for changes in:
 
 ### 3. Project Structure (`structure.md`)
 
-#### For NEW file:
+#### For NEW file
 
 Outline the codebase organization:
 
@@ -131,7 +131,7 @@ Outline the codebase organization:
 - **Import Organization**: How imports/dependencies are organized
 - **Key Architectural Principles**: Core design decisions and patterns
 
-#### For EXISTING file:
+#### For EXISTING file
 
 Look for changes in:
 
