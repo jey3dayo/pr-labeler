@@ -7331,6 +7331,184 @@ function removeHook(state, name, method) {
 
 /***/ }),
 
+/***/ 4449:
+/***/ ((module) => {
+
+"use strict";
+/*!
+ * bytes
+ * Copyright(c) 2012-2014 TJ Holowaychuk
+ * Copyright(c) 2015 Jed Watson
+ * MIT Licensed
+ */
+
+
+
+/**
+ * Module exports.
+ * @public
+ */
+
+module.exports = bytes;
+module.exports.format = format;
+module.exports.parse = parse;
+
+/**
+ * Module variables.
+ * @private
+ */
+
+var formatThousandsRegExp = /\B(?=(\d{3})+(?!\d))/g;
+
+var formatDecimalsRegExp = /(?:\.0*|(\.[^0]+)0+)$/;
+
+var map = {
+  b:  1,
+  kb: 1 << 10,
+  mb: 1 << 20,
+  gb: 1 << 30,
+  tb: Math.pow(1024, 4),
+  pb: Math.pow(1024, 5),
+};
+
+var parseRegExp = /^((-|\+)?(\d+(?:\.\d+)?)) *(kb|mb|gb|tb|pb)$/i;
+
+/**
+ * Convert the given value in bytes into a string or parse to string to an integer in bytes.
+ *
+ * @param {string|number} value
+ * @param {{
+ *  case: [string],
+ *  decimalPlaces: [number]
+ *  fixedDecimals: [boolean]
+ *  thousandsSeparator: [string]
+ *  unitSeparator: [string]
+ *  }} [options] bytes options.
+ *
+ * @returns {string|number|null}
+ */
+
+function bytes(value, options) {
+  if (typeof value === 'string') {
+    return parse(value);
+  }
+
+  if (typeof value === 'number') {
+    return format(value, options);
+  }
+
+  return null;
+}
+
+/**
+ * Format the given value in bytes into a string.
+ *
+ * If the value is negative, it is kept as such. If it is a float,
+ * it is rounded.
+ *
+ * @param {number} value
+ * @param {object} [options]
+ * @param {number} [options.decimalPlaces=2]
+ * @param {number} [options.fixedDecimals=false]
+ * @param {string} [options.thousandsSeparator=]
+ * @param {string} [options.unit=]
+ * @param {string} [options.unitSeparator=]
+ *
+ * @returns {string|null}
+ * @public
+ */
+
+function format(value, options) {
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  var mag = Math.abs(value);
+  var thousandsSeparator = (options && options.thousandsSeparator) || '';
+  var unitSeparator = (options && options.unitSeparator) || '';
+  var decimalPlaces = (options && options.decimalPlaces !== undefined) ? options.decimalPlaces : 2;
+  var fixedDecimals = Boolean(options && options.fixedDecimals);
+  var unit = (options && options.unit) || '';
+
+  if (!unit || !map[unit.toLowerCase()]) {
+    if (mag >= map.pb) {
+      unit = 'PB';
+    } else if (mag >= map.tb) {
+      unit = 'TB';
+    } else if (mag >= map.gb) {
+      unit = 'GB';
+    } else if (mag >= map.mb) {
+      unit = 'MB';
+    } else if (mag >= map.kb) {
+      unit = 'KB';
+    } else {
+      unit = 'B';
+    }
+  }
+
+  var val = value / map[unit.toLowerCase()];
+  var str = val.toFixed(decimalPlaces);
+
+  if (!fixedDecimals) {
+    str = str.replace(formatDecimalsRegExp, '$1');
+  }
+
+  if (thousandsSeparator) {
+    str = str.split('.').map(function (s, i) {
+      return i === 0
+        ? s.replace(formatThousandsRegExp, thousandsSeparator)
+        : s
+    }).join('.');
+  }
+
+  return str + unitSeparator + unit;
+}
+
+/**
+ * Parse the string value into an integer in bytes.
+ *
+ * If no unit is given, it is assumed the value is in bytes.
+ *
+ * @param {number|string} val
+ *
+ * @returns {number|null}
+ * @public
+ */
+
+function parse(val) {
+  if (typeof val === 'number' && !isNaN(val)) {
+    return val;
+  }
+
+  if (typeof val !== 'string') {
+    return null;
+  }
+
+  // Test if the string passed is valid
+  var results = parseRegExp.exec(val);
+  var floatValue;
+  var unit = 'b';
+
+  if (!results) {
+    // Nothing could be extracted from the given string
+    floatValue = parseInt(val, 10);
+    unit = 'b'
+  } else {
+    // Retrieve the value and the unit
+    floatValue = parseFloat(results[1]);
+    unit = results[4].toLowerCase();
+  }
+
+  if (isNaN(floatValue)) {
+    return null;
+  }
+
+  return Math.floor(map[unit] * floatValue);
+}
+
+
+/***/ }),
+
 /***/ 4071:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -7355,6 +7533,524 @@ class Deprecation extends Error {
 }
 
 exports.Deprecation = Deprecation;
+
+
+/***/ }),
+
+/***/ 734:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+const defaultErrorConfig = {
+    withStackTrace: false,
+};
+// Custom error object
+// Context / discussion: https://github.com/supermacro/neverthrow/pull/215
+const createNeverThrowError = (message, result, config = defaultErrorConfig) => {
+    const data = result.isOk()
+        ? { type: 'Ok', value: result.value }
+        : { type: 'Err', value: result.error };
+    const maybeStack = config.withStackTrace ? new Error().stack : undefined;
+    return {
+        data,
+        message,
+        stack: maybeStack,
+    };
+};
+
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
+
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+function __values(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+    function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
+    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+    function fulfill(value) { resume("next", value); }
+    function reject(value) { resume("throw", value); }
+    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+}
+
+function __asyncDelegator(o) {
+    var i, p;
+    return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+    function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
+}
+
+function __asyncValues(o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+}
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
+class ResultAsync {
+    constructor(res) {
+        this._promise = res;
+    }
+    static fromSafePromise(promise) {
+        const newPromise = promise.then((value) => new Ok(value));
+        return new ResultAsync(newPromise);
+    }
+    static fromPromise(promise, errorFn) {
+        const newPromise = promise
+            .then((value) => new Ok(value))
+            .catch((e) => new Err(errorFn(e)));
+        return new ResultAsync(newPromise);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    static fromThrowable(fn, errorFn) {
+        return (...args) => {
+            return new ResultAsync((() => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    return new Ok(yield fn(...args));
+                }
+                catch (error) {
+                    return new Err(errorFn ? errorFn(error) : error);
+                }
+            }))());
+        };
+    }
+    static combine(asyncResultList) {
+        return combineResultAsyncList(asyncResultList);
+    }
+    static combineWithAllErrors(asyncResultList) {
+        return combineResultAsyncListWithAllErrors(asyncResultList);
+    }
+    map(f) {
+        return new ResultAsync(this._promise.then((res) => __awaiter(this, void 0, void 0, function* () {
+            if (res.isErr()) {
+                return new Err(res.error);
+            }
+            return new Ok(yield f(res.value));
+        })));
+    }
+    andThrough(f) {
+        return new ResultAsync(this._promise.then((res) => __awaiter(this, void 0, void 0, function* () {
+            if (res.isErr()) {
+                return new Err(res.error);
+            }
+            const newRes = yield f(res.value);
+            if (newRes.isErr()) {
+                return new Err(newRes.error);
+            }
+            return new Ok(res.value);
+        })));
+    }
+    andTee(f) {
+        return new ResultAsync(this._promise.then((res) => __awaiter(this, void 0, void 0, function* () {
+            if (res.isErr()) {
+                return new Err(res.error);
+            }
+            try {
+                yield f(res.value);
+            }
+            catch (e) {
+                // Tee does not care about the error
+            }
+            return new Ok(res.value);
+        })));
+    }
+    orTee(f) {
+        return new ResultAsync(this._promise.then((res) => __awaiter(this, void 0, void 0, function* () {
+            if (res.isOk()) {
+                return new Ok(res.value);
+            }
+            try {
+                yield f(res.error);
+            }
+            catch (e) {
+                // Tee does not care about the error
+            }
+            return new Err(res.error);
+        })));
+    }
+    mapErr(f) {
+        return new ResultAsync(this._promise.then((res) => __awaiter(this, void 0, void 0, function* () {
+            if (res.isOk()) {
+                return new Ok(res.value);
+            }
+            return new Err(yield f(res.error));
+        })));
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    andThen(f) {
+        return new ResultAsync(this._promise.then((res) => {
+            if (res.isErr()) {
+                return new Err(res.error);
+            }
+            const newValue = f(res.value);
+            return newValue instanceof ResultAsync ? newValue._promise : newValue;
+        }));
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    orElse(f) {
+        return new ResultAsync(this._promise.then((res) => __awaiter(this, void 0, void 0, function* () {
+            if (res.isErr()) {
+                return f(res.error);
+            }
+            return new Ok(res.value);
+        })));
+    }
+    match(ok, _err) {
+        return this._promise.then((res) => res.match(ok, _err));
+    }
+    unwrapOr(t) {
+        return this._promise.then((res) => res.unwrapOr(t));
+    }
+    /**
+     * @deprecated will be removed in 9.0.0.
+     *
+     * You can use `safeTry` without this method.
+     * @example
+     * ```typescript
+     * safeTry(async function* () {
+     *   const okValue = yield* yourResult
+     * })
+     * ```
+     * Emulates Rust's `?` operator in `safeTry`'s body. See also `safeTry`.
+     */
+    safeUnwrap() {
+        return __asyncGenerator(this, arguments, function* safeUnwrap_1() {
+            return yield __await(yield __await(yield* __asyncDelegator(__asyncValues(yield __await(this._promise.then((res) => res.safeUnwrap()))))));
+        });
+    }
+    // Makes ResultAsync implement PromiseLike<Result>
+    then(successCallback, failureCallback) {
+        return this._promise.then(successCallback, failureCallback);
+    }
+    [Symbol.asyncIterator]() {
+        return __asyncGenerator(this, arguments, function* _a() {
+            const result = yield __await(this._promise);
+            if (result.isErr()) {
+                // @ts-expect-error -- This is structurally equivalent and safe
+                yield yield __await(errAsync(result.error));
+            }
+            // @ts-expect-error -- This is structurally equivalent and safe
+            return yield __await(result.value);
+        });
+    }
+}
+function okAsync(value) {
+    return new ResultAsync(Promise.resolve(new Ok(value)));
+}
+function errAsync(err) {
+    return new ResultAsync(Promise.resolve(new Err(err)));
+}
+const fromPromise = ResultAsync.fromPromise;
+const fromSafePromise = ResultAsync.fromSafePromise;
+const fromAsyncThrowable = ResultAsync.fromThrowable;
+
+/**
+ * Short circuits on the FIRST Err value that we find
+ */
+const combineResultList = (resultList) => {
+    let acc = ok([]);
+    for (const result of resultList) {
+        if (result.isErr()) {
+            acc = err(result.error);
+            break;
+        }
+        else {
+            acc.map((list) => list.push(result.value));
+        }
+    }
+    return acc;
+};
+/* This is the typesafe version of Promise.all
+ *
+ * Takes a list of ResultAsync<T, E> and success if all inner results are Ok values
+ * or fails if one (or more) of the inner results are Err values
+ */
+const combineResultAsyncList = (asyncResultList) => ResultAsync.fromSafePromise(Promise.all(asyncResultList)).andThen(combineResultList);
+/**
+ * Give a list of all the errors we find
+ */
+const combineResultListWithAllErrors = (resultList) => {
+    let acc = ok([]);
+    for (const result of resultList) {
+        if (result.isErr() && acc.isErr()) {
+            acc.error.push(result.error);
+        }
+        else if (result.isErr() && acc.isOk()) {
+            acc = err([result.error]);
+        }
+        else if (result.isOk() && acc.isOk()) {
+            acc.value.push(result.value);
+        }
+        // do nothing when result.isOk() && acc.isErr()
+    }
+    return acc;
+};
+const combineResultAsyncListWithAllErrors = (asyncResultList) => ResultAsync.fromSafePromise(Promise.all(asyncResultList)).andThen(combineResultListWithAllErrors);
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+exports.Result = void 0;
+(function (Result) {
+    /**
+     * Wraps a function with a try catch, creating a new function with the same
+     * arguments but returning `Ok` if successful, `Err` if the function throws
+     *
+     * @param fn function to wrap with ok on success or err on failure
+     * @param errorFn when an error is thrown, this will wrap the error result if provided
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function fromThrowable(fn, errorFn) {
+        return (...args) => {
+            try {
+                const result = fn(...args);
+                return ok(result);
+            }
+            catch (e) {
+                return err(errorFn ? errorFn(e) : e);
+            }
+        };
+    }
+    Result.fromThrowable = fromThrowable;
+    function combine(resultList) {
+        return combineResultList(resultList);
+    }
+    Result.combine = combine;
+    function combineWithAllErrors(resultList) {
+        return combineResultListWithAllErrors(resultList);
+    }
+    Result.combineWithAllErrors = combineWithAllErrors;
+})(exports.Result || (exports.Result = {}));
+function ok(value) {
+    return new Ok(value);
+}
+function err(err) {
+    return new Err(err);
+}
+function safeTry(body) {
+    const n = body().next();
+    if (n instanceof Promise) {
+        return new ResultAsync(n.then((r) => r.value));
+    }
+    return n.value;
+}
+class Ok {
+    constructor(value) {
+        this.value = value;
+    }
+    isOk() {
+        return true;
+    }
+    isErr() {
+        return !this.isOk();
+    }
+    map(f) {
+        return ok(f(this.value));
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    mapErr(_f) {
+        return ok(this.value);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    andThen(f) {
+        return f(this.value);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    andThrough(f) {
+        return f(this.value).map((_value) => this.value);
+    }
+    andTee(f) {
+        try {
+            f(this.value);
+        }
+        catch (e) {
+            // Tee doesn't care about the error
+        }
+        return ok(this.value);
+    }
+    orTee(_f) {
+        return ok(this.value);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    orElse(_f) {
+        return ok(this.value);
+    }
+    asyncAndThen(f) {
+        return f(this.value);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    asyncAndThrough(f) {
+        return f(this.value).map(() => this.value);
+    }
+    asyncMap(f) {
+        return ResultAsync.fromSafePromise(f(this.value));
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    unwrapOr(_v) {
+        return this.value;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    match(ok, _err) {
+        return ok(this.value);
+    }
+    safeUnwrap() {
+        const value = this.value;
+        /* eslint-disable-next-line require-yield */
+        return (function* () {
+            return value;
+        })();
+    }
+    _unsafeUnwrap(_) {
+        return this.value;
+    }
+    _unsafeUnwrapErr(config) {
+        throw createNeverThrowError('Called `_unsafeUnwrapErr` on an Ok', this, config);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-this-alias, require-yield
+    *[Symbol.iterator]() {
+        return this.value;
+    }
+}
+class Err {
+    constructor(error) {
+        this.error = error;
+    }
+    isOk() {
+        return false;
+    }
+    isErr() {
+        return !this.isOk();
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    map(_f) {
+        return err(this.error);
+    }
+    mapErr(f) {
+        return err(f(this.error));
+    }
+    andThrough(_f) {
+        return err(this.error);
+    }
+    andTee(_f) {
+        return err(this.error);
+    }
+    orTee(f) {
+        try {
+            f(this.error);
+        }
+        catch (e) {
+            // Tee doesn't care about the error
+        }
+        return err(this.error);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    andThen(_f) {
+        return err(this.error);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    orElse(f) {
+        return f(this.error);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    asyncAndThen(_f) {
+        return errAsync(this.error);
+    }
+    asyncAndThrough(_f) {
+        return errAsync(this.error);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    asyncMap(_f) {
+        return errAsync(this.error);
+    }
+    unwrapOr(v) {
+        return v;
+    }
+    match(_ok, err) {
+        return err(this.error);
+    }
+    safeUnwrap() {
+        const error = this.error;
+        return (function* () {
+            yield err(error);
+            throw new Error('Do not use this generator out of `safeTry`');
+        })();
+    }
+    _unsafeUnwrap(config) {
+        throw createNeverThrowError('Called `_unsafeUnwrap` on an Err', this, config);
+    }
+    _unsafeUnwrapErr(_) {
+        return this.error;
+    }
+    *[Symbol.iterator]() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        // @ts-expect-error -- This is structurally equivalent and safe
+        yield self;
+        // @ts-expect-error -- This is structurally equivalent and safe
+        return self;
+    }
+}
+const fromThrowable = exports.Result.fromThrowable;
+//#endregion
+
+exports.Err = Err;
+exports.Ok = Ok;
+exports.ResultAsync = ResultAsync;
+exports.err = err;
+exports.errAsync = errAsync;
+exports.fromAsyncThrowable = fromAsyncThrowable;
+exports.fromPromise = fromPromise;
+exports.fromSafePromise = fromSafePromise;
+exports.fromThrowable = fromThrowable;
+exports.ok = ok;
+exports.okAsync = okAsync;
+exports.safeTry = safeTry;
 
 
 /***/ }),
@@ -29922,6 +30618,1035 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 2210:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getGitHubToken = getGitHubToken;
+exports.getActionInputs = getActionInputs;
+exports.setActionOutputs = setActionOutputs;
+exports.logInfo = logInfo;
+exports.logDebug = logDebug;
+exports.logWarning = logWarning;
+exports.logError = logError;
+exports.setFailed = setFailed;
+exports.writeSummary = writeSummary;
+exports.getPullRequestContext = getPullRequestContext;
+const core = __importStar(__nccwpck_require__(6966));
+const neverthrow_1 = __nccwpck_require__(734);
+const errors_1 = __nccwpck_require__(8847);
+function getGitHubToken() {
+    const token = core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'];
+    if (!token) {
+        return (0, neverthrow_1.err)((0, errors_1.createConfigurationError)('github_token', undefined, 'GitHub token is required. Set github_token input or GITHUB_TOKEN/GH_TOKEN environment variable'));
+    }
+    core.setSecret(token);
+    return (0, neverthrow_1.ok)(token);
+}
+function getActionInputs() {
+    return {
+        github_token: core.getInput('github_token') || process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'] || '',
+        file_size_limit: core.getInput('file_size_limit') || '100KB',
+        file_lines_limit: core.getInput('file_lines_limit') || '500',
+        pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
+        pr_files_limit: core.getInput('pr_files_limit') || '50',
+        apply_labels: core.getInput('apply_labels') || 'true',
+        auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
+        apply_size_labels: core.getInput('apply_size_labels') || 'true',
+        size_label_thresholds: core.getInput('size_label_thresholds') ||
+            '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}',
+        large_files_label: core.getInput('large_files_label') || 'auto:large-files',
+        too_many_files_label: core.getInput('too_many_files_label') || 'auto:too-many-files',
+        skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
+        comment_on_pr: core.getInput('comment_on_pr') || 'auto',
+        fail_on_violation: core.getInput('fail_on_violation') || 'false',
+        additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
+    };
+}
+function setActionOutputs(outputs) {
+    core.setOutput('large_files', outputs.large_files);
+    core.setOutput('pr_additions', outputs.pr_additions);
+    core.setOutput('pr_files', outputs.pr_files);
+    core.setOutput('exceeds_file_size', outputs.exceeds_file_size);
+    core.setOutput('exceeds_file_lines', outputs.exceeds_file_lines);
+    core.setOutput('exceeds_additions', outputs.exceeds_additions);
+    core.setOutput('exceeds_file_count', outputs.exceeds_file_count);
+    core.setOutput('has_violations', outputs.has_violations);
+}
+function logInfo(message) {
+    core.info(message);
+}
+function logDebug(message) {
+    core.debug(message);
+}
+function logWarning(message) {
+    core.warning(message);
+}
+function logError(message) {
+    core.error(message);
+}
+function setFailed(message) {
+    core.setFailed(message);
+}
+async function writeSummary(content) {
+    await core.summary.addRaw(content).write();
+}
+function getPullRequestContext() {
+    const context = {
+        owner: process.env['GITHUB_REPOSITORY_OWNER'] || '',
+        repo: process.env['GITHUB_REPOSITORY']?.split('/')[1] || '',
+        pullNumber: parseInt(process.env['GITHUB_EVENT_NUMBER'] || '0', 10),
+        baseSha: process.env['GITHUB_BASE_REF'] || '',
+        headSha: process.env['GITHUB_HEAD_REF'] || '',
+    };
+    return context;
+}
+
+
+/***/ }),
+
+/***/ 9017:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.COMMENT_SIGNATURE = void 0;
+exports.generateCommentBody = generateCommentBody;
+exports.findExistingComment = findExistingComment;
+exports.postComment = postComment;
+exports.updateComment = updateComment;
+exports.deleteComment = deleteComment;
+exports.manageComment = manageComment;
+const neverthrow_1 = __nccwpck_require__(734);
+const github = __importStar(__nccwpck_require__(4903));
+const errors_1 = __nccwpck_require__(8847);
+const actions_io_1 = __nccwpck_require__(2210);
+exports.COMMENT_SIGNATURE = '<!-- pr-metrics-action -->';
+function formatBytes(bytes) {
+    if (bytes === 0) {
+        return '0 B';
+    }
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+}
+function formatNumber(num) {
+    return num.toLocaleString('en-US');
+}
+function generateCommentBody(analysisResult) {
+    const { metrics, violations } = analysisResult;
+    const hasViolations = violations.largeFiles.length > 0 ||
+        violations.exceedsFileLines.length > 0 ||
+        violations.exceedsAdditions ||
+        violations.exceedsFileCount;
+    let body = '';
+    if (hasViolations) {
+        body += '## ⚠️ PR Size Check - Violations Found\n\n';
+    }
+    else {
+        body += '## ✅ PR Size Check Passed\n\n';
+    }
+    body += '### 📊 Summary\n\n';
+    if (metrics.totalFiles === 0) {
+        body += '**No files to analyze**\n\n';
+    }
+    else {
+        body += `- Total additions: **${formatNumber(metrics.totalAdditions)}**\n`;
+        body += `- Files analyzed: **${metrics.filesAnalyzed.length}**\n`;
+        body += `- Files excluded: **${metrics.filesExcluded.length}**\n`;
+        body += `- Binary files skipped: **${metrics.filesSkippedBinary.length}**\n`;
+        if (metrics.filesWithErrors.length > 0) {
+            body += `- Files with errors: **${metrics.filesWithErrors.length}** ⚠️\n`;
+        }
+        if (hasViolations) {
+            body += '\n### 📊 Violations Summary\n\n';
+            if (violations.largeFiles.length > 0) {
+                body += `- **${violations.largeFiles.length}** file(s) exceed size limit\n`;
+            }
+            if (violations.exceedsFileLines.length > 0) {
+                body += `- **${violations.exceedsFileLines.length}** file(s) exceed line limit\n`;
+            }
+            if (violations.exceedsAdditions) {
+                body += '- **Total additions exceed limit**\n';
+            }
+            if (violations.exceedsFileCount) {
+                body += '- **File count exceeds limit**\n';
+            }
+        }
+        else {
+            body += '\n**All files are within size limits** ✅\n';
+        }
+        body += '\n';
+    }
+    if (violations.largeFiles.length > 0) {
+        body += '### 🚫 Large Files Detected\n\n';
+        body += '| File | Size | Limit | Status |\n';
+        body += '|------|------|-------|--------|\n';
+        for (const violation of violations.largeFiles) {
+            const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
+            body += `| ${violation.file} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${status} |\n`;
+        }
+        body += '\n';
+    }
+    if (violations.exceedsFileLines.length > 0) {
+        body += '### ⚠️ Files Exceed Line Limit\n\n';
+        body += '| File | Lines | Limit | Status |\n';
+        body += '|------|-------|-------|--------|\n';
+        for (const violation of violations.exceedsFileLines) {
+            const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
+            body += `| ${violation.file} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${status} |\n`;
+        }
+        body += '\n';
+    }
+    if (metrics.filesAnalyzed.length > 0) {
+        body += '### 📈 Top Large Files\n\n';
+        body += '| File | Size | Lines | Changes |\n';
+        body += '|------|------|-------|----------|\n';
+        const topFiles = [...metrics.filesAnalyzed].sort((a, b) => b.size - a.size).slice(0, 10);
+        for (const file of topFiles) {
+            const changes = `+${file.additions}/-${file.deletions}`;
+            body += `| ${file.filename} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
+        }
+        body += '\n';
+    }
+    if (metrics.filesWithErrors.length > 0) {
+        body += '### ⚠️ Analysis Errors\n\n';
+        body += 'Some files could not be analyzed:\n\n';
+        for (const file of metrics.filesWithErrors.slice(0, 10)) {
+            body += `- ${file}\n`;
+        }
+        if (metrics.filesWithErrors.length > 10) {
+            body += `- ...and ${metrics.filesWithErrors.length - 10} more\n`;
+        }
+        body += '\n';
+    }
+    body += '---\n';
+    body += `*Generated by [PR Metrics Action](https://github.com/marketplace/actions/pr-metrics)*\n`;
+    body += exports.COMMENT_SIGNATURE;
+    return body;
+}
+async function findExistingComment(token, context) {
+    try {
+        (0, actions_io_1.logDebug)(`Searching for existing comment on PR #${context.pullNumber}`);
+        const octokit = github.getOctokit(token);
+        let page = 1;
+        const perPage = 100;
+        while (true) {
+            const response = await octokit.rest.issues.listComments({
+                owner: context.owner,
+                repo: context.repo,
+                issue_number: context.pullNumber,
+                per_page: perPage,
+                page,
+            });
+            for (const comment of response.data) {
+                if (comment.body?.includes(exports.COMMENT_SIGNATURE)) {
+                    (0, actions_io_1.logDebug)(`Found existing comment with ID ${comment.id}`);
+                    return (0, neverthrow_1.ok)(comment.id);
+                }
+            }
+            if (response.data.length < perPage) {
+                break;
+            }
+            page++;
+            if (page > 10) {
+                (0, actions_io_1.logWarning)('Reached pagination limit while searching for comment');
+                break;
+            }
+        }
+        (0, actions_io_1.logDebug)('No existing comment found');
+        return (0, neverthrow_1.ok)(null);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createGitHubAPIError)(`Failed to find existing comment: ${message}`));
+    }
+}
+async function postComment(body, token, context) {
+    try {
+        (0, actions_io_1.logInfo)('Posting new comment on PR');
+        const octokit = github.getOctokit(token);
+        const response = await octokit.rest.issues.createComment({
+            owner: context.owner,
+            repo: context.repo,
+            issue_number: context.pullNumber,
+            body,
+        });
+        (0, actions_io_1.logInfo)(`Comment posted successfully (ID: ${response.data.id})`);
+        return (0, neverthrow_1.ok)(response.data.id);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createGitHubAPIError)(`Failed to post comment: ${message}`));
+    }
+}
+async function updateComment(commentId, body, token, context) {
+    try {
+        (0, actions_io_1.logInfo)(`Updating comment ${commentId}`);
+        const octokit = github.getOctokit(token);
+        await octokit.rest.issues.updateComment({
+            owner: context.owner,
+            repo: context.repo,
+            comment_id: commentId,
+            body,
+        });
+        (0, actions_io_1.logInfo)('Comment updated successfully');
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createGitHubAPIError)(`Failed to update comment: ${message}`));
+    }
+}
+async function deleteComment(commentId, token, context) {
+    try {
+        (0, actions_io_1.logInfo)(`Deleting comment ${commentId}`);
+        const octokit = github.getOctokit(token);
+        await octokit.rest.issues.deleteComment({
+            owner: context.owner,
+            repo: context.repo,
+            comment_id: commentId,
+        });
+        (0, actions_io_1.logInfo)('Comment deleted successfully');
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createGitHubAPIError)(`Failed to delete comment: ${message}`));
+    }
+}
+async function manageComment(analysisResult, config, token, context) {
+    const hasViolations = analysisResult.violations.largeFiles.length > 0 ||
+        analysisResult.violations.exceedsFileLines.length > 0 ||
+        analysisResult.violations.exceedsAdditions ||
+        analysisResult.violations.exceedsFileCount;
+    const existingCommentResult = await findExistingComment(token, context);
+    if (existingCommentResult.isErr()) {
+        return (0, neverthrow_1.err)(existingCommentResult.error);
+    }
+    const existingCommentId = existingCommentResult.value;
+    if (config.commentMode === 'never') {
+        if (existingCommentId) {
+            const deleteResult = await deleteComment(existingCommentId, token, context);
+            if (deleteResult.isErr()) {
+                return (0, neverthrow_1.err)(deleteResult.error);
+            }
+            return (0, neverthrow_1.ok)({ action: 'deleted', commentId: existingCommentId });
+        }
+        return (0, neverthrow_1.ok)({ action: 'skipped', commentId: null });
+    }
+    if (config.commentMode === 'auto') {
+        if (!hasViolations) {
+            if (existingCommentId) {
+                const deleteResult = await deleteComment(existingCommentId, token, context);
+                if (deleteResult.isErr()) {
+                    return (0, neverthrow_1.err)(deleteResult.error);
+                }
+                return (0, neverthrow_1.ok)({ action: 'deleted', commentId: existingCommentId });
+            }
+            return (0, neverthrow_1.ok)({ action: 'skipped', commentId: null });
+        }
+    }
+    const commentBody = generateCommentBody(analysisResult);
+    if (existingCommentId) {
+        const updateResult = await updateComment(existingCommentId, commentBody, token, context);
+        if (updateResult.isErr()) {
+            return (0, neverthrow_1.err)(updateResult.error);
+        }
+        return (0, neverthrow_1.ok)({ action: 'updated', commentId: existingCommentId });
+    }
+    else {
+        const postResult = await postComment(commentBody, token, context);
+        if (postResult.isErr()) {
+            return (0, neverthrow_1.err)(postResult.error);
+        }
+        return (0, neverthrow_1.ok)({ action: 'created', commentId: postResult.value });
+    }
+}
+
+
+/***/ }),
+
+/***/ 5109:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DiffStrategy = void 0;
+exports.getDiffFiles = getDiffFiles;
+const neverthrow_1 = __nccwpck_require__(734);
+const child_process_1 = __nccwpck_require__(7698);
+const util_1 = __nccwpck_require__(9023);
+const github = __importStar(__nccwpck_require__(4903));
+const errors_1 = __nccwpck_require__(8847);
+const actions_io_1 = __nccwpck_require__(2210);
+const execAsync = (0, util_1.promisify)(child_process_1.exec);
+function parseGitDiffLine(line) {
+    const parts = line.trim().split('\t');
+    if (parts.length !== 3) {
+        return null;
+    }
+    const additions = parseInt(parts[0] ?? '', 10);
+    const deletions = parseInt(parts[1] ?? '', 10);
+    const filename = parts[2] ?? '';
+    if (isNaN(additions) || isNaN(deletions) || !filename) {
+        return null;
+    }
+    let status;
+    if (deletions === 0 && additions > 0) {
+        status = 'added';
+    }
+    else if (additions === 0 && deletions === 0) {
+        status = 'renamed';
+    }
+    else {
+        status = 'modified';
+    }
+    return {
+        filename,
+        additions,
+        deletions,
+        status,
+    };
+}
+async function getLocalGitDiff(context) {
+    try {
+        (0, actions_io_1.logDebug)('Attempting to get diff using local git command');
+        const command = `git diff --numstat --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
+        const { stdout, stderr } = await execAsync(command);
+        if (stderr) {
+            (0, actions_io_1.logWarning)(`Git command stderr: ${stderr}`);
+        }
+        const lines = stdout
+            .trim()
+            .split('\n')
+            .filter(line => line.length > 0);
+        const files = [];
+        for (const line of lines) {
+            const file = parseGitDiffLine(line);
+            if (file) {
+                if (file.additions === 0 && file.deletions > 0) {
+                    continue;
+                }
+                files.push(file);
+            }
+        }
+        (0, actions_io_1.logInfo)(`Successfully retrieved ${files.length} files using local git`);
+        return (0, neverthrow_1.ok)(files);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        (0, actions_io_1.logWarning)(`Local git diff failed: ${message}`);
+        return (0, neverthrow_1.err)((0, errors_1.createDiffError)('local-git', `Failed to get local git diff: ${message}`));
+    }
+}
+async function getGitHubAPIDiff(context, token) {
+    try {
+        (0, actions_io_1.logDebug)('Attempting to get diff using GitHub API');
+        const octokit = github.getOctokit(token);
+        const files = [];
+        let page = 1;
+        const perPage = 100;
+        while (true) {
+            const response = await octokit.rest.pulls.listFiles({
+                owner: context.owner,
+                repo: context.repo,
+                pull_number: context.pullNumber,
+                per_page: perPage,
+                page,
+            });
+            if (response.data.length === 0) {
+                break;
+            }
+            for (const file of response.data) {
+                if (file.status === 'removed') {
+                    continue;
+                }
+                let status;
+                switch (file.status) {
+                    case 'added':
+                        status = 'added';
+                        break;
+                    case 'renamed':
+                        status = 'renamed';
+                        break;
+                    case 'copied':
+                        status = 'copied';
+                        break;
+                    case 'modified':
+                    case 'changed':
+                    default:
+                        status = 'modified';
+                        break;
+                }
+                files.push({
+                    filename: file.filename,
+                    additions: file.additions,
+                    deletions: file.deletions,
+                    status,
+                });
+            }
+            page++;
+            if (page > 100) {
+                (0, actions_io_1.logWarning)('Pagination safety limit reached (100 pages)');
+                break;
+            }
+        }
+        (0, actions_io_1.logInfo)(`Successfully retrieved ${files.length} files using GitHub API`);
+        return (0, neverthrow_1.ok)(files);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        (0, actions_io_1.logWarning)(`GitHub API diff failed: ${message}`);
+        return (0, neverthrow_1.err)((0, errors_1.createDiffError)('github-api', `Failed to get GitHub API diff: ${message}`));
+    }
+}
+class DiffStrategy {
+    async execute(context, token) {
+        const localResult = await getLocalGitDiff(context);
+        if (localResult.isOk()) {
+            return (0, neverthrow_1.ok)({
+                files: localResult.value,
+                strategy: 'local-git',
+            });
+        }
+        (0, actions_io_1.logInfo)('Falling back to GitHub API for diff retrieval');
+        const apiResult = await getGitHubAPIDiff(context, token);
+        if (apiResult.isOk()) {
+            return (0, neverthrow_1.ok)({
+                files: apiResult.value,
+                strategy: 'github-api',
+            });
+        }
+        return (0, neverthrow_1.err)((0, errors_1.createDiffError)('both', `Failed to get diff files. Local git error: ${localResult.error.message}. API error: ${apiResult.error.message}`));
+    }
+}
+exports.DiffStrategy = DiffStrategy;
+async function getDiffFiles(context, token) {
+    const strategy = new DiffStrategy();
+    return strategy.execute(context, token);
+}
+
+
+/***/ }),
+
+/***/ 8847:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.errAsync = exports.okAsync = exports.ResultAsync = exports.err = exports.ok = exports.Result = exports.createCacheError = exports.createPatternError = exports.createDiffError = exports.createViolationError = exports.createFileSystemError = exports.createParseError = exports.createConfigurationError = exports.createGitHubAPIError = exports.createFileAnalysisError = void 0;
+const createFileAnalysisError = (file, message) => ({
+    type: 'FileAnalysisError',
+    file,
+    message,
+});
+exports.createFileAnalysisError = createFileAnalysisError;
+const createGitHubAPIError = (message, status) => {
+    const error = {
+        type: 'GitHubAPIError',
+        message,
+    };
+    if (status !== undefined) {
+        error.status = status;
+    }
+    return error;
+};
+exports.createGitHubAPIError = createGitHubAPIError;
+const createConfigurationError = (field, value, message) => ({
+    type: 'ConfigurationError',
+    field,
+    value,
+    message,
+});
+exports.createConfigurationError = createConfigurationError;
+const createParseError = (input, message) => ({
+    type: 'ParseError',
+    input,
+    message,
+});
+exports.createParseError = createParseError;
+const createFileSystemError = (message, path) => {
+    const error = {
+        type: 'FileSystemError',
+        message,
+    };
+    if (path !== undefined) {
+        error.path = path;
+    }
+    return error;
+};
+exports.createFileSystemError = createFileSystemError;
+const createViolationError = (violations, message) => ({
+    type: 'ViolationError',
+    violations,
+    message,
+});
+exports.createViolationError = createViolationError;
+const createDiffError = (source, message) => ({
+    type: 'DiffError',
+    source,
+    message,
+});
+exports.createDiffError = createDiffError;
+const createPatternError = (pattern, message) => ({
+    type: 'PatternError',
+    pattern,
+    message,
+});
+exports.createPatternError = createPatternError;
+const createCacheError = (message, key) => {
+    const error = {
+        type: 'CacheError',
+        message,
+    };
+    if (key !== undefined) {
+        error.key = key;
+    }
+    return error;
+};
+exports.createCacheError = createCacheError;
+var neverthrow_1 = __nccwpck_require__(734);
+Object.defineProperty(exports, "Result", ({ enumerable: true, get: function () { return neverthrow_1.Result; } }));
+Object.defineProperty(exports, "ok", ({ enumerable: true, get: function () { return neverthrow_1.ok; } }));
+Object.defineProperty(exports, "err", ({ enumerable: true, get: function () { return neverthrow_1.err; } }));
+Object.defineProperty(exports, "ResultAsync", ({ enumerable: true, get: function () { return neverthrow_1.ResultAsync; } }));
+Object.defineProperty(exports, "okAsync", ({ enumerable: true, get: function () { return neverthrow_1.okAsync; } }));
+Object.defineProperty(exports, "errAsync", ({ enumerable: true, get: function () { return neverthrow_1.errAsync; } }));
+
+
+/***/ }),
+
+/***/ 798:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getFileSize = getFileSize;
+exports.getFileLineCount = getFileLineCount;
+exports.isBinaryFile = isBinaryFile;
+exports.analyzeFiles = analyzeFiles;
+const neverthrow_1 = __nccwpck_require__(734);
+const fs_1 = __nccwpck_require__(9896);
+const child_process_1 = __nccwpck_require__(7698);
+const util_1 = __nccwpck_require__(9023);
+const path = __importStar(__nccwpck_require__(6928));
+const github = __importStar(__nccwpck_require__(4903));
+const errors_1 = __nccwpck_require__(8847);
+const actions_io_1 = __nccwpck_require__(2210);
+const pattern_matcher_1 = __nccwpck_require__(444);
+const execAsync = (0, util_1.promisify)(child_process_1.exec);
+const BINARY_EXTENSIONS = new Set([
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.gif',
+    '.bmp',
+    '.svg',
+    '.ico',
+    '.webp',
+    '.tiff',
+    '.mp4',
+    '.avi',
+    '.mov',
+    '.wmv',
+    '.flv',
+    '.webm',
+    '.mkv',
+    '.m4v',
+    '.mp3',
+    '.wav',
+    '.flac',
+    '.aac',
+    '.ogg',
+    '.wma',
+    '.m4a',
+    '.zip',
+    '.tar',
+    '.gz',
+    '.bz2',
+    '.xz',
+    '.rar',
+    '.7z',
+    '.jar',
+    '.exe',
+    '.dll',
+    '.so',
+    '.dylib',
+    '.bin',
+    '.app',
+    '.deb',
+    '.rpm',
+    '.ttf',
+    '.otf',
+    '.woff',
+    '.woff2',
+    '.eot',
+    '.pdf',
+    '.doc',
+    '.docx',
+    '.xls',
+    '.xlsx',
+    '.ppt',
+    '.pptx',
+    '.pyc',
+    '.pyo',
+    '.class',
+    '.o',
+    '.a',
+    '.lib',
+    '.wasm',
+    '.db',
+    '.sqlite',
+    '.sqlite3',
+    '.DS_Store',
+    '.lock',
+]);
+async function getFileSize(filePath, token, context) {
+    (0, actions_io_1.logDebug)(`Getting size for file: ${filePath}`);
+    try {
+        const stats = await fs_1.promises.stat(filePath);
+        if (stats.isFile()) {
+            (0, actions_io_1.logDebug)(`Got size from fs.stat: ${stats.size} bytes`);
+            return (0, neverthrow_1.ok)(stats.size);
+        }
+    }
+    catch (error) {
+        (0, actions_io_1.logDebug)(`fs.stat failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+    try {
+        const { stdout } = await execAsync(`git ls-tree -l HEAD "${filePath}"`);
+        const tabParts = stdout.trim().split('\t');
+        if (tabParts.length >= 2 && tabParts[0]) {
+            const metaParts = tabParts[0].trim().split(/\s+/);
+            if (metaParts.length >= 4) {
+                const size = parseInt(metaParts[3] || '', 10);
+                if (!isNaN(size)) {
+                    (0, actions_io_1.logDebug)(`Got size from git ls-tree: ${size} bytes`);
+                    return (0, neverthrow_1.ok)(size);
+                }
+            }
+        }
+    }
+    catch (error) {
+        (0, actions_io_1.logDebug)(`git ls-tree failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+    try {
+        const octokit = github.getOctokit(token);
+        const response = await octokit.rest.repos.getContent({
+            owner: context.owner,
+            repo: context.repo,
+            path: filePath,
+        });
+        if ('size' in response.data && response.data.type === 'file') {
+            (0, actions_io_1.logDebug)(`Got size from GitHub API: ${response.data.size} bytes`);
+            return (0, neverthrow_1.ok)(response.data.size);
+        }
+    }
+    catch (error) {
+        (0, actions_io_1.logDebug)(`GitHub API failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+    return (0, neverthrow_1.err)((0, errors_1.createFileAnalysisError)(filePath, 'Failed to get file size using all strategies'));
+}
+async function getFileLineCount(filePath, maxLines) {
+    (0, actions_io_1.logDebug)(`Counting lines in file: ${filePath}`);
+    try {
+        const { stdout } = await execAsync(`wc -l "${filePath}"`);
+        const match = stdout.match(/^\s*(\d+)/);
+        if (match && match[1]) {
+            const lines = parseInt(match[1], 10);
+            (0, actions_io_1.logDebug)(`Got line count from wc -l: ${lines}`);
+            if (maxLines && lines > maxLines) {
+                return (0, neverthrow_1.ok)(maxLines);
+            }
+            return (0, neverthrow_1.ok)(lines);
+        }
+    }
+    catch (error) {
+        (0, actions_io_1.logDebug)(`wc -l failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+    try {
+        const content = await fs_1.promises.readFile(filePath, 'utf-8');
+        const lines = content.split(/\r\n|\r|\n/);
+        let lineCount = lines.length;
+        if (lines[lines.length - 1] === '') {
+            lineCount--;
+        }
+        if (maxLines && lineCount > maxLines) {
+            (0, actions_io_1.logDebug)(`Line count exceeds max (${maxLines}), returning max`);
+            return (0, neverthrow_1.ok)(maxLines);
+        }
+        (0, actions_io_1.logDebug)(`Got line count from Node.js: ${lineCount}`);
+        return (0, neverthrow_1.ok)(lineCount);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createFileAnalysisError)(filePath, `Failed to count lines: ${message}`));
+    }
+}
+async function isBinaryFile(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    if (BINARY_EXTENSIONS.has(ext)) {
+        return true;
+    }
+    try {
+        const buffer = await fs_1.promises.readFile(filePath, { encoding: null });
+        const sample = buffer.slice(0, 8192);
+        for (let i = 0; i < sample.length; i++) {
+            if (sample[i] === 0) {
+                return true;
+            }
+        }
+        let nonPrintable = 0;
+        for (let i = 0; i < Math.min(sample.length, 512); i++) {
+            const byte = sample[i];
+            if (byte !== undefined && (byte < 32 || byte > 126) && byte !== 9 && byte !== 10 && byte !== 13) {
+                nonPrintable++;
+            }
+        }
+        return nonPrintable / Math.min(sample.length, 512) > 0.3;
+    }
+    catch (error) {
+        (0, actions_io_1.logDebug)(`Could not read file for binary detection: ${error instanceof Error ? error.message : 'Unknown'}`);
+        return false;
+    }
+}
+async function analyzeFiles(files, config, token, context) {
+    (0, actions_io_1.logInfo)(`Analyzing ${files.length} files`);
+    const result = {
+        metrics: {
+            totalFiles: files.length,
+            totalAdditions: 0,
+            filesAnalyzed: [],
+            filesExcluded: [],
+            filesSkippedBinary: [],
+            filesWithErrors: [],
+        },
+        violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+        },
+    };
+    if (files.length > config.maxFileCount) {
+        result.violations.exceedsFileCount = true;
+        (0, actions_io_1.logWarning)(`File count ${files.length} exceeds limit ${config.maxFileCount}`);
+    }
+    const excludePatterns = [...(0, pattern_matcher_1.getDefaultExcludePatterns)(), ...config.excludePatterns];
+    for (const file of files) {
+        result.metrics.totalAdditions += file.additions;
+    }
+    let processedCount = 0;
+    for (const file of files) {
+        if (processedCount >= config.maxFileCount) {
+            (0, actions_io_1.logWarning)(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
+            break;
+        }
+        if ((0, pattern_matcher_1.isExcluded)(file.filename, excludePatterns)) {
+            result.metrics.filesExcluded.push(file.filename);
+            continue;
+        }
+        if (await isBinaryFile(file.filename)) {
+            result.metrics.filesSkippedBinary.push(file.filename);
+            (0, actions_io_1.logDebug)(`Skipping binary file: ${file.filename}`);
+            continue;
+        }
+        try {
+            const sizeResult = await getFileSize(file.filename, token, context);
+            const lineResult = await getFileLineCount(file.filename, config.fileLineLimit + 1);
+            if (sizeResult.isErr() || lineResult.isErr()) {
+                result.metrics.filesWithErrors.push(file.filename);
+                (0, actions_io_1.logWarning)(`Failed to analyze file ${file.filename}`);
+                continue;
+            }
+            const metrics = {
+                filename: file.filename,
+                size: sizeResult.value,
+                lines: lineResult.value,
+                additions: file.additions,
+                deletions: file.deletions,
+            };
+            result.metrics.filesAnalyzed.push(metrics);
+            if (metrics.size > config.fileSizeLimit) {
+                const violation = {
+                    file: file.filename,
+                    actualValue: metrics.size,
+                    limit: config.fileSizeLimit,
+                    violationType: 'size',
+                    severity: 'critical',
+                };
+                result.violations.largeFiles.push(violation);
+                (0, actions_io_1.logWarning)(`File ${file.filename} exceeds size limit: ${metrics.size} > ${config.fileSizeLimit}`);
+            }
+            if (metrics.lines > config.fileLineLimit) {
+                const violation = {
+                    file: file.filename,
+                    actualValue: metrics.lines,
+                    limit: config.fileLineLimit,
+                    violationType: 'lines',
+                    severity: 'warning',
+                };
+                result.violations.exceedsFileLines.push(violation);
+                (0, actions_io_1.logWarning)(`File ${file.filename} exceeds line limit: ${metrics.lines} > ${config.fileLineLimit}`);
+            }
+            processedCount++;
+        }
+        catch (error) {
+            result.metrics.filesWithErrors.push(file.filename);
+            (0, actions_io_1.logWarning)(`Unexpected error analyzing file ${file.filename}: ${error instanceof Error ? error.message : 'Unknown'}`);
+        }
+    }
+    if (result.metrics.totalAdditions > config.maxAddedLines) {
+        result.violations.exceedsAdditions = true;
+        (0, actions_io_1.logWarning)(`Total additions ${result.metrics.totalAdditions} exceeds limit ${config.maxAddedLines}`);
+    }
+    (0, actions_io_1.logInfo)(`Analysis complete: ${result.metrics.filesAnalyzed.length} files analyzed, ${result.metrics.filesExcluded.length} excluded, ${result.metrics.filesSkippedBinary.length} binary files skipped`);
+    return (0, neverthrow_1.ok)(result);
+}
+
+
+/***/ }),
+
 /***/ 6866:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -29961,59 +31686,686 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = run;
 const core = __importStar(__nccwpck_require__(6966));
-const github = __importStar(__nccwpck_require__(4903));
+const actions_io_1 = __nccwpck_require__(2210);
+const input_mapper_1 = __nccwpck_require__(9210);
+const diff_strategy_1 = __nccwpck_require__(5109);
+const file_metrics_1 = __nccwpck_require__(798);
+const label_manager_1 = __nccwpck_require__(1910);
+const comment_manager_1 = __nccwpck_require__(9017);
 async function run() {
     try {
-        const token = core.getInput('github_token', { required: true });
-        const fileSizeLimit = core.getInput('file_size_limit');
-        const lineLimitPR = core.getInput('line_limit_pr');
-        const lineLimitFile = core.getInput('line_limit_file');
-        const skipLabel = core.getInput('skip_label');
-        const largeFilesLabel = core.getInput('large_files_label');
-        const largePRLabel = core.getInput('large_pr_label');
-        const checkOnlyChanged = core.getInput('check_only_changed_files') === 'true';
-        const excludePatterns = core.getInput('exclude_patterns');
-        const postComment = core.getInput('post_comment') === 'true';
-        const failOnLargeFiles = core.getInput('fail_on_large_files') === 'true';
-        core.info('PR Metrics Action started');
-        core.debug(`Configuration:
-      - File size limit: ${fileSizeLimit}
-      - Line limit per PR: ${lineLimitPR}
-      - Line limit per file: ${lineLimitFile}
-      - Skip label: ${skipLabel}
-      - Large files label: ${largeFilesLabel}
-      - Large PR label: ${largePRLabel}
-      - Check only changed files: ${checkOnlyChanged}
-      - Exclude patterns: ${excludePatterns}
-      - Post comment: ${postComment}
-      - Fail on large files: ${failOnLargeFiles}`);
-        const context = github.context;
-        if (!context.payload.pull_request) {
-            throw new Error('This action must be run in a pull request context');
+        (0, actions_io_1.logInfo)('🚀 Starting PR Metrics Action');
+        (0, actions_io_1.logInfo)('📥 Getting action inputs...');
+        const inputs = (0, actions_io_1.getActionInputs)();
+        const tokenResult = (0, actions_io_1.getGitHubToken)();
+        if (tokenResult.isErr()) {
+            throw tokenResult.error;
         }
-        const pullRequest = context.payload.pull_request;
-        const prNumber = pullRequest.number;
-        const owner = context.repo.owner;
-        const repo = context.repo.repo;
-        core.info(`Processing PR #${prNumber} in ${owner}/${repo}`);
-        const octokit = github.getOctokit(token);
-        void octokit;
-        if (skipLabel) {
-            const labels = pullRequest['labels'] || [];
-            const shouldSkip = labels.some((label) => label.name === skipLabel);
-            if (shouldSkip) {
-                core.info(`Skipping check due to label: ${skipLabel}`);
-                return;
+        const token = tokenResult.value;
+        const prContext = (0, actions_io_1.getPullRequestContext)();
+        (0, actions_io_1.logInfo)(`📋 Analyzing PR #${prContext.pullNumber} in ${prContext.owner}/${prContext.repo}`);
+        const configResult = (0, input_mapper_1.mapActionInputsToConfig)(inputs);
+        if (configResult.isErr()) {
+            throw configResult.error;
+        }
+        const config = configResult.value;
+        (0, actions_io_1.logInfo)('📊 Getting PR diff files...');
+        const diffResult = await (0, diff_strategy_1.getDiffFiles)({
+            owner: prContext.owner,
+            repo: prContext.repo,
+            pullNumber: prContext.pullNumber,
+            baseSha: prContext.baseSha,
+            headSha: prContext.headSha,
+        }, token);
+        if (diffResult.isErr()) {
+            throw diffResult.error;
+        }
+        const { files, strategy } = diffResult.value;
+        (0, actions_io_1.logInfo)(`✅ Retrieved ${files.length} files using ${strategy} strategy`);
+        (0, actions_io_1.logInfo)('🔍 Analyzing files...');
+        const analysisResult = await (0, file_metrics_1.analyzeFiles)(files, {
+            fileSizeLimit: config.fileSizeLimit,
+            fileLineLimit: config.fileLinesLimit,
+            maxAddedLines: config.prAdditionsLimit,
+            maxFileCount: config.prFilesLimit,
+            excludePatterns: config.additionalExcludePatterns,
+        }, token, {
+            owner: prContext.owner,
+            repo: prContext.repo,
+        });
+        if (analysisResult.isErr()) {
+            throw analysisResult.error;
+        }
+        const analysis = analysisResult.value;
+        (0, actions_io_1.logInfo)('📈 Analysis complete:');
+        (0, actions_io_1.logInfo)(`  - Files analyzed: ${analysis.metrics.filesAnalyzed.length}`);
+        (0, actions_io_1.logInfo)(`  - Files excluded: ${analysis.metrics.filesExcluded.length}`);
+        (0, actions_io_1.logInfo)(`  - Binary files skipped: ${analysis.metrics.filesSkippedBinary.length}`);
+        (0, actions_io_1.logInfo)(`  - Total additions: ${analysis.metrics.totalAdditions}`);
+        const hasViolations = analysis.violations.largeFiles.length > 0 ||
+            analysis.violations.exceedsFileLines.length > 0 ||
+            analysis.violations.exceedsAdditions ||
+            analysis.violations.exceedsFileCount;
+        if (hasViolations) {
+            (0, actions_io_1.logWarning)('⚠️ Violations detected:');
+            if (analysis.violations.largeFiles.length > 0) {
+                (0, actions_io_1.logWarning)(`  - ${analysis.violations.largeFiles.length} large file(s)`);
+            }
+            if (analysis.violations.exceedsFileLines.length > 0) {
+                (0, actions_io_1.logWarning)(`  - ${analysis.violations.exceedsFileLines.length} file(s) exceed line limit`);
+            }
+            if (analysis.violations.exceedsAdditions) {
+                (0, actions_io_1.logWarning)('  - Total additions exceed limit');
+            }
+            if (analysis.violations.exceedsFileCount) {
+                (0, actions_io_1.logWarning)('  - File count exceeds limit');
             }
         }
-        core.info('PR Metrics Action completed successfully');
+        else {
+            (0, actions_io_1.logInfo)('✅ All checks passed!');
+        }
+        if (config.applyLabels) {
+            (0, actions_io_1.logInfo)('🏷️ Updating PR labels...');
+            const labelResult = await (0, label_manager_1.updateLabels)(analysis, {
+                sizeLabelThresholds: {
+                    small: config.sizeThresholds.S.additions,
+                    medium: config.sizeThresholds.M.additions,
+                    large: config.sizeThresholds.L.additions,
+                    xlarge: config.sizeThresholds.L.additions * 2,
+                },
+            }, token, {
+                owner: prContext.owner,
+                repo: prContext.repo,
+                pullNumber: prContext.pullNumber,
+            });
+            if (labelResult.isErr()) {
+                (0, actions_io_1.logWarning)(`Failed to update labels: ${labelResult.error.message}`);
+            }
+            else {
+                const { added, removed } = labelResult.value;
+                if (added.length > 0) {
+                    (0, actions_io_1.logInfo)(`  - Added labels: ${added.join(', ')}`);
+                }
+                if (removed.length > 0) {
+                    (0, actions_io_1.logInfo)(`  - Removed labels: ${removed.join(', ')}`);
+                }
+            }
+        }
+        if (config.commentOnPr !== 'never') {
+            (0, actions_io_1.logInfo)('💬 Managing PR comment...');
+            const commentResult = await (0, comment_manager_1.manageComment)(analysis, {
+                commentMode: config.commentOnPr,
+            }, token, {
+                owner: prContext.owner,
+                repo: prContext.repo,
+                pullNumber: prContext.pullNumber,
+            });
+            if (commentResult.isErr()) {
+                (0, actions_io_1.logWarning)(`Failed to manage comment: ${commentResult.error.message}`);
+            }
+            else {
+                const { action } = commentResult.value;
+                (0, actions_io_1.logInfo)(`  - Comment ${action}`);
+            }
+        }
+        (0, actions_io_1.setActionOutputs)({
+            large_files: JSON.stringify(analysis.violations.largeFiles.map(v => v.file)),
+            pr_additions: analysis.metrics.totalAdditions.toString(),
+            pr_files: analysis.metrics.totalFiles.toString(),
+            exceeds_file_size: (analysis.violations.largeFiles.length > 0).toString(),
+            exceeds_file_lines: (analysis.violations.exceedsFileLines.length > 0).toString(),
+            exceeds_additions: analysis.violations.exceedsAdditions.toString(),
+            exceeds_file_count: analysis.violations.exceedsFileCount.toString(),
+            has_violations: hasViolations.toString(),
+        });
+        if (hasViolations && config.failOnViolation) {
+            core.setFailed('🚫 PR contains violations and fail_on_violation is enabled');
+        }
+        else {
+            (0, actions_io_1.logInfo)('✨ PR Metrics Action completed successfully');
+        }
     }
     catch (error) {
-        core.setFailed(error instanceof Error ? error.message : String(error));
+        const errorMessage = getErrorMessage(error);
+        (0, actions_io_1.logError)(`❌ Action failed: ${errorMessage}`);
+        core.setFailed(errorMessage);
     }
 }
-run();
+function getErrorMessage(error) {
+    if (error && typeof error === 'object' && 'message' in error) {
+        return String(error.message);
+    }
+    if (error && typeof error === 'object' && 'type' in error) {
+        const appError = error;
+        return `[${appError.type}] ${appError.message}`;
+    }
+    return String(error);
+}
+if (require.main === require.cache[eval('__filename')]) {
+    run();
+}
+
+
+/***/ }),
+
+/***/ 9210:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseBoolean = parseBoolean;
+exports.parseCommentMode = parseCommentMode;
+exports.parseExcludePatterns = parseExcludePatterns;
+exports.parseSizeThresholds = parseSizeThresholds;
+exports.mapActionInputsToConfig = mapActionInputsToConfig;
+const neverthrow_1 = __nccwpck_require__(734);
+const size_parser_1 = __nccwpck_require__(3542);
+const errors_1 = __nccwpck_require__(8847);
+function parseBoolean(value) {
+    const normalized = value.trim().toLowerCase();
+    return ['true', '1', 'yes', 'on'].includes(normalized);
+}
+function parseCommentMode(value) {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'always' || normalized === 'never') {
+        return normalized;
+    }
+    return 'auto';
+}
+function parseExcludePatterns(value) {
+    return value
+        .split(/[,\n]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+}
+function parseSizeThresholds(value) {
+    try {
+        const parsed = JSON.parse(value);
+        if (!parsed.S || !parsed.M || !parsed.L) {
+            return (0, neverthrow_1.err)((0, errors_1.createParseError)(value, 'Missing required size thresholds (S, M, L)'));
+        }
+        const sizes = ['S', 'M', 'L'];
+        for (const size of sizes) {
+            if (typeof parsed[size].additions !== 'number' || typeof parsed[size].files !== 'number') {
+                return (0, neverthrow_1.err)((0, errors_1.createParseError)(value, `Invalid threshold structure for size ${size}`));
+            }
+        }
+        return (0, neverthrow_1.ok)(parsed);
+    }
+    catch (_error) {
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(value, 'Invalid JSON for size thresholds'));
+    }
+}
+function mapActionInputsToConfig(inputs) {
+    const fileSizeLimitResult = (0, size_parser_1.parseSize)(inputs.file_size_limit);
+    if (fileSizeLimitResult.isErr()) {
+        return (0, neverthrow_1.err)(fileSizeLimitResult.error);
+    }
+    const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
+    if (isNaN(fileLinesLimit)) {
+        return (0, neverthrow_1.err)((0, errors_1.createConfigurationError)('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'));
+    }
+    const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
+    if (isNaN(prAdditionsLimit)) {
+        return (0, neverthrow_1.err)((0, errors_1.createConfigurationError)('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
+    }
+    const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
+    if (isNaN(prFilesLimit)) {
+        return (0, neverthrow_1.err)((0, errors_1.createConfigurationError)('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
+    }
+    const sizeThresholdsResult = parseSizeThresholds(inputs.size_label_thresholds);
+    if (sizeThresholdsResult.isErr()) {
+        return (0, neverthrow_1.err)(sizeThresholdsResult.error);
+    }
+    const config = {
+        fileSizeLimit: fileSizeLimitResult.value,
+        fileLinesLimit,
+        prAdditionsLimit,
+        prFilesLimit,
+        applyLabels: parseBoolean(inputs.apply_labels),
+        autoRemoveLabels: parseBoolean(inputs.auto_remove_labels),
+        applySizeLabels: parseBoolean(inputs.apply_size_labels),
+        sizeThresholds: sizeThresholdsResult.value,
+        largeFilesLabel: inputs.large_files_label,
+        tooManyFilesLabel: inputs.too_many_files_label,
+        skipDraftPr: parseBoolean(inputs.skip_draft_pr),
+        commentOnPr: parseCommentMode(inputs.comment_on_pr),
+        failOnViolation: parseBoolean(inputs.fail_on_violation),
+        additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
+        githubToken: inputs.github_token,
+    };
+    return (0, neverthrow_1.ok)(config);
+}
+
+
+/***/ }),
+
+/***/ 1910:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getSizeLabel = getSizeLabel;
+exports.getDetailLabels = getDetailLabels;
+exports.getCurrentLabels = getCurrentLabels;
+exports.addLabels = addLabels;
+exports.removeLabels = removeLabels;
+exports.updateLabels = updateLabels;
+const neverthrow_1 = __nccwpck_require__(734);
+const github = __importStar(__nccwpck_require__(4903));
+const errors_1 = __nccwpck_require__(8847);
+const actions_io_1 = __nccwpck_require__(2210);
+const SIZE_LABEL_PREFIX = 'size:';
+const AUTO_LABEL_PREFIX = 'auto:';
+const SIZE_LABELS = {
+    S: 'size:S',
+    M: 'size:M',
+    L: 'size:L',
+    XL: 'size:XL',
+    XXL: 'size:XXL',
+};
+const VIOLATION_LABELS = {
+    largeFiles: 'auto:large-files',
+    tooManyLines: 'auto:too-many-lines',
+    excessiveChanges: 'auto:excessive-changes',
+    tooManyFiles: 'auto:too-many-files',
+};
+function getSizeLabel(totalAdditions, thresholds) {
+    if (totalAdditions <= thresholds.small) {
+        return SIZE_LABELS.S;
+    }
+    else if (totalAdditions <= thresholds.medium) {
+        return SIZE_LABELS.M;
+    }
+    else if (totalAdditions <= thresholds.large) {
+        return SIZE_LABELS.L;
+    }
+    else if (totalAdditions <= thresholds.xlarge) {
+        return SIZE_LABELS.XL;
+    }
+    else {
+        return SIZE_LABELS.XXL;
+    }
+}
+function getDetailLabels(violations) {
+    const labels = [];
+    if (violations.largeFiles.length > 0) {
+        labels.push(VIOLATION_LABELS.largeFiles);
+    }
+    if (violations.exceedsFileLines.length > 0) {
+        labels.push(VIOLATION_LABELS.tooManyLines);
+    }
+    if (violations.exceedsAdditions) {
+        labels.push(VIOLATION_LABELS.excessiveChanges);
+    }
+    if (violations.exceedsFileCount) {
+        labels.push(VIOLATION_LABELS.tooManyFiles);
+    }
+    return labels;
+}
+async function getCurrentLabels(token, context) {
+    try {
+        (0, actions_io_1.logDebug)(`Getting current labels for PR #${context.pullNumber}`);
+        const octokit = github.getOctokit(token);
+        const response = await octokit.rest.issues.listLabelsOnIssue({
+            owner: context.owner,
+            repo: context.repo,
+            issue_number: context.pullNumber,
+        });
+        const labels = response.data.map(label => label.name);
+        (0, actions_io_1.logDebug)(`Found ${labels.length} labels: ${labels.join(', ')}`);
+        return (0, neverthrow_1.ok)(labels);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createGitHubAPIError)(`Failed to get labels: ${message}`));
+    }
+}
+async function addLabels(labels, token, context) {
+    if (labels.length === 0) {
+        (0, actions_io_1.logDebug)('No labels to add');
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    try {
+        (0, actions_io_1.logInfo)(`Adding labels: ${labels.join(', ')}`);
+        const octokit = github.getOctokit(token);
+        await octokit.rest.issues.addLabels({
+            owner: context.owner,
+            repo: context.repo,
+            issue_number: context.pullNumber,
+            labels,
+        });
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createGitHubAPIError)(`Failed to add labels: ${message}`));
+    }
+}
+async function removeLabels(labels, token, context) {
+    if (labels.length === 0) {
+        (0, actions_io_1.logDebug)('No labels to remove');
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    try {
+        (0, actions_io_1.logInfo)(`Removing labels: ${labels.join(', ')}`);
+        const octokit = github.getOctokit(token);
+        for (const label of labels) {
+            try {
+                await octokit.rest.issues.removeLabel({
+                    owner: context.owner,
+                    repo: context.repo,
+                    issue_number: context.pullNumber,
+                    name: label,
+                });
+            }
+            catch (error) {
+                (0, actions_io_1.logWarning)(`Failed to remove label '${label}': ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        }
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return (0, neverthrow_1.err)((0, errors_1.createGitHubAPIError)(`Failed to remove labels: ${message}`));
+    }
+}
+async function updateLabels(analysisResult, config, token, context) {
+    const currentLabelsResult = await getCurrentLabels(token, context);
+    if (currentLabelsResult.isErr()) {
+        return (0, neverthrow_1.err)(currentLabelsResult.error);
+    }
+    const currentLabels = currentLabelsResult.value;
+    const newSizeLabel = getSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds);
+    const newViolationLabels = getDetailLabels(analysisResult.violations);
+    const labelsToRemove = [];
+    for (const label of currentLabels) {
+        if (label.startsWith(SIZE_LABEL_PREFIX) && label !== newSizeLabel) {
+            labelsToRemove.push(label);
+        }
+        if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
+            labelsToRemove.push(label);
+        }
+    }
+    const labelsToAdd = [];
+    if (!currentLabels.includes(newSizeLabel)) {
+        labelsToAdd.push(newSizeLabel);
+    }
+    for (const label of newViolationLabels) {
+        if (!currentLabels.includes(label)) {
+            labelsToAdd.push(label);
+        }
+    }
+    if (labelsToRemove.length > 0) {
+        const removeResult = await removeLabels(labelsToRemove, token, context);
+        if (removeResult.isErr()) {
+            (0, actions_io_1.logWarning)(`Failed to remove some labels, continuing...`);
+        }
+    }
+    if (labelsToAdd.length > 0) {
+        const addResult = await addLabels(labelsToAdd, token, context);
+        if (addResult.isErr()) {
+            return (0, neverthrow_1.err)(addResult.error);
+        }
+    }
+    const finalLabels = currentLabels.filter(label => !labelsToRemove.includes(label)).concat(labelsToAdd);
+    const result = {
+        added: labelsToAdd,
+        removed: labelsToRemove,
+        current: finalLabels,
+    };
+    if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
+        (0, actions_io_1.logInfo)('No label changes needed');
+    }
+    else {
+        (0, actions_io_1.logInfo)(`Label update complete. Added: ${labelsToAdd.join(', ') || 'none'}. Removed: ${labelsToRemove.join(', ') || 'none'}`);
+    }
+    return (0, neverthrow_1.ok)(result);
+}
+
+
+/***/ }),
+
+/***/ 3542:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseSize = parseSize;
+exports.parseSizes = parseSizes;
+const neverthrow_1 = __nccwpck_require__(734);
+const errors_1 = __nccwpck_require__(8847);
+const bytes_1 = __importDefault(__nccwpck_require__(4449));
+function parseSize(input) {
+    const trimmed = input.trim();
+    if (!trimmed) {
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, 'Size cannot be empty'));
+    }
+    if (trimmed.startsWith('-')) {
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, 'Size cannot be negative'));
+    }
+    if (/\d+(\.\d+)?\s*TB/i.test(trimmed)) {
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. TB and larger units are not supported.`));
+    }
+    if (/(KB|MB|GB|kB)\s*(KB|MB|GB|B|K|M|G)/i.test(trimmed) || /[KMGB]{4,}/i.test(trimmed)) {
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. Multiple units detected.`));
+    }
+    try {
+        if (/^\d+(\.\d+)?\s*K$/i.test(trimmed)) {
+            const numValue = parseFloat(trimmed.replace(/K$/i, ''));
+            return (0, neverthrow_1.ok)(Math.round(numValue * 1024));
+        }
+        if (/^\d+(\.\d+)?\s*M$/i.test(trimmed)) {
+            const numValue = parseFloat(trimmed.replace(/M$/i, ''));
+            return (0, neverthrow_1.ok)(Math.round(numValue * 1024 * 1024));
+        }
+        if (/^\d+(\.\d+)?\s*G$/i.test(trimmed)) {
+            const numValue = parseFloat(trimmed.replace(/G$/i, ''));
+            return (0, neverthrow_1.ok)(Math.round(numValue * 1024 * 1024 * 1024));
+        }
+        const parsed = bytes_1.default.parse(trimmed);
+        if (parsed === null) {
+            return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}`));
+        }
+        if (parsed < 0) {
+            return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, 'Size cannot be negative'));
+        }
+        return (0, neverthrow_1.ok)(Math.round(parsed));
+    }
+    catch (_error) {
+        const plainNumber = parseFloat(trimmed);
+        if (!isNaN(plainNumber) && plainNumber >= 0) {
+            return (0, neverthrow_1.ok)(Math.round(plainNumber));
+        }
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. Use formats like "100KB", "1.5MB", or plain numbers.`));
+    }
+}
+function parseSizes(inputs) {
+    const results = [];
+    for (const input of inputs) {
+        const result = parseSize(input);
+        if (result.isErr()) {
+            return (0, neverthrow_1.err)(result.error);
+        }
+        results.push(result.value);
+    }
+    return (0, neverthrow_1.ok)(results);
+}
+
+
+/***/ }),
+
+/***/ 444:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getDefaultExcludePatterns = getDefaultExcludePatterns;
+exports.normalizePattern = normalizePattern;
+exports.isExcluded = isExcluded;
+const minimatch_1 = __nccwpck_require__(222);
+const DEFAULT_EXCLUDE_PATTERNS = [
+    'package-lock.json',
+    'yarn.lock',
+    'pnpm-lock.yaml',
+    'Gemfile.lock',
+    'Cargo.lock',
+    'composer.lock',
+    'poetry.lock',
+    'Pipfile.lock',
+    'bun.lockb',
+    'deno.lock',
+    '*.lock',
+    'node_modules/**',
+    '**/node_modules/**',
+    'vendor/**',
+    '**/vendor/**',
+    '.bundle/**',
+    'bower_components/**',
+    '**/bower_components/**',
+    'dist/**',
+    'build/**',
+    'out/**',
+    'output/**',
+    'target/**',
+    '.next/**',
+    '_next/**',
+    '.nuxt/**',
+    '.output/**',
+    '*.min.js',
+    '*.min.css',
+    '*.bundle.js',
+    '*.bundle.css',
+    '*.chunk.js',
+    '*.chunk.css',
+    '*.map',
+    '*.js.map',
+    '*.css.map',
+    'coverage/**',
+    '.nyc_output/**',
+    'reports/**',
+    'test-results/**',
+    '*.log',
+    'logs/**',
+    'npm-debug.log*',
+    'yarn-debug.log*',
+    'yarn-error.log*',
+    'lerna-debug.log*',
+    '.vscode/**',
+    '.idea/**',
+    '*.swp',
+    '*.swo',
+    '*.swn',
+    '.DS_Store',
+    'Thumbs.db',
+    'desktop.ini',
+    '.git/**',
+    '.gitignore',
+    '.gitattributes',
+    '*.generated.*',
+    '*.gen.ts',
+    '*.gen.js',
+    '*.pb.go',
+    '*.pb.js',
+    '*.pb.ts',
+    '*_pb2.py',
+    '*.g.dart',
+    '.cache/**',
+    '.parcel-cache/**',
+    '.turbo/**',
+    '.webpack-cache/**',
+    '.eslintcache',
+    '.stylelintcache',
+    '.prettiercache',
+    '*.tmp',
+    '*.temp',
+    'tmp/**',
+    'temp/**',
+    '.tmp/**',
+    '.temp/**',
+    '.env',
+    '.env.*',
+    '*.sqlite',
+    '*.sqlite3',
+    '*.db',
+    '*.db-journal',
+    '*.exe',
+    '*.dll',
+    '*.so',
+    '*.dylib',
+    '*.pyc',
+    '*.pyo',
+    '*.wasm',
+];
+function getDefaultExcludePatterns() {
+    return [...DEFAULT_EXCLUDE_PATTERNS];
+}
+function normalizePattern(pattern) {
+    let normalized = pattern.replace(/\\/g, '/');
+    if (normalized.startsWith('./')) {
+        normalized = normalized.slice(2);
+    }
+    return normalized;
+}
+function isExcluded(filePath, patterns) {
+    if (patterns.length === 0) {
+        return false;
+    }
+    const normalizedPath = normalizePattern(filePath);
+    for (const pattern of patterns) {
+        const normalizedPattern = normalizePattern(pattern);
+        const options = {
+            dot: true,
+            matchBase: !normalizedPattern.includes('/'),
+        };
+        if ((0, minimatch_1.minimatch)(normalizedPath, normalizedPattern, options)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 
 /***/ }),
@@ -31888,6 +34240,2135 @@ function parseParams (str) {
 
 module.exports = parseParams
 
+
+/***/ }),
+
+/***/ 7153:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.range = exports.balanced = void 0;
+const balanced = (a, b, str) => {
+    const ma = a instanceof RegExp ? maybeMatch(a, str) : a;
+    const mb = b instanceof RegExp ? maybeMatch(b, str) : b;
+    const r = ma !== null && mb != null && (0, exports.range)(ma, mb, str);
+    return (r && {
+        start: r[0],
+        end: r[1],
+        pre: str.slice(0, r[0]),
+        body: str.slice(r[0] + ma.length, r[1]),
+        post: str.slice(r[1] + mb.length),
+    });
+};
+exports.balanced = balanced;
+const maybeMatch = (reg, str) => {
+    const m = str.match(reg);
+    return m ? m[0] : null;
+};
+const range = (a, b, str) => {
+    let begs, beg, left, right = undefined, result;
+    let ai = str.indexOf(a);
+    let bi = str.indexOf(b, ai + 1);
+    let i = ai;
+    if (ai >= 0 && bi > 0) {
+        if (a === b) {
+            return [ai, bi];
+        }
+        begs = [];
+        left = str.length;
+        while (i >= 0 && !result) {
+            if (i === ai) {
+                begs.push(i);
+                ai = str.indexOf(a, i + 1);
+            }
+            else if (begs.length === 1) {
+                const r = begs.pop();
+                if (r !== undefined)
+                    result = [r, bi];
+            }
+            else {
+                beg = begs.pop();
+                if (beg !== undefined && beg < left) {
+                    left = beg;
+                    right = bi;
+                }
+                bi = str.indexOf(b, i + 1);
+            }
+            i = ai < bi && ai >= 0 ? ai : bi;
+        }
+        if (begs.length && right !== undefined) {
+            result = [left, right];
+        }
+    }
+    return result;
+};
+exports.range = range;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 9751:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.expand = expand;
+const balanced_match_1 = __nccwpck_require__(7153);
+const escSlash = '\0SLASH' + Math.random() + '\0';
+const escOpen = '\0OPEN' + Math.random() + '\0';
+const escClose = '\0CLOSE' + Math.random() + '\0';
+const escComma = '\0COMMA' + Math.random() + '\0';
+const escPeriod = '\0PERIOD' + Math.random() + '\0';
+const escSlashPattern = new RegExp(escSlash, 'g');
+const escOpenPattern = new RegExp(escOpen, 'g');
+const escClosePattern = new RegExp(escClose, 'g');
+const escCommaPattern = new RegExp(escComma, 'g');
+const escPeriodPattern = new RegExp(escPeriod, 'g');
+const slashPattern = /\\\\/g;
+const openPattern = /\\{/g;
+const closePattern = /\\}/g;
+const commaPattern = /\\,/g;
+const periodPattern = /\\./g;
+function numeric(str) {
+    return !isNaN(str) ? parseInt(str, 10) : str.charCodeAt(0);
+}
+function escapeBraces(str) {
+    return str
+        .replace(slashPattern, escSlash)
+        .replace(openPattern, escOpen)
+        .replace(closePattern, escClose)
+        .replace(commaPattern, escComma)
+        .replace(periodPattern, escPeriod);
+}
+function unescapeBraces(str) {
+    return str
+        .replace(escSlashPattern, '\\')
+        .replace(escOpenPattern, '{')
+        .replace(escClosePattern, '}')
+        .replace(escCommaPattern, ',')
+        .replace(escPeriodPattern, '.');
+}
+/**
+ * Basically just str.split(","), but handling cases
+ * where we have nested braced sections, which should be
+ * treated as individual members, like {a,{b,c},d}
+ */
+function parseCommaParts(str) {
+    if (!str) {
+        return [''];
+    }
+    const parts = [];
+    const m = (0, balanced_match_1.balanced)('{', '}', str);
+    if (!m) {
+        return str.split(',');
+    }
+    const { pre, body, post } = m;
+    const p = pre.split(',');
+    p[p.length - 1] += '{' + body + '}';
+    const postParts = parseCommaParts(post);
+    if (post.length) {
+        ;
+        p[p.length - 1] += postParts.shift();
+        p.push.apply(p, postParts);
+    }
+    parts.push.apply(parts, p);
+    return parts;
+}
+function expand(str) {
+    if (!str) {
+        return [];
+    }
+    // I don't know why Bash 4.3 does this, but it does.
+    // Anything starting with {} will have the first two bytes preserved
+    // but *only* at the top level, so {},a}b will not expand to anything,
+    // but a{},b}c will be expanded to [a}c,abc].
+    // One could argue that this is a bug in Bash, but since the goal of
+    // this module is to match Bash's rules, we escape a leading {}
+    if (str.slice(0, 2) === '{}') {
+        str = '\\{\\}' + str.slice(2);
+    }
+    return expand_(escapeBraces(str), true).map(unescapeBraces);
+}
+function embrace(str) {
+    return '{' + str + '}';
+}
+function isPadded(el) {
+    return /^-?0\d/.test(el);
+}
+function lte(i, y) {
+    return i <= y;
+}
+function gte(i, y) {
+    return i >= y;
+}
+function expand_(str, isTop) {
+    /** @type {string[]} */
+    const expansions = [];
+    const m = (0, balanced_match_1.balanced)('{', '}', str);
+    if (!m)
+        return [str];
+    // no need to expand pre, since it is guaranteed to be free of brace-sets
+    const pre = m.pre;
+    const post = m.post.length ? expand_(m.post, false) : [''];
+    if (/\$$/.test(m.pre)) {
+        for (let k = 0; k < post.length; k++) {
+            const expansion = pre + '{' + m.body + '}' + post[k];
+            expansions.push(expansion);
+        }
+    }
+    else {
+        const isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
+        const isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
+        const isSequence = isNumericSequence || isAlphaSequence;
+        const isOptions = m.body.indexOf(',') >= 0;
+        if (!isSequence && !isOptions) {
+            // {a},b}
+            if (m.post.match(/,(?!,).*\}/)) {
+                str = m.pre + '{' + m.body + escClose + m.post;
+                return expand_(str);
+            }
+            return [str];
+        }
+        let n;
+        if (isSequence) {
+            n = m.body.split(/\.\./);
+        }
+        else {
+            n = parseCommaParts(m.body);
+            if (n.length === 1 && n[0] !== undefined) {
+                // x{{a,b}}y ==> x{a}y x{b}y
+                n = expand_(n[0], false).map(embrace);
+                //XXX is this necessary? Can't seem to hit it in tests.
+                /* c8 ignore start */
+                if (n.length === 1) {
+                    return post.map(p => m.pre + n[0] + p);
+                }
+                /* c8 ignore stop */
+            }
+        }
+        // at this point, n is the parts, and we know it's not a comma set
+        // with a single entry.
+        let N;
+        if (isSequence && n[0] !== undefined && n[1] !== undefined) {
+            const x = numeric(n[0]);
+            const y = numeric(n[1]);
+            const width = Math.max(n[0].length, n[1].length);
+            let incr = n.length === 3 && n[2] !== undefined ? Math.abs(numeric(n[2])) : 1;
+            let test = lte;
+            const reverse = y < x;
+            if (reverse) {
+                incr *= -1;
+                test = gte;
+            }
+            const pad = n.some(isPadded);
+            N = [];
+            for (let i = x; test(i, y); i += incr) {
+                let c;
+                if (isAlphaSequence) {
+                    c = String.fromCharCode(i);
+                    if (c === '\\') {
+                        c = '';
+                    }
+                }
+                else {
+                    c = String(i);
+                    if (pad) {
+                        const need = width - c.length;
+                        if (need > 0) {
+                            const z = new Array(need + 1).join('0');
+                            if (i < 0) {
+                                c = '-' + z + c.slice(1);
+                            }
+                            else {
+                                c = z + c;
+                            }
+                        }
+                    }
+                }
+                N.push(c);
+            }
+        }
+        else {
+            N = [];
+            for (let j = 0; j < n.length; j++) {
+                N.push.apply(N, expand_(n[j], false));
+            }
+        }
+        for (let j = 0; j < N.length; j++) {
+            for (let k = 0; k < post.length; k++) {
+                const expansion = pre + N[j] + post[k];
+                if (!isTop || isSequence || expansion) {
+                    expansions.push(expansion);
+                }
+            }
+        }
+    }
+    return expansions;
+}
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 430:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.assertValidPattern = void 0;
+const MAX_PATTERN_LENGTH = 1024 * 64;
+const assertValidPattern = (pattern) => {
+    if (typeof pattern !== 'string') {
+        throw new TypeError('invalid pattern');
+    }
+    if (pattern.length > MAX_PATTERN_LENGTH) {
+        throw new TypeError('pattern is too long');
+    }
+};
+exports.assertValidPattern = assertValidPattern;
+//# sourceMappingURL=assert-valid-pattern.js.map
+
+/***/ }),
+
+/***/ 7430:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+// parse a single path portion
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AST = void 0;
+const brace_expressions_js_1 = __nccwpck_require__(9687);
+const unescape_js_1 = __nccwpck_require__(5200);
+const types = new Set(['!', '?', '+', '*', '@']);
+const isExtglobType = (c) => types.has(c);
+// Patterns that get prepended to bind to the start of either the
+// entire string, or just a single path portion, to prevent dots
+// and/or traversal patterns, when needed.
+// Exts don't need the ^ or / bit, because the root binds that already.
+const startNoTraversal = '(?!(?:^|/)\\.\\.?(?:$|/))';
+const startNoDot = '(?!\\.)';
+// characters that indicate a start of pattern needs the "no dots" bit,
+// because a dot *might* be matched. ( is not in the list, because in
+// the case of a child extglob, it will handle the prevention itself.
+const addPatternStart = new Set(['[', '.']);
+// cases where traversal is A-OK, no dot prevention needed
+const justDots = new Set(['..', '.']);
+const reSpecials = new Set('().*{}+?[]^$\\!');
+const regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+// any single thing other than /
+const qmark = '[^/]';
+// * => any number of characters
+const star = qmark + '*?';
+// use + when we need to ensure that *something* matches, because the * is
+// the only thing in the path portion.
+const starNoEmpty = qmark + '+?';
+// remove the \ chars that we added if we end up doing a nonmagic compare
+// const deslash = (s: string) => s.replace(/\\(.)/g, '$1')
+class AST {
+    type;
+    #root;
+    #hasMagic;
+    #uflag = false;
+    #parts = [];
+    #parent;
+    #parentIndex;
+    #negs;
+    #filledNegs = false;
+    #options;
+    #toString;
+    // set to true if it's an extglob with no children
+    // (which really means one child of '')
+    #emptyExt = false;
+    constructor(type, parent, options = {}) {
+        this.type = type;
+        // extglobs are inherently magical
+        if (type)
+            this.#hasMagic = true;
+        this.#parent = parent;
+        this.#root = this.#parent ? this.#parent.#root : this;
+        this.#options = this.#root === this ? options : this.#root.#options;
+        this.#negs = this.#root === this ? [] : this.#root.#negs;
+        if (type === '!' && !this.#root.#filledNegs)
+            this.#negs.push(this);
+        this.#parentIndex = this.#parent ? this.#parent.#parts.length : 0;
+    }
+    get hasMagic() {
+        /* c8 ignore start */
+        if (this.#hasMagic !== undefined)
+            return this.#hasMagic;
+        /* c8 ignore stop */
+        for (const p of this.#parts) {
+            if (typeof p === 'string')
+                continue;
+            if (p.type || p.hasMagic)
+                return (this.#hasMagic = true);
+        }
+        // note: will be undefined until we generate the regexp src and find out
+        return this.#hasMagic;
+    }
+    // reconstructs the pattern
+    toString() {
+        if (this.#toString !== undefined)
+            return this.#toString;
+        if (!this.type) {
+            return (this.#toString = this.#parts.map(p => String(p)).join(''));
+        }
+        else {
+            return (this.#toString =
+                this.type + '(' + this.#parts.map(p => String(p)).join('|') + ')');
+        }
+    }
+    #fillNegs() {
+        /* c8 ignore start */
+        if (this !== this.#root)
+            throw new Error('should only call on root');
+        if (this.#filledNegs)
+            return this;
+        /* c8 ignore stop */
+        // call toString() once to fill this out
+        this.toString();
+        this.#filledNegs = true;
+        let n;
+        while ((n = this.#negs.pop())) {
+            if (n.type !== '!')
+                continue;
+            // walk up the tree, appending everthing that comes AFTER parentIndex
+            let p = n;
+            let pp = p.#parent;
+            while (pp) {
+                for (let i = p.#parentIndex + 1; !pp.type && i < pp.#parts.length; i++) {
+                    for (const part of n.#parts) {
+                        /* c8 ignore start */
+                        if (typeof part === 'string') {
+                            throw new Error('string part in extglob AST??');
+                        }
+                        /* c8 ignore stop */
+                        part.copyIn(pp.#parts[i]);
+                    }
+                }
+                p = pp;
+                pp = p.#parent;
+            }
+        }
+        return this;
+    }
+    push(...parts) {
+        for (const p of parts) {
+            if (p === '')
+                continue;
+            /* c8 ignore start */
+            if (typeof p !== 'string' && !(p instanceof AST && p.#parent === this)) {
+                throw new Error('invalid part: ' + p);
+            }
+            /* c8 ignore stop */
+            this.#parts.push(p);
+        }
+    }
+    toJSON() {
+        const ret = this.type === null
+            ? this.#parts.slice().map(p => (typeof p === 'string' ? p : p.toJSON()))
+            : [this.type, ...this.#parts.map(p => p.toJSON())];
+        if (this.isStart() && !this.type)
+            ret.unshift([]);
+        if (this.isEnd() &&
+            (this === this.#root ||
+                (this.#root.#filledNegs && this.#parent?.type === '!'))) {
+            ret.push({});
+        }
+        return ret;
+    }
+    isStart() {
+        if (this.#root === this)
+            return true;
+        // if (this.type) return !!this.#parent?.isStart()
+        if (!this.#parent?.isStart())
+            return false;
+        if (this.#parentIndex === 0)
+            return true;
+        // if everything AHEAD of this is a negation, then it's still the "start"
+        const p = this.#parent;
+        for (let i = 0; i < this.#parentIndex; i++) {
+            const pp = p.#parts[i];
+            if (!(pp instanceof AST && pp.type === '!')) {
+                return false;
+            }
+        }
+        return true;
+    }
+    isEnd() {
+        if (this.#root === this)
+            return true;
+        if (this.#parent?.type === '!')
+            return true;
+        if (!this.#parent?.isEnd())
+            return false;
+        if (!this.type)
+            return this.#parent?.isEnd();
+        // if not root, it'll always have a parent
+        /* c8 ignore start */
+        const pl = this.#parent ? this.#parent.#parts.length : 0;
+        /* c8 ignore stop */
+        return this.#parentIndex === pl - 1;
+    }
+    copyIn(part) {
+        if (typeof part === 'string')
+            this.push(part);
+        else
+            this.push(part.clone(this));
+    }
+    clone(parent) {
+        const c = new AST(this.type, parent);
+        for (const p of this.#parts) {
+            c.copyIn(p);
+        }
+        return c;
+    }
+    static #parseAST(str, ast, pos, opt) {
+        let escaping = false;
+        let inBrace = false;
+        let braceStart = -1;
+        let braceNeg = false;
+        if (ast.type === null) {
+            // outside of a extglob, append until we find a start
+            let i = pos;
+            let acc = '';
+            while (i < str.length) {
+                const c = str.charAt(i++);
+                // still accumulate escapes at this point, but we do ignore
+                // starts that are escaped
+                if (escaping || c === '\\') {
+                    escaping = !escaping;
+                    acc += c;
+                    continue;
+                }
+                if (inBrace) {
+                    if (i === braceStart + 1) {
+                        if (c === '^' || c === '!') {
+                            braceNeg = true;
+                        }
+                    }
+                    else if (c === ']' && !(i === braceStart + 2 && braceNeg)) {
+                        inBrace = false;
+                    }
+                    acc += c;
+                    continue;
+                }
+                else if (c === '[') {
+                    inBrace = true;
+                    braceStart = i;
+                    braceNeg = false;
+                    acc += c;
+                    continue;
+                }
+                if (!opt.noext && isExtglobType(c) && str.charAt(i) === '(') {
+                    ast.push(acc);
+                    acc = '';
+                    const ext = new AST(c, ast);
+                    i = AST.#parseAST(str, ext, i, opt);
+                    ast.push(ext);
+                    continue;
+                }
+                acc += c;
+            }
+            ast.push(acc);
+            return i;
+        }
+        // some kind of extglob, pos is at the (
+        // find the next | or )
+        let i = pos + 1;
+        let part = new AST(null, ast);
+        const parts = [];
+        let acc = '';
+        while (i < str.length) {
+            const c = str.charAt(i++);
+            // still accumulate escapes at this point, but we do ignore
+            // starts that are escaped
+            if (escaping || c === '\\') {
+                escaping = !escaping;
+                acc += c;
+                continue;
+            }
+            if (inBrace) {
+                if (i === braceStart + 1) {
+                    if (c === '^' || c === '!') {
+                        braceNeg = true;
+                    }
+                }
+                else if (c === ']' && !(i === braceStart + 2 && braceNeg)) {
+                    inBrace = false;
+                }
+                acc += c;
+                continue;
+            }
+            else if (c === '[') {
+                inBrace = true;
+                braceStart = i;
+                braceNeg = false;
+                acc += c;
+                continue;
+            }
+            if (isExtglobType(c) && str.charAt(i) === '(') {
+                part.push(acc);
+                acc = '';
+                const ext = new AST(c, part);
+                part.push(ext);
+                i = AST.#parseAST(str, ext, i, opt);
+                continue;
+            }
+            if (c === '|') {
+                part.push(acc);
+                acc = '';
+                parts.push(part);
+                part = new AST(null, ast);
+                continue;
+            }
+            if (c === ')') {
+                if (acc === '' && ast.#parts.length === 0) {
+                    ast.#emptyExt = true;
+                }
+                part.push(acc);
+                acc = '';
+                ast.push(...parts, part);
+                return i;
+            }
+            acc += c;
+        }
+        // unfinished extglob
+        // if we got here, it was a malformed extglob! not an extglob, but
+        // maybe something else in there.
+        ast.type = null;
+        ast.#hasMagic = undefined;
+        ast.#parts = [str.substring(pos - 1)];
+        return i;
+    }
+    static fromGlob(pattern, options = {}) {
+        const ast = new AST(null, undefined, options);
+        AST.#parseAST(pattern, ast, 0, options);
+        return ast;
+    }
+    // returns the regular expression if there's magic, or the unescaped
+    // string if not.
+    toMMPattern() {
+        // should only be called on root
+        /* c8 ignore start */
+        if (this !== this.#root)
+            return this.#root.toMMPattern();
+        /* c8 ignore stop */
+        const glob = this.toString();
+        const [re, body, hasMagic, uflag] = this.toRegExpSource();
+        // if we're in nocase mode, and not nocaseMagicOnly, then we do
+        // still need a regular expression if we have to case-insensitively
+        // match capital/lowercase characters.
+        const anyMagic = hasMagic ||
+            this.#hasMagic ||
+            (this.#options.nocase &&
+                !this.#options.nocaseMagicOnly &&
+                glob.toUpperCase() !== glob.toLowerCase());
+        if (!anyMagic) {
+            return body;
+        }
+        const flags = (this.#options.nocase ? 'i' : '') + (uflag ? 'u' : '');
+        return Object.assign(new RegExp(`^${re}$`, flags), {
+            _src: re,
+            _glob: glob,
+        });
+    }
+    get options() {
+        return this.#options;
+    }
+    // returns the string match, the regexp source, whether there's magic
+    // in the regexp (so a regular expression is required) and whether or
+    // not the uflag is needed for the regular expression (for posix classes)
+    // TODO: instead of injecting the start/end at this point, just return
+    // the BODY of the regexp, along with the start/end portions suitable
+    // for binding the start/end in either a joined full-path makeRe context
+    // (where we bind to (^|/), or a standalone matchPart context (where
+    // we bind to ^, and not /).  Otherwise slashes get duped!
+    //
+    // In part-matching mode, the start is:
+    // - if not isStart: nothing
+    // - if traversal possible, but not allowed: ^(?!\.\.?$)
+    // - if dots allowed or not possible: ^
+    // - if dots possible and not allowed: ^(?!\.)
+    // end is:
+    // - if not isEnd(): nothing
+    // - else: $
+    //
+    // In full-path matching mode, we put the slash at the START of the
+    // pattern, so start is:
+    // - if first pattern: same as part-matching mode
+    // - if not isStart(): nothing
+    // - if traversal possible, but not allowed: /(?!\.\.?(?:$|/))
+    // - if dots allowed or not possible: /
+    // - if dots possible and not allowed: /(?!\.)
+    // end is:
+    // - if last pattern, same as part-matching mode
+    // - else nothing
+    //
+    // Always put the (?:$|/) on negated tails, though, because that has to be
+    // there to bind the end of the negated pattern portion, and it's easier to
+    // just stick it in now rather than try to inject it later in the middle of
+    // the pattern.
+    //
+    // We can just always return the same end, and leave it up to the caller
+    // to know whether it's going to be used joined or in parts.
+    // And, if the start is adjusted slightly, can do the same there:
+    // - if not isStart: nothing
+    // - if traversal possible, but not allowed: (?:/|^)(?!\.\.?$)
+    // - if dots allowed or not possible: (?:/|^)
+    // - if dots possible and not allowed: (?:/|^)(?!\.)
+    //
+    // But it's better to have a simpler binding without a conditional, for
+    // performance, so probably better to return both start options.
+    //
+    // Then the caller just ignores the end if it's not the first pattern,
+    // and the start always gets applied.
+    //
+    // But that's always going to be $ if it's the ending pattern, or nothing,
+    // so the caller can just attach $ at the end of the pattern when building.
+    //
+    // So the todo is:
+    // - better detect what kind of start is needed
+    // - return both flavors of starting pattern
+    // - attach $ at the end of the pattern when creating the actual RegExp
+    //
+    // Ah, but wait, no, that all only applies to the root when the first pattern
+    // is not an extglob. If the first pattern IS an extglob, then we need all
+    // that dot prevention biz to live in the extglob portions, because eg
+    // +(*|.x*) can match .xy but not .yx.
+    //
+    // So, return the two flavors if it's #root and the first child is not an
+    // AST, otherwise leave it to the child AST to handle it, and there,
+    // use the (?:^|/) style of start binding.
+    //
+    // Even simplified further:
+    // - Since the start for a join is eg /(?!\.) and the start for a part
+    // is ^(?!\.), we can just prepend (?!\.) to the pattern (either root
+    // or start or whatever) and prepend ^ or / at the Regexp construction.
+    toRegExpSource(allowDot) {
+        const dot = allowDot ?? !!this.#options.dot;
+        if (this.#root === this)
+            this.#fillNegs();
+        if (!this.type) {
+            const noEmpty = this.isStart() && this.isEnd();
+            const src = this.#parts
+                .map(p => {
+                const [re, _, hasMagic, uflag] = typeof p === 'string'
+                    ? AST.#parseGlob(p, this.#hasMagic, noEmpty)
+                    : p.toRegExpSource(allowDot);
+                this.#hasMagic = this.#hasMagic || hasMagic;
+                this.#uflag = this.#uflag || uflag;
+                return re;
+            })
+                .join('');
+            let start = '';
+            if (this.isStart()) {
+                if (typeof this.#parts[0] === 'string') {
+                    // this is the string that will match the start of the pattern,
+                    // so we need to protect against dots and such.
+                    // '.' and '..' cannot match unless the pattern is that exactly,
+                    // even if it starts with . or dot:true is set.
+                    const dotTravAllowed = this.#parts.length === 1 && justDots.has(this.#parts[0]);
+                    if (!dotTravAllowed) {
+                        const aps = addPatternStart;
+                        // check if we have a possibility of matching . or ..,
+                        // and prevent that.
+                        const needNoTrav = 
+                        // dots are allowed, and the pattern starts with [ or .
+                        (dot && aps.has(src.charAt(0))) ||
+                            // the pattern starts with \., and then [ or .
+                            (src.startsWith('\\.') && aps.has(src.charAt(2))) ||
+                            // the pattern starts with \.\., and then [ or .
+                            (src.startsWith('\\.\\.') && aps.has(src.charAt(4)));
+                        // no need to prevent dots if it can't match a dot, or if a
+                        // sub-pattern will be preventing it anyway.
+                        const needNoDot = !dot && !allowDot && aps.has(src.charAt(0));
+                        start = needNoTrav ? startNoTraversal : needNoDot ? startNoDot : '';
+                    }
+                }
+            }
+            // append the "end of path portion" pattern to negation tails
+            let end = '';
+            if (this.isEnd() &&
+                this.#root.#filledNegs &&
+                this.#parent?.type === '!') {
+                end = '(?:$|\\/)';
+            }
+            const final = start + src + end;
+            return [
+                final,
+                (0, unescape_js_1.unescape)(src),
+                (this.#hasMagic = !!this.#hasMagic),
+                this.#uflag,
+            ];
+        }
+        // We need to calculate the body *twice* if it's a repeat pattern
+        // at the start, once in nodot mode, then again in dot mode, so a
+        // pattern like *(?) can match 'x.y'
+        const repeated = this.type === '*' || this.type === '+';
+        // some kind of extglob
+        const start = this.type === '!' ? '(?:(?!(?:' : '(?:';
+        let body = this.#partsToRegExp(dot);
+        if (this.isStart() && this.isEnd() && !body && this.type !== '!') {
+            // invalid extglob, has to at least be *something* present, if it's
+            // the entire path portion.
+            const s = this.toString();
+            this.#parts = [s];
+            this.type = null;
+            this.#hasMagic = undefined;
+            return [s, (0, unescape_js_1.unescape)(this.toString()), false, false];
+        }
+        // XXX abstract out this map method
+        let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot
+            ? ''
+            : this.#partsToRegExp(true);
+        if (bodyDotAllowed === body) {
+            bodyDotAllowed = '';
+        }
+        if (bodyDotAllowed) {
+            body = `(?:${body})(?:${bodyDotAllowed})*?`;
+        }
+        // an empty !() is exactly equivalent to a starNoEmpty
+        let final = '';
+        if (this.type === '!' && this.#emptyExt) {
+            final = (this.isStart() && !dot ? startNoDot : '') + starNoEmpty;
+        }
+        else {
+            const close = this.type === '!'
+                ? // !() must match something,but !(x) can match ''
+                    '))' +
+                        (this.isStart() && !dot && !allowDot ? startNoDot : '') +
+                        star +
+                        ')'
+                : this.type === '@'
+                    ? ')'
+                    : this.type === '?'
+                        ? ')?'
+                        : this.type === '+' && bodyDotAllowed
+                            ? ')'
+                            : this.type === '*' && bodyDotAllowed
+                                ? `)?`
+                                : `)${this.type}`;
+            final = start + body + close;
+        }
+        return [
+            final,
+            (0, unescape_js_1.unescape)(body),
+            (this.#hasMagic = !!this.#hasMagic),
+            this.#uflag,
+        ];
+    }
+    #partsToRegExp(dot) {
+        return this.#parts
+            .map(p => {
+            // extglob ASTs should only contain parent ASTs
+            /* c8 ignore start */
+            if (typeof p === 'string') {
+                throw new Error('string type in extglob ast??');
+            }
+            /* c8 ignore stop */
+            // can ignore hasMagic, because extglobs are already always magic
+            const [re, _, _hasMagic, uflag] = p.toRegExpSource(dot);
+            this.#uflag = this.#uflag || uflag;
+            return re;
+        })
+            .filter(p => !(this.isStart() && this.isEnd()) || !!p)
+            .join('|');
+    }
+    static #parseGlob(glob, hasMagic, noEmpty = false) {
+        let escaping = false;
+        let re = '';
+        let uflag = false;
+        for (let i = 0; i < glob.length; i++) {
+            const c = glob.charAt(i);
+            if (escaping) {
+                escaping = false;
+                re += (reSpecials.has(c) ? '\\' : '') + c;
+                continue;
+            }
+            if (c === '\\') {
+                if (i === glob.length - 1) {
+                    re += '\\\\';
+                }
+                else {
+                    escaping = true;
+                }
+                continue;
+            }
+            if (c === '[') {
+                const [src, needUflag, consumed, magic] = (0, brace_expressions_js_1.parseClass)(glob, i);
+                if (consumed) {
+                    re += src;
+                    uflag = uflag || needUflag;
+                    i += consumed - 1;
+                    hasMagic = hasMagic || magic;
+                    continue;
+                }
+            }
+            if (c === '*') {
+                if (noEmpty && glob === '*')
+                    re += starNoEmpty;
+                else
+                    re += star;
+                hasMagic = true;
+                continue;
+            }
+            if (c === '?') {
+                re += qmark;
+                hasMagic = true;
+                continue;
+            }
+            re += regExpEscape(c);
+        }
+        return [re, (0, unescape_js_1.unescape)(glob), !!hasMagic, uflag];
+    }
+}
+exports.AST = AST;
+//# sourceMappingURL=ast.js.map
+
+/***/ }),
+
+/***/ 9687:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+// translate the various posix character classes into unicode properties
+// this works across all unicode locales
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseClass = void 0;
+// { <posix class>: [<translation>, /u flag required, negated]
+const posixClasses = {
+    '[:alnum:]': ['\\p{L}\\p{Nl}\\p{Nd}', true],
+    '[:alpha:]': ['\\p{L}\\p{Nl}', true],
+    '[:ascii:]': ['\\x' + '00-\\x' + '7f', false],
+    '[:blank:]': ['\\p{Zs}\\t', true],
+    '[:cntrl:]': ['\\p{Cc}', true],
+    '[:digit:]': ['\\p{Nd}', true],
+    '[:graph:]': ['\\p{Z}\\p{C}', true, true],
+    '[:lower:]': ['\\p{Ll}', true],
+    '[:print:]': ['\\p{C}', true],
+    '[:punct:]': ['\\p{P}', true],
+    '[:space:]': ['\\p{Z}\\t\\r\\n\\v\\f', true],
+    '[:upper:]': ['\\p{Lu}', true],
+    '[:word:]': ['\\p{L}\\p{Nl}\\p{Nd}\\p{Pc}', true],
+    '[:xdigit:]': ['A-Fa-f0-9', false],
+};
+// only need to escape a few things inside of brace expressions
+// escapes: [ \ ] -
+const braceEscape = (s) => s.replace(/[[\]\\-]/g, '\\$&');
+// escape all regexp magic characters
+const regexpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+// everything has already been escaped, we just have to join
+const rangesToString = (ranges) => ranges.join('');
+// takes a glob string at a posix brace expression, and returns
+// an equivalent regular expression source, and boolean indicating
+// whether the /u flag needs to be applied, and the number of chars
+// consumed to parse the character class.
+// This also removes out of order ranges, and returns ($.) if the
+// entire class just no good.
+const parseClass = (glob, position) => {
+    const pos = position;
+    /* c8 ignore start */
+    if (glob.charAt(pos) !== '[') {
+        throw new Error('not in a brace expression');
+    }
+    /* c8 ignore stop */
+    const ranges = [];
+    const negs = [];
+    let i = pos + 1;
+    let sawStart = false;
+    let uflag = false;
+    let escaping = false;
+    let negate = false;
+    let endPos = pos;
+    let rangeStart = '';
+    WHILE: while (i < glob.length) {
+        const c = glob.charAt(i);
+        if ((c === '!' || c === '^') && i === pos + 1) {
+            negate = true;
+            i++;
+            continue;
+        }
+        if (c === ']' && sawStart && !escaping) {
+            endPos = i + 1;
+            break;
+        }
+        sawStart = true;
+        if (c === '\\') {
+            if (!escaping) {
+                escaping = true;
+                i++;
+                continue;
+            }
+            // escaped \ char, fall through and treat like normal char
+        }
+        if (c === '[' && !escaping) {
+            // either a posix class, a collation equivalent, or just a [
+            for (const [cls, [unip, u, neg]] of Object.entries(posixClasses)) {
+                if (glob.startsWith(cls, i)) {
+                    // invalid, [a-[] is fine, but not [a-[:alpha]]
+                    if (rangeStart) {
+                        return ['$.', false, glob.length - pos, true];
+                    }
+                    i += cls.length;
+                    if (neg)
+                        negs.push(unip);
+                    else
+                        ranges.push(unip);
+                    uflag = uflag || u;
+                    continue WHILE;
+                }
+            }
+        }
+        // now it's just a normal character, effectively
+        escaping = false;
+        if (rangeStart) {
+            // throw this range away if it's not valid, but others
+            // can still match.
+            if (c > rangeStart) {
+                ranges.push(braceEscape(rangeStart) + '-' + braceEscape(c));
+            }
+            else if (c === rangeStart) {
+                ranges.push(braceEscape(c));
+            }
+            rangeStart = '';
+            i++;
+            continue;
+        }
+        // now might be the start of a range.
+        // can be either c-d or c-] or c<more...>] or c] at this point
+        if (glob.startsWith('-]', i + 1)) {
+            ranges.push(braceEscape(c + '-'));
+            i += 2;
+            continue;
+        }
+        if (glob.startsWith('-', i + 1)) {
+            rangeStart = c;
+            i += 2;
+            continue;
+        }
+        // not the start of a range, just a single character
+        ranges.push(braceEscape(c));
+        i++;
+    }
+    if (endPos < i) {
+        // didn't see the end of the class, not a valid class,
+        // but might still be valid as a literal match.
+        return ['', false, 0, false];
+    }
+    // if we got no ranges and no negates, then we have a range that
+    // cannot possibly match anything, and that poisons the whole glob
+    if (!ranges.length && !negs.length) {
+        return ['$.', false, glob.length - pos, true];
+    }
+    // if we got one positive range, and it's a single character, then that's
+    // not actually a magic pattern, it's just that one literal character.
+    // we should not treat that as "magic", we should just return the literal
+    // character. [_] is a perfectly valid way to escape glob magic chars.
+    if (negs.length === 0 &&
+        ranges.length === 1 &&
+        /^\\?.$/.test(ranges[0]) &&
+        !negate) {
+        const r = ranges[0].length === 2 ? ranges[0].slice(-1) : ranges[0];
+        return [regexpEscape(r), false, endPos - pos, false];
+    }
+    const sranges = '[' + (negate ? '^' : '') + rangesToString(ranges) + ']';
+    const snegs = '[' + (negate ? '' : '^') + rangesToString(negs) + ']';
+    const comb = ranges.length && negs.length
+        ? '(' + sranges + '|' + snegs + ')'
+        : ranges.length
+            ? sranges
+            : snegs;
+    return [comb, uflag, endPos - pos, true];
+};
+exports.parseClass = parseClass;
+//# sourceMappingURL=brace-expressions.js.map
+
+/***/ }),
+
+/***/ 6807:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.escape = void 0;
+/**
+ * Escape all magic characters in a glob pattern.
+ *
+ * If the {@link windowsPathsNoEscape | GlobOptions.windowsPathsNoEscape}
+ * option is used, then characters are escaped by wrapping in `[]`, because
+ * a magic character wrapped in a character class can only be satisfied by
+ * that exact character.  In this mode, `\` is _not_ escaped, because it is
+ * not interpreted as a magic character, but instead as a path separator.
+ */
+const escape = (s, { windowsPathsNoEscape = false, } = {}) => {
+    // don't need to escape +@! because we escape the parens
+    // that make those magic, and escaping ! as [!] isn't valid,
+    // because [!]] is a valid glob class meaning not ']'.
+    return windowsPathsNoEscape
+        ? s.replace(/[?*()[\]]/g, '[$&]')
+        : s.replace(/[?*()[\]\\]/g, '\\$&');
+};
+exports.escape = escape;
+//# sourceMappingURL=escape.js.map
+
+/***/ }),
+
+/***/ 222:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.unescape = exports.escape = exports.AST = exports.Minimatch = exports.match = exports.makeRe = exports.braceExpand = exports.defaults = exports.filter = exports.GLOBSTAR = exports.sep = exports.minimatch = void 0;
+const brace_expansion_1 = __nccwpck_require__(9751);
+const assert_valid_pattern_js_1 = __nccwpck_require__(430);
+const ast_js_1 = __nccwpck_require__(7430);
+const escape_js_1 = __nccwpck_require__(6807);
+const unescape_js_1 = __nccwpck_require__(5200);
+const minimatch = (p, pattern, options = {}) => {
+    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+    // shortcut: comments match nothing.
+    if (!options.nocomment && pattern.charAt(0) === '#') {
+        return false;
+    }
+    return new Minimatch(pattern, options).match(p);
+};
+exports.minimatch = minimatch;
+// Optimized checking for the most common glob patterns.
+const starDotExtRE = /^\*+([^+@!?\*\[\(]*)$/;
+const starDotExtTest = (ext) => (f) => !f.startsWith('.') && f.endsWith(ext);
+const starDotExtTestDot = (ext) => (f) => f.endsWith(ext);
+const starDotExtTestNocase = (ext) => {
+    ext = ext.toLowerCase();
+    return (f) => !f.startsWith('.') && f.toLowerCase().endsWith(ext);
+};
+const starDotExtTestNocaseDot = (ext) => {
+    ext = ext.toLowerCase();
+    return (f) => f.toLowerCase().endsWith(ext);
+};
+const starDotStarRE = /^\*+\.\*+$/;
+const starDotStarTest = (f) => !f.startsWith('.') && f.includes('.');
+const starDotStarTestDot = (f) => f !== '.' && f !== '..' && f.includes('.');
+const dotStarRE = /^\.\*+$/;
+const dotStarTest = (f) => f !== '.' && f !== '..' && f.startsWith('.');
+const starRE = /^\*+$/;
+const starTest = (f) => f.length !== 0 && !f.startsWith('.');
+const starTestDot = (f) => f.length !== 0 && f !== '.' && f !== '..';
+const qmarksRE = /^\?+([^+@!?\*\[\(]*)?$/;
+const qmarksTestNocase = ([$0, ext = '']) => {
+    const noext = qmarksTestNoExt([$0]);
+    if (!ext)
+        return noext;
+    ext = ext.toLowerCase();
+    return (f) => noext(f) && f.toLowerCase().endsWith(ext);
+};
+const qmarksTestNocaseDot = ([$0, ext = '']) => {
+    const noext = qmarksTestNoExtDot([$0]);
+    if (!ext)
+        return noext;
+    ext = ext.toLowerCase();
+    return (f) => noext(f) && f.toLowerCase().endsWith(ext);
+};
+const qmarksTestDot = ([$0, ext = '']) => {
+    const noext = qmarksTestNoExtDot([$0]);
+    return !ext ? noext : (f) => noext(f) && f.endsWith(ext);
+};
+const qmarksTest = ([$0, ext = '']) => {
+    const noext = qmarksTestNoExt([$0]);
+    return !ext ? noext : (f) => noext(f) && f.endsWith(ext);
+};
+const qmarksTestNoExt = ([$0]) => {
+    const len = $0.length;
+    return (f) => f.length === len && !f.startsWith('.');
+};
+const qmarksTestNoExtDot = ([$0]) => {
+    const len = $0.length;
+    return (f) => f.length === len && f !== '.' && f !== '..';
+};
+/* c8 ignore start */
+const defaultPlatform = (typeof process === 'object' && process
+    ? (typeof process.env === 'object' &&
+        process.env &&
+        process.env.__MINIMATCH_TESTING_PLATFORM__) ||
+        process.platform
+    : 'posix');
+const path = {
+    win32: { sep: '\\' },
+    posix: { sep: '/' },
+};
+/* c8 ignore stop */
+exports.sep = defaultPlatform === 'win32' ? path.win32.sep : path.posix.sep;
+exports.minimatch.sep = exports.sep;
+exports.GLOBSTAR = Symbol('globstar **');
+exports.minimatch.GLOBSTAR = exports.GLOBSTAR;
+// any single thing other than /
+// don't need to escape / when using new RegExp()
+const qmark = '[^/]';
+// * => any number of characters
+const star = qmark + '*?';
+// ** when dots are allowed.  Anything goes, except .. and .
+// not (^ or / followed by one or two dots followed by $ or /),
+// followed by anything, any number of times.
+const twoStarDot = '(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?';
+// not a ^ or / followed by a dot,
+// followed by anything, any number of times.
+const twoStarNoDot = '(?:(?!(?:\\/|^)\\.).)*?';
+const filter = (pattern, options = {}) => (p) => (0, exports.minimatch)(p, pattern, options);
+exports.filter = filter;
+exports.minimatch.filter = exports.filter;
+const ext = (a, b = {}) => Object.assign({}, a, b);
+const defaults = (def) => {
+    if (!def || typeof def !== 'object' || !Object.keys(def).length) {
+        return exports.minimatch;
+    }
+    const orig = exports.minimatch;
+    const m = (p, pattern, options = {}) => orig(p, pattern, ext(def, options));
+    return Object.assign(m, {
+        Minimatch: class Minimatch extends orig.Minimatch {
+            constructor(pattern, options = {}) {
+                super(pattern, ext(def, options));
+            }
+            static defaults(options) {
+                return orig.defaults(ext(def, options)).Minimatch;
+            }
+        },
+        AST: class AST extends orig.AST {
+            /* c8 ignore start */
+            constructor(type, parent, options = {}) {
+                super(type, parent, ext(def, options));
+            }
+            /* c8 ignore stop */
+            static fromGlob(pattern, options = {}) {
+                return orig.AST.fromGlob(pattern, ext(def, options));
+            }
+        },
+        unescape: (s, options = {}) => orig.unescape(s, ext(def, options)),
+        escape: (s, options = {}) => orig.escape(s, ext(def, options)),
+        filter: (pattern, options = {}) => orig.filter(pattern, ext(def, options)),
+        defaults: (options) => orig.defaults(ext(def, options)),
+        makeRe: (pattern, options = {}) => orig.makeRe(pattern, ext(def, options)),
+        braceExpand: (pattern, options = {}) => orig.braceExpand(pattern, ext(def, options)),
+        match: (list, pattern, options = {}) => orig.match(list, pattern, ext(def, options)),
+        sep: orig.sep,
+        GLOBSTAR: exports.GLOBSTAR,
+    });
+};
+exports.defaults = defaults;
+exports.minimatch.defaults = exports.defaults;
+// Brace expansion:
+// a{b,c}d -> abd acd
+// a{b,}c -> abc ac
+// a{0..3}d -> a0d a1d a2d a3d
+// a{b,c{d,e}f}g -> abg acdfg acefg
+// a{b,c}d{e,f}g -> abdeg acdeg abdeg abdfg
+//
+// Invalid sets are not expanded.
+// a{2..}b -> a{2..}b
+// a{b}c -> a{b}c
+const braceExpand = (pattern, options = {}) => {
+    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+    // Thanks to Yeting Li <https://github.com/yetingli> for
+    // improving this regexp to avoid a ReDOS vulnerability.
+    if (options.nobrace || !/\{(?:(?!\{).)*\}/.test(pattern)) {
+        // shortcut. no need to expand.
+        return [pattern];
+    }
+    return (0, brace_expansion_1.expand)(pattern);
+};
+exports.braceExpand = braceExpand;
+exports.minimatch.braceExpand = exports.braceExpand;
+// parse a component of the expanded set.
+// At this point, no pattern may contain "/" in it
+// so we're going to return a 2d array, where each entry is the full
+// pattern, split on '/', and then turned into a regular expression.
+// A regexp is made at the end which joins each array with an
+// escaped /, and another full one which joins each regexp with |.
+//
+// Following the lead of Bash 4.1, note that "**" only has special meaning
+// when it is the *only* thing in a path portion.  Otherwise, any series
+// of * is equivalent to a single *.  Globstar behavior is enabled by
+// default, and can be disabled by setting options.noglobstar.
+const makeRe = (pattern, options = {}) => new Minimatch(pattern, options).makeRe();
+exports.makeRe = makeRe;
+exports.minimatch.makeRe = exports.makeRe;
+const match = (list, pattern, options = {}) => {
+    const mm = new Minimatch(pattern, options);
+    list = list.filter(f => mm.match(f));
+    if (mm.options.nonull && !list.length) {
+        list.push(pattern);
+    }
+    return list;
+};
+exports.match = match;
+exports.minimatch.match = exports.match;
+// replace stuff like \* with *
+const globMagic = /[?*]|[+@!]\(.*?\)|\[|\]/;
+const regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+class Minimatch {
+    options;
+    set;
+    pattern;
+    windowsPathsNoEscape;
+    nonegate;
+    negate;
+    comment;
+    empty;
+    preserveMultipleSlashes;
+    partial;
+    globSet;
+    globParts;
+    nocase;
+    isWindows;
+    platform;
+    windowsNoMagicRoot;
+    regexp;
+    constructor(pattern, options = {}) {
+        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+        options = options || {};
+        this.options = options;
+        this.pattern = pattern;
+        this.platform = options.platform || defaultPlatform;
+        this.isWindows = this.platform === 'win32';
+        this.windowsPathsNoEscape =
+            !!options.windowsPathsNoEscape || options.allowWindowsEscape === false;
+        if (this.windowsPathsNoEscape) {
+            this.pattern = this.pattern.replace(/\\/g, '/');
+        }
+        this.preserveMultipleSlashes = !!options.preserveMultipleSlashes;
+        this.regexp = null;
+        this.negate = false;
+        this.nonegate = !!options.nonegate;
+        this.comment = false;
+        this.empty = false;
+        this.partial = !!options.partial;
+        this.nocase = !!this.options.nocase;
+        this.windowsNoMagicRoot =
+            options.windowsNoMagicRoot !== undefined
+                ? options.windowsNoMagicRoot
+                : !!(this.isWindows && this.nocase);
+        this.globSet = [];
+        this.globParts = [];
+        this.set = [];
+        // make the set of regexps etc.
+        this.make();
+    }
+    hasMagic() {
+        if (this.options.magicalBraces && this.set.length > 1) {
+            return true;
+        }
+        for (const pattern of this.set) {
+            for (const part of pattern) {
+                if (typeof part !== 'string')
+                    return true;
+            }
+        }
+        return false;
+    }
+    debug(..._) { }
+    make() {
+        const pattern = this.pattern;
+        const options = this.options;
+        // empty patterns and comments match nothing.
+        if (!options.nocomment && pattern.charAt(0) === '#') {
+            this.comment = true;
+            return;
+        }
+        if (!pattern) {
+            this.empty = true;
+            return;
+        }
+        // step 1: figure out negation, etc.
+        this.parseNegate();
+        // step 2: expand braces
+        this.globSet = [...new Set(this.braceExpand())];
+        if (options.debug) {
+            this.debug = (...args) => console.error(...args);
+        }
+        this.debug(this.pattern, this.globSet);
+        // step 3: now we have a set, so turn each one into a series of
+        // path-portion matching patterns.
+        // These will be regexps, except in the case of "**", which is
+        // set to the GLOBSTAR object for globstar behavior,
+        // and will not contain any / characters
+        //
+        // First, we preprocess to make the glob pattern sets a bit simpler
+        // and deduped.  There are some perf-killing patterns that can cause
+        // problems with a glob walk, but we can simplify them down a bit.
+        const rawGlobParts = this.globSet.map(s => this.slashSplit(s));
+        this.globParts = this.preprocess(rawGlobParts);
+        this.debug(this.pattern, this.globParts);
+        // glob --> regexps
+        let set = this.globParts.map((s, _, __) => {
+            if (this.isWindows && this.windowsNoMagicRoot) {
+                // check if it's a drive or unc path.
+                const isUNC = s[0] === '' &&
+                    s[1] === '' &&
+                    (s[2] === '?' || !globMagic.test(s[2])) &&
+                    !globMagic.test(s[3]);
+                const isDrive = /^[a-z]:/i.test(s[0]);
+                if (isUNC) {
+                    return [...s.slice(0, 4), ...s.slice(4).map(ss => this.parse(ss))];
+                }
+                else if (isDrive) {
+                    return [s[0], ...s.slice(1).map(ss => this.parse(ss))];
+                }
+            }
+            return s.map(ss => this.parse(ss));
+        });
+        this.debug(this.pattern, set);
+        // filter out everything that didn't compile properly.
+        this.set = set.filter(s => s.indexOf(false) === -1);
+        // do not treat the ? in UNC paths as magic
+        if (this.isWindows) {
+            for (let i = 0; i < this.set.length; i++) {
+                const p = this.set[i];
+                if (p[0] === '' &&
+                    p[1] === '' &&
+                    this.globParts[i][2] === '?' &&
+                    typeof p[3] === 'string' &&
+                    /^[a-z]:$/i.test(p[3])) {
+                    p[2] = '?';
+                }
+            }
+        }
+        this.debug(this.pattern, this.set);
+    }
+    // various transforms to equivalent pattern sets that are
+    // faster to process in a filesystem walk.  The goal is to
+    // eliminate what we can, and push all ** patterns as far
+    // to the right as possible, even if it increases the number
+    // of patterns that we have to process.
+    preprocess(globParts) {
+        // if we're not in globstar mode, then turn all ** into *
+        if (this.options.noglobstar) {
+            for (let i = 0; i < globParts.length; i++) {
+                for (let j = 0; j < globParts[i].length; j++) {
+                    if (globParts[i][j] === '**') {
+                        globParts[i][j] = '*';
+                    }
+                }
+            }
+        }
+        const { optimizationLevel = 1 } = this.options;
+        if (optimizationLevel >= 2) {
+            // aggressive optimization for the purpose of fs walking
+            globParts = this.firstPhasePreProcess(globParts);
+            globParts = this.secondPhasePreProcess(globParts);
+        }
+        else if (optimizationLevel >= 1) {
+            // just basic optimizations to remove some .. parts
+            globParts = this.levelOneOptimize(globParts);
+        }
+        else {
+            // just collapse multiple ** portions into one
+            globParts = this.adjascentGlobstarOptimize(globParts);
+        }
+        return globParts;
+    }
+    // just get rid of adjascent ** portions
+    adjascentGlobstarOptimize(globParts) {
+        return globParts.map(parts => {
+            let gs = -1;
+            while (-1 !== (gs = parts.indexOf('**', gs + 1))) {
+                let i = gs;
+                while (parts[i + 1] === '**') {
+                    i++;
+                }
+                if (i !== gs) {
+                    parts.splice(gs, i - gs);
+                }
+            }
+            return parts;
+        });
+    }
+    // get rid of adjascent ** and resolve .. portions
+    levelOneOptimize(globParts) {
+        return globParts.map(parts => {
+            parts = parts.reduce((set, part) => {
+                const prev = set[set.length - 1];
+                if (part === '**' && prev === '**') {
+                    return set;
+                }
+                if (part === '..') {
+                    if (prev && prev !== '..' && prev !== '.' && prev !== '**') {
+                        set.pop();
+                        return set;
+                    }
+                }
+                set.push(part);
+                return set;
+            }, []);
+            return parts.length === 0 ? [''] : parts;
+        });
+    }
+    levelTwoFileOptimize(parts) {
+        if (!Array.isArray(parts)) {
+            parts = this.slashSplit(parts);
+        }
+        let didSomething = false;
+        do {
+            didSomething = false;
+            // <pre>/<e>/<rest> -> <pre>/<rest>
+            if (!this.preserveMultipleSlashes) {
+                for (let i = 1; i < parts.length - 1; i++) {
+                    const p = parts[i];
+                    // don't squeeze out UNC patterns
+                    if (i === 1 && p === '' && parts[0] === '')
+                        continue;
+                    if (p === '.' || p === '') {
+                        didSomething = true;
+                        parts.splice(i, 1);
+                        i--;
+                    }
+                }
+                if (parts[0] === '.' &&
+                    parts.length === 2 &&
+                    (parts[1] === '.' || parts[1] === '')) {
+                    didSomething = true;
+                    parts.pop();
+                }
+            }
+            // <pre>/<p>/../<rest> -> <pre>/<rest>
+            let dd = 0;
+            while (-1 !== (dd = parts.indexOf('..', dd + 1))) {
+                const p = parts[dd - 1];
+                if (p && p !== '.' && p !== '..' && p !== '**') {
+                    didSomething = true;
+                    parts.splice(dd - 1, 2);
+                    dd -= 2;
+                }
+            }
+        } while (didSomething);
+        return parts.length === 0 ? [''] : parts;
+    }
+    // First phase: single-pattern processing
+    // <pre> is 1 or more portions
+    // <rest> is 1 or more portions
+    // <p> is any portion other than ., .., '', or **
+    // <e> is . or ''
+    //
+    // **/.. is *brutal* for filesystem walking performance, because
+    // it effectively resets the recursive walk each time it occurs,
+    // and ** cannot be reduced out by a .. pattern part like a regexp
+    // or most strings (other than .., ., and '') can be.
+    //
+    // <pre>/**/../<p>/<p>/<rest> -> {<pre>/../<p>/<p>/<rest>,<pre>/**/<p>/<p>/<rest>}
+    // <pre>/<e>/<rest> -> <pre>/<rest>
+    // <pre>/<p>/../<rest> -> <pre>/<rest>
+    // **/**/<rest> -> **/<rest>
+    //
+    // **/*/<rest> -> */**/<rest> <== not valid because ** doesn't follow
+    // this WOULD be allowed if ** did follow symlinks, or * didn't
+    firstPhasePreProcess(globParts) {
+        let didSomething = false;
+        do {
+            didSomething = false;
+            // <pre>/**/../<p>/<p>/<rest> -> {<pre>/../<p>/<p>/<rest>,<pre>/**/<p>/<p>/<rest>}
+            for (let parts of globParts) {
+                let gs = -1;
+                while (-1 !== (gs = parts.indexOf('**', gs + 1))) {
+                    let gss = gs;
+                    while (parts[gss + 1] === '**') {
+                        // <pre>/**/**/<rest> -> <pre>/**/<rest>
+                        gss++;
+                    }
+                    // eg, if gs is 2 and gss is 4, that means we have 3 **
+                    // parts, and can remove 2 of them.
+                    if (gss > gs) {
+                        parts.splice(gs + 1, gss - gs);
+                    }
+                    let next = parts[gs + 1];
+                    const p = parts[gs + 2];
+                    const p2 = parts[gs + 3];
+                    if (next !== '..')
+                        continue;
+                    if (!p ||
+                        p === '.' ||
+                        p === '..' ||
+                        !p2 ||
+                        p2 === '.' ||
+                        p2 === '..') {
+                        continue;
+                    }
+                    didSomething = true;
+                    // edit parts in place, and push the new one
+                    parts.splice(gs, 1);
+                    const other = parts.slice(0);
+                    other[gs] = '**';
+                    globParts.push(other);
+                    gs--;
+                }
+                // <pre>/<e>/<rest> -> <pre>/<rest>
+                if (!this.preserveMultipleSlashes) {
+                    for (let i = 1; i < parts.length - 1; i++) {
+                        const p = parts[i];
+                        // don't squeeze out UNC patterns
+                        if (i === 1 && p === '' && parts[0] === '')
+                            continue;
+                        if (p === '.' || p === '') {
+                            didSomething = true;
+                            parts.splice(i, 1);
+                            i--;
+                        }
+                    }
+                    if (parts[0] === '.' &&
+                        parts.length === 2 &&
+                        (parts[1] === '.' || parts[1] === '')) {
+                        didSomething = true;
+                        parts.pop();
+                    }
+                }
+                // <pre>/<p>/../<rest> -> <pre>/<rest>
+                let dd = 0;
+                while (-1 !== (dd = parts.indexOf('..', dd + 1))) {
+                    const p = parts[dd - 1];
+                    if (p && p !== '.' && p !== '..' && p !== '**') {
+                        didSomething = true;
+                        const needDot = dd === 1 && parts[dd + 1] === '**';
+                        const splin = needDot ? ['.'] : [];
+                        parts.splice(dd - 1, 2, ...splin);
+                        if (parts.length === 0)
+                            parts.push('');
+                        dd -= 2;
+                    }
+                }
+            }
+        } while (didSomething);
+        return globParts;
+    }
+    // second phase: multi-pattern dedupes
+    // {<pre>/*/<rest>,<pre>/<p>/<rest>} -> <pre>/*/<rest>
+    // {<pre>/<rest>,<pre>/<rest>} -> <pre>/<rest>
+    // {<pre>/**/<rest>,<pre>/<rest>} -> <pre>/**/<rest>
+    //
+    // {<pre>/**/<rest>,<pre>/**/<p>/<rest>} -> <pre>/**/<rest>
+    // ^-- not valid because ** doens't follow symlinks
+    secondPhasePreProcess(globParts) {
+        for (let i = 0; i < globParts.length - 1; i++) {
+            for (let j = i + 1; j < globParts.length; j++) {
+                const matched = this.partsMatch(globParts[i], globParts[j], !this.preserveMultipleSlashes);
+                if (matched) {
+                    globParts[i] = [];
+                    globParts[j] = matched;
+                    break;
+                }
+            }
+        }
+        return globParts.filter(gs => gs.length);
+    }
+    partsMatch(a, b, emptyGSMatch = false) {
+        let ai = 0;
+        let bi = 0;
+        let result = [];
+        let which = '';
+        while (ai < a.length && bi < b.length) {
+            if (a[ai] === b[bi]) {
+                result.push(which === 'b' ? b[bi] : a[ai]);
+                ai++;
+                bi++;
+            }
+            else if (emptyGSMatch && a[ai] === '**' && b[bi] === a[ai + 1]) {
+                result.push(a[ai]);
+                ai++;
+            }
+            else if (emptyGSMatch && b[bi] === '**' && a[ai] === b[bi + 1]) {
+                result.push(b[bi]);
+                bi++;
+            }
+            else if (a[ai] === '*' &&
+                b[bi] &&
+                (this.options.dot || !b[bi].startsWith('.')) &&
+                b[bi] !== '**') {
+                if (which === 'b')
+                    return false;
+                which = 'a';
+                result.push(a[ai]);
+                ai++;
+                bi++;
+            }
+            else if (b[bi] === '*' &&
+                a[ai] &&
+                (this.options.dot || !a[ai].startsWith('.')) &&
+                a[ai] !== '**') {
+                if (which === 'a')
+                    return false;
+                which = 'b';
+                result.push(b[bi]);
+                ai++;
+                bi++;
+            }
+            else {
+                return false;
+            }
+        }
+        // if we fall out of the loop, it means they two are identical
+        // as long as their lengths match
+        return a.length === b.length && result;
+    }
+    parseNegate() {
+        if (this.nonegate)
+            return;
+        const pattern = this.pattern;
+        let negate = false;
+        let negateOffset = 0;
+        for (let i = 0; i < pattern.length && pattern.charAt(i) === '!'; i++) {
+            negate = !negate;
+            negateOffset++;
+        }
+        if (negateOffset)
+            this.pattern = pattern.slice(negateOffset);
+        this.negate = negate;
+    }
+    // set partial to true to test if, for example,
+    // "/a/b" matches the start of "/*/b/*/d"
+    // Partial means, if you run out of file before you run
+    // out of pattern, then that's fine, as long as all
+    // the parts match.
+    matchOne(file, pattern, partial = false) {
+        const options = this.options;
+        // UNC paths like //?/X:/... can match X:/... and vice versa
+        // Drive letters in absolute drive or unc paths are always compared
+        // case-insensitively.
+        if (this.isWindows) {
+            const fileDrive = typeof file[0] === 'string' && /^[a-z]:$/i.test(file[0]);
+            const fileUNC = !fileDrive &&
+                file[0] === '' &&
+                file[1] === '' &&
+                file[2] === '?' &&
+                /^[a-z]:$/i.test(file[3]);
+            const patternDrive = typeof pattern[0] === 'string' && /^[a-z]:$/i.test(pattern[0]);
+            const patternUNC = !patternDrive &&
+                pattern[0] === '' &&
+                pattern[1] === '' &&
+                pattern[2] === '?' &&
+                typeof pattern[3] === 'string' &&
+                /^[a-z]:$/i.test(pattern[3]);
+            const fdi = fileUNC ? 3 : fileDrive ? 0 : undefined;
+            const pdi = patternUNC ? 3 : patternDrive ? 0 : undefined;
+            if (typeof fdi === 'number' && typeof pdi === 'number') {
+                const [fd, pd] = [file[fdi], pattern[pdi]];
+                if (fd.toLowerCase() === pd.toLowerCase()) {
+                    pattern[pdi] = fd;
+                    if (pdi > fdi) {
+                        pattern = pattern.slice(pdi);
+                    }
+                    else if (fdi > pdi) {
+                        file = file.slice(fdi);
+                    }
+                }
+            }
+        }
+        // resolve and reduce . and .. portions in the file as well.
+        // dont' need to do the second phase, because it's only one string[]
+        const { optimizationLevel = 1 } = this.options;
+        if (optimizationLevel >= 2) {
+            file = this.levelTwoFileOptimize(file);
+        }
+        this.debug('matchOne', this, { file, pattern });
+        this.debug('matchOne', file.length, pattern.length);
+        for (var fi = 0, pi = 0, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
+            this.debug('matchOne loop');
+            var p = pattern[pi];
+            var f = file[fi];
+            this.debug(pattern, p, f);
+            // should be impossible.
+            // some invalid regexp stuff in the set.
+            /* c8 ignore start */
+            if (p === false) {
+                return false;
+            }
+            /* c8 ignore stop */
+            if (p === exports.GLOBSTAR) {
+                this.debug('GLOBSTAR', [pattern, p, f]);
+                // "**"
+                // a/**/b/**/c would match the following:
+                // a/b/x/y/z/c
+                // a/x/y/z/b/c
+                // a/b/x/b/x/c
+                // a/b/c
+                // To do this, take the rest of the pattern after
+                // the **, and see if it would match the file remainder.
+                // If so, return success.
+                // If not, the ** "swallows" a segment, and try again.
+                // This is recursively awful.
+                //
+                // a/**/b/**/c matching a/b/x/y/z/c
+                // - a matches a
+                // - doublestar
+                //   - matchOne(b/x/y/z/c, b/**/c)
+                //     - b matches b
+                //     - doublestar
+                //       - matchOne(x/y/z/c, c) -> no
+                //       - matchOne(y/z/c, c) -> no
+                //       - matchOne(z/c, c) -> no
+                //       - matchOne(c, c) yes, hit
+                var fr = fi;
+                var pr = pi + 1;
+                if (pr === pl) {
+                    this.debug('** at the end');
+                    // a ** at the end will just swallow the rest.
+                    // We have found a match.
+                    // however, it will not swallow /.x, unless
+                    // options.dot is set.
+                    // . and .. are *never* matched by **, for explosively
+                    // exponential reasons.
+                    for (; fi < fl; fi++) {
+                        if (file[fi] === '.' ||
+                            file[fi] === '..' ||
+                            (!options.dot && file[fi].charAt(0) === '.'))
+                            return false;
+                    }
+                    return true;
+                }
+                // ok, let's see if we can swallow whatever we can.
+                while (fr < fl) {
+                    var swallowee = file[fr];
+                    this.debug('\nglobstar while', file, fr, pattern, pr, swallowee);
+                    // XXX remove this slice.  Just pass the start index.
+                    if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
+                        this.debug('globstar found match!', fr, fl, swallowee);
+                        // found a match.
+                        return true;
+                    }
+                    else {
+                        // can't swallow "." or ".." ever.
+                        // can only swallow ".foo" when explicitly asked.
+                        if (swallowee === '.' ||
+                            swallowee === '..' ||
+                            (!options.dot && swallowee.charAt(0) === '.')) {
+                            this.debug('dot detected!', file, fr, pattern, pr);
+                            break;
+                        }
+                        // ** swallows a segment, and continue.
+                        this.debug('globstar swallow a segment, and continue');
+                        fr++;
+                    }
+                }
+                // no match was found.
+                // However, in partial mode, we can't say this is necessarily over.
+                /* c8 ignore start */
+                if (partial) {
+                    // ran out of file
+                    this.debug('\n>>> no match, partial?', file, fr, pattern, pr);
+                    if (fr === fl) {
+                        return true;
+                    }
+                }
+                /* c8 ignore stop */
+                return false;
+            }
+            // something other than **
+            // non-magic patterns just have to match exactly
+            // patterns with magic have been turned into regexps.
+            let hit;
+            if (typeof p === 'string') {
+                hit = f === p;
+                this.debug('string match', p, f, hit);
+            }
+            else {
+                hit = p.test(f);
+                this.debug('pattern match', p, f, hit);
+            }
+            if (!hit)
+                return false;
+        }
+        // Note: ending in / means that we'll get a final ""
+        // at the end of the pattern.  This can only match a
+        // corresponding "" at the end of the file.
+        // If the file ends in /, then it can only match a
+        // a pattern that ends in /, unless the pattern just
+        // doesn't have any more for it. But, a/b/ should *not*
+        // match "a/b/*", even though "" matches against the
+        // [^/]*? pattern, except in partial mode, where it might
+        // simply not be reached yet.
+        // However, a/b/ should still satisfy a/*
+        // now either we fell off the end of the pattern, or we're done.
+        if (fi === fl && pi === pl) {
+            // ran out of pattern and filename at the same time.
+            // an exact hit!
+            return true;
+        }
+        else if (fi === fl) {
+            // ran out of file, but still had pattern left.
+            // this is ok if we're doing the match as part of
+            // a glob fs traversal.
+            return partial;
+        }
+        else if (pi === pl) {
+            // ran out of pattern, still have file left.
+            // this is only acceptable if we're on the very last
+            // empty segment of a file with a trailing slash.
+            // a/* should match a/b/
+            return fi === fl - 1 && file[fi] === '';
+            /* c8 ignore start */
+        }
+        else {
+            // should be unreachable.
+            throw new Error('wtf?');
+        }
+        /* c8 ignore stop */
+    }
+    braceExpand() {
+        return (0, exports.braceExpand)(this.pattern, this.options);
+    }
+    parse(pattern) {
+        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
+        const options = this.options;
+        // shortcuts
+        if (pattern === '**')
+            return exports.GLOBSTAR;
+        if (pattern === '')
+            return '';
+        // far and away, the most common glob pattern parts are
+        // *, *.*, and *.<ext>  Add a fast check method for those.
+        let m;
+        let fastTest = null;
+        if ((m = pattern.match(starRE))) {
+            fastTest = options.dot ? starTestDot : starTest;
+        }
+        else if ((m = pattern.match(starDotExtRE))) {
+            fastTest = (options.nocase
+                ? options.dot
+                    ? starDotExtTestNocaseDot
+                    : starDotExtTestNocase
+                : options.dot
+                    ? starDotExtTestDot
+                    : starDotExtTest)(m[1]);
+        }
+        else if ((m = pattern.match(qmarksRE))) {
+            fastTest = (options.nocase
+                ? options.dot
+                    ? qmarksTestNocaseDot
+                    : qmarksTestNocase
+                : options.dot
+                    ? qmarksTestDot
+                    : qmarksTest)(m);
+        }
+        else if ((m = pattern.match(starDotStarRE))) {
+            fastTest = options.dot ? starDotStarTestDot : starDotStarTest;
+        }
+        else if ((m = pattern.match(dotStarRE))) {
+            fastTest = dotStarTest;
+        }
+        const re = ast_js_1.AST.fromGlob(pattern, this.options).toMMPattern();
+        if (fastTest && typeof re === 'object') {
+            // Avoids overriding in frozen environments
+            Reflect.defineProperty(re, 'test', { value: fastTest });
+        }
+        return re;
+    }
+    makeRe() {
+        if (this.regexp || this.regexp === false)
+            return this.regexp;
+        // at this point, this.set is a 2d array of partial
+        // pattern strings, or "**".
+        //
+        // It's better to use .match().  This function shouldn't
+        // be used, really, but it's pretty convenient sometimes,
+        // when you just want to work with a regex.
+        const set = this.set;
+        if (!set.length) {
+            this.regexp = false;
+            return this.regexp;
+        }
+        const options = this.options;
+        const twoStar = options.noglobstar
+            ? star
+            : options.dot
+                ? twoStarDot
+                : twoStarNoDot;
+        const flags = new Set(options.nocase ? ['i'] : []);
+        // regexpify non-globstar patterns
+        // if ** is only item, then we just do one twoStar
+        // if ** is first, and there are more, prepend (\/|twoStar\/)? to next
+        // if ** is last, append (\/twoStar|) to previous
+        // if ** is in the middle, append (\/|\/twoStar\/) to previous
+        // then filter out GLOBSTAR symbols
+        let re = set
+            .map(pattern => {
+            const pp = pattern.map(p => {
+                if (p instanceof RegExp) {
+                    for (const f of p.flags.split(''))
+                        flags.add(f);
+                }
+                return typeof p === 'string'
+                    ? regExpEscape(p)
+                    : p === exports.GLOBSTAR
+                        ? exports.GLOBSTAR
+                        : p._src;
+            });
+            pp.forEach((p, i) => {
+                const next = pp[i + 1];
+                const prev = pp[i - 1];
+                if (p !== exports.GLOBSTAR || prev === exports.GLOBSTAR) {
+                    return;
+                }
+                if (prev === undefined) {
+                    if (next !== undefined && next !== exports.GLOBSTAR) {
+                        pp[i + 1] = '(?:\\/|' + twoStar + '\\/)?' + next;
+                    }
+                    else {
+                        pp[i] = twoStar;
+                    }
+                }
+                else if (next === undefined) {
+                    pp[i - 1] = prev + '(?:\\/|' + twoStar + ')?';
+                }
+                else if (next !== exports.GLOBSTAR) {
+                    pp[i - 1] = prev + '(?:\\/|\\/' + twoStar + '\\/)' + next;
+                    pp[i + 1] = exports.GLOBSTAR;
+                }
+            });
+            return pp.filter(p => p !== exports.GLOBSTAR).join('/');
+        })
+            .join('|');
+        // need to wrap in parens if we had more than one thing with |,
+        // otherwise only the first will be anchored to ^ and the last to $
+        const [open, close] = set.length > 1 ? ['(?:', ')'] : ['', ''];
+        // must match entire pattern
+        // ending in a * or ** will make it less strict.
+        re = '^' + open + re + close + '$';
+        // can match anything, as long as it's not this.
+        if (this.negate)
+            re = '^(?!' + re + ').+$';
+        try {
+            this.regexp = new RegExp(re, [...flags].join(''));
+            /* c8 ignore start */
+        }
+        catch (ex) {
+            // should be impossible
+            this.regexp = false;
+        }
+        /* c8 ignore stop */
+        return this.regexp;
+    }
+    slashSplit(p) {
+        // if p starts with // on windows, we preserve that
+        // so that UNC paths aren't broken.  Otherwise, any number of
+        // / characters are coalesced into one, unless
+        // preserveMultipleSlashes is set to true.
+        if (this.preserveMultipleSlashes) {
+            return p.split('/');
+        }
+        else if (this.isWindows && /^\/\/[^\/]+/.test(p)) {
+            // add an extra '' for the one we lose
+            return ['', ...p.split(/\/+/)];
+        }
+        else {
+            return p.split(/\/+/);
+        }
+    }
+    match(f, partial = this.partial) {
+        this.debug('match', f, this.pattern);
+        // short-circuit in the case of busted things.
+        // comments, etc.
+        if (this.comment) {
+            return false;
+        }
+        if (this.empty) {
+            return f === '';
+        }
+        if (f === '/' && partial) {
+            return true;
+        }
+        const options = this.options;
+        // windows: need to use /, not \
+        if (this.isWindows) {
+            f = f.split('\\').join('/');
+        }
+        // treat the test path as a set of pathparts.
+        const ff = this.slashSplit(f);
+        this.debug(this.pattern, 'split', ff);
+        // just ONE of the pattern sets in this.set needs to match
+        // in order for it to be valid.  If negating, then just one
+        // match means that we have failed.
+        // Either way, return on the first hit.
+        const set = this.set;
+        this.debug(this.pattern, 'set', set);
+        // Find the basename of the path by looking for the last non-empty segment
+        let filename = ff[ff.length - 1];
+        if (!filename) {
+            for (let i = ff.length - 2; !filename && i >= 0; i--) {
+                filename = ff[i];
+            }
+        }
+        for (let i = 0; i < set.length; i++) {
+            const pattern = set[i];
+            let file = ff;
+            if (options.matchBase && pattern.length === 1) {
+                file = [filename];
+            }
+            const hit = this.matchOne(file, pattern, partial);
+            if (hit) {
+                if (options.flipNegate) {
+                    return true;
+                }
+                return !this.negate;
+            }
+        }
+        // didn't get any hits.  this is success if it's a negative
+        // pattern, failure otherwise.
+        if (options.flipNegate) {
+            return false;
+        }
+        return this.negate;
+    }
+    static defaults(def) {
+        return exports.minimatch.defaults(def).Minimatch;
+    }
+}
+exports.Minimatch = Minimatch;
+/* c8 ignore start */
+var ast_js_2 = __nccwpck_require__(7430);
+Object.defineProperty(exports, "AST", ({ enumerable: true, get: function () { return ast_js_2.AST; } }));
+var escape_js_2 = __nccwpck_require__(6807);
+Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return escape_js_2.escape; } }));
+var unescape_js_2 = __nccwpck_require__(5200);
+Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return unescape_js_2.unescape; } }));
+/* c8 ignore stop */
+exports.minimatch.AST = ast_js_1.AST;
+exports.minimatch.Minimatch = Minimatch;
+exports.minimatch.escape = escape_js_1.escape;
+exports.minimatch.unescape = unescape_js_1.unescape;
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 5200:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.unescape = void 0;
+/**
+ * Un-escape a string that has been escaped with {@link escape}.
+ *
+ * If the {@link windowsPathsNoEscape} option is used, then square-brace
+ * escapes are removed, but not backslash escapes.  For example, it will turn
+ * the string `'[*]'` into `*`, but it will not turn `'\\*'` into `'*'`,
+ * becuase `\` is a path separator in `windowsPathsNoEscape` mode.
+ *
+ * When `windowsPathsNoEscape` is not set, then both brace escapes and
+ * backslash escapes are removed.
+ *
+ * Slashes (and backslashes in `windowsPathsNoEscape` mode) cannot be escaped
+ * or unescaped.
+ */
+const unescape = (s, { windowsPathsNoEscape = false, } = {}) => {
+    return windowsPathsNoEscape
+        ? s.replace(/\[([^\/\\])\]/g, '$1')
+        : s.replace(/((?!\\).|^)\[([^\/\\])\]/g, '$1$2').replace(/\\([^\/])/g, '$1');
+};
+exports.unescape = unescape;
+//# sourceMappingURL=unescape.js.map
 
 /***/ })
 

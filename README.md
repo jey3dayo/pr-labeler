@@ -208,7 +208,7 @@ jobs:
 
 ## 📄 ライセンス
 
-[MIT](LICENSE)
+MIT
 
 ## 🙏 謝辞
 
