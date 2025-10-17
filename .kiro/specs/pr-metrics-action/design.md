@@ -157,6 +157,7 @@ interface ActionOutputs {
 - **ドメイン境界**: アダプター層
 - **データ所有権**: パラメータマッピングルール
 - **トランザクション境界**: ステートレス変換
+- **action.yml整合性**: `runs.main`は`dist/index.js`を指定（nccビルド出力と一致）
 
 **サービスインターフェース**
 
@@ -199,6 +200,8 @@ const parseSizeThresholds = (value: string): Result<SizeThresholds, ParseError> 
 };
 
 // action.ymlの入力形式（snake_case）
+// github_tokenは必須（required: true）でデフォルト値なし
+// 環境変数GITHUB_TOKENまたはGH_TOKENからのフォールバックを実装
 interface ActionInputs {
   file_size_limit: string;
   file_lines_limit: string;
@@ -216,6 +219,24 @@ interface ActionInputs {
   additional_exclude_patterns: string;
   github_token: string;
 }
+
+// GitHub Token取得（環境変数フォールバック）
+const getGitHubToken = (): Result<string, ConfigurationError> => {
+  const token =
+    core.getInput('github_token') ||
+    process.env.GITHUB_TOKEN ||
+    process.env.GH_TOKEN;
+
+  if (!token) {
+    return err({
+      type: 'ConfigurationError',
+      field: 'github_token',
+      value: undefined,
+      message: 'GitHub token is required. Set github_token input or GITHUB_TOKEN/GH_TOKEN environment variable'
+    });
+  }
+  return ok(token);
+};
 
 // 内部設定形式（camelCase、パース済み）
 interface Config {
@@ -259,7 +280,7 @@ interface SizeThresholds {
 
 - **インバウンド**: FileAnalyzer
 - **アウトバウンド**: なし
-- **外部**: @octokit/rest（API優先）、child_process（gitフォールバック）
+- **外部**: @actions/github（getOctokit使用）、child_process（gitフォールバック）
 
 **サービスインターフェース**
 
@@ -282,9 +303,12 @@ interface FileDiff {
   status: 'added' | 'removed' | 'modified' | 'renamed';
 }
 
-// API優先アプローチ（推奨）
+// getOctokitの戻り値型を使用
+type Octokit = ReturnType<typeof github.getOctokit>;
+
+// ローカル優先アプローチ（API fallback）
+type FetchFromLocal = (pr: PullRequestInfo) => ResultAsync<FileDiff[], FileSystemError>;
 type FetchFromAPI = (pr: PullRequestInfo, octokit: Octokit) => ResultAsync<FileDiff[], GitHubAPIError>;
-type FetchFromGit = (pr: PullRequestInfo) => ResultAsync<FileDiff[], FileSystemError>;
 
 // DiffStrategy インターフェース
 type CreateDiffStrategy = (octokit: Octokit) => {
@@ -293,8 +317,16 @@ type CreateDiffStrategy = (octokit: Octokit) => {
 
 const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
   fetchDiff: (pr) => {
+    // ローカル優先：高速かつ安定
+    const fetchFromLocal: FetchFromLocal = (pr) =>
+      // git diff --numstat base...head
+      ResultAsync.fromPromise(
+        exec(`git diff --numstat ${pr.baseSha}...${pr.headSha}`),
+        (error) => ({ type: 'FileSystemError' as const, message: String(error) })
+      ).map(parseGitDiff);
+
     const fetchFromAPI: FetchFromAPI = (pr, octokit) =>
-      // GitHub API: pulls.listFiles
+      // GitHub API: pulls.listFiles（フォールバック）
       ResultAsync.fromPromise(
         octokit.rest.pulls.listFiles({
           owner: pr.owner,
@@ -311,17 +343,11 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
         status: file.status as FileDiff['status']
       })));
 
-    const fetchFromGit: FetchFromGit = (pr) =>
-      // git diff --numstat base...head
-      ResultAsync.fromPromise(
-        exec(`git diff --numstat ${pr.baseSha}...${pr.headSha}`),
-        (error) => ({ type: 'FileSystemError' as const, message: String(error) })
-      ).map(parseGitDiff);
-
-    return fetchFromAPI(pr, octokit)
+    // ローカル優先、APIフォールバック
+    return fetchFromLocal(pr)
       .orElse(() => {
-        core.warning('GitHub API failed, falling back to git commands');
-        return fetchFromGit(pr);
+        core.warning('Local git commands failed, falling back to GitHub API');
+        return fetchFromAPI(pr, octokit);
       });
   }
 });
@@ -340,7 +366,24 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
 
 - **インバウンド**: PRMetricsAction
 - **アウトバウンド**: SizeParser, PatternMatcher, DiffStrategy
-- **外部**: fs/promises（ファイルサイズ取得）
+- **外部**: fs/promises（ファイルサイズ取得）、child_process（行数取得）
+
+**ファイル分析戦略**
+
+- **ファイルサイズ取得優先順位**:
+  1. fs.stat（ローカルファイル、最速）
+  2. git ls-tree -l（gitオブジェクト、高速）
+  3. GitHub API（ネットワーク経由、フォールバック）
+
+- **行数取得戦略**:
+  - checkoutされたファイルから`wc -l`またはNode.jsで行数を計測
+  - ファイル全体の行数を取得（差分の追加行数ではない）
+  - バイナリファイルや行数取得不可の場合はスキップしサイズのみ評価
+
+- **変更種別の扱い**:
+  - `added`、`modified`、`renamed`: 分析対象
+  - `removed`: サイズ/行数評価およびファイル数カウントから除外
+  - `renamed`: 新しいパスで評価
 
 **サービスインターフェース**
 
@@ -547,12 +590,13 @@ const validatePattern: ValidatePattern = (pattern) => {
 - **ドメイン境界**: 統合層
 - **データ所有権**: ラベル状態の変更記録
 - **トランザクション境界**: GitHub API呼び出し単位
+- **冪等性保証**: 既存ラベルの存在チェックにより重複追加を防止
 
 **依存関係**
 
 - **インバウンド**: PRMetricsAction
 - **アウトバウンド**: なし
-- **外部**: @octokit/rest
+- **外部**: @actions/github（getOctokit使用）
 
 **サービスインターフェース**
 
@@ -595,6 +639,33 @@ interface LabelResult {
   removed: string[];
   existing: string[];
 }
+
+// ラベル適用の冪等性実装
+type EnsureLabelsIdempotent = (
+  currentLabels: string[],
+  targetLabels: string[],
+  sizeLabel: string | null
+) => LabelOperations;
+
+interface LabelOperations {
+  toAdd: string[];     // 追加すべきラベル（既存でないもののみ）
+  toRemove: string[];  // 削除すべきラベル
+}
+
+const ensureLabelsIdempotent: EnsureLabelsIdempotent = (current, target, sizeLabel) => {
+  const currentSet = new Set(current);
+  const targetSet = new Set(target);
+
+  // サイズラベル変更時は古いラベルを削除
+  const oldSizeLabels = current.filter(l => l.startsWith('size/') && l !== sizeLabel);
+
+  return {
+    toAdd: [...targetSet].filter(l => !currentSet.has(l)),
+    toRemove: [...oldSizeLabels, ...currentSet].filter(l =>
+      !targetSet.has(l) && l !== sizeLabel
+    )
+  };
+};
 ```
 
 #### CommentManager
@@ -610,7 +681,7 @@ interface LabelResult {
 
 - **インバウンド**: PRMetricsAction
 - **アウトバウンド**: CommentFormatter
-- **外部**: @octokit/rest
+- **外部**: @actions/github（getOctokit使用）
 
 **コメント識別仕様**
 
@@ -852,11 +923,88 @@ const runPRMetricsAction = (
 
 ### モニタリング
 
-- core.debugによる詳細ログ出力
-- core.errorによるエラー記録
-- GitHub Actions Summaryへの結果出力
+**ログレベルと出力内容**:
+
+```typescript
+// 進捗状況の出力（core.info）
+core.info(`📊 Analyzing ${files.length} files in PR #${pr.pullNumber}`);
+core.info(`✅ Applied ${appliedLabels.length} labels`);
+core.info(`📝 Comment posted/updated`);
+
+// 詳細デバッグ情報（core.debug）
+core.debug(`Files to analyze: ${files.length}`);
+core.debug(`Excluded by patterns: ${excludedCount} files`);
+core.debug(`Skip reason: ${skipReason}`);
+core.debug(`Pattern hits: ${JSON.stringify(patternHitCounts)}`);
+
+// 警告とエラー
+core.warning(`High file count: ${fileCount} files`);
+core.error(`Failed to analyze file: ${file}`);
+
+// 統計情報の収集
+interface AnalysisStatistics {
+  totalFiles: number;
+  analyzedFiles: number;
+  excludedFiles: number;
+  patternHits: Record<string, number>;  // パターンごとのヒット数
+  processingTimeMs: number;
+  memoryUsageMB: number;
+}
+
+// GitHub Actions Summaryへの結果出力
+const writeSummary = async (stats: AnalysisStatistics): Promise<void> => {
+  await core.summary
+    .addHeading('📊 PR Metrics Analysis Results')
+    .addTable([
+      [{data: 'Metric', header: true}, {data: 'Value', header: true}],
+      ['Total Files', String(stats.totalFiles)],
+      ['Analyzed Files', String(stats.analyzedFiles)],
+      ['Excluded Files', String(stats.excludedFiles)],
+      ['Processing Time', `${stats.processingTimeMs}ms`],
+      ['Memory Usage', `${stats.memoryUsageMB}MB`]
+    ])
+    .write();
+};
+```
 
 ## パフォーマンス最適化
+
+### 早期打ち切り最適化
+
+**ファイル数制限の早期検出**:
+
+```typescript
+// pr_files_limit超過を早期検出して詳細解析を省略
+const checkEarlyTermination = (
+  fileCount: number,
+  config: Config
+): Result<void, ViolationError> => {
+  if (fileCount > config.prFilesLimit) {
+    core.info(`Early termination: ${fileCount} files exceed limit of ${config.prFilesLimit}`);
+    return err({
+      type: 'ViolationError',
+      violations: {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: true
+      },
+      message: `Too many files in PR: ${fileCount} > ${config.prFilesLimit}`
+    });
+  }
+  return ok(undefined);
+};
+
+// 大規模PR（3000+ファイル）でも効率的に動作
+const MAX_FILES_FOR_DETAILED_ANALYSIS = 3000;
+const shouldSkipDetailedAnalysis = (fileCount: number): boolean => {
+  if (fileCount > MAX_FILES_FOR_DETAILED_ANALYSIS) {
+    core.warning(`Skipping detailed analysis for ${fileCount} files (exceeds ${MAX_FILES_FOR_DETAILED_ANALYSIS})`);
+    return true;
+  }
+  return false;
+};
+```
 
 ### API呼び出し最適化
 
@@ -1093,9 +1241,27 @@ const processLargeFileList = async (
 
 ### GitHub Actionsワークフロー
 
+**推奨イベントタイプ**:
+
+```yaml
+name: PR Metrics Check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+```
+
+- `opened`: 新規PR作成時
+- `synchronize`: PRへのpush時
+- `reopened`: クローズ後の再オープン時
+- `ready_for_review`: Draft → Ready移行時（skip_draft_pr有効時に重要）
+
+**CI/CDワークフロー例**:
+
 ```yaml
 name: CI
-on: [push, pull_request]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   test:

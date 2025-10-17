@@ -365,7 +365,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 
 1. WHEN プルリクエストが作成または更新された THEN PR Metrics Action SHALL 変更されたすべてのファイルを特定する
 2. WHEN ファイルが特定された THEN PR Metrics Action SHALL 各ファイルのサイズ（バイト単位）を計測する
-3. WHEN ファイルが特定された THEN PR Metrics Action SHALL 各ファイルの行数を計測する
+3. WHEN ファイルが特定された THEN PR Metrics Action SHALL 各ファイルの現在の総行数を計測する（差分の追加行数ではなく、ファイル全体の行数）
 4. IF ファイルのサイズが`file_size_limit`を超えている THEN PR Metrics Action SHALL そのファイルを制限超過として記録する
 5. IF ファイルの行数が`file_lines_limit`を超えている THEN PR Metrics Action SHALL そのファイルを制限超過として記録する
 6. WHEN サイズ計測時に`100KB`、`1.5MB`、`2GB`などの単位付き文字列が指定された THEN PR Metrics Action SHALL それをバイト単位に変換する
@@ -381,6 +381,9 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
      - フレームワーク: `.next/**`、`.nuxt/**`、`.turbo/**`、`.svelte-kit/**`
      - その他: `*.map`、`*.map.json`、`coverage/**`、`.cache/**`
 8. WHERE 追加の除外パターンが`additional_exclude_patterns`で指定されている THE PR Metrics Action SHALL そのパターンに一致するファイルも分析から除外する
+9. WHEN ファイルがバイナリファイルまたは行数が取得できない場合 THEN PR Metrics Action SHALL サイズのみで評価し、行数制限チェックはスキップする
+10. WHEN 変更種別が`renamed`のファイルを分析する THEN PR Metrics Action SHALL 新しいパスで評価する
+11. WHERE 変更種別が`removed`のファイル THE PR Metrics Action SHALL サイズ/行数評価およびファイル数カウントから除外する
 
 ### 要件2: PR全体メトリクス分析
 
@@ -388,8 +391,8 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 
 #### 受け入れ基準
 
-1. WHEN プルリクエストが分析される THEN PR Metrics Action SHALL PR全体で追加された行数の合計を計算する
-2. WHEN プルリクエストが分析される THEN PR Metrics Action SHALL 変更されたファイルの総数を計算する（除外パターン適用後）
+1. WHEN プルリクエストが分析される THEN PR Metrics Action SHALL PR全体で追加された行数の合計を計算する（差分ベース、git diff --numstat使用）
+2. WHEN プルリクエストが分析される THEN PR Metrics Action SHALL 変更されたファイルの総数を計算する（除外パターン適用後、変更種別が`added`、`modified`、`renamed`のファイルのみカウント、`removed`は除外）
 3. IF PR全体の追加行数が`pr_additions_limit`を超えている THEN PR Metrics Action SHALL PRを制限超過として記録する
 4. IF PR内のファイル数が`pr_files_limit`を超えている THEN PR Metrics Action SHALL PRを制限超過として記録する
 5. WHEN 分析が完了した THEN PR Metrics Action SHALL `pr_additions`として総追加行数を出力する
@@ -444,6 +447,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 1. IF `skip_draft_pr`がtrueに設定されている AND PRがDraftステータスである THEN PR Metrics Action SHALL すべてのチェックをスキップする
 2. WHEN Draft PRのチェックをスキップする THEN PR Metrics Action SHALL ログにスキップした旨を記録する
 3. IF Draft PRがReady for reviewに変更された THEN PR Metrics Action SHALL 通常のチェックを実行する
+4. WHERE GitHub Actions設定でイベントタイプを指定する THE PR Metrics Action SHALL `pull_request.types: [opened, synchronize, reopened, ready_for_review]`を推奨設定とする
 
 ### 要件6: ワークフロー制御
 
@@ -451,13 +455,14 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 
 #### 受け入れ基準
 
-1. IF `fail_on_violation`がtrueに設定されている AND いずれかの制限超過が検出された THEN PR Metrics Action SHALL ワークフローを失敗ステータスで終了する
+1. IF `fail_on_violation`がtrueに設定されている AND いずれかの制限超過が検出された（`exceeds_file_size`、`exceeds_file_lines`、`exceeds_additions`、`exceeds_file_count`のいずれかがtrue） THEN PR Metrics Action SHALL ワークフローを失敗ステータスで終了する（`core.setFailed`を呼び出す）
 2. IF `fail_on_violation`がfalseに設定されている THEN PR Metrics Action SHALL 制限超過があっても成功ステータスで終了する
 3. WHEN ワークフローが失敗する THEN PR Metrics Action SHALL エラーメッセージで失敗理由を明確に示す
-4. WHILE 処理を実行中 THE PR Metrics Action SHALL 進捗状況をログに出力する
-5. WHEN エラーが発生した THEN PR Metrics Action SHALL エラーの詳細をログに記録し、適切にエラーハンドリングする
-6. WHEN エラー処理を実装する THEN PR Metrics Action SHALL neverthrowのResult型を使用して型安全にエラーを扱う
-7. WHERE エラー型を定義する THE PR Metrics Action SHALL 以下の型を含める
+4. WHEN `fail_on_violation`によりワークフローが失敗する場合でも THEN PR Metrics Action SHALL `comment_on_pr`ポリシーに従いコメント投稿は独立して実行する（失敗とコメント投稿は独立した機能）
+5. WHILE 処理を実行中 THE PR Metrics Action SHALL 進捗状況をログに出力する
+6. WHEN エラーが発生した THEN PR Metrics Action SHALL エラーの詳細をログに記録し、適切にエラーハンドリングする
+7. WHEN エラー処理を実装する THEN PR Metrics Action SHALL neverthrowのResult型を使用して型安全にエラーを扱う
+8. WHERE エラー型を定義する THE PR Metrics Action SHALL 以下の型を含める
    - `FileAnalysisError`: ファイル分析時のエラー
    - `GitHubAPIError`: GitHub API呼び出しエラー
    - `ConfigurationError`: 設定値の検証エラー

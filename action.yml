@@ -1,0 +1,108 @@
+name: "PR Metrics Action"
+description: "Check file sizes and line counts in PRs, automatically apply labels for large files"
+author: "jey3dayo"
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  # 基本制限
+  file_size_limit:
+    description: "Maximum file size (e.g., 100KB, 1.5MB, 500000)"
+    required: false
+    default: "100KB"
+
+  file_lines_limit:
+    description: "Maximum lines per file (current file total lines, not diff additions)"
+    required: false
+    default: "500"
+
+  pr_additions_limit:
+    description: "Maximum added lines for entire PR (diff-based)"
+    required: false
+    default: "5000"
+
+  pr_files_limit:
+    description: "Maximum number of files in PR (excluding removed files)"
+    required: false
+    default: "50"
+
+  # ラベル設定
+  apply_labels:
+    description: "Apply labels to PR (auto: prefixed labels)"
+    required: false
+    default: "true"
+
+  auto_remove_labels:
+    description: "Remove labels when limits are no longer exceeded"
+    required: false
+    default: "true"
+
+  apply_size_labels:
+    description: "Apply size labels (size/S, size/M, size/L, size/XL)"
+    required: false
+    default: "true"
+
+  size_label_thresholds:
+    description: "JSON string for size label thresholds"
+    required: false
+    default: '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}'
+
+  large_files_label:
+    description: "Label for files exceeding size or line limits"
+    required: false
+    default: "auto:large-files"
+
+  too_many_files_label:
+    description: "Label for PRs with too many files"
+    required: false
+    default: "auto:too-many-files"
+
+  # 動作設定
+  skip_draft_pr:
+    description: "Skip check for draft PRs"
+    required: false
+    default: "true"
+
+  comment_on_pr:
+    description: "Comment on PR (auto/always/never)"
+    required: false
+    default: "auto"
+
+  fail_on_violation:
+    description: "Fail workflow if limits exceeded (calls core.setFailed)"
+    required: false
+    default: "false"
+
+  # 除外パターン
+  additional_exclude_patterns:
+    description: "Additional file patterns to exclude (comma or newline separated)"
+    required: false
+    default: ""
+
+  # 認証
+  github_token:
+    description: "GitHub token for API access. Falls back to GITHUB_TOKEN or GH_TOKEN env vars if not provided"
+    required: true
+
+outputs:
+  large_files:
+    description: "JSON array of files exceeding size or line limits with violation details"
+  pr_additions:
+    description: "Total lines added in PR (diff-based)"
+  pr_files:
+    description: "Total number of files in PR (excluding removed files)"
+  exceeds_file_size:
+    description: 'Whether any file exceeds size limit ("true" | "false")'
+  exceeds_file_lines:
+    description: 'Whether any file exceeds line limit ("true" | "false")'
+  exceeds_additions:
+    description: 'Whether PR exceeds total additions limit ("true" | "false")'
+  exceeds_file_count:
+    description: 'Whether PR exceeds file count limit ("true" | "false")'
+  has_violations:
+    description: 'Whether any violation exists ("true" | "false")'
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
