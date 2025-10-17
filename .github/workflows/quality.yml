@@ -191,8 +191,20 @@ jobs:
           if [[ -n "$(git status --porcelain dist/)" ]]; then
             git add dist/
             git commit -m "chore: update dist [skip ci]"
-            git push
-            echo "✅ dist/ committed and pushed" >> $GITHUB_STEP_SUMMARY
+
+            # Retry push up to 3 times to handle race conditions
+            for attempt in 1 2 3; do
+              if git push; then
+                echo "✅ dist/ committed and pushed" >> $GITHUB_STEP_SUMMARY
+                exit 0
+              elif [[ $attempt -lt 3 ]]; then
+                echo "Push attempt $attempt failed, retrying after delay..."
+                sleep $((attempt * 2))
+              else
+                echo "❌ Failed to push dist/ after 3 attempts" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+            done
           else
             echo "ℹ️ No changes to dist/" >> $GITHUB_STEP_SUMMARY
           fi
