@@ -9,6 +9,7 @@ node = '22'
 "npm:prettier" = 'latest'
 "npm:markdownlint-cli2" = 'latest'
 "npm:markdown-link-check" = 'latest'
+fd = 'latest'
 
 [tasks]
 # === 基本タスク (package.jsonのscriptsを呼び出し) ===
@@ -92,26 +93,19 @@ run = "./.specify/scripts/release.sh major"
 description = "全Markdownドキュメントのlintとリンクチェック"
 run = [
   "markdownlint-cli2 '**/*.md'",
-  "find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json --quiet {} \\;"
+  "fd -e md -X markdown-link-check --config .markdown-link-check.json --quiet"
 ]
 
 [tasks."docs:check:verbose"]
 description = "詳細出力でMarkdownチェック（デバッグ用）"
 run = [
   "markdownlint-cli2 '**/*.md'",
-  "find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json --verbose {} \\;"
+  "fd -e md -X markdown-link-check --config .markdown-link-check.json --verbose"
 ]
 
 [tasks."docs:fix"]
 description = "Markdownドキュメントの自動修正"
-run = [
-  "markdownlint-cli2 --fix '**/*.md'",
-  "echo '✅ Markdown files formatted'"
-]
-
-[tasks."docs:links"]
-description = "Markdownファイル内のリンクのみをチェック"
-run = "find . -name '*.md' -not -path './node_modules/*' -not -path './dist/*' -not -path './.git/*' -exec markdown-link-check --config .markdown-link-check.json {} \\;"
+run = "markdownlint-cli2 --fix '**/*.md'"
 
 # === GitHub Actions ===
 [tasks."action:test"]
