@@ -13,16 +13,9 @@ fd = 'latest'
 
 [tasks]
 # === 統合タスク ===
-format.run = [
-  "pnpm format",
-  "markdownlint-cli2 --fix '**/*.md'",
-]
+format.run = ["mise fmt", "pnpm format", "markdownlint-cli2 --fix '**/*.md'"]
 
-lint.run = [
-  "pnpm lint",
-  "pnpm type-check",
-  "markdownlint-cli2 '**/*.md'",
-]
+lint.run = ["pnpm lint", "pnpm type-check", "markdownlint-cli2 '**/*.md'"]
 
 test.run = ["pnpm test"]
 
@@ -56,11 +49,7 @@ run = "pnpm test:quick"
 # === セットアップ ===
 [tasks.setup]
 description = "プロジェクト初期セットアップ"
-run = [
-  "pnpm install",
-  "mise run build",
-  "mise run test",
-]
+run = ["pnpm install", "mise run build", "mise run test"]
 
 # === リリース準備 ===
 [tasks.release]
@@ -132,16 +121,9 @@ run = [
 
 [tasks."clean:full"]
 description = "完全クリーンアップ（node_modules含む）"
-run = [
-  'mise run clean',
-  'rm -rf node_modules',
-  'rm -f pnpm-lock.yaml',
-]
+run = ['mise run clean', 'rm -rf node_modules', 'rm -f pnpm-lock.yaml']
 
 # === コミット前チェック ===
 [tasks."pre-commit"]
 description = "コミット前の自動チェックと修正"
-run = [
-  "mise run format",
-  "pnpm test:quick",
-]
+run = ["mise run format", "pnpm test:quick"]
