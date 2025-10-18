@@ -184,13 +184,15 @@
   - failOnViolation 設定との組み合わせテスト
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 8. ドキュメントとリリース準備
-- [ ] 8.1 README.md を更新する (後で対応)
+- [x] 8. ドキュメントとリリース準備
+- [x] 8.1 README.md を更新する
   - `enable_summary` パラメータの説明を追加
   - 使用例を追加
   - _Requirements: All requirements_
 
-- [ ] 8.2 リリースノートを作成する (後で対応)
+- [x] 8.2 リリースノートを作成する
+  - CHANGELOG.md を作成（v1.0.0 初回リリース）
+  - docs/release-process.md を作成（リリース手順書）
   - 新機能の説明（GitHub Actions Summary 出力）
   - 既存機能への影響なしを明記
   - マイグレーションガイド（デフォルト有効、無効化方法）

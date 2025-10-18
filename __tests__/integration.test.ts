@@ -1,0 +1,274 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { run } from '../src/index';
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import * as fs from 'fs';
+
+// GitHub APIモック
+const mockOctokit = {
+  rest: {
+    pulls: {
+      listFiles: vi.fn(),
+      get: vi.fn(),
+    },
+    issues: {
+      addLabels: vi.fn(),
+      removeLabel: vi.fn(),
+      listLabelsOnIssue: vi.fn(),
+      createComment: vi.fn(),
+      updateComment: vi.fn(),
+      listComments: vi.fn(),
+    },
+    repos: {
+      getContent: vi.fn(),
+    },
+  },
+};
+
+vi.mock('@actions/github', () => ({
+  context: {
+    repo: { owner: 'test-owner', repo: 'test-repo' },
+    issue: { number: 1 },
+    payload: {
+      pull_request: {
+        number: 1,
+        base: { sha: 'base-sha' },
+        head: { sha: 'head-sha' },
+        draft: false,
+      },
+    },
+  },
+  getOctokit: vi.fn(() => mockOctokit),
+}));
+
+describe('Integration Tests', () => {
+  let summaryFile: string;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    // GitHub Actions 環境変数をモック
+    summaryFile = `/tmp/summary-${Date.now()}.md`;
+    process.env.GITHUB_STEP_SUMMARY = summaryFile;
+    process.env.GITHUB_TOKEN = 'mock-token';
+
+    // サマリーファイルを作成
+    fs.writeFileSync(summaryFile, '');
+
+    // デフォルトの入力値を設定
+    vi.spyOn(core, 'getInput').mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        github_token: 'mock-token',
+        file_size_limit: '100KB',
+        file_lines_limit: '500',
+        pr_additions_limit: '5000',
+        pr_files_limit: '50',
+        apply_labels: 'true',
+        auto_remove_labels: 'true',
+        apply_size_labels: 'true',
+        size_label_thresholds:
+          '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}',
+        large_files_label: 'auto:large-files',
+        too_many_files_label: 'auto:too-many-files',
+        skip_draft_pr: 'true',
+        comment_on_pr: 'auto',
+        fail_on_violation: 'false',
+        additional_exclude_patterns: '',
+        enable_summary: 'true',
+      };
+      return inputs[name] || '';
+    });
+
+    vi.spyOn(core, 'setOutput').mockImplementation(() => {});
+    vi.spyOn(core, 'setFailed').mockImplementation(() => {});
+    vi.spyOn(core, 'info').mockImplementation(() => {});
+    vi.spyOn(core, 'warning').mockImplementation(() => {});
+    vi.spyOn(core, 'debug').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    // サマリーファイルをクリーンアップ
+    if (fs.existsSync(summaryFile)) {
+      fs.unlinkSync(summaryFile);
+    }
+  });
+
+  describe('Basic Integration', () => {
+    it('should run successfully with small PR', async () => {
+      // 小規模PRのモック設定
+      mockOctokit.rest.pulls.listFiles.mockResolvedValue({
+        data: [
+          {
+            filename: 'src/small.ts',
+            additions: 50,
+            deletions: 10,
+            changes: 60,
+            status: 'modified',
+          },
+        ],
+      });
+
+      mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.listComments.mockResolvedValue({
+        data: [],
+      });
+
+      await run();
+
+      // 成功で終了
+      expect(core.setFailed).not.toHaveBeenCalled();
+
+      // ラベルが適用される
+      expect(mockOctokit.rest.issues.addLabels).toHaveBeenCalled();
+    });
+
+    it('should handle Draft PR correctly', async () => {
+      // Draft PRに設定
+      vi.mocked(github.context).payload.pull_request = {
+        number: 1,
+        base: { sha: 'base-sha' },
+        head: { sha: 'head-sha' },
+        draft: true,
+      };
+
+      await run();
+
+      // ファイル分析がスキップされる
+      expect(mockOctokit.rest.pulls.listFiles).not.toHaveBeenCalled();
+
+      // 成功で終了
+      expect(core.setFailed).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Violation Detection', () => {
+    it('should detect violations and apply labels', async () => {
+      // 大規模ファイルを含むPR
+      mockOctokit.rest.pulls.listFiles.mockResolvedValue({
+        data: [
+          {
+            filename: 'src/large.ts',
+            additions: 2000,
+            deletions: 100,
+            changes: 2100,
+            status: 'modified',
+          },
+        ],
+      });
+
+      mockOctokit.rest.repos.getContent.mockResolvedValue({
+        data: {
+          size: 50000, // 50KB（制限内）
+        },
+      });
+
+      mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.listComments.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
+      mockOctokit.rest.issues.createComment.mockResolvedValue({ data: {} });
+
+      await run();
+
+      // 違反ラベルが適用される（追加行数が多いため）
+      expect(mockOctokit.rest.issues.addLabels).toHaveBeenCalled();
+
+      // コメントが投稿される（autoモードで違反がある場合）
+      expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled();
+    });
+  });
+
+  describe('Label Management', () => {
+    it('should not duplicate labels', async () => {
+      mockOctokit.rest.pulls.listFiles.mockResolvedValue({
+        data: [
+          {
+            filename: 'src/file.ts',
+            additions: 100,
+            deletions: 0,
+            changes: 100,
+            status: 'modified',
+          },
+        ],
+      });
+
+      // 既にラベルが存在
+      mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
+        data: [
+          { name: 'size:S' },
+          { name: 'auto:excessive-changes' },
+        ],
+      });
+
+      mockOctokit.rest.issues.listComments.mockResolvedValue({
+        data: [],
+      });
+
+      await run();
+
+      // 既存ラベルと重複しないことを確認（冪等性）
+      // addLabelsが呼ばれても、既存のラベルは含まれない
+      const calls = mockOctokit.rest.issues.addLabels.mock.calls;
+      if (calls.length > 0) {
+        const addedLabels = calls[0][0].labels;
+        expect(addedLabels).not.toContain('size:S');
+      }
+    });
+  });
+
+  describe('Output Variables', () => {
+    it('should set all output variables', async () => {
+      mockOctokit.rest.pulls.listFiles.mockResolvedValue({
+        data: [
+          {
+            filename: 'src/file.ts',
+            additions: 150,
+            deletions: 50,
+            changes: 200,
+            status: 'modified',
+          },
+        ],
+      });
+
+      mockOctokit.rest.repos.getContent.mockResolvedValue({
+        data: {
+          size: 30000, // 30KB
+        },
+      });
+
+      mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.listComments.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
+
+      await run();
+
+      // 出力変数が設定される
+      expect(core.setOutput).toHaveBeenCalledWith(
+        'pr_additions',
+        expect.any(String)
+      );
+      expect(core.setOutput).toHaveBeenCalledWith(
+        'pr_files',
+        expect.any(String)
+      );
+      expect(core.setOutput).toHaveBeenCalledWith(
+        'has_violations',
+        expect.any(String)
+      );
+    });
+  });
+});
