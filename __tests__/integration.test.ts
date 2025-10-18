@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as fs from 'fs';
-import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { run } from '../src/index';
 
@@ -200,10 +200,7 @@ describe('Integration Tests', () => {
 
       // 既にラベルが存在
       mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
-        data: [
-          { name: 'size:S' },
-          { name: 'auto:excessive-changes' },
-        ],
+        data: [{ name: 'size:S' }, { name: 'auto:excessive-changes' }],
       });
 
       mockOctokit.rest.issues.listComments.mockResolvedValue({
