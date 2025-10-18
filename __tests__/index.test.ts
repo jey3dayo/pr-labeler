@@ -63,7 +63,9 @@ describe('PR Metrics Action', () => {
   describe('GitHub Token validation', () => {
     it('should accept token from input', () => {
       vi.mocked(core.getInput).mockImplementation((name: string) => {
-        if (name === 'github_token') {return 'input-token-abc';}
+        if (name === 'github_token') {
+          return 'input-token-abc';
+        }
         return '';
       });
 
@@ -114,10 +116,18 @@ describe('PR Metrics Action', () => {
   describe('Input parameter parsing', () => {
     it('should parse size limits correctly', () => {
       vi.mocked(core.getInput).mockImplementation((name: string) => {
-        if (name === 'file_size_limit') {return '1MB';}
-        if (name === 'file_lines_limit') {return '1000';}
-        if (name === 'pr_additions_limit') {return '10000';}
-        if (name === 'pr_files_limit') {return '100';}
+        if (name === 'file_size_limit') {
+          return '1MB';
+        }
+        if (name === 'file_lines_limit') {
+          return '1000';
+        }
+        if (name === 'pr_additions_limit') {
+          return '10000';
+        }
+        if (name === 'pr_files_limit') {
+          return '100';
+        }
         return '';
       });
 
@@ -129,9 +139,15 @@ describe('PR Metrics Action', () => {
 
     it('should parse boolean flags correctly', () => {
       vi.mocked(core.getInput).mockImplementation((name: string) => {
-        if (name === 'apply_labels') {return 'true';}
-        if (name === 'skip_draft_pr') {return 'false';}
-        if (name === 'fail_on_violation') {return 'true';}
+        if (name === 'apply_labels') {
+          return 'true';
+        }
+        if (name === 'skip_draft_pr') {
+          return 'false';
+        }
+        if (name === 'fail_on_violation') {
+          return 'true';
+        }
         return '';
       });
 
@@ -142,7 +158,9 @@ describe('PR Metrics Action', () => {
 
     it('should handle comment mode options', () => {
       vi.mocked(core.getInput).mockImplementation((name: string) => {
-        if (name === 'comment_on_pr') {return 'always';}
+        if (name === 'comment_on_pr') {
+          return 'always';
+        }
         return '';
       });
 
