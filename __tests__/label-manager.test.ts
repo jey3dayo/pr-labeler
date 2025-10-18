@@ -1,23 +1,23 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import * as github from '@actions/github';
 import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Setup mocks
 vi.mock('@actions/github');
 vi.mock('@actions/core');
 
 // Import after mocking
+import type { Violations } from '../src/errors';
+import type { AnalysisResult } from '../src/file-metrics';
 import {
-  getSizeLabel,
-  getDetailLabels,
-  getCurrentLabels,
   addLabels,
+  getCurrentLabels,
+  getDetailLabels,
+  getSizeLabel,
+  LabelConfig,
   removeLabels,
   updateLabels,
-  LabelConfig,
 } from '../src/label-manager';
-import type { AnalysisResult } from '../src/file-metrics';
-import type { Violations } from '../src/errors';
 
 describe('LabelManager', () => {
   let mockOctokit: any;

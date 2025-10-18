@@ -3,12 +3,14 @@
  * Handles posting and updating PR comments with analysis results
  */
 
-import { Result, ok, err } from 'neverthrow';
 import * as github from '@actions/github';
-import { createGitHubAPIError } from './errors';
-import { logInfo, logDebug } from './actions-io';
+import { err, ok, Result } from 'neverthrow';
+
+import { logDebug, logInfo } from './actions-io';
 import type { GitHubAPIError } from './errors';
+import { createGitHubAPIError } from './errors';
 import type { AnalysisResult } from './file-metrics';
+import { formatBasicMetrics, formatFileDetails, formatViolations } from './report-formatter';
 import type { PRContext } from './types';
 
 /**
@@ -42,28 +44,6 @@ function hasViolations(analysisResult: AnalysisResult): boolean {
 }
 
 /**
- * Format bytes to human-readable string
- */
-function formatBytes(bytes: number): string {
-  if (bytes === 0) {
-    return '0 B';
-  }
-
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-}
-
-/**
- * Format number with thousands separator
- */
-function formatNumber(num: number): string {
-  return num.toLocaleString('en-US');
-}
-
-/**
  * Generate comment body from analysis results
  */
 export function generateCommentBody(analysisResult: AnalysisResult): string {
@@ -79,81 +59,19 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
     body += '## ✅ PR Size Check Passed\n\n';
   }
 
-  // Summary
-  body += '### 📊 Summary\n\n';
+  // Basic metrics section (using shared formatter, without timestamp for comments)
+  const metricsSection = formatBasicMetrics(metrics);
+  // Remove timestamp line from metrics section
+  const lines = metricsSection.split('\n');
+  const filteredLines = lines.filter(line => !line.includes('Executed at:'));
+  body += filteredLines.join('\n');
 
-  if (metrics.totalFiles === 0) {
-    body += '**No files to analyze**\n\n';
-  } else {
-    body += `- Total additions: **${formatNumber(metrics.totalAdditions)}**\n`;
-    body += `- Files analyzed: **${metrics.filesAnalyzed.length}**\n`;
-    body += `- Files excluded: **${metrics.filesExcluded.length}**\n`;
-    body += `- Binary files skipped: **${metrics.filesSkippedBinary.length}**\n`;
+  // Violations section (using shared formatter)
+  body += formatViolations(violations);
 
-    if (metrics.filesWithErrors.length > 0) {
-      body += `- Files with errors: **${metrics.filesWithErrors.length}** ⚠️\n`;
-    }
-
-    if (hasViolationsFlag) {
-      body += '\n### 📊 Violations Summary\n\n';
-
-      if (violations.largeFiles.length > 0) {
-        body += `- **${violations.largeFiles.length}** file(s) exceed size limit\n`;
-      }
-      if (violations.exceedsFileLines.length > 0) {
-        body += `- **${violations.exceedsFileLines.length}** file(s) exceed line limit\n`;
-      }
-      if (violations.exceedsAdditions) {
-        body += '- **Total additions exceed limit**\n';
-      }
-      if (violations.exceedsFileCount) {
-        body += '- **File count exceeds limit**\n';
-      }
-    } else {
-      body += '\n**All files are within size limits** ✅\n';
-    }
-    body += '\n';
-  }
-
-  // Violation details
-  if (violations.largeFiles.length > 0) {
-    body += '### 🚫 Large Files Detected\n\n';
-    body += '| File | Size | Limit | Status |\n';
-    body += '|------|------|-------|--------|\n';
-
-    for (const violation of violations.largeFiles) {
-      const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-      body += `| ${violation.file} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${status} |\n`;
-    }
-    body += '\n';
-  }
-
-  if (violations.exceedsFileLines.length > 0) {
-    body += '### ⚠️ Files Exceed Line Limit\n\n';
-    body += '| File | Lines | Limit | Status |\n';
-    body += '|------|-------|-------|--------|\n';
-
-    for (const violation of violations.exceedsFileLines) {
-      const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-      body += `| ${violation.file} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${status} |\n`;
-    }
-    body += '\n';
-  }
-
-  // Top large files (if any files were analyzed)
+  // Top large files (using shared formatter, limit to 10)
   if (metrics.filesAnalyzed.length > 0) {
-    body += '### 📈 Top Large Files\n\n';
-    body += '| File | Size | Lines | Changes |\n';
-    body += '|------|------|-------|----------|\n';
-
-    // Sort by size and take top 10
-    const topFiles = [...metrics.filesAnalyzed].sort((a, b) => b.size - a.size).slice(0, 10);
-
-    for (const file of topFiles) {
-      const changes = `+${file.additions}/-${file.deletions}`;
-      body += `| ${file.filename} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
-    }
-    body += '\n';
+    body += formatFileDetails(metrics.filesAnalyzed, 10);
   }
 
   // Files with errors note

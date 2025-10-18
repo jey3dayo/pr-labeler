@@ -3,17 +3,18 @@
  * Measures file sizes, line counts, and aggregates metrics
  */
 
-import { Result, ok, err } from 'neverthrow';
-import { promises as fs } from 'fs';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import * as path from 'path';
 import * as github from '@actions/github';
-import { createFileAnalysisError } from './errors';
+import { exec } from 'child_process';
+import { promises as fs } from 'fs';
+import { err, ok, Result } from 'neverthrow';
+import * as path from 'path';
+import { promisify } from 'util';
+
 import { logDebug, logInfo, logWarning } from './actions-io';
-import { isExcluded, getDefaultExcludePatterns } from './pattern-matcher';
-import type { FileAnalysisError, Violations, ViolationDetail } from './errors';
 import type { DiffFile } from './diff-strategy';
+import type { FileAnalysisError, ViolationDetail, Violations } from './errors';
+import { createFileAnalysisError } from './errors';
+import { getDefaultExcludePatterns, isExcluded } from './pattern-matcher';
 
 // Create execAsync using promisify
 const execAsync = promisify(exec);

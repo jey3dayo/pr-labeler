@@ -30667,11 +30667,13 @@ exports.logWarning = logWarning;
 exports.logError = logError;
 exports.setFailed = setFailed;
 exports.writeSummary = writeSummary;
+exports.writeSummaryWithAnalysis = writeSummaryWithAnalysis;
 exports.getPullRequestContext = getPullRequestContext;
 const core = __importStar(__nccwpck_require__(6966));
 const github = __importStar(__nccwpck_require__(4903));
 const neverthrow_1 = __nccwpck_require__(734);
 const errors_1 = __nccwpck_require__(8847);
+const report_formatter_1 = __nccwpck_require__(3621);
 function getEnvVar(key) {
     return process.env[key];
 }
@@ -30703,6 +30705,7 @@ function getActionInputs() {
         skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
         comment_on_pr: core.getInput('comment_on_pr') || 'auto',
         fail_on_violation: core.getInput('fail_on_violation') || 'false',
+        enable_summary: core.getInput('enable_summary') || 'true',
         additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
     };
 }
@@ -30733,6 +30736,42 @@ function setFailed(message) {
 }
 async function writeSummary(content) {
     await core.summary.addRaw(content).write();
+}
+async function writeSummaryWithAnalysis(analysis, config) {
+    if (!config.enableSummary) {
+        logDebug('Summary output skipped (enable_summary=false)');
+        return (0, neverthrow_1.ok)({ action: 'skipped' });
+    }
+    try {
+        logDebug('Generating GitHub Actions Summary...');
+        let markdown = '';
+        markdown += '# 📊 PR Metrics\n\n';
+        markdown += (0, report_formatter_1.formatBasicMetrics)(analysis.metrics);
+        markdown += (0, report_formatter_1.formatViolations)(analysis.violations);
+        if (analysis.metrics.filesAnalyzed.length > 0) {
+            markdown += (0, report_formatter_1.formatFileDetails)(analysis.metrics.filesAnalyzed, 100);
+        }
+        if (analysis.metrics.filesWithErrors.length > 0) {
+            markdown += '### ⚠️ Analysis Errors\n\n';
+            markdown += 'Some files could not be analyzed:\n\n';
+            for (const file of analysis.metrics.filesWithErrors.slice(0, 10)) {
+                markdown += `- ${file}\n`;
+            }
+            if (analysis.metrics.filesWithErrors.length > 10) {
+                markdown += `- ...and ${analysis.metrics.filesWithErrors.length - 10} more\n`;
+            }
+            markdown += '\n';
+        }
+        await writeSummary(markdown);
+        const bytesWritten = Buffer.byteLength(markdown, 'utf8');
+        logInfo(`✅ Summary written successfully (${bytesWritten} bytes)`);
+        return (0, neverthrow_1.ok)({ action: 'written', bytesWritten });
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        logWarning(`Failed to write summary: ${message}`);
+        return (0, neverthrow_1.err)(new Error(`Failed to write GitHub Actions Summary: ${message}`));
+    }
 }
 function getPullRequestContext() {
     const context = github.context;
@@ -30800,28 +30839,17 @@ exports.postComment = postComment;
 exports.updateComment = updateComment;
 exports.deleteComment = deleteComment;
 exports.manageComment = manageComment;
-const neverthrow_1 = __nccwpck_require__(734);
 const github = __importStar(__nccwpck_require__(4903));
-const errors_1 = __nccwpck_require__(8847);
+const neverthrow_1 = __nccwpck_require__(734);
 const actions_io_1 = __nccwpck_require__(2210);
+const errors_1 = __nccwpck_require__(8847);
+const report_formatter_1 = __nccwpck_require__(3621);
 exports.COMMENT_SIGNATURE = '<!-- pr-metrics-action -->';
 function hasViolations(analysisResult) {
     return (analysisResult.violations.largeFiles.length > 0 ||
         analysisResult.violations.exceedsFileLines.length > 0 ||
         analysisResult.violations.exceedsAdditions ||
         analysisResult.violations.exceedsFileCount);
-}
-function formatBytes(bytes) {
-    if (bytes === 0) {
-        return '0 B';
-    }
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-}
-function formatNumber(num) {
-    return num.toLocaleString('en-US');
 }
 function generateCommentBody(analysisResult) {
     const { metrics, violations } = analysisResult;
@@ -30833,68 +30861,13 @@ function generateCommentBody(analysisResult) {
     else {
         body += '## ✅ PR Size Check Passed\n\n';
     }
-    body += '### 📊 Summary\n\n';
-    if (metrics.totalFiles === 0) {
-        body += '**No files to analyze**\n\n';
-    }
-    else {
-        body += `- Total additions: **${formatNumber(metrics.totalAdditions)}**\n`;
-        body += `- Files analyzed: **${metrics.filesAnalyzed.length}**\n`;
-        body += `- Files excluded: **${metrics.filesExcluded.length}**\n`;
-        body += `- Binary files skipped: **${metrics.filesSkippedBinary.length}**\n`;
-        if (metrics.filesWithErrors.length > 0) {
-            body += `- Files with errors: **${metrics.filesWithErrors.length}** ⚠️\n`;
-        }
-        if (hasViolationsFlag) {
-            body += '\n### 📊 Violations Summary\n\n';
-            if (violations.largeFiles.length > 0) {
-                body += `- **${violations.largeFiles.length}** file(s) exceed size limit\n`;
-            }
-            if (violations.exceedsFileLines.length > 0) {
-                body += `- **${violations.exceedsFileLines.length}** file(s) exceed line limit\n`;
-            }
-            if (violations.exceedsAdditions) {
-                body += '- **Total additions exceed limit**\n';
-            }
-            if (violations.exceedsFileCount) {
-                body += '- **File count exceeds limit**\n';
-            }
-        }
-        else {
-            body += '\n**All files are within size limits** ✅\n';
-        }
-        body += '\n';
-    }
-    if (violations.largeFiles.length > 0) {
-        body += '### 🚫 Large Files Detected\n\n';
-        body += '| File | Size | Limit | Status |\n';
-        body += '|------|------|-------|--------|\n';
-        for (const violation of violations.largeFiles) {
-            const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-            body += `| ${violation.file} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${status} |\n`;
-        }
-        body += '\n';
-    }
-    if (violations.exceedsFileLines.length > 0) {
-        body += '### ⚠️ Files Exceed Line Limit\n\n';
-        body += '| File | Lines | Limit | Status |\n';
-        body += '|------|-------|-------|--------|\n';
-        for (const violation of violations.exceedsFileLines) {
-            const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-            body += `| ${violation.file} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${status} |\n`;
-        }
-        body += '\n';
-    }
+    const metricsSection = (0, report_formatter_1.formatBasicMetrics)(metrics);
+    const lines = metricsSection.split('\n');
+    const filteredLines = lines.filter(line => !line.includes('Executed at:'));
+    body += filteredLines.join('\n');
+    body += (0, report_formatter_1.formatViolations)(violations);
     if (metrics.filesAnalyzed.length > 0) {
-        body += '### 📈 Top Large Files\n\n';
-        body += '| File | Size | Lines | Changes |\n';
-        body += '|------|------|-------|----------|\n';
-        const topFiles = [...metrics.filesAnalyzed].sort((a, b) => b.size - a.size).slice(0, 10);
-        for (const file of topFiles) {
-            const changes = `+${file.additions}/-${file.deletions}`;
-            body += `| ${file.filename} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
-        }
-        body += '\n';
+        body += (0, report_formatter_1.formatFileDetails)(metrics.filesAnalyzed, 10);
     }
     if (metrics.filesWithErrors.length > 0) {
         body += '### ⚠️ Analysis Errors\n\n';
@@ -31079,12 +31052,12 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getDiffFiles = getDiffFiles;
-const neverthrow_1 = __nccwpck_require__(734);
-const child_process_1 = __nccwpck_require__(7698);
-const util_1 = __nccwpck_require__(9023);
 const github = __importStar(__nccwpck_require__(4903));
-const errors_1 = __nccwpck_require__(8847);
+const child_process_1 = __nccwpck_require__(7698);
+const neverthrow_1 = __nccwpck_require__(734);
+const util_1 = __nccwpck_require__(9023);
 const actions_io_1 = __nccwpck_require__(2210);
+const errors_1 = __nccwpck_require__(8847);
 const execAsync = (0, util_1.promisify)(child_process_1.exec);
 function parseGitDiffLine(line) {
     const parts = line.trim().split('\t');
@@ -31237,7 +31210,7 @@ async function getDiffFiles(context, token) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.errAsync = exports.okAsync = exports.ResultAsync = exports.err = exports.ok = exports.Result = exports.createCacheError = exports.createPatternError = exports.createDiffError = exports.createViolationError = exports.createFileSystemError = exports.createParseError = exports.createConfigurationError = exports.createGitHubAPIError = exports.createFileAnalysisError = void 0;
+exports.ResultAsync = exports.Result = exports.okAsync = exports.ok = exports.errAsync = exports.err = exports.createCacheError = exports.createPatternError = exports.createDiffError = exports.createViolationError = exports.createFileSystemError = exports.createParseError = exports.createConfigurationError = exports.createGitHubAPIError = exports.createFileAnalysisError = void 0;
 const createFileAnalysisError = (file, message) => ({
     type: 'FileAnalysisError',
     file,
@@ -31309,12 +31282,12 @@ const createCacheError = (message, key) => {
 };
 exports.createCacheError = createCacheError;
 var neverthrow_1 = __nccwpck_require__(734);
-Object.defineProperty(exports, "Result", ({ enumerable: true, get: function () { return neverthrow_1.Result; } }));
-Object.defineProperty(exports, "ok", ({ enumerable: true, get: function () { return neverthrow_1.ok; } }));
 Object.defineProperty(exports, "err", ({ enumerable: true, get: function () { return neverthrow_1.err; } }));
-Object.defineProperty(exports, "ResultAsync", ({ enumerable: true, get: function () { return neverthrow_1.ResultAsync; } }));
-Object.defineProperty(exports, "okAsync", ({ enumerable: true, get: function () { return neverthrow_1.okAsync; } }));
 Object.defineProperty(exports, "errAsync", ({ enumerable: true, get: function () { return neverthrow_1.errAsync; } }));
+Object.defineProperty(exports, "ok", ({ enumerable: true, get: function () { return neverthrow_1.ok; } }));
+Object.defineProperty(exports, "okAsync", ({ enumerable: true, get: function () { return neverthrow_1.okAsync; } }));
+Object.defineProperty(exports, "Result", ({ enumerable: true, get: function () { return neverthrow_1.Result; } }));
+Object.defineProperty(exports, "ResultAsync", ({ enumerable: true, get: function () { return neverthrow_1.ResultAsync; } }));
 
 
 /***/ }),
@@ -31362,14 +31335,14 @@ exports.getFileSize = getFileSize;
 exports.getFileLineCount = getFileLineCount;
 exports.isBinaryFile = isBinaryFile;
 exports.analyzeFiles = analyzeFiles;
-const neverthrow_1 = __nccwpck_require__(734);
-const fs_1 = __nccwpck_require__(9896);
-const child_process_1 = __nccwpck_require__(7698);
-const util_1 = __nccwpck_require__(9023);
-const path = __importStar(__nccwpck_require__(6928));
 const github = __importStar(__nccwpck_require__(4903));
-const errors_1 = __nccwpck_require__(8847);
+const child_process_1 = __nccwpck_require__(7698);
+const fs_1 = __nccwpck_require__(9896);
+const neverthrow_1 = __nccwpck_require__(734);
+const path = __importStar(__nccwpck_require__(6928));
+const util_1 = __nccwpck_require__(9023);
 const actions_io_1 = __nccwpck_require__(2210);
+const errors_1 = __nccwpck_require__(8847);
 const pattern_matcher_1 = __nccwpck_require__(444);
 const execAsync = (0, util_1.promisify)(child_process_1.exec);
 const BINARY_EXTENSIONS = new Set([
@@ -31664,8 +31637,8 @@ exports.parseExcludePatterns = parseExcludePatterns;
 exports.parseSizeThresholds = parseSizeThresholds;
 exports.mapActionInputsToConfig = mapActionInputsToConfig;
 const neverthrow_1 = __nccwpck_require__(734);
-const size_parser_1 = __nccwpck_require__(3542);
 const errors_1 = __nccwpck_require__(8847);
+const size_parser_1 = __nccwpck_require__(3542);
 function parseBoolean(value) {
     const normalized = value.trim().toLowerCase();
     return ['true', '1', 'yes', 'on'].includes(normalized);
@@ -31746,6 +31719,7 @@ function mapActionInputsToConfig(inputs) {
         skipDraftPr: parseBoolean(inputs.skip_draft_pr),
         commentOnPr: parseCommentMode(inputs.comment_on_pr),
         failOnViolation: parseBoolean(inputs.fail_on_violation),
+        enableSummary: parseBoolean(inputs.enable_summary),
         additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
         githubToken: inputs.github_token,
     };
@@ -31800,10 +31774,10 @@ exports.getCurrentLabels = getCurrentLabels;
 exports.addLabels = addLabels;
 exports.removeLabels = removeLabels;
 exports.updateLabels = updateLabels;
-const neverthrow_1 = __nccwpck_require__(734);
 const github = __importStar(__nccwpck_require__(4903));
-const errors_1 = __nccwpck_require__(8847);
+const neverthrow_1 = __nccwpck_require__(734);
 const actions_io_1 = __nccwpck_require__(2210);
+const errors_1 = __nccwpck_require__(8847);
 const SIZE_LABEL_PREFIX = 'size:';
 const AUTO_LABEL_PREFIX = 'auto:';
 const SIZE_LABELS = {
@@ -32017,9 +31991,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseSize = parseSize;
 exports.parseSizes = parseSizes;
+const bytes_1 = __importDefault(__nccwpck_require__(4449));
 const neverthrow_1 = __nccwpck_require__(734);
 const errors_1 = __nccwpck_require__(8847);
-const bytes_1 = __importDefault(__nccwpck_require__(4449));
 function parseSize(input) {
     const trimmed = input.trim();
     if (!trimmed) {
@@ -32206,6 +32180,128 @@ function isExcluded(filePath, patterns) {
         }
     }
     return false;
+}
+
+
+/***/ }),
+
+/***/ 3621:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatBytes = formatBytes;
+exports.formatNumber = formatNumber;
+exports.formatBasicMetrics = formatBasicMetrics;
+exports.formatViolations = formatViolations;
+exports.formatFileDetails = formatFileDetails;
+exports.escapeMarkdown = escapeMarkdown;
+function formatBytes(bytes) {
+    if (bytes === 0) {
+        return '0 B';
+    }
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+}
+function formatNumber(num) {
+    return num.toLocaleString('en-US');
+}
+function formatBasicMetrics(metrics, options) {
+    const { includeHeader = true } = options || {};
+    let output = '';
+    if (includeHeader) {
+        output += '### 📊 Summary\n\n';
+    }
+    if (metrics.totalFiles === 0) {
+        output += '**No files to analyze**\n\n';
+        return output;
+    }
+    output += `- Total additions: **${formatNumber(metrics.totalAdditions)}**\n`;
+    output += `- Files analyzed: **${metrics.filesAnalyzed.length}**\n`;
+    output += `- Files excluded: **${metrics.filesExcluded.length}**\n`;
+    output += `- Binary files skipped: **${metrics.filesSkippedBinary.length}**\n`;
+    if (metrics.filesWithErrors.length > 0) {
+        output += `- Files with errors: **${metrics.filesWithErrors.length}** ⚠️\n`;
+    }
+    output += `- Executed at: ${new Date().toISOString()}\n`;
+    output += '\n';
+    return output;
+}
+function hasViolations(violations) {
+    return (violations.largeFiles.length > 0 ||
+        violations.exceedsFileLines.length > 0 ||
+        violations.exceedsAdditions ||
+        violations.exceedsFileCount);
+}
+function formatViolations(violations, options) {
+    const { includeHeader = true } = options || {};
+    const hasViolationsFlag = hasViolations(violations);
+    let output = '';
+    if (!hasViolationsFlag) {
+        output += '**All files are within size limits** ✅\n';
+        output += '\n';
+        return output;
+    }
+    if (includeHeader) {
+        output += '### 📊 Violations Summary\n\n';
+    }
+    if (violations.largeFiles.length > 0) {
+        output += `- **${violations.largeFiles.length}** file(s) exceed size limit\n`;
+    }
+    if (violations.exceedsFileLines.length > 0) {
+        output += `- **${violations.exceedsFileLines.length}** file(s) exceed line limit\n`;
+    }
+    if (violations.exceedsAdditions) {
+        output += '- **Total additions exceed limit**\n';
+    }
+    if (violations.exceedsFileCount) {
+        output += '- **File count exceeds limit**\n';
+    }
+    output += '\n';
+    if (violations.largeFiles.length > 0) {
+        output += '### 🚫 Large Files Detected\n\n';
+        output += '| File | Size | Limit | Status |\n';
+        output += '|------|------|-------|--------|\n';
+        for (const violation of violations.largeFiles) {
+            const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
+            output += `| ${escapeMarkdown(violation.file)} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${status} |\n`;
+        }
+        output += '\n';
+    }
+    if (violations.exceedsFileLines.length > 0) {
+        output += '### ⚠️ Files Exceed Line Limit\n\n';
+        output += '| File | Lines | Limit | Status |\n';
+        output += '|------|-------|-------|--------|\n';
+        for (const violation of violations.exceedsFileLines) {
+            const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
+            output += `| ${escapeMarkdown(violation.file)} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${status} |\n`;
+        }
+        output += '\n';
+    }
+    return output;
+}
+function formatFileDetails(files, limit) {
+    if (files.length === 0) {
+        return '';
+    }
+    let output = '';
+    output += '### 📈 Top Large Files\n\n';
+    output += '| File | Size | Lines | Changes |\n';
+    output += '|------|------|-------|----------|\n';
+    const sortedFiles = [...files].sort((a, b) => b.size - a.size);
+    const displayFiles = limit ? sortedFiles.slice(0, limit) : sortedFiles;
+    for (const file of displayFiles) {
+        const changes = `+${file.additions}/-${file.deletions}`;
+        output += `| ${escapeMarkdown(file.filename)} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
+    }
+    output += '\n';
+    return output;
+}
+function escapeMarkdown(text) {
+    return text.replace(/([_*[\]`|])/g, '\\$1');
 }
 
 
@@ -36326,11 +36422,11 @@ var exports = __webpack_exports__;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
 const actions_io_1 = __nccwpck_require__(2210);
-const input_mapper_1 = __nccwpck_require__(9210);
+const comment_manager_1 = __nccwpck_require__(9017);
 const diff_strategy_1 = __nccwpck_require__(5109);
 const file_metrics_1 = __nccwpck_require__(798);
+const input_mapper_1 = __nccwpck_require__(9210);
 const label_manager_1 = __nccwpck_require__(1910);
-const comment_manager_1 = __nccwpck_require__(9017);
 async function run() {
     try {
         (0, actions_io_1.logInfo)('🚀 Starting PR Metrics Action');
@@ -36350,6 +36446,10 @@ async function run() {
         const config = configResult.value;
         if (prContext.isDraft && config.skipDraftPr) {
             (0, actions_io_1.logInfo)('⏭️  Skipping draft PR as skip_draft_pr is enabled');
+            if (config.enableSummary) {
+                await (0, actions_io_1.writeSummary)('## ⏭️ Draft PR Skipped\n\nDraft PRのため分析をスキップしました。');
+                (0, actions_io_1.logInfo)('📊 Summary written for draft PR');
+            }
             (0, actions_io_1.logInfo)('✨ PR Metrics Action completed (skipped draft PR)');
             return;
         }
@@ -36455,6 +36555,18 @@ async function run() {
             else {
                 const { action } = commentResult.value;
                 (0, actions_io_1.logInfo)(`  - Comment ${action}`);
+            }
+        }
+        if (config.enableSummary) {
+            (0, actions_io_1.logInfo)('📊 Writing GitHub Actions Summary...');
+            const summaryResult = await (0, actions_io_1.writeSummaryWithAnalysis)(analysis, {
+                enableSummary: config.enableSummary,
+            });
+            if (summaryResult.isErr()) {
+                (0, actions_io_1.logWarning)(`Failed to write summary: ${summaryResult.error.message}`);
+            }
+            else if (summaryResult.value.action === 'written') {
+                (0, actions_io_1.logInfo)(`  - Summary written successfully (${summaryResult.value.bytesWritten} bytes)`);
             }
         }
         (0, actions_io_1.setActionOutputs)({

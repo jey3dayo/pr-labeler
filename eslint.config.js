@@ -1,6 +1,10 @@
 const eslint = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 const prettierConfig = require('eslint-config-prettier');
+const simpleImportSort = require('eslint-plugin-simple-import-sort');
+const neverthrow = require('eslint-plugin-neverthrow');
+const { fixupPluginRules } = require('@eslint/compat');
+const importPlugin = require('eslint-plugin-import');
 
 module.exports = tseslint.config(
   // ESLint推奨設定
@@ -52,8 +56,35 @@ module.exports = tseslint.config(
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
+      'simple-import-sort': simpleImportSort,
+      neverthrow: neverthrow,
+      import: fixupPluginRules(importPlugin),
+    },
+    settings: {
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+        node: true,
+      },
     },
     rules: {
+      // Import/Export sorting
+      'simple-import-sort/imports': 'warn',
+      'simple-import-sort/exports': 'warn',
+
+      // Import plugin rules
+      'import/no-cycle': ['warn', { maxDepth: 10 }],
+      'import/no-self-import': 'error',
+      'import/no-useless-path-segments': 'warn',
+      'import/no-duplicates': 'warn',
+
+      // Neverthrow - allow flexible Result handling patterns
+      // OFF: Allows both imperative (if result.isErr()) and functional (.match()) patterns
+      // This is more readable for GitHub Actions code with complex error handling
+      'neverthrow/must-use-result': 'off',
+
       // TypeScript specific rules
       '@typescript-eslint/no-unused-vars': [
         'warn',
@@ -64,6 +95,13 @@ module.exports = tseslint.config(
         },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/consistent-type-assertions': [
+        'error',
+        {
+          assertionStyle: 'as',
+          objectLiteralTypeAssertions: 'never',
+        },
+      ],
       '@typescript-eslint/explicit-function-return-type': [
         'warn',
         {
@@ -126,6 +164,7 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       'no-console': 'off',
+      'import/no-cycle': 'off',
     },
   },
 

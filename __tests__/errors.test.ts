@@ -1,27 +1,28 @@
-import { describe, it, expect } from 'vitest';
-import { ok, err, Result } from 'neverthrow';
+import { err, ok, Result } from 'neverthrow';
+import { describe, expect, it } from 'vitest';
+
 import type {
   AppError,
-  FileAnalysisError,
-  GitHubAPIError,
-  ConfigurationError,
-  ParseError,
-  FileSystemError,
-  ViolationError,
-  DiffError,
-  PatternError,
   CacheError,
+  ConfigurationError,
+  DiffError,
+  FileAnalysisError,
+  FileSystemError,
+  GitHubAPIError,
+  ParseError,
+  PatternError,
+  ViolationError,
 } from '../src/errors';
 import {
-  createFileAnalysisError,
-  createGitHubAPIError,
-  createConfigurationError,
-  createParseError,
-  createFileSystemError,
-  createViolationError,
-  createDiffError,
-  createPatternError,
   createCacheError,
+  createConfigurationError,
+  createDiffError,
+  createFileAnalysisError,
+  createFileSystemError,
+  createGitHubAPIError,
+  createParseError,
+  createPatternError,
+  createViolationError,
 } from '../src/errors';
 
 describe('Error Types', () => {

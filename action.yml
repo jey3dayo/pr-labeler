@@ -74,6 +74,11 @@ inputs:
     required: false
     default: "false"
 
+  enable_summary:
+    description: "Write PR metrics to GitHub Actions Summary"
+    required: false
+    default: "true"
+
   # 除外パターン
   additional_exclude_patterns:
     description: "Additional file patterns to exclude (comma or newline separated)"

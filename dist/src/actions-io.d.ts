@@ -1,5 +1,6 @@
 import { Result } from 'neverthrow';
 import type { ConfigurationError } from './errors';
+import type { AnalysisResult } from './file-metrics';
 export interface ActionInputs {
     github_token: string;
     file_size_limit: string;
@@ -15,6 +16,7 @@ export interface ActionInputs {
     skip_draft_pr: string;
     comment_on_pr: string;
     fail_on_violation: string;
+    enable_summary: string;
     additional_exclude_patterns: string;
 }
 export interface ActionOutputs {
@@ -37,6 +39,13 @@ export declare function logWarning(message: string): void;
 export declare function logError(message: string): void;
 export declare function setFailed(message: string): void;
 export declare function writeSummary(content: string): Promise<void>;
+export interface SummaryWriteResult {
+    action: 'written' | 'skipped';
+    bytesWritten?: number;
+}
+export declare function writeSummaryWithAnalysis(analysis: AnalysisResult, config: {
+    enableSummary: boolean;
+}): Promise<Result<SummaryWriteResult, Error>>;
 export declare function getPullRequestContext(): {
     owner: string;
     repo: string;

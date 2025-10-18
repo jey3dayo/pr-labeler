@@ -5,9 +5,12 @@
 
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { Result, ok, err } from 'neverthrow';
-import { createConfigurationError } from './errors';
+import { err, ok, Result } from 'neverthrow';
+
 import type { ConfigurationError } from './errors';
+import { createConfigurationError } from './errors';
+import type { AnalysisResult } from './file-metrics';
+import { formatBasicMetrics, formatFileDetails, formatViolations } from './report-formatter';
 
 /**
  * Action input parameters (snake_case from action.yml)
@@ -27,6 +30,7 @@ export interface ActionInputs {
   skip_draft_pr: string;
   comment_on_pr: string;
   fail_on_violation: string;
+  enable_summary: string;
   additional_exclude_patterns: string;
 }
 
@@ -103,6 +107,7 @@ export function getActionInputs(): ActionInputs {
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
     comment_on_pr: core.getInput('comment_on_pr') || 'auto',
     fail_on_violation: core.getInput('fail_on_violation') || 'false',
+    enable_summary: core.getInput('enable_summary') || 'true',
     additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
   };
 }
@@ -161,6 +166,71 @@ export function setFailed(message: string): void {
  */
 export async function writeSummary(content: string): Promise<void> {
   await core.summary.addRaw(content).write();
+}
+
+/**
+ * Summary write result
+ */
+export interface SummaryWriteResult {
+  action: 'written' | 'skipped';
+  bytesWritten?: number;
+}
+
+/**
+ * Write PR analysis results to GitHub Actions Summary
+ * @param analysis - File analysis result
+ * @param config - Summary output configuration
+ * @returns Result<SummaryWriteResult, Error>
+ */
+export async function writeSummaryWithAnalysis(
+  analysis: AnalysisResult,
+  config: { enableSummary: boolean },
+): Promise<Result<SummaryWriteResult, Error>> {
+  // Skip if disabled
+  if (!config.enableSummary) {
+    logDebug('Summary output skipped (enable_summary=false)');
+    return ok({ action: 'skipped' });
+  }
+
+  try {
+    logDebug('Generating GitHub Actions Summary...');
+
+    // Generate markdown content using report formatters
+    let markdown = '';
+    markdown += '# 📊 PR Metrics\n\n';
+    markdown += formatBasicMetrics(analysis.metrics);
+    markdown += formatViolations(analysis.violations);
+
+    // Add file details (limit to 100 files for large PRs)
+    if (analysis.metrics.filesAnalyzed.length > 0) {
+      markdown += formatFileDetails(analysis.metrics.filesAnalyzed, 100);
+    }
+
+    // Files with errors
+    if (analysis.metrics.filesWithErrors.length > 0) {
+      markdown += '### ⚠️ Analysis Errors\n\n';
+      markdown += 'Some files could not be analyzed:\n\n';
+      for (const file of analysis.metrics.filesWithErrors.slice(0, 10)) {
+        markdown += `- ${file}\n`;
+      }
+      if (analysis.metrics.filesWithErrors.length > 10) {
+        markdown += `- ...and ${analysis.metrics.filesWithErrors.length - 10} more\n`;
+      }
+      markdown += '\n';
+    }
+
+    // Write summary
+    await writeSummary(markdown);
+
+    const bytesWritten = Buffer.byteLength(markdown, 'utf8');
+    logInfo(`✅ Summary written successfully (${bytesWritten} bytes)`);
+
+    return ok({ action: 'written', bytesWritten });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    logWarning(`Failed to write summary: ${message}`);
+    return err(new Error(`Failed to write GitHub Actions Summary: ${message}`));
+  }
 }
 
 /**

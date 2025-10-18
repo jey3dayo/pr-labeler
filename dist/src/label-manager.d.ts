@@ -1,5 +1,5 @@
 import { Result } from 'neverthrow';
-import type { GitHubAPIError, Violations, ConfigurationError } from './errors';
+import type { ConfigurationError, GitHubAPIError, Violations } from './errors';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
 export interface LabelConfig {

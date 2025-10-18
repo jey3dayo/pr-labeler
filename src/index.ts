@@ -7,18 +7,20 @@ import {
   getActionInputs,
   getGitHubToken,
   getPullRequestContext,
+  logError,
+  logInfo,
+  logWarning,
   setActionOutputs,
   setFailed,
-  logInfo,
-  logError,
-  logWarning,
+  writeSummary,
+  writeSummaryWithAnalysis,
 } from './actions-io';
-import { mapActionInputsToConfig } from './input-mapper';
-import { getDiffFiles } from './diff-strategy';
-import { analyzeFiles } from './file-metrics';
-import { updateLabels } from './label-manager';
 import { manageComment } from './comment-manager';
+import { getDiffFiles } from './diff-strategy';
 import type { AppError } from './errors';
+import { analyzeFiles } from './file-metrics';
+import { mapActionInputsToConfig } from './input-mapper';
+import { updateLabels } from './label-manager';
 
 /**
  * Main action function
@@ -53,6 +55,13 @@ async function run(): Promise<void> {
     // Step 4.5: Check if PR is draft and should be skipped
     if (prContext.isDraft && config.skipDraftPr) {
       logInfo('⏭️  Skipping draft PR as skip_draft_pr is enabled');
+
+      // Write summary for draft PR (if enabled)
+      if (config.enableSummary) {
+        await writeSummary('## ⏭️ Draft PR Skipped\n\nDraft PRのため分析をスキップしました。');
+        logInfo('📊 Summary written for draft PR');
+      }
+
       logInfo('✨ PR Metrics Action completed (skipped draft PR)');
       return;
     }
@@ -186,6 +195,21 @@ async function run(): Promise<void> {
       } else {
         const { action } = commentResult.value;
         logInfo(`  - Comment ${action}`);
+      }
+    }
+
+    // Step 8.5: Write GitHub Actions Summary (if enabled)
+    if (config.enableSummary) {
+      logInfo('📊 Writing GitHub Actions Summary...');
+      const summaryResult = await writeSummaryWithAnalysis(analysis, {
+        enableSummary: config.enableSummary,
+      });
+
+      if (summaryResult.isErr()) {
+        logWarning(`Failed to write summary: ${summaryResult.error.message}`);
+        // Continue execution - summary is non-critical
+      } else if (summaryResult.value.action === 'written') {
+        logInfo(`  - Summary written successfully (${summaryResult.value.bytesWritten} bytes)`);
       }
     }
 

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock modules
 vi.mock('@actions/core');

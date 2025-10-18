@@ -3,11 +3,12 @@
  * Handles size labels and violation labels
  */
 
-import { Result, ok, err } from 'neverthrow';
 import * as github from '@actions/github';
-import { createGitHubAPIError, createConfigurationError } from './errors';
-import { logInfo, logWarning, logDebug } from './actions-io';
-import type { GitHubAPIError, Violations, ConfigurationError } from './errors';
+import { err, ok, Result } from 'neverthrow';
+
+import { logDebug, logInfo, logWarning } from './actions-io';
+import type { ConfigurationError, GitHubAPIError, Violations } from './errors';
+import { createConfigurationError, createGitHubAPIError } from './errors';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Setup mocks with factory functions - no external references
 vi.mock('child_process');
@@ -13,10 +13,11 @@ vi.mock('@actions/github');
 vi.mock('@actions/core');
 
 // Import after mocking
-import { getDiffFiles } from '../src/diff-strategy';
-import { promisify } from 'util';
-import * as github from '@actions/github';
 import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { promisify } from 'util';
+
+import { getDiffFiles } from '../src/diff-strategy';
 
 describe('DiffStrategy', () => {
   let mockExecAsync: ReturnType<typeof vi.fn>;
