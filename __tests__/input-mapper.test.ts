@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { ActionInputs } from '../src/actions-io';
 import {
   mapActionInputsToConfig,
   parseBoolean,
@@ -6,7 +8,6 @@ import {
   parseExcludePatterns,
   parseSizeThresholds,
 } from '../src/input-mapper';
-import type { ActionInputs } from '../src/actions-io';
 
 // Mock @actions/core
 vi.mock('@actions/core');
@@ -164,6 +165,7 @@ describe('InputMapper', () => {
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
         fail_on_violation: 'false',
+        enable_summary: 'true',
         additional_exclude_patterns: '*.test.ts,*.spec.ts',
       };
 
@@ -209,6 +211,7 @@ describe('InputMapper', () => {
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
         fail_on_violation: 'false',
+        enable_summary: 'true',
         additional_exclude_patterns: '',
       };
 
@@ -235,6 +238,7 @@ describe('InputMapper', () => {
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
         fail_on_violation: 'false',
+        enable_summary: 'true',
         additional_exclude_patterns: '',
       };
 
@@ -265,6 +269,7 @@ describe('InputMapper', () => {
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
         fail_on_violation: 'false',
+        enable_summary: 'true',
         additional_exclude_patterns: '',
       };
 

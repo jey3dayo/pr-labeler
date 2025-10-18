@@ -1,16 +1,19 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as core from '@actions/core';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
-  getGitHubToken,
-  getActionInputs,
-  setActionOutputs,
-  logInfo,
-  logDebug,
-  logWarning,
-  logError,
-  setFailed,
   ActionOutputs,
+  getActionInputs,
+  getGitHubToken,
+  logDebug,
+  logError,
+  logInfo,
+  logWarning,
+  setActionOutputs,
+  setFailed,
+  writeSummaryWithAnalysis,
 } from '../src/actions-io';
+import type { AnalysisResult } from '../src/file-metrics';
 
 // Mock @actions/core
 vi.mock('@actions/core');
@@ -250,6 +253,155 @@ describe('GitHub Actions I/O', () => {
 
       expect(result.isOk()).toBe(true);
       expect(mockSetSecret).toHaveBeenCalledWith('secret-token-123');
+    });
+  });
+
+  describe('writeSummaryWithAnalysis', () => {
+    let mockSummary: any;
+
+    beforeEach(() => {
+      mockSummary = {
+        addRaw: vi.fn().mockReturnThis(),
+        write: vi.fn().mockResolvedValue(undefined),
+      };
+      Object.defineProperty(core, 'summary', {
+        get: () => mockSummary,
+        configurable: true,
+      });
+    });
+
+    it('should skip summary when enableSummary is false', async () => {
+      const analysis: AnalysisResult = {
+        metrics: {
+          totalFiles: 5,
+          totalAdditions: 100,
+          filesAnalyzed: [],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [],
+          exceedsFileLines: [],
+          exceedsAdditions: false,
+          exceedsFileCount: false,
+        },
+      };
+
+      const result = await writeSummaryWithAnalysis(analysis, { enableSummary: false });
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.action).toBe('skipped');
+      }
+      expect(mockSummary.addRaw).not.toHaveBeenCalled();
+      expect(mockSummary.write).not.toHaveBeenCalled();
+    });
+
+    it('should write summary when enableSummary is true', async () => {
+      const analysis: AnalysisResult = {
+        metrics: {
+          totalFiles: 3,
+          totalAdditions: 200,
+          filesAnalyzed: [
+            {
+              filename: 'src/test.ts',
+              size: 5000,
+              lines: 100,
+              additions: 50,
+              deletions: 10,
+            },
+          ],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [],
+          exceedsFileLines: [],
+          exceedsAdditions: false,
+          exceedsFileCount: false,
+        },
+      };
+
+      const result = await writeSummaryWithAnalysis(analysis, { enableSummary: true });
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.action).toBe('written');
+        expect(result.value.bytesWritten).toBeGreaterThan(0);
+      }
+      expect(mockSummary.addRaw).toHaveBeenCalled();
+      expect(mockSummary.write).toHaveBeenCalled();
+
+      // Verify markdown content includes expected sections
+      const markdown = mockSummary.addRaw.mock.calls[0][0];
+      expect(markdown).toContain('# 📊 PR Metrics');
+      expect(markdown).toContain('### 📊 Summary');
+      expect(markdown).toContain('Total additions:');
+    });
+
+    it('should handle summary write errors gracefully', async () => {
+      mockSummary.write.mockRejectedValue(new Error('Write failed'));
+
+      const analysis: AnalysisResult = {
+        metrics: {
+          totalFiles: 1,
+          totalAdditions: 10,
+          filesAnalyzed: [],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [],
+          exceedsFileLines: [],
+          exceedsAdditions: false,
+          exceedsFileCount: false,
+        },
+      };
+
+      const result = await writeSummaryWithAnalysis(analysis, { enableSummary: true });
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('Failed to write GitHub Actions Summary');
+      }
+    });
+
+    it('should include violations in summary', async () => {
+      const analysis: AnalysisResult = {
+        metrics: {
+          totalFiles: 2,
+          totalAdditions: 1000,
+          filesAnalyzed: [],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [
+            {
+              file: 'src/large.ts',
+              actualValue: 2000000,
+              limit: 1000000,
+              violationType: 'size',
+              severity: 'critical',
+            },
+          ],
+          exceedsFileLines: [],
+          exceedsAdditions: true,
+          exceedsFileCount: false,
+        },
+      };
+
+      const result = await writeSummaryWithAnalysis(analysis, { enableSummary: true });
+
+      expect(result.isOk()).toBe(true);
+      const markdown = mockSummary.addRaw.mock.calls[0][0];
+      expect(markdown).toContain('### 📊 Violations Summary');
+      expect(markdown).toContain('### 🚫 Large Files Detected');
+      expect(markdown).toContain('src/large.ts');
     });
   });
 });

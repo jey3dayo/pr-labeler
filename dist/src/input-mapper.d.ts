@@ -29,6 +29,7 @@ export interface Config {
     skipDraftPr: boolean;
     commentOnPr: 'auto' | 'always' | 'never';
     failOnViolation: boolean;
+    enableSummary: boolean;
     additionalExcludePatterns: string[];
     githubToken: string;
 }

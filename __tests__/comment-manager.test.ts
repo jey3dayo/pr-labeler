@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import * as github from '@actions/github';
 import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Setup mocks
 vi.mock('@actions/github');
@@ -8,14 +8,14 @@ vi.mock('@actions/core');
 
 // Import after mocking
 import {
-  generateCommentBody,
+  COMMENT_SIGNATURE,
+  CommentConfig,
+  deleteComment,
   findExistingComment,
+  generateCommentBody,
+  manageComment,
   postComment,
   updateComment,
-  deleteComment,
-  manageComment,
-  CommentConfig,
-  COMMENT_SIGNATURE,
 } from '../src/comment-manager';
 import type { AnalysisResult } from '../src/file-metrics';
 
@@ -70,6 +70,163 @@ describe('CommentManager', () => {
   });
 
   describe('generateCommentBody', () => {
+    describe('snapshot tests (for refactoring safety)', () => {
+      it('should match snapshot: no violations', () => {
+        const analysisResult: AnalysisResult = {
+          metrics: {
+            totalFiles: 5,
+            totalAdditions: 100,
+            filesAnalyzed: [],
+            filesExcluded: ['package-lock.json'],
+            filesSkippedBinary: ['image.png'],
+            filesWithErrors: [],
+          },
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+        };
+
+        const body = generateCommentBody(analysisResult);
+        expect(body).toMatchSnapshot();
+      });
+
+      it('should match snapshot: with violations', () => {
+        const analysisResult: AnalysisResult = {
+          metrics: {
+            totalFiles: 10,
+            totalAdditions: 1500,
+            filesAnalyzed: [
+              {
+                filename: 'src/large.ts',
+                size: 2000000,
+                lines: 2000,
+                additions: 1000,
+                deletions: 0,
+              },
+              {
+                filename: 'src/normal.ts',
+                size: 5000,
+                lines: 100,
+                additions: 50,
+                deletions: 10,
+              },
+            ],
+            filesExcluded: [],
+            filesSkippedBinary: [],
+            filesWithErrors: [],
+          },
+          violations: {
+            largeFiles: [
+              {
+                file: 'src/large.ts',
+                actualValue: 2000000,
+                limit: 1000000,
+                violationType: 'size',
+                severity: 'critical',
+              },
+            ],
+            exceedsFileLines: [
+              {
+                file: 'src/large.ts',
+                actualValue: 2000,
+                limit: 1000,
+                violationType: 'lines',
+                severity: 'warning',
+              },
+            ],
+            exceedsAdditions: true,
+            exceedsFileCount: false,
+          },
+        };
+
+        const body = generateCommentBody(analysisResult);
+        expect(body).toMatchSnapshot();
+      });
+
+      it('should match snapshot: large PR with many files', () => {
+        const analysisResult: AnalysisResult = {
+          metrics: {
+            totalFiles: 5,
+            totalAdditions: 200,
+            filesAnalyzed: [
+              {
+                filename: 'src/file1.ts',
+                size: 50000,
+                lines: 500,
+                additions: 100,
+                deletions: 20,
+              },
+              {
+                filename: 'src/file2.ts',
+                size: 30000,
+                lines: 300,
+                additions: 50,
+                deletions: 10,
+              },
+              {
+                filename: 'src/file3.ts',
+                size: 20000,
+                lines: 200,
+                additions: 30,
+                deletions: 5,
+              },
+              {
+                filename: 'src/file4.ts',
+                size: 10000,
+                lines: 100,
+                additions: 15,
+                deletions: 2,
+              },
+              {
+                filename: 'src/file5.ts',
+                size: 5000,
+                lines: 50,
+                additions: 5,
+                deletions: 1,
+              },
+            ],
+            filesExcluded: [],
+            filesSkippedBinary: [],
+            filesWithErrors: [],
+          },
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+        };
+
+        const body = generateCommentBody(analysisResult);
+        expect(body).toMatchSnapshot();
+      });
+
+      it('should match snapshot: with errors', () => {
+        const analysisResult: AnalysisResult = {
+          metrics: {
+            totalFiles: 3,
+            totalAdditions: 50,
+            filesAnalyzed: [],
+            filesExcluded: [],
+            filesSkippedBinary: [],
+            filesWithErrors: ['src/error1.ts', 'src/error2.ts'],
+          },
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+        };
+
+        const body = generateCommentBody(analysisResult);
+        expect(body).toMatchSnapshot();
+      });
+    });
+
     it('should generate success message when no violations', () => {
       const analysisResult: AnalysisResult = {
         metrics: {

@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { isExcluded, getDefaultExcludePatterns, normalizePattern } from '../src/pattern-matcher';
+import { describe, expect, it } from 'vitest';
+
+import { getDefaultExcludePatterns, isExcluded, normalizePattern } from '../src/pattern-matcher';
 
 describe('PatternMatcher', () => {
   describe('getDefaultExcludePatterns', () => {

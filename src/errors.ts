@@ -166,5 +166,5 @@ export const createCacheError = (message: string, key?: string): CacheError => {
 };
 
 // Re-export from neverthrow for convenience
-export { Result, ok, err, ResultAsync, okAsync, errAsync } from 'neverthrow';
-export type { Ok, Err } from 'neverthrow';
+export type { Err, Ok } from 'neverthrow';
+export { err, errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow';

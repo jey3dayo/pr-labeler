@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { promises as fs } from 'fs';
 import * as github from '@actions/github';
+import { promises as fs } from 'fs';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Create hoisted mock function
 const { mockExecAsync } = vi.hoisted(() => {
@@ -29,8 +29,8 @@ vi.mock('@actions/github');
 vi.mock('@actions/core');
 
 // Import after mocking
-import { getFileSize, getFileLineCount, isBinaryFile, analyzeFiles } from '../src/file-metrics';
 import type { DiffFile } from '../src/diff-strategy';
+import { analyzeFiles, getFileLineCount, getFileSize, isBinaryFile } from '../src/file-metrics';
 
 describe('FileMetrics', () => {
   let mockOctokit: any;

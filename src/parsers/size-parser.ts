@@ -2,10 +2,11 @@
  * Size parser - converts human-readable size strings to bytes
  */
 
-import { Result, ok, err } from 'neverthrow';
-import { createParseError } from '../errors';
-import type { ParseError } from '../errors';
 import bytes from 'bytes';
+import { err, ok, Result } from 'neverthrow';
+
+import type { ParseError } from '../errors';
+import { createParseError } from '../errors';
 
 /**
  * Parse size string to bytes

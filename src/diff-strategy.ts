@@ -2,13 +2,14 @@
  * Diff strategy - retrieves PR diff files using local git or GitHub API
  */
 
-import { Result, ok, err } from 'neverthrow';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import * as github from '@actions/github';
-import { createDiffError } from './errors';
-import { logDebug, logInfo, logWarning, getEnvVar } from './actions-io';
+import { exec } from 'child_process';
+import { err, ok, Result } from 'neverthrow';
+import { promisify } from 'util';
+
+import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffError } from './errors';
+import { createDiffError } from './errors';
 
 // Create execAsync using promisify
 const execAsync = promisify(exec);

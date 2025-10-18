@@ -2,11 +2,12 @@
  * Input mapper - converts action inputs to internal config
  */
 
-import { Result, ok, err } from 'neverthrow';
-import { parseSize } from './parsers/size-parser';
-import { createConfigurationError, createParseError } from './errors';
+import { err, ok, Result } from 'neverthrow';
+
 import type { ActionInputs } from './actions-io';
 import type { ConfigurationError, ParseError } from './errors';
+import { createConfigurationError, createParseError } from './errors';
+import { parseSize } from './parsers/size-parser';
 
 /**
  * Size threshold configuration
@@ -35,6 +36,7 @@ export interface Config {
   skipDraftPr: boolean;
   commentOnPr: 'auto' | 'always' | 'never';
   failOnViolation: boolean;
+  enableSummary: boolean;
   additionalExcludePatterns: string[];
   githubToken: string;
 }
@@ -164,6 +166,7 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     skipDraftPr: parseBoolean(inputs.skip_draft_pr),
     commentOnPr: parseCommentMode(inputs.comment_on_pr),
     failOnViolation: parseBoolean(inputs.fail_on_violation),
+    enableSummary: parseBoolean(inputs.enable_summary),
     additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
     githubToken: inputs.github_token,
   };

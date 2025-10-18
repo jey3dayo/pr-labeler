@@ -67,6 +67,6 @@ export declare const createViolationError: (violations: Violations, message: str
 export declare const createDiffError: (source: "local-git" | "github-api" | "both", message: string) => DiffError;
 export declare const createPatternError: (pattern: string, message: string) => PatternError;
 export declare const createCacheError: (message: string, key?: string) => CacheError;
-export { Result, ok, err, ResultAsync, okAsync, errAsync } from 'neverthrow';
-export type { Ok, Err } from 'neverthrow';
+export type { Err, Ok } from 'neverthrow';
+export { err, errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow';
 //# sourceMappingURL=errors.d.ts.map
