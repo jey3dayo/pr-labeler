@@ -3,12 +3,12 @@
  * Analyzes pull request files and enforces size limits
  */
 
-import * as core from '@actions/core';
 import {
   getActionInputs,
   getGitHubToken,
   getPullRequestContext,
   setActionOutputs,
+  setFailed,
   logInfo,
   logError,
   logWarning,
@@ -203,14 +203,14 @@ async function run(): Promise<void> {
 
     // Step 10: Fail if violations and fail_on_violation is true
     if (hasViolations && config.failOnViolation) {
-      core.setFailed('🚫 PR contains violations and fail_on_violation is enabled');
+      setFailed('🚫 PR contains violations and fail_on_violation is enabled');
     } else {
       logInfo('✨ PR Metrics Action completed successfully');
     }
   } catch (error) {
     const errorMessage = getErrorMessage(error);
     logError(`❌ Action failed: ${errorMessage}`);
-    core.setFailed(errorMessage);
+    setFailed(errorMessage);
   }
 }
 

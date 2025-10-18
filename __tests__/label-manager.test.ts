@@ -613,5 +613,85 @@ describe('LabelManager', () => {
         expect(result.value.current).not.toContain('auto:large-files');
       }
     });
+
+    it('should return ConfigurationError for negative thresholds', async () => {
+      const config: LabelConfig = {
+        sizeLabelThresholds: {
+          small: -10,
+          medium: 100,
+          large: 500,
+          xlarge: 1000,
+        },
+      };
+
+      const analysisResult: AnalysisResult = {
+        metrics: {
+          totalFiles: 5,
+          totalAdditions: 50,
+          filesAnalyzed: [],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [],
+          exceedsFileLines: [],
+          exceedsAdditions: false,
+          exceedsFileCount: false,
+        },
+      };
+
+      const result = await updateLabels(analysisResult, config, 'token', {
+        owner: 'owner',
+        repo: 'repo',
+        pullNumber: 123,
+      });
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.type).toBe('ConfigurationError');
+        expect(result.error.message).toContain('non-negative');
+      }
+    });
+
+    it('should return ConfigurationError for non-monotonic thresholds', async () => {
+      const config: LabelConfig = {
+        sizeLabelThresholds: {
+          small: 100,
+          medium: 50, // medium < small (violates monotonicity)
+          large: 500,
+          xlarge: 1000,
+        },
+      };
+
+      const analysisResult: AnalysisResult = {
+        metrics: {
+          totalFiles: 5,
+          totalAdditions: 50,
+          filesAnalyzed: [],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [],
+          exceedsFileLines: [],
+          exceedsAdditions: false,
+          exceedsFileCount: false,
+        },
+      };
+
+      const result = await updateLabels(analysisResult, config, 'token', {
+        owner: 'owner',
+        repo: 'repo',
+        pullNumber: 123,
+      });
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.type).toBe('ConfigurationError');
+        expect(result.error.message).toContain('monotonic');
+      }
+    });
   });
 });

@@ -174,6 +174,29 @@ describe('SizeParser', () => {
           expect(result.error.type).toBe('ParseError');
         }
       });
+
+      it('should return error for multiple values with spaces', () => {
+        const result1 = parseSize('10kb 20mb');
+        expect(result1.isErr()).toBe(true);
+        if (result1.isErr()) {
+          expect(result1.error.type).toBe('ParseError');
+          expect(result1.error.message).toContain('Multiple values detected');
+        }
+
+        const result2 = parseSize('100KB 200MB');
+        expect(result2.isErr()).toBe(true);
+        if (result2.isErr()) {
+          expect(result2.error.type).toBe('ParseError');
+          expect(result2.error.message).toContain('Multiple values detected');
+        }
+
+        const result3 = parseSize('1.5MB 2GB');
+        expect(result3.isErr()).toBe(true);
+        if (result3.isErr()) {
+          expect(result3.error.type).toBe('ParseError');
+          expect(result3.error.message).toContain('Multiple values detected');
+        }
+      });
     });
 
     describe('Edge cases', () => {

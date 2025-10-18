@@ -1,6 +1,7 @@
 import { Result } from 'neverthrow';
-import type { GitHubAPIError, Violations } from './errors';
+import type { GitHubAPIError, Violations, ConfigurationError } from './errors';
 import type { AnalysisResult } from './file-metrics';
+import type { PRContext } from './types';
 export interface LabelConfig {
     sizeLabelThresholds: {
         small: number;
@@ -18,11 +19,6 @@ export interface LabelUpdate {
     removed: string[];
     current: string[];
 }
-interface PRContext {
-    owner: string;
-    repo: string;
-    pullNumber: number;
-}
 export declare function getSizeLabel(totalAdditions: number, thresholds: LabelConfig['sizeLabelThresholds']): string;
 export declare function getDetailLabels(violations: Violations, customLabels?: {
     largeFiles?: string;
@@ -31,6 +27,5 @@ export declare function getDetailLabels(violations: Violations, customLabels?: {
 export declare function getCurrentLabels(token: string, context: PRContext): Promise<Result<string[], GitHubAPIError>>;
 export declare function addLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function removeLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
-export declare function updateLabels(analysisResult: AnalysisResult, config: LabelConfig, token: string, context: PRContext): Promise<Result<LabelUpdate, GitHubAPIError>>;
-export {};
+export declare function updateLabels(analysisResult: AnalysisResult, config: LabelConfig, token: string, context: PRContext): Promise<Result<LabelUpdate, GitHubAPIError | ConfigurationError>>;
 //# sourceMappingURL=label-manager.d.ts.map

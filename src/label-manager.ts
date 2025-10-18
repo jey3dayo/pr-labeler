@@ -5,10 +5,11 @@
 
 import { Result, ok, err } from 'neverthrow';
 import * as github from '@actions/github';
-import { createGitHubAPIError } from './errors';
+import { createGitHubAPIError, createConfigurationError } from './errors';
 import { logInfo, logWarning, logDebug } from './actions-io';
-import type { GitHubAPIError, Violations } from './errors';
+import type { GitHubAPIError, Violations, ConfigurationError } from './errors';
 import type { AnalysisResult } from './file-metrics';
+import type { PRContext } from './types';
 
 /**
  * Label configuration
@@ -35,15 +36,6 @@ export interface LabelUpdate {
   current: string[];
 }
 
-/**
- * PR context for label operations
- */
-interface PRContext {
-  owner: string;
-  repo: string;
-  pullNumber: number;
-}
-
 // Size label prefixes
 const SIZE_LABEL_PREFIX = 'size:';
 const AUTO_LABEL_PREFIX = 'auto:';
@@ -64,6 +56,38 @@ const VIOLATION_LABELS = {
   excessiveChanges: 'auto:excessive-changes',
   tooManyFiles: 'auto:too-many-files',
 };
+
+/**
+ * Validate size label thresholds
+ * Ensures non-negative values and monotonicity (small ≤ medium ≤ large ≤ xlarge)
+ */
+function validateSizeLabelThresholds(thresholds: LabelConfig['sizeLabelThresholds']): Result<void, ConfigurationError> {
+  const { small, medium, large, xlarge } = thresholds;
+
+  // Check for non-negative values
+  if (small < 0 || medium < 0 || large < 0 || xlarge < 0) {
+    return err(
+      createConfigurationError(
+        'size_label_thresholds',
+        JSON.stringify(thresholds),
+        'Threshold values must be non-negative',
+      ),
+    );
+  }
+
+  // Check for monotonicity (small ≤ medium ≤ large ≤ xlarge)
+  if (small > medium || medium > large || large > xlarge) {
+    return err(
+      createConfigurationError(
+        'size_label_thresholds',
+        JSON.stringify(thresholds),
+        'Thresholds must be monotonic (small ≤ medium ≤ large ≤ xlarge)',
+      ),
+    );
+  }
+
+  return ok(undefined);
+}
 
 /**
  * Determine the size label based on total additions
@@ -214,7 +238,13 @@ export async function updateLabels(
   config: LabelConfig,
   token: string,
   context: PRContext,
-): Promise<Result<LabelUpdate, GitHubAPIError>> {
+): Promise<Result<LabelUpdate, GitHubAPIError | ConfigurationError>> {
+  // Validate thresholds
+  const validationResult = validateSizeLabelThresholds(config.sizeLabelThresholds);
+  if (validationResult.isErr()) {
+    return err(validationResult.error);
+  }
+
   // Get current labels
   const currentLabelsResult = await getCurrentLabels(token, context);
   if (currentLabelsResult.isErr()) {

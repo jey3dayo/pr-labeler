@@ -24,12 +24,9 @@ const DEFAULT_EXCLUDE_PATTERNS: string[] = [
   '*.lock',
 
   // Dependencies
-  'node_modules/**',
   '**/node_modules/**',
-  'vendor/**',
   '**/vendor/**',
   '.bundle/**',
-  'bower_components/**',
   '**/bower_components/**',
 
   // Build outputs
@@ -181,6 +178,7 @@ export function isExcluded(filePath: string, patterns: string[]): boolean {
     const options = {
       dot: true,
       matchBase: !normalizedPattern.includes('/'),
+      windowsPathsNoEscape: true,
     };
 
     if (minimatch(normalizedPath, normalizedPattern, options)) {

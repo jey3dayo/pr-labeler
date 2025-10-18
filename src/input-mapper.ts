@@ -63,13 +63,17 @@ export function parseCommentMode(value: string): 'auto' | 'always' | 'never' {
 
 /**
  * Parse exclude patterns
- * Splits by comma or newline, trims, and filters empty values
+ * Splits by comma or newline, trims, filters empty values and comments
+ * Also removes duplicate patterns
  */
 export function parseExcludePatterns(value: string): string[] {
-  return value
+  const patterns = value
     .split(/[,\n]/)
     .map(s => s.trim())
-    .filter(s => s.length > 0);
+    .filter(s => s.length > 0 && !s.startsWith('#')); // Skip empty and comment lines
+
+  // Remove duplicates
+  return [...new Set(patterns)];
 }
 
 /**
@@ -84,12 +88,23 @@ export function parseSizeThresholds(value: string): Result<SizeThresholds, Parse
       return err(createParseError(value, 'Missing required size thresholds (S, M, L)'));
     }
 
-    // Validate structure
+    // Validate structure and non-negative values
     const sizes = ['S', 'M', 'L'] as const;
     for (const size of sizes) {
       if (typeof parsed[size].additions !== 'number' || typeof parsed[size].files !== 'number') {
         return err(createParseError(value, `Invalid threshold structure for size ${size}`));
       }
+      if (parsed[size].additions < 0 || parsed[size].files < 0) {
+        return err(createParseError(value, `Threshold values for size ${size} must be non-negative`));
+      }
+    }
+
+    // Validate monotonicity (S ≤ M ≤ L)
+    if (parsed.S.additions > parsed.M.additions || parsed.M.additions > parsed.L.additions) {
+      return err(createParseError(value, 'Size thresholds must be monotonic (S ≤ M ≤ L for additions)'));
+    }
+    if (parsed.S.files > parsed.M.files || parsed.M.files > parsed.L.files) {
+      return err(createParseError(value, 'Size thresholds must be monotonic (S ≤ M ≤ L for files)'));
     }
 
     return ok(parsed as SizeThresholds);

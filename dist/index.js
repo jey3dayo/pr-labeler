@@ -30805,6 +30805,12 @@ const github = __importStar(__nccwpck_require__(4903));
 const errors_1 = __nccwpck_require__(8847);
 const actions_io_1 = __nccwpck_require__(2210);
 exports.COMMENT_SIGNATURE = '<!-- pr-metrics-action -->';
+function hasViolations(analysisResult) {
+    return (analysisResult.violations.largeFiles.length > 0 ||
+        analysisResult.violations.exceedsFileLines.length > 0 ||
+        analysisResult.violations.exceedsAdditions ||
+        analysisResult.violations.exceedsFileCount);
+}
 function formatBytes(bytes) {
     if (bytes === 0) {
         return '0 B';
@@ -30819,12 +30825,9 @@ function formatNumber(num) {
 }
 function generateCommentBody(analysisResult) {
     const { metrics, violations } = analysisResult;
-    const hasViolations = violations.largeFiles.length > 0 ||
-        violations.exceedsFileLines.length > 0 ||
-        violations.exceedsAdditions ||
-        violations.exceedsFileCount;
+    const hasViolationsFlag = hasViolations(analysisResult);
     let body = '';
-    if (hasViolations) {
+    if (hasViolationsFlag) {
         body += '## ⚠️ PR Size Check - Violations Found\n\n';
     }
     else {
@@ -30842,7 +30845,7 @@ function generateCommentBody(analysisResult) {
         if (metrics.filesWithErrors.length > 0) {
             body += `- Files with errors: **${metrics.filesWithErrors.length}** ⚠️\n`;
         }
-        if (hasViolations) {
+        if (hasViolationsFlag) {
             body += '\n### 📊 Violations Summary\n\n';
             if (violations.largeFiles.length > 0) {
                 body += `- **${violations.largeFiles.length}** file(s) exceed size limit\n`;
@@ -30913,29 +30916,17 @@ async function findExistingComment(token, context) {
     try {
         (0, actions_io_1.logDebug)(`Searching for existing comment on PR #${context.pullNumber}`);
         const octokit = github.getOctokit(token);
-        let page = 1;
-        const perPage = 100;
-        while (true) {
-            const response = await octokit.rest.issues.listComments({
-                owner: context.owner,
-                repo: context.repo,
-                issue_number: context.pullNumber,
-                per_page: perPage,
-                page,
-            });
-            for (const comment of response.data) {
+        for await (const { data } of octokit.paginate.iterator(octokit.rest.issues.listComments, {
+            owner: context.owner,
+            repo: context.repo,
+            issue_number: context.pullNumber,
+            per_page: 100,
+        })) {
+            for (const comment of data) {
                 if (comment.body?.includes(exports.COMMENT_SIGNATURE)) {
                     (0, actions_io_1.logDebug)(`Found existing comment with ID ${comment.id}`);
                     return (0, neverthrow_1.ok)(comment.id);
                 }
-            }
-            if (response.data.length < perPage) {
-                break;
-            }
-            page++;
-            if (page > 10) {
-                (0, actions_io_1.logWarning)('Reached pagination limit while searching for comment');
-                break;
             }
         }
         (0, actions_io_1.logDebug)('No existing comment found');
@@ -31000,10 +30991,7 @@ async function deleteComment(commentId, token, context) {
     }
 }
 async function manageComment(analysisResult, config, token, context) {
-    const hasViolations = analysisResult.violations.largeFiles.length > 0 ||
-        analysisResult.violations.exceedsFileLines.length > 0 ||
-        analysisResult.violations.exceedsAdditions ||
-        analysisResult.violations.exceedsFileCount;
+    const hasViolationsFlag = hasViolations(analysisResult);
     const existingCommentResult = await findExistingComment(token, context);
     if (existingCommentResult.isErr()) {
         return (0, neverthrow_1.err)(existingCommentResult.error);
@@ -31020,7 +31008,7 @@ async function manageComment(analysisResult, config, token, context) {
         return (0, neverthrow_1.ok)({ action: 'skipped', commentId: null });
     }
     if (config.commentMode === 'auto') {
-        if (!hasViolations) {
+        if (!hasViolationsFlag) {
             if (existingCommentId) {
                 const deleteResult = await deleteComment(existingCommentId, token, context);
                 if (deleteResult.isErr()) {
@@ -31090,7 +31078,6 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DiffStrategy = void 0;
 exports.getDiffFiles = getDiffFiles;
 const neverthrow_1 = __nccwpck_require__(734);
 const child_process_1 = __nccwpck_require__(7698);
@@ -31222,30 +31209,23 @@ async function getGitHubAPIDiff(context, token) {
         return (0, neverthrow_1.err)((0, errors_1.createDiffError)('github-api', `Failed to get GitHub API diff: ${message}`));
     }
 }
-class DiffStrategy {
-    async execute(context, token) {
-        const localResult = await getLocalGitDiff(context);
-        if (localResult.isOk()) {
-            return (0, neverthrow_1.ok)({
-                files: localResult.value,
-                strategy: 'local-git',
-            });
-        }
-        (0, actions_io_1.logInfo)('Falling back to GitHub API for diff retrieval');
-        const apiResult = await getGitHubAPIDiff(context, token);
-        if (apiResult.isOk()) {
-            return (0, neverthrow_1.ok)({
-                files: apiResult.value,
-                strategy: 'github-api',
-            });
-        }
-        return (0, neverthrow_1.err)((0, errors_1.createDiffError)('both', `Failed to get diff files. Local git error: ${localResult.error.message}. API error: ${apiResult.error.message}`));
-    }
-}
-exports.DiffStrategy = DiffStrategy;
 async function getDiffFiles(context, token) {
-    const strategy = new DiffStrategy();
-    return strategy.execute(context, token);
+    const localResult = await getLocalGitDiff(context);
+    if (localResult.isOk()) {
+        return (0, neverthrow_1.ok)({
+            files: localResult.value,
+            strategy: 'local-git',
+        });
+    }
+    (0, actions_io_1.logInfo)('Falling back to GitHub API for diff retrieval');
+    const apiResult = await getGitHubAPIDiff(context, token);
+    if (apiResult.isOk()) {
+        return (0, neverthrow_1.ok)({
+            files: apiResult.value,
+            strategy: 'github-api',
+        });
+    }
+    return (0, neverthrow_1.err)((0, errors_1.createDiffError)('both', `Failed to get diff files. Local git error: ${localResult.error.message}. API error: ${apiResult.error.message}`));
 }
 
 
@@ -31521,17 +31501,24 @@ async function getFileLineCount(filePath, maxLines) {
         (0, actions_io_1.logDebug)(`wc -l failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
     try {
-        const content = await fs_1.promises.readFile(filePath, 'utf-8');
-        const lines = content.split(/\r\n|\r|\n/);
-        let lineCount = lines.length;
-        if (lines[lines.length - 1] === '') {
-            lineCount--;
+        const { createReadStream } = await Promise.resolve(/* import() */).then(__nccwpck_require__.t.bind(__nccwpck_require__, 9896, 23));
+        const { createInterface } = await Promise.resolve(/* import() */).then(__nccwpck_require__.t.bind(__nccwpck_require__, 3785, 23));
+        const fileStream = createReadStream(filePath, { encoding: 'utf-8' });
+        const rl = createInterface({
+            input: fileStream,
+            crlfDelay: Infinity,
+        });
+        let lineCount = 0;
+        for await (const _line of rl) {
+            lineCount++;
+            if (maxLines && lineCount >= maxLines) {
+                rl.close();
+                fileStream.destroy();
+                (0, actions_io_1.logDebug)(`Line count reached max (${maxLines}), early termination`);
+                return (0, neverthrow_1.ok)(maxLines);
+            }
         }
-        if (maxLines && lineCount > maxLines) {
-            (0, actions_io_1.logDebug)(`Line count exceeds max (${maxLines}), returning max`);
-            return (0, neverthrow_1.ok)(maxLines);
-        }
-        (0, actions_io_1.logDebug)(`Got line count from Node.js: ${lineCount}`);
+        (0, actions_io_1.logDebug)(`Got line count from Node.js streaming: ${lineCount}`);
         return (0, neverthrow_1.ok)(lineCount);
     }
     catch (error) {
@@ -31592,11 +31579,14 @@ async function analyzeFiles(files, config, token, context) {
     for (const file of files) {
         result.metrics.totalAdditions += file.additions;
     }
-    let processedCount = 0;
-    for (const file of files) {
-        if (processedCount >= config.maxFileCount) {
+    for (let i = 0; i < files.length; i++) {
+        if (i >= config.maxFileCount) {
             (0, actions_io_1.logWarning)(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
             break;
+        }
+        const file = files[i];
+        if (!file) {
+            continue;
         }
         if ((0, pattern_matcher_1.isExcluded)(file.filename, excludePatterns)) {
             result.metrics.filesExcluded.push(file.filename);
@@ -31645,7 +31635,6 @@ async function analyzeFiles(files, config, token, context) {
                 result.violations.exceedsFileLines.push(violation);
                 (0, actions_io_1.logWarning)(`File ${file.filename} exceeds line limit: ${metrics.lines} > ${config.fileLineLimit}`);
             }
-            processedCount++;
         }
         catch (error) {
             result.metrics.filesWithErrors.push(file.filename);
@@ -31658,219 +31647,6 @@ async function analyzeFiles(files, config, token, context) {
     }
     (0, actions_io_1.logInfo)(`Analysis complete: ${result.metrics.filesAnalyzed.length} files analyzed, ${result.metrics.filesExcluded.length} excluded, ${result.metrics.filesSkippedBinary.length} binary files skipped`);
     return (0, neverthrow_1.ok)(result);
-}
-
-
-/***/ }),
-
-/***/ 6866:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = run;
-const core = __importStar(__nccwpck_require__(6966));
-const actions_io_1 = __nccwpck_require__(2210);
-const input_mapper_1 = __nccwpck_require__(9210);
-const diff_strategy_1 = __nccwpck_require__(5109);
-const file_metrics_1 = __nccwpck_require__(798);
-const label_manager_1 = __nccwpck_require__(1910);
-const comment_manager_1 = __nccwpck_require__(9017);
-async function run() {
-    try {
-        (0, actions_io_1.logInfo)('🚀 Starting PR Metrics Action');
-        (0, actions_io_1.logInfo)('📥 Getting action inputs...');
-        const inputs = (0, actions_io_1.getActionInputs)();
-        const tokenResult = (0, actions_io_1.getGitHubToken)();
-        if (tokenResult.isErr()) {
-            throw tokenResult.error;
-        }
-        const token = tokenResult.value;
-        const prContext = (0, actions_io_1.getPullRequestContext)();
-        (0, actions_io_1.logInfo)(`📋 Analyzing PR #${prContext.pullNumber} in ${prContext.owner}/${prContext.repo}`);
-        const configResult = (0, input_mapper_1.mapActionInputsToConfig)(inputs);
-        if (configResult.isErr()) {
-            throw configResult.error;
-        }
-        const config = configResult.value;
-        if (prContext.isDraft && config.skipDraftPr) {
-            (0, actions_io_1.logInfo)('⏭️  Skipping draft PR as skip_draft_pr is enabled');
-            (0, actions_io_1.logInfo)('✨ PR Metrics Action completed (skipped draft PR)');
-            return;
-        }
-        (0, actions_io_1.logInfo)('📊 Getting PR diff files...');
-        const diffResult = await (0, diff_strategy_1.getDiffFiles)({
-            owner: prContext.owner,
-            repo: prContext.repo,
-            pullNumber: prContext.pullNumber,
-            baseSha: prContext.baseSha,
-            headSha: prContext.headSha,
-        }, token);
-        if (diffResult.isErr()) {
-            throw diffResult.error;
-        }
-        const { files, strategy } = diffResult.value;
-        (0, actions_io_1.logInfo)(`✅ Retrieved ${files.length} files using ${strategy} strategy`);
-        (0, actions_io_1.logInfo)('🔍 Analyzing files...');
-        const analysisResult = await (0, file_metrics_1.analyzeFiles)(files, {
-            fileSizeLimit: config.fileSizeLimit,
-            fileLineLimit: config.fileLinesLimit,
-            maxAddedLines: config.prAdditionsLimit,
-            maxFileCount: config.prFilesLimit,
-            excludePatterns: config.additionalExcludePatterns,
-        }, token, {
-            owner: prContext.owner,
-            repo: prContext.repo,
-            headSha: prContext.headSha,
-        });
-        if (analysisResult.isErr()) {
-            throw analysisResult.error;
-        }
-        const analysis = analysisResult.value;
-        (0, actions_io_1.logInfo)('📈 Analysis complete:');
-        (0, actions_io_1.logInfo)(`  - Files analyzed: ${analysis.metrics.filesAnalyzed.length}`);
-        (0, actions_io_1.logInfo)(`  - Files excluded: ${analysis.metrics.filesExcluded.length}`);
-        (0, actions_io_1.logInfo)(`  - Binary files skipped: ${analysis.metrics.filesSkippedBinary.length}`);
-        (0, actions_io_1.logInfo)(`  - Total additions: ${analysis.metrics.totalAdditions}`);
-        const hasViolations = analysis.violations.largeFiles.length > 0 ||
-            analysis.violations.exceedsFileLines.length > 0 ||
-            analysis.violations.exceedsAdditions ||
-            analysis.violations.exceedsFileCount;
-        if (hasViolations) {
-            (0, actions_io_1.logWarning)('⚠️ Violations detected:');
-            if (analysis.violations.largeFiles.length > 0) {
-                (0, actions_io_1.logWarning)(`  - ${analysis.violations.largeFiles.length} large file(s)`);
-            }
-            if (analysis.violations.exceedsFileLines.length > 0) {
-                (0, actions_io_1.logWarning)(`  - ${analysis.violations.exceedsFileLines.length} file(s) exceed line limit`);
-            }
-            if (analysis.violations.exceedsAdditions) {
-                (0, actions_io_1.logWarning)('  - Total additions exceed limit');
-            }
-            if (analysis.violations.exceedsFileCount) {
-                (0, actions_io_1.logWarning)('  - File count exceeds limit');
-            }
-        }
-        else {
-            (0, actions_io_1.logInfo)('✅ All checks passed!');
-        }
-        if (config.applyLabels) {
-            (0, actions_io_1.logInfo)('🏷️ Updating PR labels...');
-            const labelResult = await (0, label_manager_1.updateLabels)(analysis, {
-                sizeLabelThresholds: {
-                    small: config.sizeThresholds.S.additions,
-                    medium: config.sizeThresholds.M.additions,
-                    large: config.sizeThresholds.L.additions,
-                    xlarge: config.sizeThresholds.L.additions * 2,
-                },
-                applySizeLabels: config.applySizeLabels,
-                autoRemoveLabels: config.autoRemoveLabels,
-                largeFilesLabel: config.largeFilesLabel,
-                tooManyFilesLabel: config.tooManyFilesLabel,
-            }, token, {
-                owner: prContext.owner,
-                repo: prContext.repo,
-                pullNumber: prContext.pullNumber,
-            });
-            if (labelResult.isErr()) {
-                (0, actions_io_1.logWarning)(`Failed to update labels: ${labelResult.error.message}`);
-            }
-            else {
-                const { added, removed } = labelResult.value;
-                if (added.length > 0) {
-                    (0, actions_io_1.logInfo)(`  - Added labels: ${added.join(', ')}`);
-                }
-                if (removed.length > 0) {
-                    (0, actions_io_1.logInfo)(`  - Removed labels: ${removed.join(', ')}`);
-                }
-            }
-        }
-        if (config.commentOnPr !== 'never') {
-            (0, actions_io_1.logInfo)('💬 Managing PR comment...');
-            const commentResult = await (0, comment_manager_1.manageComment)(analysis, {
-                commentMode: config.commentOnPr,
-            }, token, {
-                owner: prContext.owner,
-                repo: prContext.repo,
-                pullNumber: prContext.pullNumber,
-            });
-            if (commentResult.isErr()) {
-                (0, actions_io_1.logWarning)(`Failed to manage comment: ${commentResult.error.message}`);
-            }
-            else {
-                const { action } = commentResult.value;
-                (0, actions_io_1.logInfo)(`  - Comment ${action}`);
-            }
-        }
-        (0, actions_io_1.setActionOutputs)({
-            large_files: JSON.stringify(analysis.violations.largeFiles),
-            pr_additions: analysis.metrics.totalAdditions.toString(),
-            pr_files: analysis.metrics.totalFiles.toString(),
-            exceeds_file_size: (analysis.violations.largeFiles.length > 0).toString(),
-            exceeds_file_lines: (analysis.violations.exceedsFileLines.length > 0).toString(),
-            exceeds_additions: analysis.violations.exceedsAdditions.toString(),
-            exceeds_file_count: analysis.violations.exceedsFileCount.toString(),
-            has_violations: hasViolations.toString(),
-        });
-        if (hasViolations && config.failOnViolation) {
-            core.setFailed('🚫 PR contains violations and fail_on_violation is enabled');
-        }
-        else {
-            (0, actions_io_1.logInfo)('✨ PR Metrics Action completed successfully');
-        }
-    }
-    catch (error) {
-        const errorMessage = getErrorMessage(error);
-        (0, actions_io_1.logError)(`❌ Action failed: ${errorMessage}`);
-        core.setFailed(errorMessage);
-    }
-}
-function getErrorMessage(error) {
-    if (error && typeof error === 'object' && 'message' in error) {
-        return String(error.message);
-    }
-    if (error && typeof error === 'object' && 'type' in error) {
-        const appError = error;
-        return `[${appError.type}] ${appError.message}`;
-    }
-    return String(error);
-}
-if (require.main === require.cache[eval('__filename')]) {
-    run();
 }
 
 
@@ -31902,10 +31678,11 @@ function parseCommentMode(value) {
     return 'auto';
 }
 function parseExcludePatterns(value) {
-    return value
+    const patterns = value
         .split(/[,\n]/)
         .map(s => s.trim())
-        .filter(s => s.length > 0);
+        .filter(s => s.length > 0 && !s.startsWith('#'));
+    return [...new Set(patterns)];
 }
 function parseSizeThresholds(value) {
     try {
@@ -31918,6 +31695,15 @@ function parseSizeThresholds(value) {
             if (typeof parsed[size].additions !== 'number' || typeof parsed[size].files !== 'number') {
                 return (0, neverthrow_1.err)((0, errors_1.createParseError)(value, `Invalid threshold structure for size ${size}`));
             }
+            if (parsed[size].additions < 0 || parsed[size].files < 0) {
+                return (0, neverthrow_1.err)((0, errors_1.createParseError)(value, `Threshold values for size ${size} must be non-negative`));
+            }
+        }
+        if (parsed.S.additions > parsed.M.additions || parsed.M.additions > parsed.L.additions) {
+            return (0, neverthrow_1.err)((0, errors_1.createParseError)(value, 'Size thresholds must be monotonic (S ≤ M ≤ L for additions)'));
+        }
+        if (parsed.S.files > parsed.M.files || parsed.M.files > parsed.L.files) {
+            return (0, neverthrow_1.err)((0, errors_1.createParseError)(value, 'Size thresholds must be monotonic (S ≤ M ≤ L for files)'));
         }
         return (0, neverthrow_1.ok)(parsed);
     }
@@ -32033,6 +31819,16 @@ const VIOLATION_LABELS = {
     excessiveChanges: 'auto:excessive-changes',
     tooManyFiles: 'auto:too-many-files',
 };
+function validateSizeLabelThresholds(thresholds) {
+    const { small, medium, large, xlarge } = thresholds;
+    if (small < 0 || medium < 0 || large < 0 || xlarge < 0) {
+        return (0, neverthrow_1.err)((0, errors_1.createConfigurationError)('size_label_thresholds', JSON.stringify(thresholds), 'Threshold values must be non-negative'));
+    }
+    if (small > medium || medium > large || large > xlarge) {
+        return (0, neverthrow_1.err)((0, errors_1.createConfigurationError)('size_label_thresholds', JSON.stringify(thresholds), 'Thresholds must be monotonic (small ≤ medium ≤ large ≤ xlarge)'));
+    }
+    return (0, neverthrow_1.ok)(undefined);
+}
 function getSizeLabel(totalAdditions, thresholds) {
     if (totalAdditions <= thresholds.small) {
         return SIZE_LABELS.S;
@@ -32134,6 +31930,10 @@ async function removeLabels(labels, token, context) {
     }
 }
 async function updateLabels(analysisResult, config, token, context) {
+    const validationResult = validateSizeLabelThresholds(config.sizeLabelThresholds);
+    if (validationResult.isErr()) {
+        return (0, neverthrow_1.err)(validationResult.error);
+    }
     const currentLabelsResult = await getCurrentLabels(token, context);
     if (currentLabelsResult.isErr()) {
         return (0, neverthrow_1.err)(currentLabelsResult.error);
@@ -32231,6 +32031,11 @@ function parseSize(input) {
     if (/\d+(\.\d+)?\s*TB/i.test(trimmed)) {
         return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. TB and larger units are not supported.`));
     }
+    const unitPattern = /\d+(\.\d+)?\s*(KB|MB|GB|kB|K|M|G|B)\b/gi;
+    const matches = trimmed.match(unitPattern);
+    if (matches && matches.length > 1) {
+        return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. Multiple values detected.`));
+    }
     if (/(KB|MB|GB|kB)\s*(KB|MB|GB|B|K|M|G)/i.test(trimmed) || /[KMGB]{4,}/i.test(trimmed)) {
         return (0, neverthrow_1.err)((0, errors_1.createParseError)(input, `Invalid size format: ${input}. Multiple units detected.`));
     }
@@ -32296,12 +32101,9 @@ const DEFAULT_EXCLUDE_PATTERNS = [
     'bun.lockb',
     'deno.lock',
     '*.lock',
-    'node_modules/**',
     '**/node_modules/**',
-    'vendor/**',
     '**/vendor/**',
     '.bundle/**',
-    'bower_components/**',
     '**/bower_components/**',
     'dist/**',
     'build/**',
@@ -32397,6 +32199,7 @@ function isExcluded(filePath, patterns) {
         const options = {
             dot: true,
             matchBase: !normalizedPattern.includes('/'),
+            windowsPathsNoEscape: true,
         };
         if ((0, minimatch_1.minimatch)(normalizedPath, normalizedPattern, options)) {
             return true;
@@ -32573,6 +32376,14 @@ module.exports = require("perf_hooks");
 
 "use strict";
 module.exports = require("querystring");
+
+/***/ }),
+
+/***/ 3785:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("readline");
 
 /***/ }),
 
@@ -36443,18 +36254,249 @@ exports.unescape = unescape;
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/create fake namespace object */
+/******/ 	(() => {
+/******/ 		var getProto = Object.getPrototypeOf ? (obj) => (Object.getPrototypeOf(obj)) : (obj) => (obj.__proto__);
+/******/ 		var leafPrototypes;
+/******/ 		// create a fake namespace object
+/******/ 		// mode & 1: value is a module id, require it
+/******/ 		// mode & 2: merge all properties of value into the ns
+/******/ 		// mode & 4: return value when already ns object
+/******/ 		// mode & 16: return value when it's Promise-like
+/******/ 		// mode & 8|1: behave like require
+/******/ 		__nccwpck_require__.t = function(value, mode) {
+/******/ 			if(mode & 1) value = this(value);
+/******/ 			if(mode & 8) return value;
+/******/ 			if(typeof value === 'object' && value) {
+/******/ 				if((mode & 4) && value.__esModule) return value;
+/******/ 				if((mode & 16) && typeof value.then === 'function') return value;
+/******/ 			}
+/******/ 			var ns = Object.create(null);
+/******/ 			__nccwpck_require__.r(ns);
+/******/ 			var def = {};
+/******/ 			leafPrototypes = leafPrototypes || [null, getProto({}), getProto([]), getProto(getProto)];
+/******/ 			for(var current = mode & 2 && value; typeof current == 'object' && !~leafPrototypes.indexOf(current); current = getProto(current)) {
+/******/ 				Object.getOwnPropertyNames(current).forEach((key) => (def[key] = () => (value[key])));
+/******/ 			}
+/******/ 			def['default'] = () => (value);
+/******/ 			__nccwpck_require__.d(ns, def);
+/******/ 			return ns;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(6866);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+var exports = __webpack_exports__;
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = run;
+const actions_io_1 = __nccwpck_require__(2210);
+const input_mapper_1 = __nccwpck_require__(9210);
+const diff_strategy_1 = __nccwpck_require__(5109);
+const file_metrics_1 = __nccwpck_require__(798);
+const label_manager_1 = __nccwpck_require__(1910);
+const comment_manager_1 = __nccwpck_require__(9017);
+async function run() {
+    try {
+        (0, actions_io_1.logInfo)('🚀 Starting PR Metrics Action');
+        (0, actions_io_1.logInfo)('📥 Getting action inputs...');
+        const inputs = (0, actions_io_1.getActionInputs)();
+        const tokenResult = (0, actions_io_1.getGitHubToken)();
+        if (tokenResult.isErr()) {
+            throw tokenResult.error;
+        }
+        const token = tokenResult.value;
+        const prContext = (0, actions_io_1.getPullRequestContext)();
+        (0, actions_io_1.logInfo)(`📋 Analyzing PR #${prContext.pullNumber} in ${prContext.owner}/${prContext.repo}`);
+        const configResult = (0, input_mapper_1.mapActionInputsToConfig)(inputs);
+        if (configResult.isErr()) {
+            throw configResult.error;
+        }
+        const config = configResult.value;
+        if (prContext.isDraft && config.skipDraftPr) {
+            (0, actions_io_1.logInfo)('⏭️  Skipping draft PR as skip_draft_pr is enabled');
+            (0, actions_io_1.logInfo)('✨ PR Metrics Action completed (skipped draft PR)');
+            return;
+        }
+        (0, actions_io_1.logInfo)('📊 Getting PR diff files...');
+        const diffResult = await (0, diff_strategy_1.getDiffFiles)({
+            owner: prContext.owner,
+            repo: prContext.repo,
+            pullNumber: prContext.pullNumber,
+            baseSha: prContext.baseSha,
+            headSha: prContext.headSha,
+        }, token);
+        if (diffResult.isErr()) {
+            throw diffResult.error;
+        }
+        const { files, strategy } = diffResult.value;
+        (0, actions_io_1.logInfo)(`✅ Retrieved ${files.length} files using ${strategy} strategy`);
+        (0, actions_io_1.logInfo)('🔍 Analyzing files...');
+        const analysisResult = await (0, file_metrics_1.analyzeFiles)(files, {
+            fileSizeLimit: config.fileSizeLimit,
+            fileLineLimit: config.fileLinesLimit,
+            maxAddedLines: config.prAdditionsLimit,
+            maxFileCount: config.prFilesLimit,
+            excludePatterns: config.additionalExcludePatterns,
+        }, token, {
+            owner: prContext.owner,
+            repo: prContext.repo,
+            headSha: prContext.headSha,
+        });
+        if (analysisResult.isErr()) {
+            throw analysisResult.error;
+        }
+        const analysis = analysisResult.value;
+        (0, actions_io_1.logInfo)('📈 Analysis complete:');
+        (0, actions_io_1.logInfo)(`  - Files analyzed: ${analysis.metrics.filesAnalyzed.length}`);
+        (0, actions_io_1.logInfo)(`  - Files excluded: ${analysis.metrics.filesExcluded.length}`);
+        (0, actions_io_1.logInfo)(`  - Binary files skipped: ${analysis.metrics.filesSkippedBinary.length}`);
+        (0, actions_io_1.logInfo)(`  - Total additions: ${analysis.metrics.totalAdditions}`);
+        const hasViolations = analysis.violations.largeFiles.length > 0 ||
+            analysis.violations.exceedsFileLines.length > 0 ||
+            analysis.violations.exceedsAdditions ||
+            analysis.violations.exceedsFileCount;
+        if (hasViolations) {
+            (0, actions_io_1.logWarning)('⚠️ Violations detected:');
+            if (analysis.violations.largeFiles.length > 0) {
+                (0, actions_io_1.logWarning)(`  - ${analysis.violations.largeFiles.length} large file(s)`);
+            }
+            if (analysis.violations.exceedsFileLines.length > 0) {
+                (0, actions_io_1.logWarning)(`  - ${analysis.violations.exceedsFileLines.length} file(s) exceed line limit`);
+            }
+            if (analysis.violations.exceedsAdditions) {
+                (0, actions_io_1.logWarning)('  - Total additions exceed limit');
+            }
+            if (analysis.violations.exceedsFileCount) {
+                (0, actions_io_1.logWarning)('  - File count exceeds limit');
+            }
+        }
+        else {
+            (0, actions_io_1.logInfo)('✅ All checks passed!');
+        }
+        if (config.applyLabels) {
+            (0, actions_io_1.logInfo)('🏷️ Updating PR labels...');
+            const labelResult = await (0, label_manager_1.updateLabels)(analysis, {
+                sizeLabelThresholds: {
+                    small: config.sizeThresholds.S.additions,
+                    medium: config.sizeThresholds.M.additions,
+                    large: config.sizeThresholds.L.additions,
+                    xlarge: config.sizeThresholds.L.additions * 2,
+                },
+                applySizeLabels: config.applySizeLabels,
+                autoRemoveLabels: config.autoRemoveLabels,
+                largeFilesLabel: config.largeFilesLabel,
+                tooManyFilesLabel: config.tooManyFilesLabel,
+            }, token, {
+                owner: prContext.owner,
+                repo: prContext.repo,
+                pullNumber: prContext.pullNumber,
+            });
+            if (labelResult.isErr()) {
+                (0, actions_io_1.logWarning)(`Failed to update labels: ${labelResult.error.message}`);
+            }
+            else {
+                const { added, removed } = labelResult.value;
+                if (added.length > 0) {
+                    (0, actions_io_1.logInfo)(`  - Added labels: ${added.join(', ')}`);
+                }
+                if (removed.length > 0) {
+                    (0, actions_io_1.logInfo)(`  - Removed labels: ${removed.join(', ')}`);
+                }
+            }
+        }
+        if (config.commentOnPr !== 'never') {
+            (0, actions_io_1.logInfo)('💬 Managing PR comment...');
+            const commentResult = await (0, comment_manager_1.manageComment)(analysis, {
+                commentMode: config.commentOnPr,
+            }, token, {
+                owner: prContext.owner,
+                repo: prContext.repo,
+                pullNumber: prContext.pullNumber,
+            });
+            if (commentResult.isErr()) {
+                (0, actions_io_1.logWarning)(`Failed to manage comment: ${commentResult.error.message}`);
+            }
+            else {
+                const { action } = commentResult.value;
+                (0, actions_io_1.logInfo)(`  - Comment ${action}`);
+            }
+        }
+        (0, actions_io_1.setActionOutputs)({
+            large_files: JSON.stringify(analysis.violations.largeFiles),
+            pr_additions: analysis.metrics.totalAdditions.toString(),
+            pr_files: analysis.metrics.totalFiles.toString(),
+            exceeds_file_size: (analysis.violations.largeFiles.length > 0).toString(),
+            exceeds_file_lines: (analysis.violations.exceedsFileLines.length > 0).toString(),
+            exceeds_additions: analysis.violations.exceedsAdditions.toString(),
+            exceeds_file_count: analysis.violations.exceedsFileCount.toString(),
+            has_violations: hasViolations.toString(),
+        });
+        if (hasViolations && config.failOnViolation) {
+            (0, actions_io_1.setFailed)('🚫 PR contains violations and fail_on_violation is enabled');
+        }
+        else {
+            (0, actions_io_1.logInfo)('✨ PR Metrics Action completed successfully');
+        }
+    }
+    catch (error) {
+        const errorMessage = getErrorMessage(error);
+        (0, actions_io_1.logError)(`❌ Action failed: ${errorMessage}`);
+        (0, actions_io_1.setFailed)(errorMessage);
+    }
+}
+function getErrorMessage(error) {
+    if (error && typeof error === 'object' && 'message' in error) {
+        return String(error.message);
+    }
+    if (error && typeof error === 'object' && 'type' in error) {
+        const appError = error;
+        return `[${appError.type}] ${appError.message}`;
+    }
+    return String(error);
+}
+if (require.main === require.cache[eval('__filename')]) {
+    run();
+}
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map

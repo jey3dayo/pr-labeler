@@ -13,7 +13,7 @@ vi.mock('@actions/github');
 vi.mock('@actions/core');
 
 // Import after mocking
-import { getDiffFiles, DiffStrategy } from '../src/diff-strategy';
+import { getDiffFiles } from '../src/diff-strategy';
 import { promisify } from 'util';
 import * as github from '@actions/github';
 import * as core from '@actions/core';
@@ -311,29 +311,6 @@ invalid line
         expect(result.value.files).toHaveLength(2);
         const filenames = result.value.files.map(f => f.filename);
         expect(filenames).not.toContain('file2.ts');
-      }
-    });
-  });
-
-  describe('DiffStrategy class', () => {
-    it('should try local git first, then API', async () => {
-      const strategy = new DiffStrategy();
-
-      mockExecAsync.mockRejectedValue(new Error('Git failed'));
-      mockListFiles
-        .mockResolvedValueOnce({
-          data: [{ filename: 'test.ts', additions: 10, deletions: 5, status: 'modified' }],
-        })
-        .mockResolvedValueOnce({ data: [] });
-
-      const result = await strategy.execute(
-        { owner: 'owner', repo: 'repo', pullNumber: 1, baseSha: 'base', headSha: 'head' },
-        'token',
-      );
-
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value.strategy).toBe('github-api');
       }
     });
   });

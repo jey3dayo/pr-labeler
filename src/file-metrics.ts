@@ -231,26 +231,32 @@ export async function getFileLineCount(
     logDebug(`wc -l failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 
-  // Strategy 2: Node.js implementation
+  // Strategy 2: Node.js streaming implementation (memory-efficient)
   try {
-    const content = await fs.readFile(filePath, 'utf-8');
+    const { createReadStream } = await import('fs');
+    const { createInterface } = await import('readline');
 
-    // Handle different line endings
-    const lines = content.split(/\r\n|\r|\n/);
-    let lineCount = lines.length;
+    const fileStream = createReadStream(filePath, { encoding: 'utf-8' });
+    const rl = createInterface({
+      input: fileStream,
+      crlfDelay: Infinity, // Treat \r\n as single line break
+    });
 
-    // If last line is empty, don't count it
-    if (lines[lines.length - 1] === '') {
-      lineCount--;
+    let lineCount = 0;
+
+    for await (const _line of rl) {
+      lineCount++;
+
+      // Early termination if maxLines is set
+      if (maxLines && lineCount >= maxLines) {
+        rl.close();
+        fileStream.destroy();
+        logDebug(`Line count reached max (${maxLines}), early termination`);
+        return ok(maxLines);
+      }
     }
 
-    // Apply max lines limit for early termination
-    if (maxLines && lineCount > maxLines) {
-      logDebug(`Line count exceeds max (${maxLines}), returning max`);
-      return ok(maxLines);
-    }
-
-    logDebug(`Got line count from Node.js: ${lineCount}`);
+    logDebug(`Got line count from Node.js streaming: ${lineCount}`);
     return ok(lineCount);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -343,12 +349,16 @@ export async function analyzeFiles(
   }
 
   // Process each file
-  let processedCount = 0;
-  for (const file of files) {
-    // Stop processing after maxFileCount
-    if (processedCount >= config.maxFileCount) {
+  for (let i = 0; i < files.length; i++) {
+    // Stop processing after maxFileCount (consistent with violation detection)
+    if (i >= config.maxFileCount) {
       logWarning(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
       break;
+    }
+
+    const file = files[i];
+    if (!file) {
+      continue;
     }
 
     // Check if file should be excluded
@@ -409,8 +419,6 @@ export async function analyzeFiles(
         result.violations.exceedsFileLines.push(violation);
         logWarning(`File ${file.filename} exceeds line limit: ${metrics.lines} > ${config.fileLineLimit}`);
       }
-
-      processedCount++;
     } catch (error) {
       result.metrics.filesWithErrors.push(file.filename);
       logWarning(

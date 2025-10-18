@@ -33,7 +33,15 @@ export function parseSize(input: string): Result<number, ParseError> {
     return err(createParseError(input, `Invalid size format: ${input}. TB and larger units are not supported.`));
   }
 
-  // Check for multiple units (e.g., 100KBMB)
+  // Check for multiple values/units (e.g., "10kb 20mb", "100KBMB")
+  // Pattern 1: Multiple number+unit patterns (e.g., "10kb 20mb")
+  const unitPattern = /\d+(\.\d+)?\s*(KB|MB|GB|kB|K|M|G|B)\b/gi;
+  const matches = trimmed.match(unitPattern);
+  if (matches && matches.length > 1) {
+    return err(createParseError(input, `Invalid size format: ${input}. Multiple values detected.`));
+  }
+
+  // Pattern 2: Consecutive units without space (e.g., "100KBMB")
   // Look for patterns like KBMB, MBB, etc. (units followed by more units)
   if (/(KB|MB|GB|kB)\s*(KB|MB|GB|B|K|M|G)/i.test(trimmed) || /[KMGB]{4,}/i.test(trimmed)) {
     return err(createParseError(input, `Invalid size format: ${input}. Multiple units detected.`));

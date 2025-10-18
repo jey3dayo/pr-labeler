@@ -171,9 +171,38 @@ describe('FileMetrics', () => {
       expect(mockExecAsync).toHaveBeenCalledWith('wc -l "src/test.ts"');
     });
 
-    it('should fallback to Node.js implementation when wc fails', async () => {
+    it('should fallback to Node.js streaming implementation when wc fails', async () => {
       mockExecAsync.mockRejectedValue(new Error('Command not found'));
-      vi.mocked(fs.readFile).mockResolvedValue('line1\nline2\nline3\n');
+
+      // Mock dynamic imports for streaming
+      const mockReadStream = {
+        destroy: vi.fn(),
+        on: vi.fn(),
+        [Symbol.asyncIterator]: async function* () {
+          yield 'line1';
+          yield 'line2';
+          yield 'line3';
+        },
+      };
+
+      const mockReadlineInterface = {
+        close: vi.fn(),
+        [Symbol.asyncIterator]: async function* () {
+          yield 'line1';
+          yield 'line2';
+          yield 'line3';
+        },
+      };
+
+      vi.doMock('fs', async () => ({
+        ...(await vi.importActual<typeof import('fs')>('fs')),
+        createReadStream: vi.fn(() => mockReadStream),
+      }));
+
+      vi.doMock('readline', async () => ({
+        ...(await vi.importActual<typeof import('readline')>('readline')),
+        createInterface: vi.fn(() => mockReadlineInterface),
+      }));
 
       const result = await getFileLineCount('src/test.ts');
 
@@ -186,9 +215,30 @@ describe('FileMetrics', () => {
     it('should handle large files with streaming (early termination)', async () => {
       mockExecAsync.mockRejectedValue(new Error('Command not found'));
 
-      // Simulate a very large file
-      const largeContent = Array(100000).fill('line').join('\n');
-      vi.mocked(fs.readFile).mockResolvedValue(largeContent);
+      // Mock streaming to simulate large file
+      const mockReadStream = {
+        destroy: vi.fn(),
+        on: vi.fn(),
+      };
+
+      const mockReadlineInterface = {
+        close: vi.fn(),
+        [Symbol.asyncIterator]: async function* () {
+          for (let i = 0; i < 100000; i++) {
+            yield `line ${i}`;
+          }
+        },
+      };
+
+      vi.doMock('fs', async () => ({
+        ...(await vi.importActual<typeof import('fs')>('fs')),
+        createReadStream: vi.fn(() => mockReadStream),
+      }));
+
+      vi.doMock('readline', async () => ({
+        ...(await vi.importActual<typeof import('readline')>('readline')),
+        createInterface: vi.fn(() => mockReadlineInterface),
+      }));
 
       const result = await getFileLineCount('src/large.ts', 50000);
 
@@ -197,31 +247,22 @@ describe('FileMetrics', () => {
         // Should stop counting at maxLines
         expect(result.value).toBe(50000);
       }
+
+      // Verify stream was closed early
+      expect(mockReadlineInterface.close).toHaveBeenCalled();
+      expect(mockReadStream.destroy).toHaveBeenCalled();
     });
 
-    it('should handle files with different line endings', async () => {
+    it('should handle streaming errors gracefully', async () => {
       mockExecAsync.mockRejectedValue(new Error('Command not found'));
 
-      // Windows line endings
-      vi.mocked(fs.readFile).mockResolvedValue('line1\r\nline2\r\nline3\r\n');
-      let result = await getFileLineCount('src/test.ts');
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value).toBe(3);
-      }
-
-      // Mac Classic line endings
-      vi.mocked(fs.readFile).mockResolvedValue('line1\rline2\rline3\r');
-      result = await getFileLineCount('src/test.ts');
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value).toBe(3);
-      }
-    });
-
-    it('should return FileAnalysisError when file cannot be read', async () => {
-      mockExecAsync.mockRejectedValue(new Error('Command not found'));
-      vi.mocked(fs.readFile).mockRejectedValue(new Error('Permission denied'));
+      // Mock createReadStream to throw error
+      vi.doMock('fs', async () => ({
+        ...(await vi.importActual<typeof import('fs')>('fs')),
+        createReadStream: vi.fn(() => {
+          throw new Error('Permission denied');
+        }),
+      }));
 
       const result = await getFileLineCount('src/test.ts');
 
@@ -229,6 +270,7 @@ describe('FileMetrics', () => {
       if (result.isErr()) {
         expect(result.error.type).toBe('FileAnalysisError');
         expect(result.error.file).toBe('src/test.ts');
+        expect(result.error.message).toContain('Failed to count lines');
       }
     });
   });

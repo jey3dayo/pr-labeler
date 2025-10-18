@@ -25,6 +25,16 @@ describe('CommentManager', () => {
   let mockCreateComment: ReturnType<typeof vi.fn>;
   let mockUpdateComment: ReturnType<typeof vi.fn>;
   let mockDeleteComment: ReturnType<typeof vi.fn>;
+  let mockPaginateIterator: ReturnType<typeof vi.fn>;
+
+  // Helper to create async iterator for pagination
+  const createPaginateIterator = (pages: any[][]) => {
+    return (async function* () {
+      for (const data of pages) {
+        yield { data };
+      }
+    })();
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,6 +44,7 @@ describe('CommentManager', () => {
     mockCreateComment = vi.fn();
     mockUpdateComment = vi.fn();
     mockDeleteComment = vi.fn();
+    mockPaginateIterator = vi.fn();
 
     mockOctokit = {
       rest: {
@@ -43,6 +54,9 @@ describe('CommentManager', () => {
           updateComment: mockUpdateComment,
           deleteComment: mockDeleteComment,
         },
+      },
+      paginate: {
+        iterator: mockPaginateIterator,
       },
     };
 
@@ -299,13 +313,15 @@ describe('CommentManager', () => {
 
   describe('findExistingComment', () => {
     it('should find comment with signature', async () => {
-      mockListComments.mockResolvedValue({
-        data: [
-          { id: 1, body: 'Regular comment' },
-          { id: 2, body: `Some content\n${COMMENT_SIGNATURE}` },
-          { id: 3, body: 'Another comment' },
-        ],
-      });
+      mockPaginateIterator.mockReturnValue(
+        createPaginateIterator([
+          [
+            { id: 1, body: 'Regular comment' },
+            { id: 2, body: `Some content\n${COMMENT_SIGNATURE}` },
+            { id: 3, body: 'Another comment' },
+          ],
+        ]),
+      );
 
       const result = await findExistingComment('token', {
         owner: 'owner',
@@ -320,12 +336,14 @@ describe('CommentManager', () => {
     });
 
     it('should return null when no matching comment', async () => {
-      mockListComments.mockResolvedValue({
-        data: [
-          { id: 1, body: 'Regular comment' },
-          { id: 2, body: 'Another comment' },
-        ],
-      });
+      mockPaginateIterator.mockReturnValue(
+        createPaginateIterator([
+          [
+            { id: 1, body: 'Regular comment' },
+            { id: 2, body: 'Another comment' },
+          ],
+        ]),
+      );
 
       const result = await findExistingComment('token', {
         owner: 'owner',
@@ -340,20 +358,18 @@ describe('CommentManager', () => {
     });
 
     it('should handle pagination', async () => {
-      mockListComments
-        .mockResolvedValueOnce({
-          data: Array.from({ length: 100 }, (_, i) => ({
+      mockPaginateIterator.mockReturnValue(
+        createPaginateIterator([
+          Array.from({ length: 100 }, (_, i) => ({
             id: i + 1,
             body: `Comment ${i + 1}`,
           })),
-        })
-        .mockResolvedValueOnce({
-          data: [
+          [
             { id: 101, body: `Match\n${COMMENT_SIGNATURE}` },
             { id: 102, body: 'Last comment' },
           ],
-        })
-        .mockResolvedValueOnce({ data: [] });
+        ]),
+      );
 
       const result = await findExistingComment('token', {
         owner: 'owner',
@@ -365,11 +381,12 @@ describe('CommentManager', () => {
       if (result.isOk()) {
         expect(result.value).toBe(101);
       }
-      expect(mockListComments).toHaveBeenCalledTimes(2);
     });
 
     it('should return error on API failure', async () => {
-      mockListComments.mockRejectedValue(new Error('API error'));
+      mockPaginateIterator.mockImplementation(() => {
+        throw new Error('API error');
+      });
 
       const result = await findExistingComment('token', {
         owner: 'owner',
@@ -485,7 +502,7 @@ describe('CommentManager', () => {
         },
       };
 
-      mockListComments.mockResolvedValue({ data: [] });
+      mockPaginateIterator.mockReturnValue(createPaginateIterator([[]]));
       mockCreateComment.mockResolvedValue({ data: { id: 123 } });
 
       const result = await manageComment(analysisResult, config, 'token', {
@@ -523,9 +540,7 @@ describe('CommentManager', () => {
         },
       };
 
-      mockListComments.mockResolvedValue({
-        data: [{ id: 456, body: `Old\n${COMMENT_SIGNATURE}` }],
-      });
+      mockPaginateIterator.mockReturnValue(createPaginateIterator([[{ id: 456, body: `Old\n${COMMENT_SIGNATURE}` }]]));
       mockUpdateComment.mockResolvedValue({ data: { id: 456 } });
 
       const result = await manageComment(analysisResult, config, 'token', {
@@ -564,7 +579,7 @@ describe('CommentManager', () => {
         },
       };
 
-      mockListComments.mockResolvedValue({ data: [] });
+      mockPaginateIterator.mockReturnValueOnce(createPaginateIterator([[]]));
       mockCreateComment.mockResolvedValue({ data: { id: 789 } });
 
       let result = await manageComment(withViolations, config, 'token', {
@@ -589,9 +604,9 @@ describe('CommentManager', () => {
         },
       };
 
-      mockListComments.mockResolvedValue({
-        data: [{ id: 789, body: `Old\n${COMMENT_SIGNATURE}` }],
-      });
+      mockPaginateIterator.mockReturnValueOnce(
+        createPaginateIterator([[{ id: 789, body: `Old\n${COMMENT_SIGNATURE}` }]]),
+      );
       mockDeleteComment.mockResolvedValue({});
 
       result = await manageComment(noViolations, config, 'token', {
@@ -630,9 +645,7 @@ describe('CommentManager', () => {
       };
 
       // Should delete existing comment if present
-      mockListComments.mockResolvedValue({
-        data: [{ id: 999, body: `Old\n${COMMENT_SIGNATURE}` }],
-      });
+      mockPaginateIterator.mockReturnValue(createPaginateIterator([[{ id: 999, body: `Old\n${COMMENT_SIGNATURE}` }]]));
       mockDeleteComment.mockResolvedValue({});
 
       const result = await manageComment(analysisResult, config, 'token', {

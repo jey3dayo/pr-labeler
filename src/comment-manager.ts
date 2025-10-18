@@ -6,9 +6,10 @@
 import { Result, ok, err } from 'neverthrow';
 import * as github from '@actions/github';
 import { createGitHubAPIError } from './errors';
-import { logInfo, logWarning, logDebug } from './actions-io';
+import { logInfo, logDebug } from './actions-io';
 import type { GitHubAPIError } from './errors';
 import type { AnalysisResult } from './file-metrics';
+import type { PRContext } from './types';
 
 /**
  * Comment configuration
@@ -25,17 +26,20 @@ export interface CommentResult {
   commentId: number | null;
 }
 
-/**
- * PR context for comment operations
- */
-interface PRContext {
-  owner: string;
-  repo: string;
-  pullNumber: number;
-}
-
 // Comment signature for identification
 export const COMMENT_SIGNATURE = '<!-- pr-metrics-action -->';
+
+/**
+ * Check if analysis result has any violations
+ */
+function hasViolations(analysisResult: AnalysisResult): boolean {
+  return (
+    analysisResult.violations.largeFiles.length > 0 ||
+    analysisResult.violations.exceedsFileLines.length > 0 ||
+    analysisResult.violations.exceedsAdditions ||
+    analysisResult.violations.exceedsFileCount
+  );
+}
 
 /**
  * Format bytes to human-readable string
@@ -64,16 +68,12 @@ function formatNumber(num: number): string {
  */
 export function generateCommentBody(analysisResult: AnalysisResult): string {
   const { metrics, violations } = analysisResult;
-  const hasViolations =
-    violations.largeFiles.length > 0 ||
-    violations.exceedsFileLines.length > 0 ||
-    violations.exceedsAdditions ||
-    violations.exceedsFileCount;
+  const hasViolationsFlag = hasViolations(analysisResult);
 
   let body = '';
 
   // Header
-  if (hasViolations) {
+  if (hasViolationsFlag) {
     body += '## ⚠️ PR Size Check - Violations Found\n\n';
   } else {
     body += '## ✅ PR Size Check Passed\n\n';
@@ -94,7 +94,7 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
       body += `- Files with errors: **${metrics.filesWithErrors.length}** ⚠️\n`;
     }
 
-    if (hasViolations) {
+    if (hasViolationsFlag) {
       body += '\n### 📊 Violations Summary\n\n';
 
       if (violations.largeFiles.length > 0) {
@@ -188,36 +188,20 @@ export async function findExistingComment(
     logDebug(`Searching for existing comment on PR #${context.pullNumber}`);
 
     const octokit = github.getOctokit(token);
-    let page = 1;
-    const perPage = 100;
 
-    while (true) {
-      const response = await octokit.rest.issues.listComments({
-        owner: context.owner,
-        repo: context.repo,
-        issue_number: context.pullNumber,
-        per_page: perPage,
-        page,
-      });
-
+    // Use Octokit's paginate.iterator for efficient pagination
+    for await (const { data } of octokit.paginate.iterator(octokit.rest.issues.listComments, {
+      owner: context.owner,
+      repo: context.repo,
+      issue_number: context.pullNumber,
+      per_page: 100,
+    })) {
       // Search for comment with our signature
-      for (const comment of response.data) {
+      for (const comment of data) {
         if (comment.body?.includes(COMMENT_SIGNATURE)) {
           logDebug(`Found existing comment with ID ${comment.id}`);
           return ok(comment.id);
         }
-      }
-
-      // Stop if no more pages
-      if (response.data.length < perPage) {
-        break;
-      }
-
-      page++;
-      // Safety limit
-      if (page > 10) {
-        logWarning('Reached pagination limit while searching for comment');
-        break;
       }
     }
 
@@ -319,11 +303,7 @@ export async function manageComment(
   token: string,
   context: PRContext,
 ): Promise<Result<CommentResult, GitHubAPIError>> {
-  const hasViolations =
-    analysisResult.violations.largeFiles.length > 0 ||
-    analysisResult.violations.exceedsFileLines.length > 0 ||
-    analysisResult.violations.exceedsAdditions ||
-    analysisResult.violations.exceedsFileCount;
+  const hasViolationsFlag = hasViolations(analysisResult);
 
   // Check for existing comment
   const existingCommentResult = await findExistingComment(token, context);
@@ -346,7 +326,7 @@ export async function manageComment(
 
   // Handle 'auto' mode
   if (config.commentMode === 'auto') {
-    if (!hasViolations) {
+    if (!hasViolationsFlag) {
       // Delete comment if no violations
       if (existingCommentId) {
         const deleteResult = await deleteComment(existingCommentId, token, context);

@@ -17,8 +17,5 @@ export interface PullRequestContext {
     baseSha: string;
     headSha: string;
 }
-export declare class DiffStrategy {
-    execute(context: PullRequestContext, token: string): Promise<Result<DiffResult, DiffError>>;
-}
 export declare function getDiffFiles(context: PullRequestContext, token: string): Promise<Result<DiffResult, DiffError>>;
 //# sourceMappingURL=diff-strategy.d.ts.map

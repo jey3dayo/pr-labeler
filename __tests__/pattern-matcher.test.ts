@@ -12,7 +12,7 @@ describe('PatternMatcher', () => {
       // Verify some key patterns are included
       const expectedCategories = [
         '*.lock', // lock files
-        'node_modules/**', // dependencies
+        '**/node_modules/**', // dependencies
         '*.min.js', // minified files
         'dist/**', // build outputs
         '*.map', // source maps

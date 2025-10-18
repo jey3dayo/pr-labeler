@@ -206,47 +206,34 @@ async function getGitHubAPIDiff(context: PullRequestContext, token: string): Pro
 }
 
 /**
- * Strategy class for getting diff files
- */
-export class DiffStrategy {
-  /**
-   * Execute the diff strategy
-   */
-  async execute(context: PullRequestContext, token: string): Promise<Result<DiffResult, DiffError>> {
-    // Try local git first (faster and doesn't count against API limits)
-    const localResult = await getLocalGitDiff(context);
-    if (localResult.isOk()) {
-      return ok({
-        files: localResult.value,
-        strategy: 'local-git',
-      });
-    }
-
-    // Fallback to GitHub API
-    logInfo('Falling back to GitHub API for diff retrieval');
-    const apiResult = await getGitHubAPIDiff(context, token);
-    if (apiResult.isOk()) {
-      return ok({
-        files: apiResult.value,
-        strategy: 'github-api',
-      });
-    }
-
-    // Both strategies failed
-    return err(
-      createDiffError(
-        'both',
-        `Failed to get diff files. Local git error: ${localResult.error.message}. API error: ${apiResult.error.message}`,
-      ),
-    );
-  }
-}
-
-/**
  * Get diff files for a pull request
  * Tries local git first, then falls back to GitHub API
  */
 export async function getDiffFiles(context: PullRequestContext, token: string): Promise<Result<DiffResult, DiffError>> {
-  const strategy = new DiffStrategy();
-  return strategy.execute(context, token);
+  // Try local git first (faster and doesn't count against API limits)
+  const localResult = await getLocalGitDiff(context);
+  if (localResult.isOk()) {
+    return ok({
+      files: localResult.value,
+      strategy: 'local-git',
+    });
+  }
+
+  // Fallback to GitHub API
+  logInfo('Falling back to GitHub API for diff retrieval');
+  const apiResult = await getGitHubAPIDiff(context, token);
+  if (apiResult.isOk()) {
+    return ok({
+      files: apiResult.value,
+      strategy: 'github-api',
+    });
+  }
+
+  // Both strategies failed
+  return err(
+    createDiffError(
+      'both',
+      `Failed to get diff files. Local git error: ${localResult.error.message}. API error: ${apiResult.error.message}`,
+    ),
+  );
 }
