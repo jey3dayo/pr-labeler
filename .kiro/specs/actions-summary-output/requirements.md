@@ -20,6 +20,9 @@ GitHub ActionsのワークフローサマリーページにPR分析結果を表�
 2. WHEN PR Metrics Actionが実行完了する THEN PR Metrics Action SHALL Actions SummaryにPRの総ファイル数を表示する
 3. WHEN PR Metrics Actionが実行完了する THEN PR Metrics Action SHALL Actions SummaryにPRのサイズラベル（S/M/L/XL/XXL）を表示する
 4. WHEN PR Metrics Actionが実行完了する THEN PR Metrics Action SHALL Actions Summaryに実行時刻を表示する
+   - フォーマット: ISO 8601形式（UTC）
+   - 例: `2025-10-18T15:30:00Z`
+   - 実装: `new Date().toISOString()`
 5. IF PRがDraftモードである THEN PR Metrics Action SHALL Actions Summaryに「Draft PRをスキップしました」というメッセージを表示する
 
 ### Requirement 2: 違反情報の詳細表示
@@ -59,6 +62,8 @@ GitHub ActionsのワークフローサマリーページにPR分析結果を表�
 4. WHEN 違反項目を表示する THEN PR Metrics Action SHALL 警告アイコン（⚠️）を使用する
 5. WHEN 成功メッセージを表示する THEN PR Metrics Action SHALL 成功アイコン（✅）を使用する
 6. WHEN サイズラベルを表示する THEN PR Metrics Action SHALL ラベルをバッジ形式で表示する
+   - 形式: インラインコードブロック `Size: L` または マークダウンボールド **Size:** L
+   - サイズ別アイコン（オプション）: S=🟢, M=🟡, L=🟠, XL=🔴, XXL=⚫
 
 ### Requirement 5: GitHub Actions API統合
 
@@ -80,8 +85,8 @@ GitHub ActionsのワークフローサマリーページにPR分析結果を表�
 1. WHEN Actions Summary出力機能が有効化される THEN PR Metrics Action SHALL 既存のラベル付け機能を引き続き実行する
 2. WHEN Actions Summary出力機能が有効化される THEN PR Metrics Action SHALL 既存のコメント投稿機能を引き続き実行する
 3. WHEN Actions Summary出力機能が有効化される THEN PR Metrics Action SHALL 既存の出力変数をすべて設定する
-4. IF Actions Summary出力中にエラーが発生する AND fail_on_violation=false THEN PR Metrics Action SHALL エラーログを出力するがアクションを成功として終了する
-5. IF Actions Summary出力中にエラーが発生する AND fail_on_violation=true THEN PR Metrics Action SHALL アクションを失敗として終了する
+4. IF Actions Summary書き込み（summary.write()）に失敗する THEN PR Metrics Action SHALL 警告ログを出力し、**アクションは継続実行する**（Summary出力は非致命的エラー）
+5. IF **PRのviolations（制限違反）が検出される** AND fail_on_violation=true THEN PR Metrics Action SHALL アクションを失敗として終了する（Summary出力の成否に関わらず）
 
 ### Requirement 7: 設定可能性
 

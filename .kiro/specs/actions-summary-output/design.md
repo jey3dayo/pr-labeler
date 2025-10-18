@@ -471,7 +471,9 @@ interface ViolationDetail {
 
 Summary出力はメイン機能（分析、ラベル、コメント）の補助的な機能であるため、Summary書き込みエラーは以下のように処理します：
 
-1. **非致命的エラー**: Summary出力エラーは警告ログを出力し、アクションの成功/失敗には影響させない（`fail_on_violation`設定による）
+1. **非致命的エラー**: Summary出力エラーは**常に非致命的**として扱い、警告ログを出力してアクションは継続実行する
+   - `fail_on_violation`設定は**PRのviolations（制限違反）**の判定にのみ影響し、Summary出力エラーには影響しない
+   - Summary書き込み失敗時もラベル・コメント機能は正常に動作する
 2. **エラー分類**: エラーコードによる明確な分類（`SUMMARY_WRITE_FAILED`, `SUMMARY_FORMAT_FAILED`）
 3. **Result型活用**: neverthrowの`Result<T, E>`パターンで型安全なエラーハンドリング
 
@@ -480,8 +482,9 @@ Summary出力はメイン機能（分析、ラベル、コメント）の補助�
 **System Errors (5xx相当)**:
 
 - **SUMMARY_WRITE_FAILED**: `@actions/core.summary.write()`の失敗
-  - 対応: エラーログ出力、`fail_on_violation=false`なら継続、`true`ならアクション失敗
+  - 対応: 警告ログを出力し、**アクションは継続実行する**（Summary出力は非致命的）
   - 回復: リトライなし（GitHub Actions環境の問題である可能性が高い）
+  - 影響: Summary出力のみ失敗、ラベル・コメント機能は正常動作
 
 **User Errors (4xx相当)**:
 
@@ -508,9 +511,7 @@ flowchart TD
     H --> I{書き込み成功?}
     I -->|yes| J[ok: written]
     I -->|no| K[err: SUMMARY_WRITE_FAILED]
-    K --> L{fail_on_violation?}
-    L -->|true| M[アクション失敗]
-    L -->|false| N[警告ログ出力<br/>ok: written_with_warning]
+    K --> L[警告ログ出力<br/>アクション継続実行]
 ```
 
 ### Monitoring

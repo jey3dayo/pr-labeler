@@ -15,6 +15,15 @@
 
 ## Phase 1: 共通フォーマッタの実装とリファクタリング
 
+- [ ] 1.0 comment-manager.ts のスナップショットテスト準備（リファクタリング前）
+  - `generateCommentBody()` の出力をキャプチャするスナップショットテストを追加
+  - テストファイル: `__tests__/comment-manager.test.ts`
+  - 実装方法: Vitestの `expect(result).toMatchSnapshot()` を使用
+  - 複数のテストケース（violations有/無、大規模PR、エラーありなど）を用意
+  - スナップショットファイル: `__tests__/__snapshots__/comment-manager.test.ts.snap`
+  - リファクタリング後に同じスナップショットと一致することを確認する基準を設定
+  - _Requirements: 6.1, 6.2_
+
 - [ ] 1. report-formatter.ts を新規作成する
 - [ ] 1.1 ユーティリティ関数を comment-manager.ts から抽出する
   - `formatBytes(bytes: number): string` を抽出
@@ -175,29 +184,19 @@
   - failOnViolation 設定との組み合わせテスト
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 8. E2Eテストを実装する
-- [ ] 8.1 GitHub Actions環境でのE2Eテストを実装する
-  - 実際のGitHub Actionsワークフローでの動作確認テスト
-  - Summary表示の視覚的検証手順を文書化
-  - 各種設定パターン（enable_summary、fail_on_violation）の組み合わせテスト
-  - Draft PRスキップ時のSummary表示テスト
-  - _Requirements: All requirements (統合検証)_
-
-- [ ] 9. ドキュメントとリリース準備
-- [ ] 9.1 README.md を更新する
+- [ ] 8. ドキュメントとリリース準備
+- [ ] 8.1 README.md を更新する
   - `enable_summary` パラメータの説明を追加
-  - GitHub Actions Summary 表示のスクリーンショットを追加（手動）
   - 使用例を追加
   - _Requirements: All requirements_
 
-- [ ] 9.2 リリースノートを作成する
+- [ ] 8.2 リリースノートを作成する
   - 新機能の説明（GitHub Actions Summary 出力）
   - 既存機能への影響なしを明記
   - マイグレーションガイド（デフォルト有効、無効化方法）
   - _Requirements: All requirements_
 
-- [ ] 9.3 検証チェックリストを確認する
-  - [ ] Summary出力が正常に表示される
+- [ ] 8.3 検証チェックリストを確認する
   - [ ] 既存のlabel/comment機能が正常動作する
   - [ ] fail_on_violation設定が正しく動作する
   - [ ] enable_summary=falseで出力がスキップされる
@@ -207,13 +206,15 @@
   - [ ] すべての統合テストが通る
   - [ ] 型エラー 0 件
   - [ ] リント違反 0 件
+  - [ ] comment-manager.tsのスナップショットテストが通る
 
 ---
 
 ## タスク要約
 
-### Phase 1: 共通フォーマッタ (Tasks 1-2)
+### Phase 1: 共通フォーマッタ (Tasks 1.0-2)
 
+- スナップショットテスト準備
 - report-formatter.ts 新規作成
 - comment-manager.ts リファクタリング
 - ユニットテスト
@@ -225,11 +226,10 @@
 - input-mapper.ts 拡張
 - ユニットテスト
 
-### Phase 3: 統合とテスト (Tasks 6-9)
+### Phase 3: 統合とテスト (Tasks 6-8)
 
 - index.ts 統合
 - 統合テスト
-- E2Eテスト
 - ドキュメント更新
 
 ---
@@ -238,6 +238,7 @@
 
 | Task    | 対応要件                                |
 | ------- | --------------------------------------- |
+| 1.0     | 6.1, 6.2                                |
 | 1.1-1.5 | 4.3, 1.1-1.2, 2.1-2.5, 3.1-3.6, 4.1-4.6 |
 | 2.1-2.2 | 6.1-6.3                                 |
 | 3.1     | 7.1, 7.4                                |
@@ -245,5 +246,4 @@
 | 5.1-5.3 | 7.1, 7.4                                |
 | 6.1-6.2 | 1.5, 5.1-5.2, 6.1-6.3, 7.2              |
 | 7.1-7.4 | 5.1-5.4, 6.1-6.5                        |
-| 8.1     | All requirements                        |
-| 9.1-9.3 | All requirements                        |
+| 8.1-8.3 | All requirements                        |
