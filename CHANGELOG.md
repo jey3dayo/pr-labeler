@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-10-19
+
+### Fixed
+
+- **CI環境でのビルド検証失敗を修正** (#9)
+  - TypeScript `declarationMap` を無効化して環境依存パスを削除
+  - `.d.ts.map` ファイル (24個) を削除し、環境固有の絶対パスが埋め込まれる問題を解決
+  - CIワークフローの差分チェックで環境依存ファイル (`*.map`, `*.d.ts`, `*.d.ts.map`) を除外
+  - ローカルとCI環境でビルド結果が一致するように修正
+
+### Technical Details
+
+- `tsconfig.json` から `declarationMap: true` を削除
+- `.github/workflows/quality.yml` の "Verify dist/ Build" ステップを改善
+- 非決定的なビルド成果物を差分チェックから除外する保護策を追加
+
 ## [1.0.0] - 2025-10-18
 
 ### Added
@@ -44,4 +60,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.0.1]: https://github.com/jey3dayo/pr-metrics-action/releases/tag/v1.0.1
 [1.0.0]: https://github.com/jey3dayo/pr-metrics-action/releases/tag/v1.0.0
