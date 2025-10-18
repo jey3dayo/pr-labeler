@@ -107,7 +107,23 @@ pnpm build       # ビルド成功確認
 - **Minor** (v1.0.0 → v1.1.0): 後方互換性のある新機能
 - **Major** (v1.0.0 → v2.0.0): 破壊的変更
 
-**リリース手順:**
+**推奨: `/release` コマンド使用（自動化）:**
+
+```bash
+# パッチリリース（バグフィックス）
+/release patch
+
+# マイナーリリース（新機能）
+/release minor
+
+# メジャーリリース（破壊的変更）
+/release major
+
+# ドライラン（確認のみ）
+/release patch --dry-run
+```
+
+**または、手動リリース手順:**
 
 ```bash
 # mainブランチを最新化
@@ -121,14 +137,20 @@ Bug Fixes:
 - 修正内容の説明
 "
 
+# メジャーバージョンタグを更新（重要！）
+git tag -f v1 v1.0.1^{}
+
 # タグをプッシュ
 git push origin v1.0.1
+git push origin v1 --force
 
 # GitHub Releaseを作成
 gh release create v1.0.1 \
   --title "v1.0.1" \
   --notes "リリースノート"
 ```
+
+詳細: [docs/release-process.md](docs/release-process.md)
 
 ## Development Rules
 
