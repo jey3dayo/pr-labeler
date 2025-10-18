@@ -18,4 +18,3 @@ export interface PullRequestContext {
     headSha: string;
 }
 export declare function getDiffFiles(context: PullRequestContext, token: string): Promise<Result<DiffResult, DiffError>>;
-//# sourceMappingURL=diff-strategy.d.ts.map

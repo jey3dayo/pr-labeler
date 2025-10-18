@@ -16,4 +16,3 @@ export declare function postComment(body: string, token: string, context: PRCont
 export declare function updateComment(commentId: number, body: string, token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function deleteComment(commentId: number, token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function manageComment(analysisResult: AnalysisResult, config: CommentConfig, token: string, context: PRContext): Promise<Result<CommentResult, GitHubAPIError>>;
-//# sourceMappingURL=comment-manager.d.ts.map

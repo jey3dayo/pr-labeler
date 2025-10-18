@@ -12,4 +12,3 @@ export interface FormatViolationsOptions {
 export declare function formatViolations(violations: Violations, options?: FormatViolationsOptions): string;
 export declare function formatFileDetails(files: FileMetrics[], limit?: number): string;
 export declare function escapeMarkdown(text: string): string;
-//# sourceMappingURL=report-formatter.d.ts.map

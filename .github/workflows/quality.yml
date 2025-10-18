@@ -257,13 +257,20 @@ jobs:
           # 再ビルド
           pnpm build
 
-          # 差分チェック
-          if diff -r dist/ dist-backup/ > /dev/null 2>&1; then
+          # 差分チェック（環境依存の生成物は除外）
+          # - *.map: ソースマップは環境によりパスが変わることがある
+          # - *.d.ts, *.d.ts.map: 型定義とそのマップも環境依存の差分が出やすい
+          if diff -r \
+            -x "*.map" \
+            -x "*.d.ts" \
+            -x "*.d.ts.map" \
+            dist/ dist-backup/ > /dev/null 2>&1; then
             echo "✅ dist/ is up to date" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ dist/ differs from committed version" >> $GITHUB_STEP_SUMMARY
             echo "Run \`pnpm build\` and commit the changes" >> $GITHUB_STEP_SUMMARY
-            diff -r dist/ dist-backup/ || true
+            echo "(non-deterministic files are excluded: *.map, *.d.ts, *.d.ts.map)" >> $GITHUB_STEP_SUMMARY
+            diff -r -x "*.map" -x "*.d.ts" -x "*.d.ts.map" dist/ dist-backup/ || true
             exit 1
           fi
 

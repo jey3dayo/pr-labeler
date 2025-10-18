@@ -36,4 +36,3 @@ export declare function getFileLineCount(filePath: string, maxLines?: number): P
 export declare function isBinaryFile(filePath: string): Promise<boolean>;
 export declare function analyzeFiles(files: DiffFile[], config: AnalysisConfig, token: string, context: RepoContext): Promise<Result<AnalysisResult, FileAnalysisError>>;
 export {};
-//# sourceMappingURL=file-metrics.d.ts.map

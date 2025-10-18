@@ -38,4 +38,3 @@ export declare function parseCommentMode(value: string): 'auto' | 'always' | 'ne
 export declare function parseExcludePatterns(value: string): string[];
 export declare function parseSizeThresholds(value: string): Result<SizeThresholds, ParseError>;
 export declare function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, ConfigurationError | ParseError>;
-//# sourceMappingURL=input-mapper.d.ts.map

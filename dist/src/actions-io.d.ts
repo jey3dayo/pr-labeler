@@ -54,4 +54,3 @@ export declare function getPullRequestContext(): {
     headSha: string;
     isDraft: boolean;
 };
-//# sourceMappingURL=actions-io.d.ts.map

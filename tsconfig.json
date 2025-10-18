@@ -11,7 +11,6 @@
     "rootDir": "./",
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": true,
     "removeComments": true,
     "newLine": "lf",
 
