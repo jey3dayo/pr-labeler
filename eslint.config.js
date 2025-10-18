@@ -91,6 +91,15 @@ module.exports = tseslint.config(
       'no-var': 'error',
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
+
+      // クラス構文の禁止
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ClassDeclaration',
+          message: 'クラス構文の使用は禁止されています。関数とオブジェクトを使用してください。',
+        },
+      ],
     },
   },
 
