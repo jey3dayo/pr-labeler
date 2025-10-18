@@ -267,10 +267,37 @@ jobs:
             exit 1
           fi
 
+  self-check:
+    name: PR Metrics Self-Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run PR Metrics Action (self-check)
+        uses: jey3dayo/pr-metrics-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file_size_limit: "100KB"
+          file_lines_limit: "500"
+          pr_additions_limit: "5000"
+          pr_files_limit: "50"
+          comment_on_pr: "auto"
+          apply_labels: "true"
+          enable_summary: "true"
+          fail_on_violation: "false"
+
   quality-gate:
     name: Quality Gate
     runs-on: ubuntu-latest
-    needs: [detect-changes, docs-quality, code-quality, integration-test]
+    needs: [detect-changes, docs-quality, code-quality, integration-test, self-check]
     if: always()
 
     steps:
@@ -281,6 +308,7 @@ jobs:
           docs_result="${{ needs.docs-quality.result }}"
           code_result="${{ needs.code-quality.result }}"
           integration_result="${{ needs.integration-test.result }}"
+          self_check_result="${{ needs.self-check.result }}"
 
           echo "## 🎯 Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -317,6 +345,14 @@ jobs:
               echo "✅ Integration tests passed" >> $GITHUB_STEP_SUMMARY
             else
               echo "❌ Integration tests failed" >> $GITHUB_STEP_SUMMARY
+              all_success=false
+            fi
+
+            # 自己チェック結果（PR時のみ）
+            if [[ "$self_check_result" == "success" ]]; then
+              echo "✅ PR Metrics self-check passed" >> $GITHUB_STEP_SUMMARY
+            elif [[ "$self_check_result" == "failure" ]]; then
+              echo "❌ PR Metrics self-check failed" >> $GITHUB_STEP_SUMMARY
               all_success=false
             fi
 
