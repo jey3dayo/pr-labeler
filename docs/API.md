@@ -18,6 +18,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
   - 複数の単位を含む場合はエラー（例: `"10KB 20MB"`）
   - 負の値は不可
 - **使用例**:
+
   ```yaml
   file_size_limit: "100KB"    # 100キロバイト
   file_size_limit: "1.5MB"    # 1.5メガバイト
@@ -34,6 +35,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
   - 正の整数のみ
   - 非数値はエラー
 - **使用例**:
+
   ```yaml
   file_lines_limit: "500"
   file_lines_limit: "1000"
@@ -47,6 +49,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **説明**: PR全体の追加行数上限（diff-based、削除行数は含まない）
 - **バリデーション**: 正の整数のみ
 - **使用例**:
+
   ```yaml
   pr_additions_limit: "5000"
   pr_additions_limit: "1000"
@@ -60,6 +63,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **説明**: PR内の最大ファイル数（削除されたファイルは除く）
 - **バリデーション**: 正の整数のみ
 - **使用例**:
+
   ```yaml
   pr_files_limit: "50"
   pr_files_limit: "100"
@@ -77,6 +81,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **説明**: 自動ラベル適用の有効/無効
 - **受け入れ値**: `"true"`, `"false"`, `"1"`, `"0"`, `"yes"`, `"no"`, `"on"`, `"off"` (大文字小文字を区別しない)
 - **使用例**:
+
   ```yaml
   apply_labels: "true"   # ラベル自動適用を有効化
   apply_labels: "false"  # ラベル自動適用を無効化
@@ -89,6 +94,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **デフォルト**: `"true"`
 - **説明**: 制限違反が解消された際に自動的にラベルを削除
 - **使用例**:
+
   ```yaml
   auto_remove_labels: "true"
   ```
@@ -100,6 +106,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **デフォルト**: `"true"`
 - **説明**: サイズラベル（size/S, size/M, size/L, size/XL, size/XXL）の適用
 - **使用例**:
+
   ```yaml
   apply_size_labels: "true"
   ```
@@ -116,9 +123,11 @@ PR Metrics Actionの詳細なAPI仕様書です。
   - 値は非負の整数
   - 単調性: S ≤ M ≤ L（additionsとfilesそれぞれで）
 - **使用例**:
+
   ```yaml
   size_label_thresholds: '{"S": {"additions": 50, "files": 5}, "M": {"additions": 200, "files": 15}, "L": {"additions": 500, "files": 30}}'
   ```
+
 - **エラーパターン**:
   - 必須フィールド欠如: `Missing required size thresholds (S, M, L)`
   - 単調性違反: `Size thresholds must be monotonic (S ≤ M ≤ L for additions)`
@@ -131,6 +140,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **デフォルト**: `"auto:large-files"`
 - **説明**: ファイルサイズまたは行数制限違反時に適用されるラベル
 - **使用例**:
+
   ```yaml
   large_files_label: "auto:large-files"
   large_files_label: "needs-splitting"
@@ -143,6 +153,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **デフォルト**: `"auto:too-many-files"`
 - **説明**: ファイル数制限違反時に適用されるラベル
 - **使用例**:
+
   ```yaml
   too_many_files_label: "auto:too-many-files"
   too_many_files_label: "too-large-pr"
@@ -159,6 +170,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **デフォルト**: `"true"`
 - **説明**: Draft PRをスキップ（分析を実行しない）
 - **使用例**:
+
   ```yaml
   skip_draft_pr: "true"   # Draft PRをスキップ
   skip_draft_pr: "false"  # Draft PRも分析
@@ -175,6 +187,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
   - `"always"`: 常にコメント投稿
   - `"never"`: コメント投稿しない（既存コメントは削除）
 - **使用例**:
+
   ```yaml
   comment_on_pr: "auto"     # 違反時のみコメント
   comment_on_pr: "always"   # 常にコメント
@@ -188,6 +201,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **デフォルト**: `"false"`
 - **説明**: 違反検出時にワークフローを失敗させる（`core.setFailed`を呼び出す）
 - **使用例**:
+
   ```yaml
   fail_on_violation: "true"   # 違反時にCIを失敗させる
   fail_on_violation: "false"  # 違反時も継続（ラベル・コメントのみ）
@@ -203,10 +217,12 @@ PR Metrics Actionの詳細なAPI仕様書です。
   - `"true"`: 分析結果をActions Summaryに表示
   - `"false"`: Summary出力をスキップ
 - **使用例**:
+
   ```yaml
   enable_summary: "true"   # Summary出力を有効化（デフォルト）
   enable_summary: "false"  # Summary出力を無効化
   ```
+
 - **注意**:
   - Summary書き込み失敗は非致命的エラー（警告ログのみ、アクション継続）
   - ラベル・コメント機能とは独立して動作
@@ -228,9 +244,11 @@ PR Metrics Actionの詳細なAPI仕様書です。
   - 空白行は無視
   - 重複パターンは自動削除
 - **使用例**:
+
   ```yaml
   additional_exclude_patterns: "**/*.generated.ts,**/*.min.js"
   ```
+
   ```yaml
   additional_exclude_patterns: |
     # 生成ファイル
@@ -256,9 +274,11 @@ PR Metrics Actionの詳細なAPI仕様書です。
   - `issues: write` - コメント投稿用
   - `contents: read` - ファイル読み取り用
 - **使用例**:
+
   ```yaml
   github_token: ${{ secrets.GITHUB_TOKEN }}
   ```
+
 - **エラーパターン**:
   - トークン未設定: `GitHub token is required. Set github_token input or GITHUB_TOKEN/GH_TOKEN environment variable`
 
@@ -271,6 +291,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **型**: `string` (JSON array)
 - **説明**: サイズまたは行数制限を超過したファイルの詳細情報
 - **構造**:
+
   ```json
   [
     {
@@ -282,7 +303,9 @@ PR Metrics Actionの詳細なAPI仕様書です。
     }
   ]
   ```
+
 - **使用例**:
+
   ```yaml
   - name: Check large files
     if: steps.metrics.outputs.large_files != '[]'
@@ -306,6 +329,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **型**: `string` (`"true"` | `"false"`)
 - **説明**: いずれかのファイルがサイズ制限を超過しているか
 - **使用例**:
+
   ```yaml
   - name: Notify on large files
     if: steps.metrics.outputs.exceeds_file_size == 'true'
@@ -332,6 +356,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **型**: `string` (`"true"` | `"false"`)
 - **説明**: いずれかの違反が存在するか（上記すべての論理和）
 - **使用例**:
+
   ```yaml
   - name: Block merge on violations
     if: steps.metrics.outputs.has_violations == 'true'
@@ -366,10 +391,12 @@ PR Metrics Actionの詳細なAPI仕様書です。
    **対処**: 数値文字列を指定（例: `"500"`）
 
 3. **トークン未設定**:
+
    ```
    [ConfigurationError] GitHub token is required.
    Set github_token input or GITHUB_TOKEN/GH_TOKEN environment variable
    ```
+
    **対処**: `github_token`を明示的に設定
 
 ### ParseError
@@ -395,9 +422,11 @@ JSON解析・検証エラー
    **対処**: S, M, Lすべてを含める
 
 3. **単調性違反**:
+
    ```
    [ParseError] Size thresholds must be monotonic (S ≤ M ≤ L for additions)
    ```
+
    **対処**: S ≤ M ≤ Lの順序を保つ
 
 ### GitHubAPIError
@@ -423,9 +452,11 @@ GitHub API呼び出しエラー
    **対処**: リトライまたは実行頻度を調整
 
 3. **ネットワークエラー**:
+
    ```
    [GitHubAPIError] Failed to fetch diff files: Network error
    ```
+
    **対処**: リトライまたはGitHub Statusを確認
 
 ### FileAnalysisError
@@ -443,9 +474,11 @@ GitHub API呼び出しエラー
    **対処**: ファイルは`filesWithErrors`にリストされ、分析は継続
 
 2. **行数カウント失敗**:
+
    ```
    [FileAnalysisError] Failed to count lines in src/binary.dat
    ```
+
    **対処**: バイナリファイルは自動スキップ、分析は継続
 
 ---
@@ -635,5 +668,5 @@ permissions:
 
 - [README.md](../README.md) - 基本的な使用方法
 - [action.yml](../action.yml) - アクション定義
-- [CHANGELOG.md](../CHANGELOG.md) - 変更履歴
 - [pattern-matcher.ts](../src/pattern-matcher.ts) - デフォルト除外パターン一覧
+- [TODO.md](TODO.md) - 実装タスク管理
