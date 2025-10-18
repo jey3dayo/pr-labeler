@@ -59,6 +59,7 @@
   ```
 
 - [ ] フォーマットが適用されている（`pnpm format:check`）
+
   ```bash
   pnpm format:check
   # 期待: All files formatted correctly
@@ -74,6 +75,7 @@
   ```
 
 - [ ] `dist/`ディレクトリがコミットされている
+
   ```bash
   git status dist/
   # 期待: dist/index.js が追跡されている

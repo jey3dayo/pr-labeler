@@ -669,4 +669,3 @@ permissions:
 - [README.md](../README.md) - 基本的な使用方法
 - [action.yml](../action.yml) - アクション定義
 - [pattern-matcher.ts](../src/pattern-matcher.ts) - デフォルト除外パターン一覧
-- [TODO.md](TODO.md) - 実装タスク管理
