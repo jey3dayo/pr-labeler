@@ -69,4 +69,3 @@ export declare const createPatternError: (pattern: string, message: string) => P
 export declare const createCacheError: (message: string, key?: string) => CacheError;
 export type { Err, Ok } from 'neverthrow';
 export { err, errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow';
-//# sourceMappingURL=errors.d.ts.map

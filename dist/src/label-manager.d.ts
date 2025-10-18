@@ -28,4 +28,3 @@ export declare function getCurrentLabels(token: string, context: PRContext): Pro
 export declare function addLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function removeLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function updateLabels(analysisResult: AnalysisResult, config: LabelConfig, token: string, context: PRContext): Promise<Result<LabelUpdate, GitHubAPIError | ConfigurationError>>;
-//# sourceMappingURL=label-manager.d.ts.map
