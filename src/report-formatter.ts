@@ -135,7 +135,7 @@ export function formatViolations(violations: Violations, options?: FormatViolati
 
     for (const violation of violations.largeFiles) {
       const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-      output += `| ${violation.file} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${status} |\n`;
+      output += `| ${escapeMarkdown(violation.file)} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${status} |\n`;
     }
     output += '\n';
   }
@@ -148,7 +148,7 @@ export function formatViolations(violations: Violations, options?: FormatViolati
 
     for (const violation of violations.exceedsFileLines) {
       const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-      output += `| ${violation.file} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${status} |\n`;
+      output += `| ${escapeMarkdown(violation.file)} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${status} |\n`;
     }
     output += '\n';
   }
@@ -176,7 +176,7 @@ export function formatFileDetails(files: FileMetrics[], limit?: number): string 
 
   for (const file of displayFiles) {
     const changes = `+${file.additions}/-${file.deletions}`;
-    output += `| ${file.filename} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
+    output += `| ${escapeMarkdown(file.filename)} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
   }
   output += '\n';
 
@@ -187,5 +187,5 @@ export function formatFileDetails(files: FileMetrics[], limit?: number): string 
  * Escape special markdown characters
  */
 export function escapeMarkdown(text: string): string {
-  return text.replace(/([_*[\]`])/g, '\\$1');
+  return text.replace(/([_*[\]`|])/g, '\\$1');
 }
