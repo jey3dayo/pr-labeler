@@ -1,1 +1,1 @@
-{"version":3,"file":"types.d.ts","sourceRoot":"","sources":["file:///Users/t00114/src/github.com/jey3dayo/pr-metrics-action/src/types.ts"],"names":[],"mappings":"AAOA,MAAM,WAAW,SAAS;IACxB,KAAK,EAAE,MAAM,CAAC;IACd,IAAI,EAAE,MAAM,CAAC;IACb,UAAU,EAAE,MAAM,CAAC;CACpB"}
+{"version":3,"file":"types.d.ts","sourceRoot":"","sources":["file:///home/runner/work/pr-metrics-action/pr-metrics-action/src/types.ts"],"names":[],"mappings":"AAOA,MAAM,WAAW,SAAS;IACxB,KAAK,EAAE,MAAM,CAAC;IACd,IAAI,EAAE,MAAM,CAAC;IACb,UAAU,EAAE,MAAM,CAAC;CACpB"}
