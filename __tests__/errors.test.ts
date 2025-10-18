@@ -12,6 +12,17 @@ import type {
   PatternError,
   CacheError,
 } from '../src/errors';
+import {
+  createFileAnalysisError,
+  createGitHubAPIError,
+  createConfigurationError,
+  createParseError,
+  createFileSystemError,
+  createViolationError,
+  createDiffError,
+  createPatternError,
+  createCacheError,
+} from '../src/errors';
 
 describe('Error Types', () => {
   describe('FileAnalysisError', () => {
@@ -335,6 +346,164 @@ describe('Result Type Utilities', () => {
       );
 
       expect(value).toBe('Success: 42');
+    });
+  });
+});
+
+describe('Error Factory Functions', () => {
+  describe('createFileAnalysisError', () => {
+    it('should create FileAnalysisError with correct structure', () => {
+      const error = createFileAnalysisError('src/test.ts', 'Analysis failed');
+
+      expect(error.type).toBe('FileAnalysisError');
+      expect(error.file).toBe('src/test.ts');
+      expect(error.message).toBe('Analysis failed');
+    });
+  });
+
+  describe('createGitHubAPIError', () => {
+    it('should create GitHubAPIError with status', () => {
+      const error = createGitHubAPIError('API rate limit exceeded', 403);
+
+      expect(error.type).toBe('GitHubAPIError');
+      expect(error.status).toBe(403);
+      expect(error.message).toBe('API rate limit exceeded');
+    });
+
+    it('should create GitHubAPIError without status', () => {
+      const error = createGitHubAPIError('Network error');
+
+      expect(error.type).toBe('GitHubAPIError');
+      expect(error.status).toBeUndefined();
+      expect(error.message).toBe('Network error');
+    });
+  });
+
+  describe('createConfigurationError', () => {
+    it('should create ConfigurationError with all fields', () => {
+      const error = createConfigurationError('github_token', undefined, 'Token is required');
+
+      expect(error.type).toBe('ConfigurationError');
+      expect(error.field).toBe('github_token');
+      expect(error.value).toBeUndefined();
+      expect(error.message).toBe('Token is required');
+    });
+
+    it('should create ConfigurationError with invalid value', () => {
+      const error = createConfigurationError('file_size_limit', '999TB', 'Invalid size format');
+
+      expect(error.type).toBe('ConfigurationError');
+      expect(error.field).toBe('file_size_limit');
+      expect(error.value).toBe('999TB');
+      expect(error.message).toBe('Invalid size format');
+    });
+  });
+
+  describe('createParseError', () => {
+    it('should create ParseError with input and message', () => {
+      const error = createParseError('100GB', 'Invalid size format');
+
+      expect(error.type).toBe('ParseError');
+      expect(error.input).toBe('100GB');
+      expect(error.message).toBe('Invalid size format');
+    });
+  });
+
+  describe('createFileSystemError', () => {
+    it('should create FileSystemError with path', () => {
+      const error = createFileSystemError('File not found', '/src/missing.ts');
+
+      expect(error.type).toBe('FileSystemError');
+      expect(error.path).toBe('/src/missing.ts');
+      expect(error.message).toBe('File not found');
+    });
+
+    it('should create FileSystemError without path', () => {
+      const error = createFileSystemError('Permission denied');
+
+      expect(error.type).toBe('FileSystemError');
+      expect(error.path).toBeUndefined();
+      expect(error.message).toBe('Permission denied');
+    });
+  });
+
+  describe('createViolationError', () => {
+    it('should create ViolationError with violations', () => {
+      const violations = {
+        largeFiles: [
+          {
+            file: 'src/large.ts',
+            actualValue: 150000,
+            limit: 102400,
+            violationType: 'size' as const,
+            severity: 'critical' as const,
+          },
+        ],
+        exceedsFileLines: [],
+        exceedsAdditions: true,
+        exceedsFileCount: false,
+      };
+      const error = createViolationError(violations, 'PR exceeds limits');
+
+      expect(error.type).toBe('ViolationError');
+      expect(error.violations).toEqual(violations);
+      expect(error.violations.largeFiles).toHaveLength(1);
+      expect(error.violations.exceedsAdditions).toBe(true);
+      expect(error.message).toBe('PR exceeds limits');
+    });
+  });
+
+  describe('createDiffError', () => {
+    it('should create DiffError with local-git source', () => {
+      const error = createDiffError('local-git', 'git command failed');
+
+      expect(error.type).toBe('DiffError');
+      expect(error.source).toBe('local-git');
+      expect(error.message).toBe('git command failed');
+    });
+
+    it('should create DiffError with github-api source', () => {
+      const error = createDiffError('github-api', 'API request failed');
+
+      expect(error.type).toBe('DiffError');
+      expect(error.source).toBe('github-api');
+      expect(error.message).toBe('API request failed');
+    });
+
+    it('should create DiffError with both source', () => {
+      const error = createDiffError('both', 'All diff strategies failed');
+
+      expect(error.type).toBe('DiffError');
+      expect(error.source).toBe('both');
+      expect(error.message).toBe('All diff strategies failed');
+    });
+  });
+
+  describe('createPatternError', () => {
+    it('should create PatternError with pattern details', () => {
+      const error = createPatternError('**[invalid', 'Invalid glob pattern syntax');
+
+      expect(error.type).toBe('PatternError');
+      expect(error.pattern).toBe('**[invalid');
+      expect(error.message).toBe('Invalid glob pattern syntax');
+    });
+  });
+
+  describe('createCacheError', () => {
+    it('should create CacheError with key', () => {
+      const error = createCacheError('Cache miss', 'file:123:size');
+
+      expect(error.type).toBe('CacheError');
+      expect(error.key).toBe('file:123:size');
+      expect(error.message).toBe('Cache miss');
+    });
+
+    it('should create CacheError without key', () => {
+      const error = createCacheError('Cache unavailable');
+
+      expect(error.type).toBe('CacheError');
+      expect(error.key).toBeUndefined();
+      expect(error.message).toBe('Cache unavailable');
     });
   });
 });
