@@ -188,5 +188,33 @@ describe('Label Decision Engine', () => {
       expect(decisions.reasoning).toHaveLength(decisions.labelsToAdd.length);
       expect(decisions.reasoning[0]?.category).toBe('size');
     });
+
+    it('should not add complexity label when metrics.complexity is undefined', () => {
+      const metrics: PRMetrics = {
+        totalAdditions: 120,
+        files: [{ filename: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
+      };
+
+      const result = decideLabels(metrics, config);
+      const decisions = result._unsafeUnwrap();
+      expect(decisions.labelsToAdd.find(l => l.startsWith('complexity/'))).toBeUndefined();
+    });
+
+    it('should not add complexity label when disabled in config', () => {
+      const customConfig = {
+        ...config,
+        complexity: { ...config.complexity, enabled: false },
+      };
+
+      const metrics: PRMetrics = {
+        totalAdditions: 120,
+        files: [{ filename: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
+        complexity: { maxComplexity: 99, filesAnalyzed: [], filesSkipped: [] },
+      };
+
+      const result = decideLabels(metrics, customConfig);
+      const decisions = result._unsafeUnwrap();
+      expect(decisions.labelsToAdd.find(l => l.startsWith('complexity/'))).toBeUndefined();
+    });
   });
 });

@@ -61,12 +61,11 @@ export function loadConfig(
 
     const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
 
-    // Check file size limit
-    if (content.length > MAX_CONFIG_SIZE) {
-      core.warning(
-        `Configuration file exceeds size limit (${content.length} > ${MAX_CONFIG_SIZE} bytes), using defaults`,
-      );
-      return errAsync(createConfigurationError(CONFIG_FILE_PATH, content.length, 'Configuration file too large'));
+    // Check file size limit (bytes)
+    const byteLen = Buffer.byteLength(content, 'utf-8');
+    if (byteLen > MAX_CONFIG_SIZE) {
+      core.warning(`Configuration file exceeds size limit (${byteLen} > ${MAX_CONFIG_SIZE} bytes), using defaults`);
+      return errAsync(createConfigurationError(CONFIG_FILE_PATH, byteLen, 'Configuration file too large'));
     }
 
     return parseYamlConfig(content);
@@ -344,8 +343,8 @@ export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerCo
  * Get default labeler configuration
  * Used when configuration file is not found or fails to parse
  *
- * @returns Default LabelerConfig
+ * @returns Default LabelerConfig (deep copy to prevent mutations)
  */
 export function getDefaultLabelerConfig(): LabelerConfig {
-  return DEFAULT_LABELER_CONFIG;
+  return JSON.parse(JSON.stringify(DEFAULT_LABELER_CONFIG));
 }

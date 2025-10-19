@@ -148,6 +148,24 @@ export function decideCategoryLabels(
 }
 
 /**
+ * Analyze risk factors from file changes
+ *
+ * @param files - List of changed file paths
+ * @param config - Risk configuration (core_paths and config_files)
+ * @returns Risk factors analysis
+ */
+function analyzeRiskFactors(
+  files: string[],
+  config: { core_paths: string[]; config_files: string[] },
+): { hasTestFiles: boolean; hasCoreChanges: boolean; hasConfigChanges: boolean } {
+  return {
+    hasTestFiles: files.some(f => f.includes('__tests__/') || f.match(/\.test\.(ts|tsx|js|jsx)$/) !== null),
+    hasCoreChanges: files.some(f => config.core_paths.some(pattern => minimatch(f, pattern))),
+    hasConfigChanges: files.some(f => config.config_files.some(pattern => minimatch(f, pattern))),
+  };
+}
+
+/**
  * Decide risk label based on file changes and configuration
  *
  * @param files - List of changed file paths
@@ -163,9 +181,7 @@ export function decideRiskLabel(
     config_files: string[];
   },
 ): string | null {
-  const hasTestFiles = files.some(f => f.includes('__tests__/') || f.match(/\.test\.(ts|tsx|js|jsx)$/) !== null);
-  const hasCoreChanges = files.some(f => config.core_paths.some(pattern => minimatch(f, pattern)));
-  const hasConfigChanges = files.some(f => config.config_files.some(pattern => minimatch(f, pattern)));
+  const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
 
   // High risk: No tests + core changes
   if (!hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
@@ -197,9 +213,7 @@ function getRiskReason(
   },
   label: string,
 ): string {
-  const hasTestFiles = files.some(f => f.includes('__tests__/') || f.match(/\.test\.(ts|tsx|js|jsx)$/) !== null);
-  const hasCoreChanges = files.some(f => config.core_paths.some(pattern => minimatch(f, pattern)));
-  const hasConfigChanges = files.some(f => config.config_files.some(pattern => minimatch(f, pattern)));
+  const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
 
   if (label === 'risk/high' && !hasTestFiles && hasCoreChanges) {
     return 'core functionality changed without test files';

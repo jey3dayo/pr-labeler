@@ -1,5 +1,5 @@
 import * as github from '@actions/github';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { applyLabels, getCurrentLabels } from '../src/label-applicator';
 import type { LabelDecisions } from '../src/labeler-types';
@@ -13,6 +13,11 @@ const mockContext: PRContext = {
 };
 
 describe('Label Applicator', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
+  });
   describe('getCurrentLabels', () => {
     it('should get current labels from PR', async () => {
       const mockListLabels = vi.fn().mockResolvedValue({
@@ -27,9 +32,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
-
-      const result = await getCurrentLabels('token', mockContext);
+      const result = await getCurrentLabels(mockOctokit as any, mockContext);
       expect(result.isOk()).toBe(true);
       const labels = result._unsafeUnwrap();
       expect(labels).toEqual(['size/medium', 'category/tests']);
@@ -46,9 +49,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
-
-      const result = await getCurrentLabels('token', mockContext);
+      const result = await getCurrentLabels(mockOctokit as any, mockContext);
       expect(result.isErr()).toBe(true);
       const error = result._unsafeUnwrapErr();
       expect(error.type).toBe('GitHubAPIError');

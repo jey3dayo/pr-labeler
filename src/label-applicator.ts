@@ -32,7 +32,7 @@ export function applyLabels(
   const octokit = github.getOctokit(token);
 
   // Get current labels
-  return getCurrentLabels(token, context).andThen(currentLabels => {
+  return getCurrentLabels(octokit, context).andThen(currentLabels => {
     // Calculate diff based on namespace policies
     const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies);
 
@@ -54,13 +54,14 @@ export function applyLabels(
 /**
  * Get current labels from PR
  *
- * @param token - GitHub API token
+ * @param octokit - GitHub API client
  * @param context - PR context
  * @returns Array of current label names or GitHubAPIError
  */
-export function getCurrentLabels(token: string, context: PRContext): ResultAsync<string[], GitHubAPIError> {
-  const octokit = github.getOctokit(token);
-
+export function getCurrentLabels(
+  octokit: ReturnType<typeof github.getOctokit>,
+  context: PRContext,
+): ResultAsync<string[], GitHubAPIError> {
   return ResultAsync.fromPromise(
     octokit.rest.issues.listLabelsOnIssue({
       owner: context.owner,
@@ -232,8 +233,22 @@ async function retryWithBackoff<T>(fn: () => Promise<T>, maxRetries: number = MA
  * @param error - Error object
  * @returns True if rate limit error
  */
-function isRateLimitError(error: { status?: number }): boolean {
-  return error.status === 429;
+function isRateLimitError(error: {
+  status?: number;
+  message?: string;
+  response?: { headers?: Record<string, string> };
+}): boolean {
+  if (error.status === 429) {
+    return true;
+  }
+
+  // GitHub secondary rate limits frequently use 403
+  if (error.status === 403) {
+    const hdrs = error.response?.headers || {};
+    return hdrs['x-ratelimit-remaining'] === '0' || /rate limit|abuse detection/i.test(error.message || '');
+  }
+
+  return false;
 }
 
 /**

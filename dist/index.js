@@ -35191,9 +35191,10 @@ function loadConfig(token, owner, repo, ref) {
             return (0, neverthrow_1.errAsync)((0, errors_js_1.createConfigurationError)(CONFIG_FILE_PATH, response.data, 'Response does not contain file content'));
         }
         const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-        if (content.length > MAX_CONFIG_SIZE) {
-            core.warning(`Configuration file exceeds size limit (${content.length} > ${MAX_CONFIG_SIZE} bytes), using defaults`);
-            return (0, neverthrow_1.errAsync)((0, errors_js_1.createConfigurationError)(CONFIG_FILE_PATH, content.length, 'Configuration file too large'));
+        const byteLen = Buffer.byteLength(content, 'utf-8');
+        if (byteLen > MAX_CONFIG_SIZE) {
+            core.warning(`Configuration file exceeds size limit (${byteLen} > ${MAX_CONFIG_SIZE} bytes), using defaults`);
+            return (0, neverthrow_1.errAsync)((0, errors_js_1.createConfigurationError)(CONFIG_FILE_PATH, byteLen, 'Configuration file too large'));
         }
         return parseYamlConfig(content);
     });
@@ -35342,7 +35343,7 @@ function mergeWithDefaults(userConfig) {
     };
 }
 function getDefaultLabelerConfig() {
-    return labeler_types_js_1.DEFAULT_LABELER_CONFIG;
+    return JSON.parse(JSON.stringify(labeler_types_js_1.DEFAULT_LABELER_CONFIG));
 }
 
 
@@ -36125,7 +36126,7 @@ const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY_MS = 1000;
 function applyLabels(token, context, decisions, config) {
     const octokit = github.getOctokit(token);
-    return getCurrentLabels(token, context).andThen(currentLabels => {
+    return getCurrentLabels(octokit, context).andThen(currentLabels => {
         const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies);
         core.info(`Label diff: +${diff.toAdd.length} labels, -${diff.toRemove.length} labels`);
         const apiCalls = 1;
@@ -36137,8 +36138,7 @@ function applyLabels(token, context, decisions, config) {
         }));
     });
 }
-function getCurrentLabels(token, context) {
-    const octokit = github.getOctokit(token);
+function getCurrentLabels(octokit, context) {
     return neverthrow_1.ResultAsync.fromPromise(octokit.rest.issues.listLabelsOnIssue({
         owner: context.owner,
         repo: context.repo,
@@ -36243,7 +36243,14 @@ async function retryWithBackoff(fn, maxRetries = MAX_RETRIES) {
     throw new Error('Max retries exceeded');
 }
 function isRateLimitError(error) {
-    return error.status === 429;
+    if (error.status === 429) {
+        return true;
+    }
+    if (error.status === 403) {
+        const hdrs = error.response?.headers || {};
+        return hdrs['x-ratelimit-remaining'] === '0' || /rate limit|abuse detection/i.test(error.message || '');
+    }
+    return false;
 }
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -36353,10 +36360,15 @@ function decideCategoryLabels(files, categories) {
     }
     return matchedLabels;
 }
+function analyzeRiskFactors(files, config) {
+    return {
+        hasTestFiles: files.some(f => f.includes('__tests__/') || f.match(/\.test\.(ts|tsx|js|jsx)$/) !== null),
+        hasCoreChanges: files.some(f => config.core_paths.some(pattern => (0, minimatch_1.minimatch)(f, pattern))),
+        hasConfigChanges: files.some(f => config.config_files.some(pattern => (0, minimatch_1.minimatch)(f, pattern))),
+    };
+}
 function decideRiskLabel(files, config) {
-    const hasTestFiles = files.some(f => f.includes('__tests__/') || f.match(/\.test\.(ts|tsx|js|jsx)$/) !== null);
-    const hasCoreChanges = files.some(f => config.core_paths.some(pattern => (0, minimatch_1.minimatch)(f, pattern)));
-    const hasConfigChanges = files.some(f => config.config_files.some(pattern => (0, minimatch_1.minimatch)(f, pattern)));
+    const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
     if (!hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
         return 'risk/high';
     }
@@ -36366,9 +36378,7 @@ function decideRiskLabel(files, config) {
     return null;
 }
 function getRiskReason(files, config, label) {
-    const hasTestFiles = files.some(f => f.includes('__tests__/') || f.match(/\.test\.(ts|tsx|js|jsx)$/) !== null);
-    const hasCoreChanges = files.some(f => config.core_paths.some(pattern => (0, minimatch_1.minimatch)(f, pattern)));
-    const hasConfigChanges = files.some(f => config.config_files.some(pattern => (0, minimatch_1.minimatch)(f, pattern)));
+    const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
     if (label === 'risk/high' && !hasTestFiles && hasCoreChanges) {
         return 'core functionality changed without test files';
     }
@@ -41288,47 +41298,54 @@ async function run() {
                 }
             }
         }
-        (0, actions_io_1.logInfo)('🔧 Loading PR Labeler configuration...');
-        const labelerConfigResult = await (0, config_loader_1.loadConfig)(token, prContext.owner, prContext.repo, prContext.headSha);
-        const labelerConfig = labelerConfigResult.unwrapOr((0, config_loader_1.getDefaultLabelerConfig)());
-        if (labelerConfigResult.isErr()) {
-            (0, actions_io_1.logInfo)('  - Using default labeler configuration');
-        }
-        else {
-            (0, actions_io_1.logInfo)('  - Loaded custom labeler configuration from .github/pr-labeler.yml');
-        }
-        (0, actions_io_1.logInfo)('🎯 Deciding labels based on PR metrics...');
-        const prMetrics = {
-            totalAdditions: analysis.metrics.totalAdditions,
-            files: analysis.metrics.filesAnalyzed,
-        };
-        const labelerDecisions = (0, label_decision_engine_1.decideLabels)(prMetrics, labelerConfig);
-        if (labelerDecisions.isOk()) {
-            const decisions = labelerDecisions.value;
-            (0, actions_io_1.logInfo)(`  - Labels to add: ${decisions.labelsToAdd.join(', ') || 'none'}`);
-            (0, actions_io_1.logInfo)(`  - Labels to remove: ${decisions.labelsToRemove.join(', ') || 'none'}`);
-            (0, actions_io_1.logInfo)('✨ Applying PR Labeler decisions...');
-            const applyResult = await (0, label_applicator_1.applyLabels)(token, {
-                owner: prContext.owner,
-                repo: prContext.repo,
-                pullNumber: prContext.pullNumber,
-            }, decisions, labelerConfig.labels);
-            if (applyResult.isErr()) {
-                if (applyResult.error.status === 403) {
-                    (0, actions_io_1.logWarning)('  - Skipped label operations (insufficient permissions)');
-                }
-                else if (labelerConfig.runtime.fail_on_error) {
-                    (0, actions_io_1.logError)(`  - Failed to apply labels: ${applyResult.error.message}`);
-                    (0, actions_io_1.setFailed)('PR Labeler failed to apply labels');
-                }
-                else {
-                    (0, actions_io_1.logWarning)(`  - Failed to apply labels: ${applyResult.error.message}`);
-                }
+        if (config.applyLabels) {
+            (0, actions_io_1.logInfo)('🔧 Loading PR Labeler configuration...');
+            const labelerConfigResult = await (0, config_loader_1.loadConfig)(token, prContext.owner, prContext.repo, prContext.headSha);
+            const labelerConfig = labelerConfigResult.unwrapOr((0, config_loader_1.getDefaultLabelerConfig)());
+            if (labelerConfigResult.isErr()) {
+                (0, actions_io_1.logInfo)('  - Using default labeler configuration');
             }
             else {
-                const update = applyResult.value;
-                (0, actions_io_1.logInfo)(`  - Applied: +${update.added.length} labels, -${update.removed.length} labels`);
-                (0, actions_io_1.logInfo)(`  - API calls: ${update.apiCalls}`);
+                (0, actions_io_1.logInfo)('  - Loaded custom labeler configuration from .github/pr-labeler.yml');
+            }
+            (0, actions_io_1.logInfo)('🎯 Deciding labels based on PR metrics...');
+            const prMetrics = {
+                totalAdditions: analysis.metrics.totalAdditions,
+                files: analysis.metrics.filesAnalyzed,
+            };
+            const labelerDecisions = (0, label_decision_engine_1.decideLabels)(prMetrics, labelerConfig);
+            if (labelerDecisions.isOk()) {
+                const decisions = labelerDecisions.value;
+                (0, actions_io_1.logInfo)(`  - Labels to add: ${decisions.labelsToAdd.join(', ') || 'none'}`);
+                (0, actions_io_1.logInfo)(`  - Labels to remove: ${decisions.labelsToRemove.join(', ') || 'none'}`);
+                if (labelerConfig.runtime.dry_run) {
+                    (0, actions_io_1.logInfo)('✨ Dry run: skipping label API calls (decisions logged above)');
+                }
+                else {
+                    (0, actions_io_1.logInfo)('✨ Applying PR Labeler decisions...');
+                    const applyResult = await (0, label_applicator_1.applyLabels)(token, {
+                        owner: prContext.owner,
+                        repo: prContext.repo,
+                        pullNumber: prContext.pullNumber,
+                    }, decisions, labelerConfig.labels);
+                    if (applyResult.isErr()) {
+                        if (applyResult.error.status === 403) {
+                            (0, actions_io_1.logWarning)('  - Skipped label operations (insufficient permissions)');
+                        }
+                        else if (labelerConfig.runtime.fail_on_error) {
+                            (0, actions_io_1.logError)(`  - Failed to apply labels: ${applyResult.error.message}`);
+                            (0, actions_io_1.setFailed)('PR Labeler failed to apply labels');
+                        }
+                        else {
+                            (0, actions_io_1.logWarning)(`  - Failed to apply labels: ${applyResult.error.message}`);
+                        }
+                    }
+                    else {
+                        const update = applyResult.value;
+                        (0, actions_io_1.logInfo)(`  - Applied: +${update.added.length} labels, -${update.removed.length} labels`);
+                        (0, actions_io_1.logInfo)(`  - API calls: ${update.apiCalls}`);
+                    }
+                }
             }
         }
         if (config.commentOnPr !== 'never') {
