@@ -20,10 +20,21 @@ PR Metrics Actionは、GitHubのPull Requestのサイズと品質を自動的に
 
 ### 🏷️ 自動ラベル付け
 
+**基本ラベリング機能**:
+
 - PRサイズに応じた5段階ラベル（S/M/L/XL/XXL）を自動適用
 - 制限違反時の警告ラベル（auto:large-files, auto:too-many-files）
 - カスタマイズ可能な閾値設定（JSON形式）
 - ラベルの自動削除機能（制限クリア時）
+
+**🆕 PR Labeler機能（インテリジェントラベリング）**:
+
+- **サイズベース**: PR追加行数に基づく4段階ラベル（size/small, size/medium, size/large, size/xlarge）
+- **複雑度ベース**: 循環的複雑度に基づくラベル（complexity/medium, complexity/high）
+- **カテゴリベース**: ディレクトリパターンに基づくラベル（category/tests, category/ci-cd等）
+- **リスクベース**: テストカバレッジとコア変更に基づくラベル（risk/high, risk/medium）
+- **柔軟な設定**: YAML設定ファイル（.github/pr-labeler.yml）でカスタマイズ可能
+- **名前空間ポリシー**: サイズ・複雑度・リスクは置換、カテゴリは加法的
 
 ### 💬 コメント投稿
 

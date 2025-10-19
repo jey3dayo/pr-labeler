@@ -82,6 +82,13 @@ export interface CacheError {
   message: string;
 }
 
+// Error Type 10: Complexity Analysis Error
+export interface ComplexityAnalysisError {
+  type: 'ComplexityAnalysisError';
+  filename?: string; // エラーが発生したファイル（全ファイル失敗時はundefined）
+  message: string;
+}
+
 // Union type for all application errors
 export type AppError =
   | FileAnalysisError
@@ -92,7 +99,8 @@ export type AppError =
   | ViolationError
   | DiffError
   | PatternError
-  | CacheError;
+  | CacheError
+  | ComplexityAnalysisError;
 
 // Error creation helpers
 export const createFileAnalysisError = (file: string, message: string): FileAnalysisError => ({
@@ -161,6 +169,17 @@ export const createCacheError = (message: string, key?: string): CacheError => {
   };
   if (key !== undefined) {
     error.key = key;
+  }
+  return error;
+};
+
+export const createComplexityAnalysisError = (message: string, filename?: string): ComplexityAnalysisError => {
+  const error: ComplexityAnalysisError = {
+    type: 'ComplexityAnalysisError',
+    message,
+  };
+  if (filename !== undefined) {
+    error.filename = filename;
   }
   return error;
 };

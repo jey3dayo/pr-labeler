@@ -21,7 +21,7 @@ const mockOctokit = {
       listComments: vi.fn(),
     },
     repos: {
-      getContent: vi.fn(),
+      getContent: vi.fn().mockRejectedValue({ status: 404, message: 'Not Found' }), // Default: config file not found
     },
   },
 };
