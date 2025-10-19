@@ -18,6 +18,7 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 ### Active Specifications
 
 - `actions-summary-output`: GitHub Actions Summary出力機能 - PR分析結果をActions Summaryに表示
+- `pr-labeler`: PRに対する自動ラベル付与機能
 - Check `.kiro/specs/` for active specifications
 - Use `/kiro:spec-status [feature-name]` to check progress
 

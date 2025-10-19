@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - TBD
+
+### Added
+
+#### 🆕 PR Labeler - インテリジェント自動ラベル付け機能
+
+PRメトリクス分析に基づいた高度な自動ラベル付け機能を追加。従来のサイズラベル（S/M/L/XL/XXL）に加え、複数のディメンションでPRを分類します。
+
+**サイズベースラベル**:
+
+- `size/small` - 追加行数 < 100行
+- `size/medium` - 追加行数 100-500行
+- `size/large` - 追加行数 500-1000行
+- `size/xlarge` - 追加行数 >= 1000行
+- 既存のsize/\*ラベルを自動置換（一意性保証）
+
+**カテゴリベースラベル**:
+
+- `category/tests` - テストファイルの変更（`__tests__/**`, `**/*.test.ts`）
+- `category/ci-cd` - CI/CD設定の変更（`.github/workflows/**`）
+- `category/documentation` - ドキュメント変更（`docs/**`, `**/*.md`）
+- `category/components` - コンポーネント変更（`src/components/**`）
+- minimatchパターンマッチングでカスタマイズ可能
+- 複数カテゴリ同時付与（加法ポリシー）
+
+**リスクベースラベル**:
+
+- `risk/high` - テストなしでコア機能変更（`src/**`）
+- `risk/medium` - 設定ファイル変更（`package.json`, `tsconfig.json`, `.github/workflows/**`）
+- レビュー優先度の可視化
+
+**設定の柔軟性**:
+
+- `.github/pr-labeler.yml`でカスタマイズ可能
+- 閾値、パターン、ラベル名をプロジェクト固有に調整
+- デフォルト設定でゼロ設定で即利用可能
+
+**技術実装**:
+
+- Railway-Oriented Programming（neverthrow）による堅牢なエラーハンドリング
+- 冪等性保証（同じPR状態で再実行しても同じラベル）
+- 権限不足時の適切な処理（フォークPR対応）
+- レート制限対応（指数バックオフリトライ）
+- 新規依存関係: `js-yaml` 4.1.0（YAML設定パース）
+
+**テストカバレッジ**: 90.17%（282テスト成功）
+
+#### 新規モジュール
+
+- `src/labeler-types.ts` - PR Labeler用の型定義とデフォルト設定
+- `src/config-loader.ts` - YAML設定の読み込みとバリデーション
+- `src/label-decision-engine.ts` - サイズ、カテゴリ、リスクのラベル判定ロジック
+- `src/label-applicator.ts` - 冪等性を保証したラベル適用
+
+### Changed
+
+- `src/index.ts` - PR Labeler機能を既存フローに統合
+- `src/errors.ts` - ComplexityAnalysisError型を追加
+
+### Note
+
+**複雑度ベースラベル（complexity/medium, complexity/high）は将来拡張として v1.2.0 で実装予定**
+
 ## [1.0.1] - 2025-10-19
 
 ### Fixed

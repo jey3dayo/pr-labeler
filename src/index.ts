@@ -16,11 +16,15 @@ import {
   writeSummaryWithAnalysis,
 } from './actions-io';
 import { manageComment } from './comment-manager';
+import { getDefaultLabelerConfig, loadConfig } from './config-loader';
 import { getDiffFiles } from './diff-strategy';
 import type { AppError } from './errors';
 import { analyzeFiles } from './file-metrics';
 import { mapActionInputsToConfig } from './input-mapper';
+import { applyLabels } from './label-applicator';
+import { decideLabels } from './label-decision-engine';
 import { updateLabels } from './label-manager';
+import type { PRMetrics } from './labeler-types';
 
 /**
  * Main action function
@@ -172,6 +176,59 @@ async function run(): Promise<void> {
         if (removed.length > 0) {
           logInfo(`  - Removed labels: ${removed.join(', ')}`);
         }
+      }
+    }
+
+    // Step 7.5: Load PR Labeler configuration
+    logInfo('🔧 Loading PR Labeler configuration...');
+    const labelerConfigResult = await loadConfig(token, prContext.owner, prContext.repo, prContext.headSha);
+    const labelerConfig = labelerConfigResult.unwrapOr(getDefaultLabelerConfig());
+    if (labelerConfigResult.isErr()) {
+      logInfo('  - Using default labeler configuration');
+    } else {
+      logInfo('  - Loaded custom labeler configuration from .github/pr-labeler.yml');
+    }
+
+    // Step 7.6: Decide labels with PR Labeler
+    logInfo('🎯 Deciding labels based on PR metrics...');
+    const prMetrics: PRMetrics = {
+      totalAdditions: analysis.metrics.totalAdditions,
+      files: analysis.metrics.filesAnalyzed,
+      // complexity is undefined for now (Task 3 not implemented yet)
+    };
+
+    const labelerDecisions = decideLabels(prMetrics, labelerConfig);
+    if (labelerDecisions.isOk()) {
+      const decisions = labelerDecisions.value;
+      logInfo(`  - Labels to add: ${decisions.labelsToAdd.join(', ') || 'none'}`);
+      logInfo(`  - Labels to remove: ${decisions.labelsToRemove.join(', ') || 'none'}`);
+
+      // Step 7.7: Apply labels with PR Labeler
+      logInfo('✨ Applying PR Labeler decisions...');
+      const applyResult = await applyLabels(
+        token,
+        {
+          owner: prContext.owner,
+          repo: prContext.repo,
+          pullNumber: prContext.pullNumber,
+        },
+        decisions,
+        labelerConfig.labels,
+      );
+
+      if (applyResult.isErr()) {
+        if (applyResult.error.status === 403) {
+          logWarning('  - Skipped label operations (insufficient permissions)');
+        } else if (labelerConfig.runtime.fail_on_error) {
+          logError(`  - Failed to apply labels: ${applyResult.error.message}`);
+          setFailed('PR Labeler failed to apply labels');
+        } else {
+          logWarning(`  - Failed to apply labels: ${applyResult.error.message}`);
+        }
+      } else {
+        const update = applyResult.value;
+        logInfo(`  - Applied: +${update.added.length} labels, -${update.removed.length} labels`);
+        logInfo(`  - API calls: ${update.apiCalls}`);
       }
     }
 

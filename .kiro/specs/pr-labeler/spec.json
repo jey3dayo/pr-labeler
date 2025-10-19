@@ -1,0 +1,24 @@
+{
+  "feature_name": "pr-labeler",
+  "created_at": "2025-10-19T00:00:00Z",
+  "updated_at": "2025-10-19T06:00:00Z",
+  "language": "ja",
+  "phase": "implementation-in-progress",
+  "description": "PRメトリクス分析に基づく自動ラベル付けアクション（サイズ、複雑度、リスク、カテゴリ）",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "ready_for_implementation": true,
+  "implementation_notes": "Core functionality implemented (config loader, label decision engine, label applicator). Complexity analysis (Task 3) deferred as optional feature. All quality checks passing (lint, type-check, test, build). Coverage: 90.17%."
+}

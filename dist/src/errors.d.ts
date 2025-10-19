@@ -57,7 +57,12 @@ export interface CacheError {
     key?: string;
     message: string;
 }
-export type AppError = FileAnalysisError | GitHubAPIError | ConfigurationError | ParseError | FileSystemError | ViolationError | DiffError | PatternError | CacheError;
+export interface ComplexityAnalysisError {
+    type: 'ComplexityAnalysisError';
+    filename?: string;
+    message: string;
+}
+export type AppError = FileAnalysisError | GitHubAPIError | ConfigurationError | ParseError | FileSystemError | ViolationError | DiffError | PatternError | CacheError | ComplexityAnalysisError;
 export declare const createFileAnalysisError: (file: string, message: string) => FileAnalysisError;
 export declare const createGitHubAPIError: (message: string, status?: number) => GitHubAPIError;
 export declare const createConfigurationError: (field: string, value: unknown, message: string) => ConfigurationError;
@@ -67,5 +72,6 @@ export declare const createViolationError: (violations: Violations, message: str
 export declare const createDiffError: (source: "local-git" | "github-api" | "both", message: string) => DiffError;
 export declare const createPatternError: (pattern: string, message: string) => PatternError;
 export declare const createCacheError: (message: string, key?: string) => CacheError;
+export declare const createComplexityAnalysisError: (message: string, filename?: string) => ComplexityAnalysisError;
 export type { Err, Ok } from 'neverthrow';
 export { err, errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow';

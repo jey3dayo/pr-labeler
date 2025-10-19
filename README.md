@@ -8,6 +8,8 @@ PRのサイズと品質を自動的にチェックし、ラベル付けとコメ
 
 ## 🚀 機能
 
+### コア機能
+
 - **📏 ファイルサイズチェック**: 個別ファイルのサイズ制限を監視
 - **📝 行数制限チェック**: ファイルごと・PR全体の行数を制限
 - **🏷️ 自動ラベル付け**: PRサイズに応じたラベル（S/M/L/XL/XXL）を自動適用
@@ -15,6 +17,37 @@ PRのサイズと品質を自動的にチェックし、ラベル付けとコメ
 - **📊 GitHub Actions Summary出力**: ワークフローサマリーページにメトリクスを表示
 - **🎯 柔軟な除外パターン**: minimatchによる高度なファイル除外設定
 - **🔄 冪等性**: 何度実行しても同じ結果を保証
+
+### 🆕 PR Labeler - インテリジェント自動ラベル付け
+
+PRメトリクス分析に基づいた高度な自動ラベル付け機能。複数のディメンションでPRを自動分類します。
+
+**サイズベースラベル**（自動置換）:
+
+- `size/small` - 追加行数 < 100行
+- `size/medium` - 追加行数 100-500行
+- `size/large` - 追加行数 500-1000行
+- `size/xlarge` - 追加行数 >= 1000行
+
+**カテゴリベースラベル**（加法的）:
+
+- `category/tests` - テストファイルの変更
+- `category/ci-cd` - CI/CD設定の変更
+- `category/documentation` - ドキュメント変更
+- `category/components` - コンポーネント変更
+- カスタムカテゴリをYAML設定で追加可能
+
+**リスクベースラベル**:
+
+- `risk/high` - テストなしでコア機能変更
+- `risk/medium` - 設定ファイル変更
+
+**特徴**:
+
+- ✅ ゼロ設定で即利用可能（デフォルト設定内蔵）
+- ✅ `.github/pr-labeler.yml`でカスタマイズ可能
+- ✅ 冪等性保証（同じPR状態で再実行しても同じラベル）
+- ✅ 権限不足時の適切な処理（フォークPR対応）
 
 ## 📋 使用方法
 
@@ -36,6 +69,66 @@ jobs:
       - uses: jey3dayo/pr-metrics-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### 実践例（このリポジトリで使用中）
+
+このリポジトリでは以下の設定で実際に動作しています。このファイルをコピーして `.github/workflows/` に配置すればすぐに使えます：
+
+```yaml
+# .github/workflows/pr-check.yml
+name: PR Size Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-metrics:
+    name: PR Metrics Check
+    runs-on: ubuntu-latest
+
+    # 必要な権限を設定
+    permissions:
+      pull-requests: write  # ラベル管理用
+      issues: write         # コメント投稿用
+      contents: read        # ファイル読み取り用
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # PR全体の差分を取得するため fetch-depth: 0 が必要
+          fetch-depth: 0
+
+      - uses: jey3dayo/pr-metrics-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+          # ファイルサイズ・行数制限
+          file_size_limit: "100KB"      # 個別ファイルの最大サイズ
+          file_lines_limit: "500"       # 個別ファイルの最大行数
+          pr_additions_limit: "5000"    # PR全体の追加行数上限
+          pr_files_limit: "50"          # 変更ファイル数の上限
+
+          # 動作設定
+          comment_on_pr: "auto"         # 違反時のみコメント (always/auto/never)
+          apply_labels: "true"          # サイズラベル自動適用 (size/S, size/M など)
+          enable_summary: "true"        # GitHub Actions Summary に出力
+          fail_on_violation: "false"    # 違反時もCIは失敗させない（警告のみ）
+
+          # 以下のファイルは自動的に除外されます（additional_exclude_patterns不要）:
+          # - ロックファイル: package-lock.json, yarn.lock, pnpm-lock.yaml など
+          # - 依存関係: node_modules/**, vendor/** など
+          # - ビルド成果物: dist/**, build/**, .next/** など
+          # - 最小化ファイル: *.min.js, *.min.css
+          # - バイナリファイル: 画像、動画、実行ファイル
+          # 完全なリストは pattern-matcher.ts を参照
+
+          # 追加で除外したい場合は以下のように設定:
+          # additional_exclude_patterns: |
+          #   **/*.generated.ts
+          #   **/*.gen.go
+          #   coverage/**
 ```
 
 ### カスタム設定例
@@ -153,7 +246,7 @@ GitHub Actions job summaryには以下の制限があります：
 
 ## 🏷️ 自動適用ラベル
 
-### サイズラベル
+### 基本サイズラベル（既存機能）
 
 - `size/S` - Small (additions ≤ 100 かつ files ≤ 10)
 - `size/M` - Medium (additions ≤ 500 かつ files ≤ 30)
@@ -161,10 +254,34 @@ GitHub Actions job summaryには以下の制限があります：
 - `size/XL` - Extra Large (L超過、2000行以下)
 - `size/XXL` - Huge (2000行超)
 
-### 違反ラベル
+### 違反ラベル（既存機能）
 
 - `auto:large-files` - ファイルサイズまたは行数制限違反
 - `auto:too-many-files` - ファイル数制限違反
+
+### 🆕 PR Labelerラベル（新機能）
+
+**サイズラベル**（置換ポリシー）:
+
+- `size/small` - 追加行数 < 100行
+- `size/medium` - 追加行数 100-500行
+- `size/large` - 追加行数 500-1000行
+- `size/xlarge` - 追加行数 >= 1000行
+
+**カテゴリラベル**（加法ポリシー - 複数付与可能）:
+
+- `category/tests` - テストファイルの変更
+- `category/ci-cd` - CI/CD設定の変更
+- `category/documentation` - ドキュメント変更
+- `category/components` - コンポーネント変更
+- カスタムカテゴリ追加可能（YAML設定）
+
+**リスクラベル**（置換ポリシー）:
+
+- `risk/high` - テストなしでコア機能変更（src/\*\*）
+- `risk/medium` - 設定ファイル変更
+
+**カスタマイズ**: `.github/pr-labeler.yml`で閾値、パターン、ラベル名を変更可能（上記の設定例参照）
 
 ## 🔒 必要な権限
 
@@ -255,6 +372,66 @@ GitHub Actions Summaryのみを使用：
     comment_on_pr: "never"
     enable_summary: "true"  # Summaryのみ出力
 ```
+
+### 🆕 PR Labeler設定のカスタマイズ
+
+`.github/pr-labeler.yml`を作成してPR Labelerの動作をカスタマイズできます：
+
+```yaml
+# .github/pr-labeler.yml
+# サイズラベル設定
+size:
+  thresholds:
+    small: 50      # 小規模PRの閾値（デフォルト: 100）
+    medium: 200    # 中規模PRの閾値（デフォルト: 500）
+    large: 500     # 大規模PRの閾値（デフォルト: 1000）
+
+# カテゴリラベル設定
+categories:
+  - label: "category/tests"
+    patterns:
+      - "__tests__/**"
+      - "**/*.test.ts"
+      - "**/*.test.tsx"
+
+  - label: "category/ci-cd"
+    patterns:
+      - ".github/workflows/**"
+
+  - label: "category/documentation"
+    patterns:
+      - "docs/**"
+      - "**/*.md"
+
+  - label: "category/backend"  # カスタムカテゴリ
+    patterns:
+      - "src/api/**"
+      - "src/services/**"
+
+# リスク判定設定
+risk:
+  high_if_no_tests_for_core: true
+  core_paths:
+    - "src/**"
+  config_files:
+    - ".github/workflows/**"
+    - "package.json"
+    - "tsconfig.json"
+
+# ラベル操作設定
+labels:
+  create_missing: true  # 存在しないラベルを自動作成
+  namespace_policies:
+    "size/*": replace      # サイズラベルは置換（一意性保証）
+    "category/*": additive # カテゴリラベルは加法的（複数付与可能）
+    "risk/*": replace      # リスクラベルは置換
+
+# ランタイム設定
+runtime:
+  fail_on_error: false  # エラー時もワークフローを継続
+```
+
+**設定ファイルなしでも動作**: デフォルト設定で即座に利用可能です。
 
 ## 🎯 デフォルト除外パターン
 

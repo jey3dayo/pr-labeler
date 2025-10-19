@@ -24,6 +24,8 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ### Core Components
 
+**PR Metrics機能（既存）**:
+
 1. **Input Mapper** (`input-mapper.ts`): GitHub Actions入力の検証とパース
 2. **File Metrics** (`file-metrics.ts`): ファイルサイズと行数の分析
 3. **Diff Strategy** (`diff-strategy.ts`): Git差分に基づくメトリクス収集
@@ -31,6 +33,8 @@ GitHub Event (PR) → Action Runner → dist/index.js
 5. **Label Manager** (`label-manager.ts`): GitHub APIを使ったラベル管理
 6. **Comment Manager** (`comment-manager.ts`): PRコメントの作成・更新
 7. **Report Formatter** (`report-formatter.ts`): Markdownレポート生成
+
+**🆕 PR Labeler機能（新規）**: 8. **Configuration Loader** (`config-loader.ts`): YAML設定の読み込みとバリデーション9. **Label Decision Engine** (`label-decision-engine.ts`): メトリクスベースのラベル判定ロジック 10. **Label Applicator** (`label-applicator.ts`): 冪等性を保証したラベル適用 11. **Labeler Types** (`labeler-types.ts`): PR Labeler用の型定義とデフォルト設定
 
 ### Error Handling Architecture
 
@@ -85,7 +89,9 @@ GitHub Event (PR) → Action Runner → dist/index.js
 {
   "bytes": "^3.1.2",          // サイズ文字列パース（"100KB" → バイト数）
   "minimatch": "^10.0.3",     // Globパターンマッチング
-  "neverthrow": "^8.2.0"      // Railway-Oriented Programming
+  "neverthrow": "^8.2.0",     // Railway-Oriented Programming
+  "eslintcc": "^0.8.3",       // 🆕 循環的複雑度計算（PR Labeler機能）
+  "js-yaml": "^4.1.0"         // 🆕 YAML設定パース（PR Labeler機能）
 }
 ```
 
