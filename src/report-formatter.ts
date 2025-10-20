@@ -117,9 +117,9 @@ export function formatViolations(violations: Violations, options?: FormatViolati
     return output;
   }
 
-  // Violations summary header
+  // Size summary header
   if (includeHeader) {
-    output += '### 📊 Violations Summary\n\n';
+    output += '### 📊 Size Summary\n\n';
   }
 
   // Summary list

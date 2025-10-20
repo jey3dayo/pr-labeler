@@ -163,9 +163,7 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
   const rawMax = (inputs.max_labels ?? '').trim();
   const maxLabels = rawMax === '' ? 0 : parseInt(rawMax, 10);
   if (!Number.isInteger(maxLabels) || maxLabels < 0) {
-    return err(
-      createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'),
-    );
+    return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'));
   }
 
   // Construct config object
