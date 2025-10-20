@@ -546,7 +546,7 @@ GitHub API呼び出しエラー
 ```yaml
 - name: Check PR Metrics
   id: metrics
-  uses: jey3dayo/pr-metrics-action@v1
+  uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -576,7 +576,7 @@ GitHub API呼び出しエラー
 ```yaml
 - name: Check PR Metrics
   id: metrics
-  uses: jey3dayo/pr-metrics-action@v1
+  uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
 

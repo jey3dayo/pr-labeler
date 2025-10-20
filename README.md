@@ -134,7 +134,7 @@ jobs:
 ### カスタム設定例
 
 ```yaml
-- uses: jey3dayo/pr-metrics-action@v1
+- uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
     file_size_limit: "500KB"           # ファイルサイズ上限
@@ -226,7 +226,7 @@ GitHub Actions job summaryには以下の制限があります：
 大規模なPR（数千行、数百ファイル）の場合、サマリー出力を無効化するか、出力内容を制限することを推奨します：
 
 ```yaml
-- uses: jey3dayo/pr-metrics-action@v1
+- uses: jey3dayo/pr-labeler@v1
   with:
     enable_summary: "false"  # Summary出力を無効化
 ```
@@ -342,7 +342,7 @@ jobs:
 違反を許可しない厳格なチェック：
 
 ```yaml
-- uses: jey3dayo/pr-metrics-action@v1
+- uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
     file_size_limit: "100KB"
@@ -357,7 +357,7 @@ jobs:
 GitHub Actions Summaryのみを使用：
 
 ```yaml
-- uses: jey3dayo/pr-metrics-action@v1
+- uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
     apply_labels: "false"
