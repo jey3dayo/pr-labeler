@@ -1,6 +1,6 @@
 import { Result } from 'neverthrow';
 import type { DiffFile } from './diff-strategy';
-import type { FileAnalysisError, Violations } from './errors';
+import type { FileAnalysisError, Violations } from './errors/index.js';
 export interface FileMetrics {
     path: string;
     size: number;

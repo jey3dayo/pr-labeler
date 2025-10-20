@@ -1,4 +1,4 @@
-import { createPatternError, type Result } from '../errors.js';
+import { createPatternError, type Result } from '../errors/index.js';
 import { type DirectoryLabelerConfig } from './types.js';
 export interface LabelDecision {
     label: string;

@@ -1,5 +1,5 @@
 import { ResultAsync } from 'neverthrow';
-import { type ComplexityAnalysisError } from './errors.js';
+import { type ComplexityAnalysisError } from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity } from './labeler-types.js';
 export interface AnalysisOptions {
     concurrency?: number;

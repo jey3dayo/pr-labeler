@@ -1,6 +1,6 @@
 import { Result } from 'neverthrow';
 import type { ActionInputs } from './actions-io';
-import type { ConfigurationError, ParseError } from './errors';
+import type { ConfigurationError, ParseError } from './errors/index.js';
 export interface SizeThresholds {
     S: {
         additions: number;
