@@ -126,32 +126,64 @@ graph TB
 - **テスト**: Vitest 3.2.4、@vitest/coverage-v8
 - **品質管理**: ESLint 9、Prettier 3.6.2、typescript-eslint 8.46.1
 
-**新規導入ライブラリ**: eslintcc、p-limit
+**新規導入ライブラリ**: ~~eslintcc~~（実装時に削除）、p-limit、@typescript-eslint/parser
 
-**eslintcc調査結果**:
+**⚡ 重要な実装時判断: ESLint標準APIへの移行**
 
-- **バージョン**: 最新版（0.8.x系、package.jsonで^0.8.0指定）
-- **公式ドキュメント**: https://eslintcc.github.io/、https://github.com/eslintcc/eslintcc
-- **主要API**: `Complexity`クラス
-  - `new Complexity({ rules, eslintOptions })`: インスタンス生成
-  - `lintFiles(patterns: string[])`: ファイルの複雑度を計算、Promiseでレポート返却
-- **設定**:
-  - `rules: 'logic'`: 循環的複雑度ルール適用
-  - `eslintOptions.overrideConfig.parser: '@typescript-eslint/parser'`: TypeScript対応
-  - `eslintOptions.overrideConfig.parserOptions`: ecmaVersion、sourceType、tsconfigRootDir等
-- **戻り値**: `{ filePath, complexity, functions: [{ name, complexity, loc }] }[]`形式のレポート
-- **エラー**: 構文エラー時は例外スロー、AST解析失敗時はエラーレポート
-- **パフォーマンス制約**: TypeScript AST解析のオーバーヘッド（大規模ファイルで100-500ms/ファイル）
-- **peerDependencies**: `@typescript-eslint/parser`、`eslint`が必要
+実装フェーズにおいて、当初設計のeslintccから**ESLint標準complexityルール**へ移行しました。
 
-**p-limit調査結果**:
+**移行の経緯**:
 
-- **バージョン**: 最新版（6.x系、package.jsonで^6.0.0指定）
+1. eslintcc統合時に型定義の不在とCommonJS互換性の問題を発見
+2. ESLint標準APIでの代替可能性を検証
+3. 完全な代替が可能であり、より安定した実装と判断
+
+**ESLint標準API実装詳細**:
+
+- **実装ファイル**: `src/complexity-analyzer.ts:70-94`
+- **主要API**: `ESLint.lintFiles([filePath])`
+  - complexityルールを閾値0で有効化し、全関数の複雑度を報告
+  - `@typescript-eslint/parser`でTypeScript/TSX完全サポート
+  - 結果はLintMessage配列として取得、正規表現でパース
+- **メッセージフォーマット**: `"Function 'functionName' has a complexity of N. Maximum allowed is 0."`
+  - 正規表現: `/Function '(.+)' has a complexity of (\d+)\./`
+  - 関数名、複雑度、行番号を抽出
+- **戻り値変換**: `Linter.LintMessage[]` → `FileComplexity`
+- **エラー検出**: `message.fatal === true`で構文エラー判定
+- **型安全性**: @types/eslintで完全な型定義あり
+
+**移行のメリット**:
+
+- ✅ eslintcc依存削除（メンテナンスコスト削減）
+- ✅ 既存ESLint 9.37.0活用（追加コストなし）
+- ✅ 完全な型安全性（@types/eslint）
+- ✅ ESLint公式サポート（長期安定性）
+- ✅ プロジェクト一貫性（既存eslint.config.jsと統一）
+
+**移行のトレードオフ**:
+
+- 獲得: 長期メンテナンス性、型安全性、軽量化
+- 犠牲: 正規表現パースの追加実装（+2時間、テスト完備で緩和）
+
+**p-limit実装詳細**:
+
+- **バージョン**: v7.2.0（最新ESM版）
 - **公式ドキュメント**: https://github.com/sindresorhus/p-limit
-- **主要API**: `pLimit(concurrency)` → `limit(() => promise)` → Promise
-- **並列度制御**: 指定した並列度を正確に維持し、完了次第次のタスクを開始
+- **実装方法**: Dynamic import（`await import('p-limit')`）でESMモジュールを読み込み
+  - CommonJSプロジェクトでもESMモジュールを使用可能
+  - `src/complexity-analyzer.ts:259` で実装
+- **並列度制御**: `pLimit(8)` → 最大8並列
+- **主要API**: `limit(() => promise)` → Promise
 - **軽量**: 依存なし、軽量（数KB）、TypeScript型定義付き
 - **実績**: 広く使用されている（週次ダウンロード数3000万以上）
+
+**@typescript-eslint/parser**:
+
+- **バージョン**: v8.46.1（既存typescript-eslintと同バージョン）
+- **用途**: ESLint実行時にTypeScript/TSXファイルをパース
+- **実装**: Dynamic import（`await import('@typescript-eslint/parser')`）
+  - `src/complexity-analyzer.ts:72`
+- **設定**: `parserOptions.tsconfigRootDir`でtsconfig.json解決（存在する場合のみ）
 
 **tsconfig.json解決のフォールバック（レビュー反映）**:
 

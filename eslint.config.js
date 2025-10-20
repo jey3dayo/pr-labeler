@@ -179,6 +179,8 @@ module.exports = tseslint.config(
       '*.config.ts',
       '.eslintrc.js',
       'eslint.config.js',
+      '__tests__/fixtures/**/*', // Test fixtures with intentional syntax errors
+      '__tests__/__tests__/**/*', // Duplicate test fixtures directory
     ],
   },
 );

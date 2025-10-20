@@ -3,6 +3,8 @@
  * Analyzes pull request files and enforces size limits
  */
 
+import * as path from 'path';
+
 import {
   getActionInputs,
   getGitHubToken,
@@ -16,6 +18,7 @@ import {
   writeSummaryWithAnalysis,
 } from './actions-io';
 import { manageComment } from './comment-manager';
+import { createComplexityAnalyzer } from './complexity-analyzer';
 import { getDefaultLabelerConfig, loadConfig } from './config-loader';
 import { getDiffFiles } from './diff-strategy';
 import type { AppError } from './errors';
@@ -179,23 +182,56 @@ async function run(): Promise<void> {
       }
     }
 
-    // Step 7.5: PR Labeler (if apply_labels enabled)
-    if (config.applyLabels) {
-      logInfo('🔧 Loading PR Labeler configuration...');
-      const labelerConfigResult = await loadConfig(token, prContext.owner, prContext.repo, prContext.headSha);
-      const labelerConfig = labelerConfigResult.unwrapOr(getDefaultLabelerConfig());
-      if (labelerConfigResult.isErr()) {
-        logInfo('  - Using default labeler configuration');
-      } else {
-        logInfo('  - Loaded custom labeler configuration from .github/pr-labeler.yml');
-      }
+    // Step 7.5: Load PR Labeler configuration (always load for complexity analysis)
+    logInfo('🔧 Loading PR Labeler configuration...');
+    const labelerConfigResult = await loadConfig(token, prContext.owner, prContext.repo, prContext.headSha);
+    const labelerConfig = labelerConfigResult.unwrapOr(getDefaultLabelerConfig());
+    if (labelerConfigResult.isErr()) {
+      logInfo('  - Using default labeler configuration');
+    } else {
+      logInfo('  - Loaded custom labeler configuration from .github/pr-labeler.yml');
+    }
 
-      // Step 7.6: Decide labels with PR Labeler
+    // Step 7.6: Analyze complexity (if enabled)
+    let complexityMetrics = undefined;
+    if (labelerConfig.complexity.enabled) {
+      logInfo('🔬 Analyzing code complexity...');
+      const complexityAnalyzer = createComplexityAnalyzer();
+      const complexityFiles = analysis.metrics.filesAnalyzed
+        .map(f => f.path)
+        .filter(p => {
+          const ext = path.extname(p);
+          return labelerConfig.complexity.extensions.includes(ext);
+        });
+
+      logInfo(`  - Files to analyze: ${complexityFiles.length}`);
+
+      const complexityResult = await complexityAnalyzer.analyzeFiles(complexityFiles, {
+        extensions: labelerConfig.complexity.extensions,
+        exclude: labelerConfig.complexity.exclude,
+      });
+
+      if (complexityResult.isOk()) {
+        complexityMetrics = complexityResult.value;
+        logInfo(
+          `  - Max complexity: ${complexityMetrics.maxComplexity}, Avg: ${complexityMetrics.avgComplexity}, Files: ${complexityMetrics.analyzedFiles}`,
+        );
+      } else if (labelerConfig.runtime.fail_on_error) {
+        logError(`  - Failed to analyze complexity: ${complexityResult.error.message}`);
+        setFailed('Complexity analysis failed');
+      } else {
+        logWarning(`  - Failed to analyze complexity: ${complexityResult.error.message}`);
+      }
+    }
+
+    // Step 7.7: Apply labels (if enabled)
+    if (config.applyLabels) {
+      // Step 7.7.1: Decide labels with PR Labeler
       logInfo('🎯 Deciding labels based on PR metrics...');
       const prMetrics: PRMetrics = {
         totalAdditions: analysis.metrics.totalAdditions,
         files: analysis.metrics.filesAnalyzed,
-        // complexity is undefined for now (Task 3 not implemented yet)
+        ...(complexityMetrics && { complexity: complexityMetrics }),
       };
 
       const labelerDecisions = decideLabels(prMetrics, labelerConfig);
@@ -204,7 +240,7 @@ async function run(): Promise<void> {
         logInfo(`  - Labels to add: ${decisions.labelsToAdd.join(', ') || 'none'}`);
         logInfo(`  - Labels to remove: ${decisions.labelsToRemove.join(', ') || 'none'}`);
 
-        // Step 7.7: Apply labels with PR Labeler (skip in dry_run mode)
+        // Step 7.7.2: Apply labels with PR Labeler (skip in dry_run mode)
         if (labelerConfig.runtime.dry_run) {
           logInfo('✨ Dry run: skipping label API calls (decisions logged above)');
         } else {
@@ -264,9 +300,23 @@ async function run(): Promise<void> {
     // Step 8.5: Write GitHub Actions Summary (if enabled)
     if (config.enableSummary) {
       logInfo('📊 Writing GitHub Actions Summary...');
-      const summaryResult = await writeSummaryWithAnalysis(analysis, {
-        enableSummary: config.enableSummary,
-      });
+      const summaryResult = await writeSummaryWithAnalysis(
+        analysis,
+        {
+          enableSummary: config.enableSummary,
+        },
+        complexityMetrics
+          ? {
+              metrics: complexityMetrics,
+              config: labelerConfig.complexity,
+              context: {
+                owner: prContext.owner,
+                repo: prContext.repo,
+                sha: prContext.headSha,
+              },
+            }
+          : undefined,
+      );
 
       if (summaryResult.isErr()) {
         logWarning(`Failed to write summary: ${summaryResult.error.message}`);

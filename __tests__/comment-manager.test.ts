@@ -100,14 +100,14 @@ describe('CommentManager', () => {
             totalAdditions: 1500,
             filesAnalyzed: [
               {
-                filename: 'src/large.ts',
+                path: 'src/large.ts',
                 size: 2000000,
                 lines: 2000,
                 additions: 1000,
                 deletions: 0,
               },
               {
-                filename: 'src/normal.ts',
+                path: 'src/normal.ts',
                 size: 5000,
                 lines: 100,
                 additions: 50,
@@ -153,35 +153,35 @@ describe('CommentManager', () => {
             totalAdditions: 200,
             filesAnalyzed: [
               {
-                filename: 'src/file1.ts',
+                path: 'src/file1.ts',
                 size: 50000,
                 lines: 500,
                 additions: 100,
                 deletions: 20,
               },
               {
-                filename: 'src/file2.ts',
+                path: 'src/file2.ts',
                 size: 30000,
                 lines: 300,
                 additions: 50,
                 deletions: 10,
               },
               {
-                filename: 'src/file3.ts',
+                path: 'src/file3.ts',
                 size: 20000,
                 lines: 200,
                 additions: 30,
                 deletions: 5,
               },
               {
-                filename: 'src/file4.ts',
+                path: 'src/file4.ts',
                 size: 10000,
                 lines: 100,
                 additions: 15,
                 deletions: 2,
               },
               {
-                filename: 'src/file5.ts',
+                path: 'src/file5.ts',
                 size: 5000,
                 lines: 50,
                 additions: 5,
@@ -263,14 +263,14 @@ describe('CommentManager', () => {
           totalAdditions: 1500,
           filesAnalyzed: [
             {
-              filename: 'src/large.ts',
+              path: 'src/large.ts',
               size: 2000000,
               lines: 2000,
               additions: 1000,
               deletions: 0,
             },
             {
-              filename: 'src/normal.ts',
+              path: 'src/normal.ts',
               size: 5000,
               lines: 100,
               additions: 50,
@@ -331,35 +331,35 @@ describe('CommentManager', () => {
           totalAdditions: 200,
           filesAnalyzed: [
             {
-              filename: 'src/file1.ts',
+              path: 'src/file1.ts',
               size: 50000,
               lines: 500,
               additions: 100,
               deletions: 20,
             },
             {
-              filename: 'src/file2.ts',
+              path: 'src/file2.ts',
               size: 30000,
               lines: 300,
               additions: 50,
               deletions: 10,
             },
             {
-              filename: 'src/file3.ts',
+              path: 'src/file3.ts',
               size: 20000,
               lines: 200,
               additions: 30,
               deletions: 5,
             },
             {
-              filename: 'src/file4.ts',
+              path: 'src/file4.ts',
               size: 10000,
               lines: 100,
               additions: 15,
               deletions: 2,
             },
             {
-              filename: 'src/file5.ts',
+              path: 'src/file5.ts',
               size: 5000,
               lines: 50,
               additions: 5,
@@ -395,7 +395,7 @@ describe('CommentManager', () => {
           totalAdditions: 10,
           filesAnalyzed: [
             {
-              filename: 'small.ts',
+              path: 'small.ts',
               size: 512,
               lines: 10,
               additions: 10,

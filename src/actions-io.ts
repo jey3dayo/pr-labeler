@@ -10,7 +10,14 @@ import { err, ok, Result } from 'neverthrow';
 import type { ConfigurationError } from './errors';
 import { createConfigurationError } from './errors';
 import type { AnalysisResult } from './file-metrics';
-import { formatBasicMetrics, formatFileDetails, formatViolations } from './report-formatter';
+import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
+import {
+  formatBasicMetrics,
+  formatFileDetails,
+  formatViolations,
+  generateComplexitySummary,
+  type SummaryContext,
+} from './report-formatter';
 
 /**
  * Action input parameters (snake_case from action.yml)
@@ -180,11 +187,15 @@ export interface SummaryWriteResult {
  * Write PR analysis results to GitHub Actions Summary
  * @param analysis - File analysis result
  * @param config - Summary output configuration
+ * @param complexity - Complexity metrics (optional)
+ * @param complexityConfig - Complexity configuration (optional)
+ * @param context - Summary context for GitHub URLs (optional)
  * @returns Result<SummaryWriteResult, Error>
  */
 export async function writeSummaryWithAnalysis(
   analysis: AnalysisResult,
   config: { enableSummary: boolean },
+  complexity?: { metrics: ComplexityMetrics; config: ComplexityConfig; context: SummaryContext },
 ): Promise<Result<SummaryWriteResult, Error>> {
   // Skip if disabled
   if (!config.enableSummary) {
@@ -217,6 +228,11 @@ export async function writeSummaryWithAnalysis(
         markdown += `- ...and ${analysis.metrics.filesWithErrors.length - 10} more\n`;
       }
       markdown += '\n';
+    }
+
+    // Complexity section (if provided)
+    if (complexity) {
+      markdown += generateComplexitySummary(complexity.metrics, complexity.config, complexity.context);
     }
 
     // Write summary

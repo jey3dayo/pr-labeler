@@ -311,14 +311,14 @@ describe('ReportFormatter', () => {
     it('should format file details table', () => {
       const files: FileMetrics[] = [
         {
-          filename: 'src/file1.ts',
+          path: 'src/file1.ts',
           size: 50000,
           lines: 500,
           additions: 100,
           deletions: 20,
         },
         {
-          filename: 'src/file2.ts',
+          path: 'src/file2.ts',
           size: 30000,
           lines: 300,
           additions: 50,
@@ -339,7 +339,7 @@ describe('ReportFormatter', () => {
 
     it('should limit files when limit specified', () => {
       const files: FileMetrics[] = Array.from({ length: 15 }, (_, i) => ({
-        filename: `file${i}.ts`,
+        path: `file${i}.ts`,
         size: 10000,
         lines: 100,
         additions: 10,
@@ -362,9 +362,9 @@ describe('ReportFormatter', () => {
 
     it('should sort files by size descending', () => {
       const files: FileMetrics[] = [
-        { filename: 'small.ts', size: 1000, lines: 10, additions: 5, deletions: 0 },
-        { filename: 'large.ts', size: 100000, lines: 1000, additions: 500, deletions: 100 },
-        { filename: 'medium.ts', size: 50000, lines: 500, additions: 100, deletions: 20 },
+        { path: 'small.ts', size: 1000, lines: 10, additions: 5, deletions: 0 },
+        { path: 'large.ts', size: 100000, lines: 1000, additions: 500, deletions: 100 },
+        { path: 'medium.ts', size: 50000, lines: 500, additions: 100, deletions: 20 },
       ];
 
       const result = formatFileDetails(files);

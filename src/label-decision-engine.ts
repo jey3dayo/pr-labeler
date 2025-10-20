@@ -44,7 +44,7 @@ export function decideLabels(metrics: PRMetrics, config: LabelerConfig): Result<
 
   // 3. Decide category labels
   const categoryLabels = decideCategoryLabels(
-    metrics.files.map(f => f.filename),
+    metrics.files.map(f => f.path),
     config.categories,
   );
   labelsToAdd.push(...categoryLabels);
@@ -58,7 +58,7 @@ export function decideLabels(metrics: PRMetrics, config: LabelerConfig): Result<
 
   // 4. Decide risk label
   const riskLabel = decideRiskLabel(
-    metrics.files.map(f => f.filename),
+    metrics.files.map(f => f.path),
     config.risk,
   );
   if (riskLabel) {
@@ -66,7 +66,7 @@ export function decideLabels(metrics: PRMetrics, config: LabelerConfig): Result<
     reasoning.push({
       label: riskLabel,
       reason: getRiskReason(
-        metrics.files.map(f => f.filename),
+        metrics.files.map(f => f.path),
         config.risk,
         riskLabel,
       ),

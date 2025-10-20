@@ -135,14 +135,14 @@ describe('DiffStrategy', () => {
 
     it('should handle pagination for GitHub API', async () => {
       const page1 = Array.from({ length: 100 }, (_, i) => ({
-        filename: `file${i}.ts`,
+        path: `file${i}.ts`,
         additions: 10,
         deletions: 5,
         status: 'modified' as const,
       }));
 
       const page2 = Array.from({ length: 50 }, (_, i) => ({
-        filename: `file${i + 100}.ts`,
+        path: `file${i + 100}.ts`,
         additions: 20,
         deletions: 10,
         status: 'modified' as const,
@@ -284,19 +284,19 @@ invalid line
         .mockResolvedValueOnce({
           data: [
             {
-              filename: 'file1.ts',
+              path: 'file1.ts',
               additions: 100,
               deletions: 0,
               status: 'added',
             },
             {
-              filename: 'file2.ts',
+              path: 'file2.ts',
               additions: 0,
               deletions: 100,
               status: 'removed', // Should be filtered
             },
             {
-              filename: 'file3.ts',
+              path: 'file3.ts',
               additions: 50,
               deletions: 10,
               status: 'modified',

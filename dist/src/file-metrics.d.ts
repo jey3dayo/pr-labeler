@@ -2,7 +2,7 @@ import { Result } from 'neverthrow';
 import type { DiffFile } from './diff-strategy';
 import type { FileAnalysisError, Violations } from './errors';
 export interface FileMetrics {
-    filename: string;
+    path: string;
     size: number;
     lines: number;
     additions: number;
