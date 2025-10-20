@@ -13,7 +13,7 @@ import {
   createRateLimitError,
   err,
   extractErrorMessage,
-  isObject,
+  extractErrorStatus,
   ok,
   type Result,
 } from '../errors.js';
@@ -124,8 +124,7 @@ export async function applyDirectoryLabels(
     core.debug(`Existing labels: ${existingLabels.join(', ')}`);
   } catch (error) {
     const message = extractErrorMessage(error);
-    const status =
-      typeof error === 'object' && error !== null && 'status' in error ? (error.status as number) : undefined;
+    const status = extractErrorStatus(error);
 
     if (status === 403) {
       return err(createPermissionError('issues: read', `Failed to list labels: ${message}`));
@@ -198,7 +197,7 @@ export async function applyDirectoryLabels(
       core.info(`Applied labels: ${labelsToAdd.join(', ')}`);
     } catch (error) {
       const message = extractErrorMessage(error);
-      const status = isObject(error) && 'status' in error ? (error.status as number) : undefined;
+      const status = extractErrorStatus(error);
 
       // ラベル未存在エラー（422）の場合、auto_create_labelsが有効なら作成
       if (status === 422 && options.autoCreate) {
@@ -243,10 +242,7 @@ async function createMissingLabels(
       core.info(`Applied label: ${label}`);
       continue; // next label
     } catch (error) {
-      const status =
-        typeof error === 'object' && error !== null && 'status' in error
-          ? ((error as { status: number }).status as number)
-          : undefined;
+      const status = extractErrorStatus(error);
       // 422 ⇒ label likely doesn't exist in the repo; try to create
       if (status !== 422) {
         const message = extractErrorMessage(error);
@@ -268,10 +264,7 @@ async function createMissingLabels(
       });
       core.info(`Created label: ${label}`);
     } catch (error) {
-      const status =
-        typeof error === 'object' && error !== null && 'status' in error
-          ? ((error as { status: number }).status as number)
-          : undefined;
+      const status = extractErrorStatus(error);
       const message = extractErrorMessage(error);
       // If it already exists (422), proceed to add; otherwise record failure and continue
       if (status !== 422) {

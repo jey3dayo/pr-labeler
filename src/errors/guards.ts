@@ -91,3 +91,15 @@ export function extractErrorMessage(error: unknown): string {
   }
   return String(error);
 }
+
+/**
+ * Extracts HTTP status code from error (typically from GitHub API errors)
+ * @param error - Unknown error value
+ * @returns Status code if present, undefined otherwise
+ */
+export function extractErrorStatus(error: unknown): number | undefined {
+  if (isObject(error) && 'status' in error && typeof error.status === 'number') {
+    return error.status;
+  }
+  return undefined;
+}
