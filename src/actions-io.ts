@@ -225,7 +225,7 @@ export async function writeSummaryWithAnalysis(
 
     // Generate markdown content using report formatters
     let markdown = '';
-    markdown += '# 📊 PR Metrics\n\n';
+    markdown += '# 📊 PR Labeler\n\n';
     markdown += formatBasicMetrics(analysis.metrics);
     markdown += formatViolations(analysis.violations);
 

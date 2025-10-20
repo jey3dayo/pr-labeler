@@ -9,7 +9,7 @@ vi.mock('../src/diff-strategy');
 vi.mock('../src/file-metrics');
 vi.mock('../src/comment-manager');
 
-describe('PR Metrics Action', () => {
+describe('PR Labeler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 

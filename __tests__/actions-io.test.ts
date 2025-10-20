@@ -336,7 +336,7 @@ describe('GitHub Actions I/O', () => {
 
       // Verify markdown content includes expected sections
       const markdown = mockSummary.addRaw.mock.calls[0][0];
-      expect(markdown).toContain('# 📊 PR Metrics');
+      expect(markdown).toContain('# 📊 PR Labeler');
       expect(markdown).toContain('### 📊 Summary');
       expect(markdown).toContain('Total additions:');
     });

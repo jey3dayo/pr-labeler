@@ -1,5 +1,5 @@
 /**
- * PR Metrics Action - Main entry point
+ * PR Labeler - Main entry point
  * Analyzes pull request files and enforces size limits
  */
 
@@ -40,7 +40,7 @@ import type { PRContext } from './types';
  */
 async function run(): Promise<void> {
   try {
-    logInfo('🚀 Starting PR Metrics Action');
+    logInfo('🚀 Starting PR Labeler');
 
     // Step 1: Get and validate inputs
     logInfo('📥 Getting action inputs...');
@@ -75,7 +75,7 @@ async function run(): Promise<void> {
         logInfo('📊 Summary written for draft PR');
       }
 
-      logInfo('✨ PR Metrics Action completed (skipped draft PR)');
+      logInfo('✨ PR Labeler completed (skipped draft PR)');
       return;
     }
 
@@ -450,7 +450,7 @@ async function run(): Promise<void> {
     if (hasViolations && config.failOnViolation) {
       setFailed('🚫 PR contains violations and fail_on_violation is enabled');
     } else {
-      logInfo('✨ PR Metrics Action completed successfully');
+      logInfo('✨ PR Labeler completed successfully');
     }
   } catch (error) {
     const errorMessage = getErrorMessage(error);

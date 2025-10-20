@@ -275,7 +275,7 @@ jobs:
           fi
 
   self-check:
-    name: PR Metrics Self-Check
+    name: PR Labeler Self-Check
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     permissions:
@@ -361,9 +361,9 @@ jobs:
 
             # 自己チェック結果（PR時のみ）
             if [[ "$self_check_result" == "success" ]]; then
-              echo "✅ PR Metrics self-check passed" >> $GITHUB_STEP_SUMMARY
+              echo "✅ PR Labeler self-check passed" >> $GITHUB_STEP_SUMMARY
             elif [[ "$self_check_result" == "failure" ]]; then
-              echo "❌ PR Metrics self-check failed" >> $GITHUB_STEP_SUMMARY
+              echo "❌ PR Labeler self-check failed" >> $GITHUB_STEP_SUMMARY
               all_success=false
             fi
 
