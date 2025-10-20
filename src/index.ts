@@ -3,12 +3,14 @@
  * Analyzes pull request files and enforces size limits
  */
 
+import * as github from '@actions/github';
 import * as path from 'path';
 
 import {
   getActionInputs,
   getGitHubToken,
   getPullRequestContext,
+  logDebug,
   logError,
   logInfo,
   logWarning,
@@ -21,6 +23,9 @@ import { manageComment } from './comment-manager';
 import { createComplexityAnalyzer } from './complexity-analyzer';
 import { getDefaultLabelerConfig, loadConfig } from './config-loader';
 import { getDiffFiles } from './diff-strategy';
+import { loadDirectoryLabelerConfig } from './directory-labeler/config-loader.js';
+import { decideLabelsForFiles, filterByMaxLabels } from './directory-labeler/decision-engine.js';
+import { applyDirectoryLabels } from './directory-labeler/label-applicator.js';
 import type { AppError } from './errors';
 import { analyzeFiles } from './file-metrics';
 import { mapActionInputsToConfig } from './input-mapper';
@@ -231,6 +236,95 @@ async function run(): Promise<void> {
             const update = applyResult.value;
             logInfo(`  - Applied: +${update.added.length} labels, -${update.removed.length} labels`);
             logInfo(`  - API calls: ${update.apiCalls}`);
+          }
+        }
+      }
+    }
+
+    // Step 7.8: Directory-Based Labeling (if enabled)
+    if (config.enableDirectoryLabeling) {
+      logInfo('🏷️ Starting Directory-Based Labeling...');
+
+      // Step 7.8.1: Load directory labeler configuration
+      const dirConfigResult = loadDirectoryLabelerConfig(config.directoryLabelerConfigPath);
+
+      if (dirConfigResult.isErr()) {
+        // 設定ファイルが存在しない場合は警告のみ
+        if (dirConfigResult.error.type === 'FileSystemError') {
+          logInfo(`  - Configuration file not found: ${config.directoryLabelerConfigPath}`);
+          logInfo('  - Skipping directory-based labeling');
+        } else {
+          logWarning(`  - Failed to load configuration: ${dirConfigResult.error.message}`);
+          logInfo('  - Skipping directory-based labeling');
+        }
+      } else {
+        const dirConfig = dirConfigResult.value;
+
+        // Step 7.8.2: Decide labels based on file paths
+        const fileList = files.map(f => f.filename);
+        const directoryDecisionsResult = decideLabelsForFiles(fileList, dirConfig);
+
+        if (directoryDecisionsResult.isErr()) {
+          logWarning(`  - Failed to decide labels: ${directoryDecisionsResult.error.message}`);
+        } else {
+          const directoryDecisions = directoryDecisionsResult.value;
+
+          if (directoryDecisions.length === 0) {
+            logInfo('  - No labels matched for changed files');
+          } else {
+            logInfo(`  - Decided ${directoryDecisions.length} labels from file paths`);
+
+            // Step 7.8.3: Filter by max_labels
+            const { selected, rejected } = filterByMaxLabels(directoryDecisions, config.maxLabels);
+
+            if (rejected.length > 0) {
+              logWarning(`  - Rejected ${rejected.length} labels due to max_labels limit`);
+              for (const r of rejected) {
+                logDebug(`    - ${r.label}: ${r.reason}`);
+              }
+            }
+
+            // Step 7.8.4: Apply directory labels
+            const octokit = github.getOctokit(token);
+            const applyResult = await applyDirectoryLabels(
+              octokit,
+              {
+                repo: {
+                  owner: prContext.owner,
+                  repo: prContext.repo,
+                },
+                issue: {
+                  number: prContext.pullNumber,
+                },
+              },
+              selected,
+              dirConfig.namespaces || { exclusive: ['size', 'area', 'type'], additive: ['scope', 'meta'] },
+              {
+                autoCreate: config.autoCreateLabels,
+                labelColor: config.labelColor,
+                labelDescription: config.labelDescription,
+              },
+            );
+
+            if (applyResult.isErr()) {
+              if (applyResult.error.type === 'PermissionError') {
+                logWarning(`  - Skipped label operations: ${applyResult.error.message}`);
+                logWarning('  - Ensure "issues: write" permission is granted in workflow');
+              } else {
+                logWarning(`  - Failed to apply labels: ${applyResult.error.message}`);
+              }
+            } else {
+              const result = applyResult.value;
+              logInfo(
+                `  - Applied: ${result.applied.length}, Skipped: ${result.skipped.length}, Removed: ${result.removed?.length || 0}, Failed: ${result.failed.length}`,
+              );
+
+              if (result.failed.length > 0) {
+                for (const f of result.failed) {
+                  logWarning(`    - ${f.label}: ${f.reason}`);
+                }
+              }
+            }
           }
         }
       }

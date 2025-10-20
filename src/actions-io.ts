@@ -39,6 +39,14 @@ export interface ActionInputs {
   fail_on_violation: string;
   enable_summary: string;
   additional_exclude_patterns: string;
+  // Directory-Based Labeling
+  enable_directory_labeling: string;
+  directory_labeler_config_path: string;
+  auto_create_labels: string;
+  label_color: string;
+  label_description: string;
+  max_labels: string;
+  use_default_excludes: string;
 }
 
 /**
@@ -116,6 +124,14 @@ export function getActionInputs(): ActionInputs {
     fail_on_violation: core.getInput('fail_on_violation') || 'false',
     enable_summary: core.getInput('enable_summary') || 'true',
     additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
+    // Directory-Based Labeling
+    enable_directory_labeling: core.getInput('enable_directory_labeling') || 'false',
+    directory_labeler_config_path: core.getInput('directory_labeler_config_path') || '.github/directory-labeler.yml',
+    auto_create_labels: core.getInput('auto_create_labels') || 'false',
+    label_color: core.getInput('label_color') || 'cccccc',
+    label_description: core.getInput('label_description') || '',
+    max_labels: core.getInput('max_labels') || '10',
+    use_default_excludes: core.getInput('use_default_excludes') || 'true',
   };
 }
 

@@ -39,6 +39,14 @@ export interface Config {
   enableSummary: boolean;
   additionalExcludePatterns: string[];
   githubToken: string;
+  // Directory-Based Labeling
+  enableDirectoryLabeling: boolean;
+  directoryLabelerConfigPath: string;
+  autoCreateLabels: boolean;
+  labelColor: string;
+  labelDescription: string;
+  maxLabels: number;
+  useDefaultExcludes: boolean;
 }
 
 /**
@@ -151,6 +159,12 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     return err(sizeThresholdsResult.error);
   }
 
+  // Parse Directory-Based Labeler numeric inputs
+  const maxLabels = parseInt(inputs.max_labels, 10);
+  if (isNaN(maxLabels)) {
+    return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a number'));
+  }
+
   // Construct config object
   const config: Config = {
     fileSizeLimit: fileSizeLimitResult.value,
@@ -169,6 +183,14 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     enableSummary: parseBoolean(inputs.enable_summary),
     additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
     githubToken: inputs.github_token,
+    // Directory-Based Labeling
+    enableDirectoryLabeling: parseBoolean(inputs.enable_directory_labeling),
+    directoryLabelerConfigPath: inputs.directory_labeler_config_path,
+    autoCreateLabels: parseBoolean(inputs.auto_create_labels),
+    labelColor: inputs.label_color,
+    labelDescription: inputs.label_description,
+    maxLabels,
+    useDefaultExcludes: parseBoolean(inputs.use_default_excludes),
   };
 
   return ok(config);

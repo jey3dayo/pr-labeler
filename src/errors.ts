@@ -94,6 +94,27 @@ export interface ComplexityAnalysisError {
   timeoutSeconds?: number; // timeoutの場合のタイムアウト時間
 }
 
+// Error Type 11: Directory-Based Labeler - Permission Error
+export interface PermissionError {
+  type: 'PermissionError';
+  required: string;
+  message: string;
+}
+
+// Error Type 12: Directory-Based Labeler - Rate Limit Error
+export interface RateLimitError {
+  type: 'RateLimitError';
+  retryAfter?: number;
+  message: string;
+}
+
+// Error Type 13: Directory-Based Labeler - Unexpected Error
+export interface UnexpectedError {
+  type: 'UnexpectedError';
+  originalError?: unknown;
+  message: string;
+}
+
 // Union type for all application errors
 export type AppError =
   | FileAnalysisError
@@ -105,7 +126,10 @@ export type AppError =
   | DiffError
   | PatternError
   | CacheError
-  | ComplexityAnalysisError;
+  | ComplexityAnalysisError
+  | PermissionError
+  | RateLimitError
+  | UnexpectedError;
 
 // Error creation helpers
 export const createFileAnalysisError = (file: string, message: string): FileAnalysisError => ({
@@ -214,6 +238,36 @@ export const createComplexityAnalysisError = (
 export function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError {
   return !!e && typeof e === 'object' && 'type' in e && e.type === 'ComplexityAnalysisError';
 }
+
+// Directory-Based Labeler: Error creation helpers
+
+export const createPermissionError = (required: string, message: string): PermissionError => ({
+  type: 'PermissionError',
+  required,
+  message,
+});
+
+export const createRateLimitError = (message: string, retryAfter?: number): RateLimitError => {
+  const error: RateLimitError = {
+    type: 'RateLimitError',
+    message,
+  };
+  if (retryAfter !== undefined) {
+    error.retryAfter = retryAfter;
+  }
+  return error;
+};
+
+export const createUnexpectedError = (message: string, originalError?: unknown): UnexpectedError => {
+  const error: UnexpectedError = {
+    type: 'UnexpectedError',
+    message,
+  };
+  if (originalError !== undefined) {
+    error.originalError = originalError;
+  }
+  return error;
+};
 
 // Re-export from neverthrow for convenience
 export type { Err, Ok } from 'neverthrow';
