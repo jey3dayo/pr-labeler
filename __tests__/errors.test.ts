@@ -23,6 +23,11 @@ import {
   createParseError,
   createPatternError,
   createViolationError,
+  isError,
+  isErrorWithMessage,
+  isErrorWithTypeAndMessage,
+  isObject,
+  isString,
 } from '../src/errors';
 
 describe('Error Types', () => {
@@ -505,6 +510,135 @@ describe('Error Factory Functions', () => {
       expect(error.type).toBe('CacheError');
       expect(error.key).toBeUndefined();
       expect(error.message).toBe('Cache unavailable');
+    });
+  });
+});
+
+describe('Type Guards', () => {
+  describe('isError', () => {
+    it('should return true for Error instances', () => {
+      expect(isError(new Error('test'))).toBe(true);
+      expect(isError(new TypeError('test'))).toBe(true);
+      expect(isError(new RangeError('test'))).toBe(true);
+    });
+
+    it('should return false for non-Error values', () => {
+      expect(isError(null)).toBe(false);
+      expect(isError(undefined)).toBe(false);
+      expect(isError('error')).toBe(false);
+      expect(isError(123)).toBe(false);
+      expect(isError({})).toBe(false);
+      expect(isError({ message: 'error' })).toBe(false);
+    });
+  });
+
+  describe('isObject', () => {
+    it('should return true for objects', () => {
+      expect(isObject({})).toBe(true);
+      expect(isObject({ key: 'value' })).toBe(true);
+      expect(isObject([])).toBe(true);
+      expect(isObject(new Date())).toBe(true);
+    });
+
+    it('should return false for null', () => {
+      expect(isObject(null)).toBe(false);
+    });
+
+    it('should return false for primitives', () => {
+      expect(isObject(undefined)).toBe(false);
+      expect(isObject('string')).toBe(false);
+      expect(isObject(123)).toBe(false);
+      expect(isObject(true)).toBe(false);
+    });
+  });
+
+  describe('isString', () => {
+    it('should return true for strings', () => {
+      expect(isString('')).toBe(true);
+      expect(isString('hello')).toBe(true);
+      expect(isString('123')).toBe(true);
+    });
+
+    it('should return false for non-strings', () => {
+      expect(isString(null)).toBe(false);
+      expect(isString(undefined)).toBe(false);
+      expect(isString(123)).toBe(false);
+      expect(isString(true)).toBe(false);
+      expect(isString({})).toBe(false);
+      expect(isString([])).toBe(false);
+    });
+  });
+
+  describe('isErrorWithMessage', () => {
+    it('should return true for objects with string message property', () => {
+      expect(isErrorWithMessage({ message: 'error' })).toBe(true);
+      expect(isErrorWithMessage({ message: 'error', other: 123 })).toBe(true);
+      expect(isErrorWithMessage(new Error('test'))).toBe(true);
+    });
+
+    it('should return false for objects without message property', () => {
+      expect(isErrorWithMessage({})).toBe(false);
+      expect(isErrorWithMessage({ msg: 'error' })).toBe(false);
+    });
+
+    it('should return false for objects with non-string message', () => {
+      expect(isErrorWithMessage({ message: 123 })).toBe(false);
+      expect(isErrorWithMessage({ message: null })).toBe(false);
+      expect(isErrorWithMessage({ message: undefined })).toBe(false);
+    });
+
+    it('should return false for non-objects', () => {
+      expect(isErrorWithMessage(null)).toBe(false);
+      expect(isErrorWithMessage(undefined)).toBe(false);
+      expect(isErrorWithMessage('error')).toBe(false);
+      expect(isErrorWithMessage(123)).toBe(false);
+    });
+  });
+
+  describe('isErrorWithTypeAndMessage', () => {
+    it('should return true for objects with type and message properties', () => {
+      expect(isErrorWithTypeAndMessage({ type: 'Error', message: 'error' })).toBe(true);
+      expect(isErrorWithTypeAndMessage({ type: 'CustomError', message: 'error', other: 123 })).toBe(true);
+    });
+
+    it('should return false for objects missing type property', () => {
+      expect(isErrorWithTypeAndMessage({ message: 'error' })).toBe(false);
+    });
+
+    it('should return false for objects missing message property', () => {
+      expect(isErrorWithTypeAndMessage({ type: 'Error' })).toBe(false);
+    });
+
+    it('should return false for objects with non-string type', () => {
+      expect(isErrorWithTypeAndMessage({ type: 123, message: 'error' })).toBe(false);
+      expect(isErrorWithTypeAndMessage({ type: null, message: 'error' })).toBe(false);
+    });
+
+    it('should return false for objects with non-string message', () => {
+      expect(isErrorWithTypeAndMessage({ type: 'Error', message: 123 })).toBe(false);
+      expect(isErrorWithTypeAndMessage({ type: 'Error', message: null })).toBe(false);
+    });
+
+    it('should return false for non-objects', () => {
+      expect(isErrorWithTypeAndMessage(null)).toBe(false);
+      expect(isErrorWithTypeAndMessage(undefined)).toBe(false);
+      expect(isErrorWithTypeAndMessage('error')).toBe(false);
+      expect(isErrorWithTypeAndMessage(123)).toBe(false);
+    });
+
+    it('should work with AppError types', () => {
+      const fileError: FileAnalysisError = {
+        type: 'FileAnalysisError',
+        file: 'test.ts',
+        message: 'Analysis failed',
+      };
+      expect(isErrorWithTypeAndMessage(fileError)).toBe(true);
+
+      const gitHubError: GitHubAPIError = {
+        type: 'GitHubAPIError',
+        message: 'API error',
+      };
+      expect(isErrorWithTypeAndMessage(gitHubError)).toBe(true);
     });
   });
 });
