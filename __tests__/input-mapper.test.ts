@@ -12,6 +12,17 @@ import {
 // Mock @actions/core
 vi.mock('@actions/core');
 
+// デフォルトのDirectory-Based Labeling入力値を持つヘルパー
+const getDefaultDirectoryLabelingInputs = () => ({
+  enable_directory_labeling: 'false',
+  directory_labeler_config_path: '.github/directory-labeler.yml',
+  auto_create_labels: 'false',
+  label_color: 'cccccc',
+  label_description: '',
+  max_labels: '10',
+  use_default_excludes: 'true',
+});
+
 describe('InputMapper', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -167,6 +178,7 @@ describe('InputMapper', () => {
         fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '*.test.ts,*.spec.ts',
+        ...getDefaultDirectoryLabelingInputs(),
       };
 
       const result = mapActionInputsToConfig(inputs);
@@ -213,6 +225,7 @@ describe('InputMapper', () => {
         fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
+        ...getDefaultDirectoryLabelingInputs(),
       };
 
       const result = mapActionInputsToConfig(inputs);
@@ -240,6 +253,7 @@ describe('InputMapper', () => {
         fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
+        ...getDefaultDirectoryLabelingInputs(),
       };
 
       const result = mapActionInputsToConfig(inputs);
@@ -271,6 +285,7 @@ describe('InputMapper', () => {
         fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
+        ...getDefaultDirectoryLabelingInputs(),
       };
 
       const result = mapActionInputsToConfig(inputs);
