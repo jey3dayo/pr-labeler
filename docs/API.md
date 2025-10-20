@@ -104,7 +104,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **型**: `string` (boolean)
 - **必須**: ❌
 - **デフォルト**: `"true"`
-- **説明**: サイズラベル（size/S, size/M, size/L, size/XL, size/XXL）の適用
+- **説明**: 内部パラメータ（PR Labeler のサイズラベルが自動的に適用されます）
 - **使用例**:
 
   ```yaml
@@ -116,7 +116,7 @@ PR Metrics Actionの詳細なAPI仕様書です。
 - **型**: `string` (JSON)
 - **必須**: ❌
 - **デフォルト**: `'{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}'`
-- **説明**: サイズラベルの閾値設定（JSON形式）
+- **説明**: 内部パラメータ（`.github/pr-labeler.yml` でサイズラベルの閾値を設定してください）
 - **バリデーション**:
   - S, M, Lの3つのサイズが必須
   - 各サイズに`additions`と`files`フィールドが必須
