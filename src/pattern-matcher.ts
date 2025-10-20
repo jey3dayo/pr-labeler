@@ -30,11 +30,11 @@ const DEFAULT_EXCLUDE_PATTERNS: string[] = [
   '**/bower_components/**',
 
   // Build outputs
-  'dist/**',
-  'build/**',
-  'out/**',
-  'output/**',
-  'target/**',
+  '**/dist/**',
+  '**/build/**',
+  '**/out/**',
+  '**/output/**',
+  '**/target/**',
   '.next/**',
   '_next/**',
   '.nuxt/**',

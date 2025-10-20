@@ -15,7 +15,7 @@ describe('PatternMatcher', () => {
         '*.lock', // lock files
         '**/node_modules/**', // dependencies
         '*.min.js', // minified files
-        'dist/**', // build outputs
+        '**/dist/**', // build outputs (any location)
         '*.map', // source maps
         'coverage/**', // test coverage
         '*.log', // log files
@@ -52,12 +52,12 @@ describe('PatternMatcher', () => {
       const patterns = getDefaultExcludePatterns();
 
       const buildPatterns = [
-        'dist/**',
-        'build/**',
-        'out/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/out/**',
         '.next/**',
         '_next/**',
-        'target/**',
+        '**/target/**',
         '*.min.js',
         '*.min.css',
         '*.bundle.js',
@@ -134,9 +134,15 @@ describe('PatternMatcher', () => {
       expect(isExcluded('app.min.js', defaultPatterns)).toBe(true);
       expect(isExcluded('styles.min.css', defaultPatterns)).toBe(true);
 
-      // Test build directories
+      // Test build directories (root level)
       expect(isExcluded('dist/index.js', defaultPatterns)).toBe(true);
       expect(isExcluded('build/app.js', defaultPatterns)).toBe(true);
+
+      // Test nested build directories (monorepo, nested structures)
+      expect(isExcluded('packages/app/dist/index.js', defaultPatterns)).toBe(true);
+      expect(isExcluded('packages/lib/build/main.js', defaultPatterns)).toBe(true);
+      expect(isExcluded('src/compiled/dist/output.js', defaultPatterns)).toBe(true);
+      expect(isExcluded('apps/web/out/bundle.js', defaultPatterns)).toBe(true);
     });
 
     it('should not exclude files that dont match patterns', () => {

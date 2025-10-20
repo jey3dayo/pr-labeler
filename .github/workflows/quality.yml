@@ -300,6 +300,10 @@ jobs:
           apply_labels: "true"
           enable_summary: "true"
           fail_on_violation: "false"
+          additional_exclude_patterns: |
+            **/__tests__/**
+            **/*.test.ts
+            **/*.spec.ts
 
   quality-gate:
     name: Quality Gate
