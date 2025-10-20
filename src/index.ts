@@ -26,7 +26,6 @@ import { analyzeFiles } from './file-metrics';
 import { mapActionInputsToConfig } from './input-mapper';
 import { applyLabels } from './label-applicator';
 import { decideLabels } from './label-decision-engine';
-import { updateLabels } from './label-manager';
 import type { PRMetrics } from './labeler-types';
 
 /**
@@ -145,44 +144,7 @@ async function run(): Promise<void> {
       logInfo('✅ All checks passed!');
     }
 
-    // Step 7: Update labels (if enabled)
-    if (config.applyLabels) {
-      logInfo('🏷️ Updating PR labels...');
-      const labelResult = await updateLabels(
-        analysis,
-        {
-          sizeLabelThresholds: {
-            small: config.sizeThresholds.S.additions,
-            medium: config.sizeThresholds.M.additions,
-            large: config.sizeThresholds.L.additions,
-            xlarge: config.sizeThresholds.L.additions * 2,
-          },
-          applySizeLabels: config.applySizeLabels,
-          autoRemoveLabels: config.autoRemoveLabels,
-          largeFilesLabel: config.largeFilesLabel,
-          tooManyFilesLabel: config.tooManyFilesLabel,
-        },
-        token,
-        {
-          owner: prContext.owner,
-          repo: prContext.repo,
-          pullNumber: prContext.pullNumber,
-        },
-      );
-      if (labelResult.isErr()) {
-        logWarning(`Failed to update labels: ${labelResult.error.message}`);
-      } else {
-        const { added, removed } = labelResult.value;
-        if (added.length > 0) {
-          logInfo(`  - Added labels: ${added.join(', ')}`);
-        }
-        if (removed.length > 0) {
-          logInfo(`  - Removed labels: ${removed.join(', ')}`);
-        }
-      }
-    }
-
-    // Step 7.5: Load PR Labeler configuration (always load for complexity analysis)
+    // Step 7: Load PR Labeler configuration (always load for complexity analysis)
     logInfo('🔧 Loading PR Labeler configuration...');
     const labelerConfigResult = await loadConfig(token, prContext.owner, prContext.repo, prContext.headSha);
     const labelerConfig = labelerConfigResult.unwrapOr(getDefaultLabelerConfig());

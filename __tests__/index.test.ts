@@ -7,7 +7,6 @@ vi.mock('@actions/core');
 vi.mock('@actions/github');
 vi.mock('../src/diff-strategy');
 vi.mock('../src/file-metrics');
-vi.mock('../src/label-manager');
 vi.mock('../src/comment-manager');
 
 describe('PR Metrics Action', () => {
