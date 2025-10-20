@@ -187,9 +187,10 @@ export interface SummaryWriteResult {
  * Write PR analysis results to GitHub Actions Summary
  * @param analysis - File analysis result
  * @param config - Summary output configuration
- * @param complexity - Complexity metrics (optional)
- * @param complexityConfig - Complexity configuration (optional)
- * @param context - Summary context for GitHub URLs (optional)
+ * @param complexity - Optional complexity data object
+ * @param complexity.metrics - Complexity analysis metrics (ComplexityMetrics)
+ * @param complexity.config - Complexity configuration settings (ComplexityConfig)
+ * @param complexity.context - Summary context for GitHub URLs (SummaryContext)
  * @returns Result<SummaryWriteResult, Error>
  */
 export async function writeSummaryWithAnalysis(

@@ -181,13 +181,7 @@ export const createCacheError = (message: string, key?: string): CacheError => {
 export const createComplexityAnalysisError = (
   reason: ComplexityAnalysisError['reason'],
   message: string,
-  options?: {
-    filename?: string;
-    details?: string;
-    fileSize?: number;
-    maxSize?: number;
-    timeoutSeconds?: number;
-  },
+  options?: Partial<Pick<ComplexityAnalysisError, 'filename' | 'details' | 'fileSize' | 'maxSize' | 'timeoutSeconds'>>,
 ): ComplexityAnalysisError => {
   const error: ComplexityAnalysisError = {
     type: 'ComplexityAnalysisError',
@@ -211,6 +205,15 @@ export const createComplexityAnalysisError = (
   }
   return error;
 };
+
+/**
+ * Checks if an unknown error is a ComplexityAnalysisError
+ * @param e - Unknown error to check
+ * @returns True if the error is a ComplexityAnalysisError
+ */
+export function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError {
+  return !!e && typeof e === 'object' && 'type' in e && e.type === 'ComplexityAnalysisError';
+}
 
 // Re-export from neverthrow for convenience
 export type { Err, Ok } from 'neverthrow';
