@@ -2,7 +2,7 @@
 
 ## 概要
 
-コード複雑度分析機能は、PR内の変更ファイルに対してeslintccツールを統合し、循環的複雑度（Cyclomatic Complexity）を自動計算する拡張機能である。既存のPR Labeler機能のバックエンドとして動作し、複雑度メトリクスの計算からGitHub Actions Summary出力までを提供する。
+コード複雑度分析機能は、PR内の変更ファイルに対してESLint標準のcomplexityルールを統合し、循環的複雑度（Cyclomatic Complexity）を自動計算する拡張機能である。既存のPR Labeler機能のバックエンドとして動作し、複雑度メトリクスの計算からGitHub Actions Summary出力までを提供する。
 
 **目的**: PR変更ファイルの複雑度を定量的に評価し、複雑なコードを早期検知して保守性向上とレビュープロセス効率化を実現する。
 
@@ -12,7 +12,7 @@
 
 ### ゴール
 
-- eslintccを使用した循環的複雑度の正確な計算
+- ESLint標準complexityルールを使用した循環的複雑度の正確な計算
 - ファイル単位および関数単位の複雑度データ収集
 - PR全体の複雑度集計（最大値、平均値、高複雑度ファイルリスト）
 - GitHub Actions Summaryでの詳細レポート出力
@@ -35,7 +35,7 @@
 
 - **Railway-Oriented Programming**: neverthrowの`Result<T, E>`型による型安全なエラーハンドリング
 - **単一責任原則**: 複雑度計算、集計、出力の明確な責務分離
-- **依存性注入**: eslintcc、GitHub APIクライアント、設定を引数で渡すテスタブルな設計
+- **依存性注入**: ESLint、GitHub APIクライアント、設定を引数で渡すテスタブルな設計
 - **Pure Functions優先**: 複雑度計算ロジックは純粋関数、副作用はI/O層で分離
 
 **既存のドメイン境界**:
@@ -79,7 +79,7 @@ graph TB
 
     subgraph "新規: 複雑度分析層"
         E[Complexity Analyzer]
-        F[eslintcc Library]
+        F[ESLint complexity Rule]
     end
 
     subgraph "既存のメトリクス集計・出力"
@@ -126,49 +126,26 @@ graph TB
 - **テスト**: Vitest 3.2.4、@vitest/coverage-v8
 - **品質管理**: ESLint 9、Prettier 3.6.2、typescript-eslint 8.46.1
 
-**新規導入ライブラリ**: ~~eslintcc~~（実装時に削除）、p-limit、@typescript-eslint/parser
+**新規導入ライブラリ**: p-limit、@typescript-eslint/parser（ESLintは既存依存）
 
-**⚡ 重要な実装時判断: ESLint標準APIへの移行**
+**実装詳細**:
 
-実装フェーズにおいて、当初設計のeslintccから**ESLint標準complexityルール**へ移行しました。
-
-**移行の経緯**:
-
-1. eslintcc統合時に型定義の不在とCommonJS互換性の問題を発見
-2. ESLint標準APIでの代替可能性を検証
-3. 完全な代替が可能であり、より安定した実装と判断
-
-**ESLint標準API実装詳細**:
-
-- **実装ファイル**: `src/complexity-analyzer.ts:70-94`
-- **主要API**: `ESLint.lintFiles([filePath])`
+- **実装ファイル**: `src/complexity-analyzer.ts`
+- **複雑度計算**: ESLint標準`complexity`ルールを使用
   - complexityルールを閾値0で有効化し、全関数の複雑度を報告
   - `@typescript-eslint/parser`でTypeScript/TSX完全サポート
   - 結果はLintMessage配列として取得、正規表現でパース
-- **メッセージフォーマット**: `"Function 'functionName' has a complexity of N. Maximum allowed is 0."`
-  - 正規表現: `/Function '(.+)' has a complexity of (\d+)\./`
+- **メッセージフォーマット**: `"Function 'functionName' has a complexity of N."`
+  - 正規表現: `/Function ["']([^"']+)["'] has a complexity of (\d+)\b/i`
   - 関数名、複雑度、行番号を抽出
 - **戻り値変換**: `Linter.LintMessage[]` → `FileComplexity`
 - **エラー検出**: `message.fatal === true`で構文エラー判定
 - **型安全性**: @types/eslintで完全な型定義あり
 
-**移行のメリット**:
-
-- ✅ eslintcc依存削除（メンテナンスコスト削減）
-- ✅ 既存ESLint 9.37.0活用（追加コストなし）
-- ✅ 完全な型安全性（@types/eslint）
-- ✅ ESLint公式サポート（長期安定性）
-- ✅ プロジェクト一貫性（既存eslint.config.jsと統一）
-
-**移行のトレードオフ**:
-
-- 獲得: 長期メンテナンス性、型安全性、軽量化
-- 犠牲: 正規表現パースの追加実装（+2時間、テスト完備で緩和）
-
 **p-limit実装詳細**:
 
 - **バージョン**: v7.2.0（最新ESM版）
-- **公式ドキュメント**: https://github.com/sindresorhus/p-limit
+- **公式ドキュメント**: <https://github.com/sindresorhus/p-limit>
 - **実装方法**: Dynamic import（`await import('p-limit')`）でESMモジュールを読み込み
   - CommonJSプロジェクトでもESMモジュールを使用可能
   - `src/complexity-analyzer.ts:259` で実装
@@ -195,19 +172,19 @@ graph TB
 **実装段階で要調査事項**:
 
 - 大規模PR（100ファイル以上）でのメモリ使用量とGCプレッシャー
-- eslintccの並列実行時のスレッド安全性（p-limit並列実行時の副作用）
+- ESLint Linterインスタンスの並列実行時の安全性（p-limit並列実行時の状態管理）
 
 ### 重要な設計判断
 
-#### 判断1: eslintccの直接統合 vs ラッパー層
+#### 判断1: ESLint APIの直接統合 vs ラッパー層
 
-**決定**: eslintccを直接統合せず、`ComplexityAnalyzer`ラッパークラスで抽象化する
+**決定**: ESLint APIを直接統合せず、`ComplexityAnalyzer`ラッパークラスで抽象化する
 
-**コンテキスト**: eslintccのAPIは将来変更される可能性があり、テストでのモック化も必要
+**コンテキスト**: ESLint APIは将来変更される可能性があり、テストでのモック化も必要
 
 **代替案**:
 
-1. eslintccを直接呼び出す（シンプルだが疎結合性が低い）
+1. ESLint Linterを直接呼び出す（シンプルだが疎結合性が低い）
 2. ラッパークラスで抽象化（抽象化レイヤー追加）
 3. 独自の複雑度計算実装（メンテナンスコスト高）
 
@@ -222,7 +199,7 @@ interface ComplexityAnalyzer {
 
 **理論的根拠**:
 
-- eslintccのAPI変更に対する耐性
+- ESLint設定変更に対する耐性（設定を一箇所に集約）
 - テスト時のモック差し替えが容易
 - 将来の他のメトリクス追加時に統一インタフェース提供
 
@@ -279,7 +256,7 @@ async function analyzeFilesWithLimit(
 
 **理論的根拠**:
 
-- eslintccはCPU集約的だがI/Oも発生するため、Promise並列で十分
+- ESLint分析はCPU集約的だがI/Oも発生するため、Promise並列で十分
 - Worker Threadsは起動コストが高く、GitHub Actionsランナー（2コア）では効果薄
 - p-limitライブラリは並列度を正確に制御し、メモリ消費を抑制
 - 既定値8並列はGitHub Actions 2コアCPU × I/O待ち時間を考慮した最適値
@@ -331,11 +308,12 @@ async function analyzeFile(filePath: string): ResultAsync<FileComplexity, Comple
     return err(new AnalysisFailedError(filePath, error as Error));
   }
 
-  // eslintccで複雑度を計算
-  const complexityInstance = new Complexity(createEslintccOptions(parserOptions));
+  // ESLint complexityルールで複雑度を計算
+  const linter = new Linter();
+  const config = createESLintConfig(parserOptions);
   try {
-    const report = await complexityInstance.lintFiles([filePath]);
-    return ok(convertEslintccReport(report[0]));
+    const results = await linter.lintText(content, { filePath });
+    return ok(convertESLintResult(results[0]));
   } catch (error) {
     if (isSyntaxError(error)) {
       // 構文エラー→複雑度0として扱う
@@ -369,7 +347,7 @@ sequenceDiagram
     participant Config as Config Loader
     participant Diff as Diff Strategy
     participant CA as Complexity Analyzer
-    participant EC as eslintcc
+    participant EC as ESLint Linter
     participant LDE as Label Decision Engine
     participant Sum as Actions Summary
 
@@ -415,7 +393,7 @@ sequenceDiagram
 flowchart TD
     A[ファイル取得] --> B{ファイルサイズ?}
     B -->|>1MB| C[FileTooLargeError → スキップ]
-    B -->|<=1MB| D[eslintcc実行]
+    B -->|<=1MB| D[ESLint実行]
 
     D --> E{結果?}
     E -->|成功| F[複雑度データ記録]
@@ -467,13 +445,13 @@ flowchart TD
 **依存関係**
 
 - **インバウンド**: Main Flow (index.ts)から呼び出される
-- **アウトバウンド**: eslintcc（外部ライブラリ）、fs（Node.js標準）
-- **外部**: eslintcc、@typescript-eslint/parser
+- **アウトバウンド**: ESLint Linter（既存依存）、fs（Node.js標準）
+- **外部**: ESLint、@typescript-eslint/parser
 
-**eslintccの外部依存性調査**:
+**ESLintの外部依存性調査**:
 
-- **バージョン互換性**: eslintcc 0.8.x系、eslint 8.x/9.x系、@typescript-eslint/parser 8.x系をサポート
-- **API署名**: `new Complexity(options)` → `lintFiles(patterns)` → `Promise<Report[]>`
+- **バージョン互換性**: ESLint標準complexityルール、eslint 8.x/9.x系、@typescript-eslint/parser 8.x系をサポート
+- **API署名**: `new Linter(options)` → `lintFiles(patterns)` → `Promise<Report[]>`
 - **認証**: 不要（ローカルファイル解析）
 - **レート制限**: なし（ローカル処理）
 - **エラーパターン**: 構文エラー（SyntaxError）、AST解析失敗（ParseError）、メモリ不足（OutOfMemoryError）
@@ -489,9 +467,9 @@ flowchart TD
  * 複雑度分析サービスインタフェース
  *
  * I/O層の設計方針:
- * - analyzeFileは内部でfs.stat、fs.readFileを実行（eslintccがファイルパスを前提とするため）
+ * - analyzeFileは内部でfs.stat、fs.readFileを実行（ESLintがファイルパスを前提とするため）
  * - サイズチェックは内部で実施し、巨大ファイルは読み込まずにスキップ
- * - この設計によりeslintccのAPI（ファイルパス渡し）と整合性を保つ
+ * - この設計によりESLint API（ファイルパス渡し）と整合性を保つ
  */
 interface ComplexityAnalyzerService {
   /**
@@ -534,7 +512,7 @@ interface AnalysisOptions {
   timeout: number;             // 全体タイムアウト（秒、デフォルト: 60）
   fileTimeout: number;         // 個別ファイルタイムアウト（秒、デフォルト: 5）
   maxFileSize: number;         // 最大ファイルサイズ（バイト、デフォルト: 1MB = 1048576）
-  parserOptions: ParserOptions; // eslintcc parserOptions
+  parserOptions: ParserOptions; // ESLint parserOptions
 }
 
 /**
@@ -582,9 +560,9 @@ interface SkippedFile {
 - **後方互換性**: PRMetrics型にcomplexityフィールド追加（オプショナル）、既存コードは影響なし
 - **移行パス**: enable_complexity_analysisフラグで段階的有効化
 
-#### eslintcc統合層（ComplexityAnalyzerの内部実装）
+#### ESLint統合層（ComplexityAnalyzerの内部実装）
 
-**責務**: eslintccライブラリのラッパー、設定管理、エラー変換、パス正規化、バイナリ/エンコーディング検出
+**責務**: ESLint Linter APIのラッパー、設定管理、エラー変換、パス正規化、バイナリ/エンコーディング検出
 
 **バイナリ/エンコーディング検出戦略**:
 
@@ -724,14 +702,14 @@ function filterFilesForComplexityAnalysis(
 }
 
 /**
- * eslintcc設定生成（tsconfig.jsonフォールバック付き）
+ * ESLint設定生成（tsconfig.jsonフォールバック付き）
  *
  * tsconfig.json解決のフォールバック（レビュー反映）:
  * - tsconfig.jsonが見つからない場合は、ecmaVersion: 'latest', sourceType: 'module' を既定とする
  * - 警告ログを出力し、Summary に注記を追加する
  * - projectオプションは性能優先で無効化（型情報不要）
  */
-function createEslintccOptions(parserOptions: ParserOptions): ComplexityOptions {
+function createESLintConfig(parserOptions: ParserOptions): Linter.Config {
   // tsconfig.jsonの存在チェック
   const tsconfigPath = path.join(process.cwd(), 'tsconfig.json');
   const hasTsconfig = fs.existsSync(tsconfigPath);
@@ -763,9 +741,9 @@ function createEslintccOptions(parserOptions: ParserOptions): ComplexityOptions 
 }
 
 /**
- * eslintccレポートをFileComplexityに変換
+ * ESLintレポートをFileComplexityに変換
  */
-function convertEslintccReport(report: EslintccReport): FileComplexity {
+function convertESLintResult(result: Linter.LintMessage[]): FileComplexity {
   return {
     path: report.filePath,
     complexity: report.complexity || 0,
@@ -1078,7 +1056,7 @@ const analyzedFiles = validFiles.length;
 
 - **FileTooLargeError**: ファイルサイズが1MB超過
   - 対応: スキップファイルリストに追加、Summary警告表示、CI継続
-- **AnalysisFailedError**: eslintccのAST解析失敗（予期しないエラー）
+- **AnalysisFailedError**: ESLint AST解析失敗（予期しないエラー）
   - 対応: スキップファイルリストに追加、エラーログ出力、CI継続
 - **TimeoutError**: 個別ファイルまたは全体のタイムアウト
   - 対応: 部分的な結果を返却、Summary警告表示、CI継続
@@ -1172,7 +1150,7 @@ class EncodingError extends ComplexityError {
 ```typescript
 /**
  * Promise.raceを使用したシンプルなタイムアウト実装
- * eslintccはAbortControllerを直接サポートしていないため、Promise.raceで実装
+ * ESLint LinterはAbortControllerを直接サポートしていないため、Promise.raceで実装
  */
 async function analyzeFileWithTimeout(
   filePath: string,
@@ -1313,10 +1291,10 @@ core.info(`Complexity analysis completed: ${result.analyzedFiles} files, ${elaps
 4. `aggregateMetrics`: 複数ファイルの集計で正確なmax/avgを計算
 5. `aggregateMetrics`: 構文エラーファイルを集計対象に含む
 
-**eslintcc統合層**:
+**ESLint統合層**:
 
-1. `createEslintccOptions`: parserOptionsの正確な生成
-2. `convertEslintccReport`: eslintccレポートの正確な変換
+1. `createESLintConfig`: parserOptionsの正確な生成
+2. `convertESLintResult`: ESLintレポートの正確な変換
 3. エラー分類: SyntaxError、ParseError、OutOfMemoryErrorの正確な識別
 
 ### 統合テスト
@@ -1370,9 +1348,9 @@ const concurrency = Math.max(2, Math.min(cpuCount * 2, 8));
 
 **ファイル内容キャッシュ**: なし（PRごとに新規計算、キャッシュのメリット薄）
 
-**eslintcc Complexityインスタンスの管理戦略**:
+**ESLint Linterインスタンスの管理戦略**:
 
-eslintccの`Complexity`インスタンスは並列実行時のスレッド安全性が保証されていないため、以下のいずれかのアプローチを採用する：
+ESLint `Linter`インスタンスは並列実行時のスレッド安全性が保証されていないため、以下のいずれかのアプローチを採用する：
 
 **アプローチ1: 各解析で都度インスタンス生成（推奨）**
 
@@ -1383,9 +1361,9 @@ eslintccの`Complexity`インスタンスは並列実行時のスレッド安全
  * デメリット: インスタンス生成のオーバーヘッド（軽微）
  */
 async function analyzeFile(filePath: string, content: string): ResultAsync<FileComplexity, ComplexityError> {
-  const complexityInstance = new Complexity(createEslintccOptions(parserOptions));
+  const complexityInstance = new Linter(createESLintConfig(parserOptions));
   const report = await complexityInstance.lintFiles([filePath]);
-  return ok(convertEslintccReport(report[0]));
+  return ok(convertESLintResult(report[0]));
 }
 ```
 
@@ -1397,13 +1375,13 @@ async function analyzeFile(filePath: string, content: string): ResultAsync<FileC
  * メリット: インスタンス生成回数を削減、並列安全
  * デメリット: やや複雑、メモリ使用量増加（並列度×インスタンスサイズ）
  */
-class ComplexityPool {
+class LinterPool {
   private instances: Complexity[] = [];
   private available: Complexity[] = [];
 
   constructor(poolSize: number, options: ComplexityOptions) {
     for (let i = 0; i < poolSize; i++) {
-      const instance = new Complexity(options);
+      const instance = new Linter(options);
       this.instances.push(instance);
       this.available.push(instance);
     }
@@ -1422,11 +1400,11 @@ class ComplexityPool {
 }
 
 // 使用例
-const pool = new ComplexityPool(concurrency, createEslintccOptions(parserOptions));
+const pool = new LinterPool(concurrency, createESLintConfig(parserOptions));
 const instance = await pool.acquire();
 try {
   const report = await instance.lintFiles([filePath]);
-  return ok(convertEslintccReport(report[0]));
+  return ok(convertESLintResult(report[0]));
 } finally {
   pool.release(instance);
 }
@@ -1440,11 +1418,11 @@ try {
 2. **チャンク化またはp-limit**: 並列度制御でメモリ消費を抑制
 3. **fs.statによる事前サイズチェック**: 巨大ファイルは読み込まずにスキップ（判断3参照）
 4. **事前フィルタリング**: 拡張子チェック、バイナリ/エンコーディングチェックで不要な解析をスキップ
-5. **projectオプション無効**: eslintccのtsconfigRootDirは指定するがprojectは無効化、型チェック不要
-6. **Complexityインスタンス戦略**: 各解析で都度生成（安全性優先）、必要に応じてプール化を検討
+5. **projectオプション無効**: ESLintのparserOptions.tsconfigRootDirは指定するがprojectは無効化、型チェック不要
+6. **Linterインスタンス戦略**: 各解析で都度生成（安全性優先）、必要に応じてプール化を検討
 
-**I/Oとeslintccの統合方針**:
+**I/OとESLintの統合方針**:
 
-- eslintccは内部でファイルパスを受け取り、ファイル読み込みを行う
-- 事前のファイル内容読み込みは基本的に不要
-- サイズチェックのみ`fs.stat`で事前実行し、超過ファイルはeslintcc呼び出し前にスキップ
+- `linter.lintText()`を使用して、ファイル内容を文字列で渡す
+- ファイル読み込みとサイズチェックは`fs.promises.readFile()`/`fs.stat()`で事前実行
+- 巨大ファイルはESLint呼び出し前にスキップし、`skippedFiles`に記録

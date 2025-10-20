@@ -4,7 +4,7 @@
 
 - [x] 1. 依存関係の追加と型定義の拡張
 - [x] 1.1 新規ライブラリのインストールと設定
-  - eslintcc（^0.8.0）とp-limit（^6.0.0）をpackage.jsonに追加
+  - p-limitとESLint標準API（^6.0.0）をpackage.jsonに追加
   - @typescript-eslint/parserのバージョン互換性を確認
   - pnpm installを実行して依存関係を解決
   - _Requirements: 1.8_
@@ -22,10 +22,10 @@
   - complexity-analyzer.tsファイルを作成
   - analyzeFile、analyzeFilesメソッドのスケルトンを実装
   - Result型を使用したエラーハンドリングの骨組みを構築
-  - eslintccインスタンス生成のヘルパー関数を実装
+  - Linterインスタンス生成のヘルパー関数を実装
   - _Requirements: 1.1, 1.5, 1.6_
 
-- [x] 2.2 eslintccの設定生成機能を実装
+- [x] 2.2 ESLintの設定生成機能を実装
   - tsconfig.jsonの存在チェック機能を実装
   - parserOptionsの生成ロジックを実装（ecmaVersion、sourceType、jsx対応）
   - tsconfig.json未検出時のフォールバック処理を実装
@@ -43,7 +43,7 @@
 - [x] 3. 単一ファイルの複雑度計算を実装
 - [x] 3.1 analyzeFileメソッドの実装
   - ファイル存在確認とサイズチェックを実装
-  - eslintcc.lintFilesの呼び出しとエラーハンドリングを実装
+  - linter.lintTextの呼び出しとエラーハンドリングを実装
   - 構文エラー時の複雑度0返却処理を実装
   - FileComplexity型への変換ロジックを実装
   - _Requirements: 1.5, 1.9, 1.11, 6.2_
@@ -224,7 +224,7 @@
 - [x] 11. ドキュメントとリリース準備
 - [x] 11.1 ビルドとdist更新
   - pnpm buildを実行してdist/index.jsを更新
-  - ライセンス情報の更新（eslintcc、p-limitのライセンス）
+  - ライセンス情報の更新（ESLint、p-limitのライセンス）
   - dist/をコミット
   - _Requirements: すべて_
 
