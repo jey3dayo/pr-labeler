@@ -288,8 +288,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run PR Metrics Action (self-check)
-        uses: jey3dayo/pr-metrics-action@main
+      - name: Run PR Labeler (self-check)
+        uses: jey3dayo/pr-labeler@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file_size_limit: "100KB"

@@ -1,4 +1,4 @@
-# PR Metrics Action
+# PR Labeler
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: jey3dayo/pr-metrics-action@v1
+      - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -100,7 +100,7 @@ jobs:
           # PR全体の差分を取得するため fetch-depth: 0 が必要
           fetch-depth: 0
 
-      - uses: jey3dayo/pr-metrics-action@v1
+      - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -309,7 +309,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: jey3dayo/pr-metrics-action@v1
+      - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -329,7 +329,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: jey3dayo/pr-metrics-action@v1
+      - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           additional_exclude_patterns: |

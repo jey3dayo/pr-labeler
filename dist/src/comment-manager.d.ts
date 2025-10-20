@@ -9,7 +9,7 @@ export interface CommentResult {
     action: 'created' | 'updated' | 'deleted' | 'skipped';
     commentId: number | null;
 }
-export declare const COMMENT_SIGNATURE = "<!-- pr-metrics-action -->";
+export declare const COMMENT_SIGNATURE = "<!-- pr-labeler -->";
 export declare function generateCommentBody(analysisResult: AnalysisResult): string;
 export declare function findExistingComment(token: string, context: PRContext): Promise<Result<number | null, GitHubAPIError>>;
 export declare function postComment(body: string, token: string, context: PRContext): Promise<Result<number, GitHubAPIError>>;

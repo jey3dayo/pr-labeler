@@ -8,12 +8,12 @@ GitHub Action実装プロンプト: PR Metrics Action
 
 リポジトリ作成
 
-新しいリポジトリ jey3dayo/pr-metrics-action を作成して、以下の仕様に基づいてGitHub Actionを実装してください。
+新しいリポジトリ jey3dayo/pr-labeler を作成して、以下の仕様に基づいてGitHub Actionを実装してください。
 
 プロジェクト構成
 
 ```
-jey3dayo/pr-metrics-action/
+jey3dayo/pr-labeler/
 ├── action.yml           # Action定義ファイル (runs.main: dist/index.js)
 ├── src/
 │   └── index.ts        # TypeScriptメインエントリー
@@ -281,7 +281,7 @@ All files are within limits now.
 
 ```json
 {
-  "name": "pr-metrics-action",
+  "name": "pr-labeler",
   "version": "1.0.0",
   "description": "GitHub Action for PR file size and metrics checking",
   "main": "dist/index.js",
@@ -354,7 +354,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: jey3dayo/pr-metrics-action@main
+      - uses: jey3dayo/pr-labeler@main
         with:
           file_size_limit: '100KB'
           file_lines_limit: '500'

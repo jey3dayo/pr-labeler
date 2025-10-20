@@ -2,18 +2,18 @@
 
 ## 概要
 
-PR Labelerは、PRのメトリクス分析に基づいて自動的にラベルを付与するGitHub Actionである。既存のpr-metrics-actionで計算されたメトリクス（サイズ、複雑度、リスク、カテゴリ）を活用し、GitHub Actions labelerでは実現できないインテリジェントなラベル付けを提供する。
+PR Labelerは、PRのメトリクス分析に基づいて自動的にラベルを付与するGitHub Actionである。既存のpr-labelerで計算されたメトリクス（サイズ、複雑度、リスク、カテゴリ）を活用し、GitHub Actions labelerでは実現できないインテリジェントなラベル付けを提供する。
 
 **目的**: 本機能は、PRの特性を可視化し、レビュープロセスの効率化と品質管理の自動化を開発者、テックリード、プロジェクトマネージャーに提供する。
 
 **ユーザー**: 開発者、テックリード、プロジェクトマネージャー、品質保証担当者、CI/CD管理者は、PRレビュー、品質管理、プロセス可視化のワークフローでこれを利用する。
 
-**影響**: 現在の手動ラベル付けプロセスを、pr-metrics-actionのメトリクス計算インフラに新しいラベル付与エンジンを統合することで、完全自動化されたインテリジェントなラベル管理システムに変更する。
+**影響**: 現在の手動ラベル付けプロセスを、pr-labelerのメトリクス計算インフラに新しいラベル付与エンジンを統合することで、完全自動化されたインテリジェントなラベル管理システムに変更する。
 
 ### ゴール
 
 - PRのサイズ、複雑度、リスク、カテゴリに基づく自動ラベル付けの実現
-- pr-metrics-actionの既存メトリクス計算ロジックの再利用による開発効率化
+- pr-labelerの既存メトリクス計算ロジックの再利用による開発効率化
 - YAML設定ファイルによる柔軟なカスタマイズ性の提供
 - 冪等性とエラーハンドリングの堅牢性を備えたGitHub Actions統合
 
@@ -28,7 +28,7 @@ PR Labelerは、PRのメトリクス分析に基づいて自動的にラベル�
 
 ### 既存アーキテクチャ分析
 
-pr-metrics-actionは、以下のアーキテクチャパターンを採用している：
+pr-labelerは、以下のアーキテクチャパターンを採用している：
 
 - **Railway-Oriented Programming (ROP)**: neverthrowの`Result<T, E>`型による型安全なエラーハンドリング
 - **単一責任原則**: 各モジュールが明確な境界を持ち、ビジネスロジックとI/Oを分離
@@ -68,7 +68,7 @@ graph TB
         H[Actions Summary Generator]
     end
 
-    subgraph "Reused from pr-metrics-action"
+    subgraph "Reused from pr-labeler"
         I[file-metrics.ts]
         J[diff-strategy.ts]
         K[pattern-matcher.ts]
@@ -106,7 +106,7 @@ graph TB
 
 ### 技術スタック整合性
 
-本機能は既存のpr-metrics-actionの技術スタックに完全に整合する：
+本機能は既存のpr-labelerの技術スタックに完全に整合する：
 
 **既存技術の継続利用**:
 
@@ -747,7 +747,7 @@ function decideRiskLabel(
 **統合戦略（既存システムとの統合）**:
 
 - **修正アプローチ**: 既存の`label-manager.ts`を拡張（`updateLabels`関数に名前空間ポリシーを追加）
-- **後方互換性**: 既存の`getSizeLabel`関数は維持（pr-metrics-actionとの共有）
+- **後方互換性**: 既存の`getSizeLabel`関数は維持（pr-labelerとの共有）
 - **マイグレーションパス**: 段階的移行（Phase 1: 新関数追加、Phase 2: 既存コードのリファクタリング）
 
 **契約定義**: サービスインターフェース

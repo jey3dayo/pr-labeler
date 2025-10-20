@@ -188,10 +188,10 @@ export const createComplexityAnalysisError = (
     reason,
     message,
   };
-  if (options?.filename) {
+  if (options?.filename !== undefined) {
     error.filename = options.filename;
   }
-  if (options?.details) {
+  if (options?.details !== undefined) {
     error.details = options.details;
   }
   if (options?.fileSize !== undefined) {

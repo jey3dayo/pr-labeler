@@ -1,6 +1,6 @@
 # Release Process
 
-このドキュメントは、PR Metrics Actionの新バージョンをリリースする手順を説明します。
+このドキュメントは、PR Labelerの新バージョンをリリースする手順を説明します。
 
 ## 📋 目次
 
@@ -164,7 +164,7 @@ cat package.json | grep version
 ### Fixed
 - バグ修正の説明
 
-[X.Y.Z]: https://github.com/jey3dayo/pr-metrics-action/releases/tag/vX.Y.Z
+[X.Y.Z]: https://github.com/jey3dayo/pr-labeler/releases/tag/vX.Y.Z
 ```
 
 ### Step 3: package.json のバージョン更新
