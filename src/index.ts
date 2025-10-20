@@ -19,6 +19,7 @@ import {
   writeSummary,
   writeSummaryWithAnalysis,
 } from './actions-io';
+import { getCIStatus } from './ci-status';
 import { manageComment } from './comment-manager';
 import { createComplexityAnalyzer } from './complexity-analyzer';
 import { getDefaultLabelerConfig, loadConfig } from './config-loader';
@@ -32,6 +33,7 @@ import { mapActionInputsToConfig } from './input-mapper';
 import { applyLabels } from './label-applicator';
 import { decideLabels } from './label-decision-engine';
 import type { PRMetrics } from './labeler-types';
+import type { PRContext } from './types';
 
 /**
  * Main action function
@@ -201,7 +203,43 @@ async function run(): Promise<void> {
         ...(complexityMetrics && { complexity: complexityMetrics }),
       };
 
-      const labelerDecisions = decideLabels(prMetrics, labelerConfig);
+      // Build extended PR context for risk evaluation
+      const octokit = github.getOctokit(token);
+      const extendedPRContext: PRContext = {
+        owner: prContext.owner,
+        repo: prContext.repo,
+        pullNumber: prContext.pullNumber,
+      };
+
+      // Fetch CI status if enabled
+      if (labelerConfig.risk.use_ci_status) {
+        logInfo('🔍 Fetching CI status for risk evaluation...');
+        const ciStatus = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
+        if (ciStatus) {
+          extendedPRContext.ciStatus = ciStatus;
+          logInfo(
+            `  - CI Status: tests=${ciStatus.tests}, typeCheck=${ciStatus.typeCheck}, build=${ciStatus.build}, lint=${ciStatus.lint}`,
+          );
+        } else {
+          logInfo('  - CI status not available');
+        }
+
+        // Fetch commit messages
+        try {
+          const { data: commits } = await octokit.rest.pulls.listCommits({
+            owner: prContext.owner,
+            repo: prContext.repo,
+            pull_number: prContext.pullNumber,
+            per_page: 100,
+          });
+          extendedPRContext.commitMessages = commits.map(c => c.commit.message);
+          logInfo(`  - Fetched ${commits.length} commit messages`);
+        } catch (_error) {
+          logInfo('  - Failed to fetch commit messages');
+        }
+      }
+
+      const labelerDecisions = decideLabels(prMetrics, labelerConfig, extendedPRContext);
       if (labelerDecisions.isOk()) {
         const decisions = labelerDecisions.value;
         logInfo(`  - Labels to add: ${decisions.labelsToAdd.join(', ') || 'none'}`);

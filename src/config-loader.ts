@@ -330,6 +330,9 @@ export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerCo
         coverage_threshold: userConfig.risk.coverage_threshold,
       }),
       config_files: userConfig.risk?.config_files ?? DEFAULT_LABELER_CONFIG.risk.config_files,
+      ...(userConfig.risk?.use_ci_status !== undefined && {
+        use_ci_status: userConfig.risk.use_ci_status,
+      }),
     },
     exclude: {
       additional: userConfig.exclude?.additional ?? DEFAULT_LABELER_CONFIG.exclude.additional,

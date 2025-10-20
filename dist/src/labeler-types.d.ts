@@ -33,6 +33,7 @@ export interface RiskConfig {
     core_paths: string[];
     coverage_threshold?: number;
     config_files: string[];
+    use_ci_status?: boolean;
 }
 export interface ExcludeConfig {
     additional: string[];
