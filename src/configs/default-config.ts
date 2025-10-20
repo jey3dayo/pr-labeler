@@ -47,6 +47,7 @@ export const DEFAULT_LABELER_CONFIG: LabelerConfig = {
     high_if_no_tests_for_core: true,
     core_paths: ['src/**'],
     config_files: ['.github/workflows/**', 'package.json', 'tsconfig.json'],
+    use_ci_status: true,
   },
   exclude: {
     additional: [],

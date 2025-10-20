@@ -1,5 +1,5 @@
 /**
- * PR Metrics Action - Main entry point
+ * PR Labeler - Main entry point
  * Analyzes pull request files and enforces size limits
  */
 
@@ -19,6 +19,7 @@ import {
   writeSummary,
   writeSummaryWithAnalysis,
 } from './actions-io';
+import { getCIStatus } from './ci-status.js';
 import { manageComment } from './comment-manager';
 import { createComplexityAnalyzer } from './complexity-analyzer';
 import { getDefaultLabelerConfig, loadConfig } from './config-loader';
@@ -32,13 +33,14 @@ import { mapActionInputsToConfig } from './input-mapper';
 import { applyLabels } from './label-applicator';
 import { decideLabels } from './label-decision-engine';
 import type { PRMetrics } from './labeler-types';
+import type { PRContext } from './types';
 
 /**
  * Main action function
  */
 async function run(): Promise<void> {
   try {
-    logInfo('🚀 Starting PR Metrics Action');
+    logInfo('🚀 Starting PR Labeler');
 
     // Step 1: Get and validate inputs
     logInfo('📥 Getting action inputs...');
@@ -73,7 +75,7 @@ async function run(): Promise<void> {
         logInfo('📊 Summary written for draft PR');
       }
 
-      logInfo('✨ PR Metrics Action completed (skipped draft PR)');
+      logInfo('✨ PR Labeler completed (skipped draft PR)');
       return;
     }
 
@@ -201,7 +203,54 @@ async function run(): Promise<void> {
         ...(complexityMetrics && { complexity: complexityMetrics }),
       };
 
-      const labelerDecisions = decideLabels(prMetrics, labelerConfig);
+      // Build extended PR context for risk evaluation
+      const octokit = github.getOctokit(token);
+      const extendedPRContext: PRContext = {
+        owner: prContext.owner,
+        repo: prContext.repo,
+        pullNumber: prContext.pullNumber,
+      };
+
+      // Fetch CI status if enabled (default true when undefined)
+      const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
+      if (useCiStatus) {
+        logInfo('🔍 Fetching CI status for risk evaluation...');
+        const ciStatus = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
+        if (ciStatus) {
+          extendedPRContext.ciStatus = ciStatus;
+          logInfo(
+            `  - CI Status: tests=${ciStatus.tests}, typeCheck=${ciStatus.typeCheck}, build=${ciStatus.build}, lint=${ciStatus.lint}`,
+          );
+        } else {
+          logInfo('  - CI status not available');
+        }
+
+        // Fetch commit messages with pagination (subject line only)
+        try {
+          const commits = await octokit.paginate(octokit.rest.pulls.listCommits, {
+            owner: prContext.owner,
+            repo: prContext.repo,
+            pull_number: prContext.pullNumber,
+            per_page: 100,
+          });
+          const messages: string[] = [];
+          for (const commit of commits) {
+            const msg = commit.commit.message;
+            if (msg !== null && msg !== undefined) {
+              const subject = msg.split('\n')[0];
+              if (subject) {
+                messages.push(subject);
+              }
+            }
+          }
+          extendedPRContext.commitMessages = messages;
+          logInfo(`  - Fetched ${messages.length} commit messages`);
+        } catch (_error) {
+          logInfo('  - Failed to fetch commit messages');
+        }
+      }
+
+      const labelerDecisions = decideLabels(prMetrics, labelerConfig, extendedPRContext);
       if (labelerDecisions.isOk()) {
         const decisions = labelerDecisions.value;
         logInfo(`  - Labels to add: ${decisions.labelsToAdd.join(', ') || 'none'}`);
@@ -401,7 +450,7 @@ async function run(): Promise<void> {
     if (hasViolations && config.failOnViolation) {
       setFailed('🚫 PR contains violations and fail_on_violation is enabled');
     } else {
-      logInfo('✨ PR Metrics Action completed successfully');
+      logInfo('✨ PR Labeler completed successfully');
     }
   } catch (error) {
     const errorMessage = getErrorMessage(error);

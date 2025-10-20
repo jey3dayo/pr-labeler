@@ -129,6 +129,92 @@ describe('Label Decision Engine', () => {
       const files = ['src/index.ts', 'package.json'];
       expect(decideRiskLabel(files, config)).toBe('risk/high');
     });
+
+    describe('with CI status and commit messages', () => {
+      const configWithCI = {
+        ...config,
+        use_ci_status: true,
+      };
+
+      it('should return null for refactoring with all CI passed', () => {
+        const files = ['src/index.ts', 'src/utils.ts'];
+        const prContext = {
+          owner: 'test',
+          repo: 'test',
+          pullNumber: 1,
+          ciStatus: {
+            tests: 'passed' as const,
+            typeCheck: 'passed' as const,
+            build: 'passed' as const,
+            lint: 'passed' as const,
+          },
+          commitMessages: ['refactor: improve code structure'],
+        };
+        expect(decideRiskLabel(files, configWithCI, prContext)).toBeNull();
+      });
+
+      it('should return risk/high for feature without tests', () => {
+        const files = ['src/index.ts', 'src/new-feature.ts'];
+        const prContext = {
+          owner: 'test',
+          repo: 'test',
+          pullNumber: 1,
+          ciStatus: {
+            tests: 'passed' as const,
+            typeCheck: 'passed' as const,
+            build: 'passed' as const,
+            lint: 'passed' as const,
+          },
+          commitMessages: ['feat: add new feature'],
+        };
+        expect(decideRiskLabel(files, configWithCI, prContext)).toBe('risk/high');
+      });
+
+      it('should return risk/high when CI checks fail', () => {
+        const files = ['src/index.ts', '__tests__/index.test.ts'];
+        const prContext = {
+          owner: 'test',
+          repo: 'test',
+          pullNumber: 1,
+          ciStatus: {
+            tests: 'failed' as const,
+            typeCheck: 'passed' as const,
+            build: 'passed' as const,
+            lint: 'passed' as const,
+          },
+          commitMessages: ['refactor: improve code structure'],
+        };
+        expect(decideRiskLabel(files, configWithCI, prContext)).toBe('risk/high');
+      });
+
+      it('should fallback to original logic when use_ci_status is false', () => {
+        const files = ['src/index.ts', 'src/utils.ts'];
+        const configNoCi = {
+          ...config,
+          use_ci_status: false,
+        };
+        const prContext = {
+          owner: 'test',
+          repo: 'test',
+          pullNumber: 1,
+          ciStatus: {
+            tests: 'passed' as const,
+            typeCheck: 'passed' as const,
+            build: 'passed' as const,
+            lint: 'passed' as const,
+          },
+          commitMessages: ['refactor: improve code structure'],
+        };
+        // Should use original logic (no tests + core changes = risk/high)
+        expect(decideRiskLabel(files, configNoCi, prContext)).toBe('risk/high');
+      });
+
+      it('should work without prContext (backward compatibility)', () => {
+        const files = ['src/index.ts', 'src/utils.ts'];
+        // Should use original logic without prContext
+        expect(decideRiskLabel(files, configWithCI)).toBe('risk/high');
+      });
+    });
   });
 
   describe('decideLabels', () => {

@@ -61,6 +61,7 @@ export interface RiskConfig {
   core_paths: string[]; // コア機能パス（例: ["src/**"]）
   coverage_threshold?: number; // カバレッジ閾値（例: 80）
   config_files: string[]; // 設定ファイルパターン（例: [".github/workflows/**"]）
+  use_ci_status?: boolean; // CI結果を考慮するかどうか（デフォルト: true）
 }
 
 /**

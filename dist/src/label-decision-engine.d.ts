@@ -1,6 +1,7 @@
 import { Result } from 'neverthrow';
 import type { LabelDecisions, LabelerConfig, PRMetrics } from './labeler-types.js';
-export declare function decideLabels(metrics: PRMetrics, config: LabelerConfig): Result<LabelDecisions, never>;
+import type { PRContext } from './types.js';
+export declare function decideLabels(metrics: PRMetrics, config: LabelerConfig, prContext?: PRContext): Result<LabelDecisions, never>;
 export declare function decideSizeLabel(additions: number, thresholds: {
     small: number;
     medium: number;
@@ -19,4 +20,5 @@ export declare function decideRiskLabel(files: string[], config: {
     core_paths: string[];
     coverage_threshold?: number;
     config_files: string[];
-}): string | null;
+    use_ci_status?: boolean;
+}, prContext?: PRContext): string | null;
