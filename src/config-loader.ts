@@ -263,11 +263,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   // Validate risk.use_ci_status type
   if (cfg.risk?.use_ci_status !== undefined && typeof cfg.risk.use_ci_status !== 'boolean') {
     return errAsync(
-      createConfigurationError(
-        'risk.use_ci_status',
-        cfg.risk.use_ci_status,
-        'risk.use_ci_status must be a boolean',
-      ),
+      createConfigurationError('risk.use_ci_status', cfg.risk.use_ci_status, 'risk.use_ci_status must be a boolean'),
     );
   }
 

@@ -158,8 +158,9 @@ export function decideCategoryLabels(
 
 /**
  * Detect change type from commit messages
+ * Checks each message prefix for conventional commits to avoid false positives
  *
- * @param commitMessages - List of commit messages
+ * @param commitMessages - List of commit messages (subject lines)
  * @returns Detected change type
  */
 function detectChangeType(commitMessages: string[]): ChangeType {
@@ -167,29 +168,31 @@ function detectChangeType(commitMessages: string[]): ChangeType {
     return 'unknown';
   }
 
-  const messages = commitMessages.join(' ').toLowerCase();
+  // Check each message prefix for conventional commits
+  for (const message of commitMessages) {
+    const lower = message.toLowerCase().trim();
 
-  // Check for conventional commit prefixes and keywords
-  if (messages.includes('refactor:') || messages.includes('refactor(')) {
-    return 'refactor';
-  }
-  if (messages.includes('fix:') || messages.includes('fix(') || messages.includes('bugfix')) {
-    return 'fix';
-  }
-  if (messages.includes('feat:') || messages.includes('feat(') || messages.includes('feature')) {
-    return 'feature';
-  }
-  if (messages.includes('docs:') || messages.includes('docs(')) {
-    return 'docs';
-  }
-  if (messages.includes('test:') || messages.includes('test(')) {
-    return 'test';
-  }
-  if (messages.includes('style:') || messages.includes('style(') || messages.includes('format')) {
-    return 'style';
-  }
-  if (messages.includes('chore:') || messages.includes('chore(')) {
-    return 'chore';
+    if (lower.startsWith('refactor:') || lower.startsWith('refactor(')) {
+      return 'refactor';
+    }
+    if (lower.startsWith('fix:') || lower.startsWith('fix(')) {
+      return 'fix';
+    }
+    if (lower.startsWith('feat:') || lower.startsWith('feat(')) {
+      return 'feature';
+    }
+    if (lower.startsWith('docs:') || lower.startsWith('docs(')) {
+      return 'docs';
+    }
+    if (lower.startsWith('test:') || lower.startsWith('test(')) {
+      return 'test';
+    }
+    if (lower.startsWith('style:') || lower.startsWith('style(')) {
+      return 'style';
+    }
+    if (lower.startsWith('chore:') || lower.startsWith('chore(')) {
+      return 'chore';
+    }
   }
 
   return 'unknown';
@@ -208,10 +211,7 @@ function analyzeRiskFactors(
 ): { hasTestFiles: boolean; hasCoreChanges: boolean; hasConfigChanges: boolean } {
   return {
     hasTestFiles: files.some(
-      f =>
-        f.includes('__tests__/') ||
-        f.includes('tests/') ||
-        /\.(test|spec)\.(ts|tsx|js|jsx)$/i.test(f),
+      f => f.includes('__tests__/') || f.includes('tests/') || /\.(test|spec)\.(ts|tsx|js|jsx)$/i.test(f),
     ),
     hasCoreChanges: files.some(f => config.core_paths.some(pattern => minimatch(f, pattern))),
     hasConfigChanges: files.some(f => config.config_files.some(pattern => minimatch(f, pattern))),

@@ -32,9 +32,12 @@ function mapConclusion(conclusion: string | null): CICheckStatus {
 /**
  * Determines the status of a specific check type from check runs
  */
-function determineCheckStatus(checkRuns: Array<{ name: string; conclusion: string | null }>, patterns: string[]): CICheckStatus {
+function determineCheckStatus(
+  checkRuns: Array<{ name: string; conclusion: string | null }>,
+  patterns: string[],
+): CICheckStatus {
   const relevantChecks = checkRuns.filter(check =>
-    patterns.some(pattern => check.name.toLowerCase().includes(pattern.toLowerCase()))
+    patterns.some(pattern => check.name.toLowerCase().includes(pattern.toLowerCase())),
   );
 
   if (relevantChecks.length === 0) {
@@ -109,7 +112,9 @@ export async function getCIStatus(
  * Checks if all CI checks passed
  */
 export function allCIPassed(ciStatus: CIStatus | null | undefined): boolean {
-  if (!ciStatus) {return false;}
+  if (!ciStatus) {
+    return false;
+  }
 
   return (
     ciStatus.tests === 'passed' &&
@@ -123,7 +128,9 @@ export function allCIPassed(ciStatus: CIStatus | null | undefined): boolean {
  * Checks if any CI check failed
  */
 export function anyCIFailed(ciStatus: CIStatus | null | undefined): boolean {
-  if (!ciStatus) {return false;}
+  if (!ciStatus) {
+    return false;
+  }
 
   return (
     ciStatus.tests === 'failed' ||
