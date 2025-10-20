@@ -260,6 +260,17 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
     }
   }
 
+  // Validate risk.use_ci_status type
+  if (cfg.risk?.use_ci_status !== undefined && typeof cfg.risk.use_ci_status !== 'boolean') {
+    return errAsync(
+      createConfigurationError(
+        'risk.use_ci_status',
+        cfg.risk.use_ci_status,
+        'risk.use_ci_status must be a boolean',
+      ),
+    );
+  }
+
   // Warn about unknown keys (future extension)
   const knownKeys = ['size', 'complexity', 'categories', 'risk', 'exclude', 'labels', 'runtime'];
   const unknownKeys = Object.keys(config).filter(key => !knownKeys.includes(key));

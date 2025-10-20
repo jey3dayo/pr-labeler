@@ -19,7 +19,7 @@ import {
   writeSummary,
   writeSummaryWithAnalysis,
 } from './actions-io';
-import { getCIStatus } from './ci-status';
+import { getCIStatus } from './ci-status.js';
 import { manageComment } from './comment-manager';
 import { createComplexityAnalyzer } from './complexity-analyzer';
 import { getDefaultLabelerConfig, loadConfig } from './config-loader';
@@ -211,8 +211,9 @@ async function run(): Promise<void> {
         pullNumber: prContext.pullNumber,
       };
 
-      // Fetch CI status if enabled
-      if (labelerConfig.risk.use_ci_status) {
+      // Fetch CI status if enabled (default true when undefined)
+      const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
+      if (useCiStatus) {
         logInfo('🔍 Fetching CI status for risk evaluation...');
         const ciStatus = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
         if (ciStatus) {
@@ -224,16 +225,26 @@ async function run(): Promise<void> {
           logInfo('  - CI status not available');
         }
 
-        // Fetch commit messages
+        // Fetch commit messages with pagination (subject line only)
         try {
-          const { data: commits } = await octokit.rest.pulls.listCommits({
+          const commits = await octokit.paginate(octokit.rest.pulls.listCommits, {
             owner: prContext.owner,
             repo: prContext.repo,
             pull_number: prContext.pullNumber,
             per_page: 100,
           });
-          extendedPRContext.commitMessages = commits.map(c => c.commit.message);
-          logInfo(`  - Fetched ${commits.length} commit messages`);
+          const messages: string[] = [];
+          for (const commit of commits) {
+            const msg = commit.commit.message;
+            if (msg !== null && msg !== undefined) {
+              const subject = msg.split('\n')[0];
+              if (subject) {
+                messages.push(subject);
+              }
+            }
+          }
+          extendedPRContext.commitMessages = messages;
+          logInfo(`  - Fetched ${messages.length} commit messages`);
         } catch (_error) {
           logInfo('  - Failed to fetch commit messages');
         }

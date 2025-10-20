@@ -207,7 +207,12 @@ function analyzeRiskFactors(
   config: { core_paths: string[]; config_files: string[] },
 ): { hasTestFiles: boolean; hasCoreChanges: boolean; hasConfigChanges: boolean } {
   return {
-    hasTestFiles: files.some(f => f.includes('__tests__/') || f.match(/\.test\.(ts|tsx|js|jsx)$/) !== null),
+    hasTestFiles: files.some(
+      f =>
+        f.includes('__tests__/') ||
+        f.includes('tests/') ||
+        /\.(test|spec)\.(ts|tsx|js|jsx)$/i.test(f),
+    ),
     hasCoreChanges: files.some(f => config.core_paths.some(pattern => minimatch(f, pattern))),
     hasConfigChanges: files.some(f => config.config_files.some(pattern => minimatch(f, pattern))),
   };
