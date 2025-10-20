@@ -101,7 +101,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 
 | File | Size | Lines | Changes |
 |------|------|-------|----------|
-| src/large.ts | 1.91 MB | 2,000 | +1000/-0 |
+| src/large.ts | 1.91 MB | 2,000 | +1,000/-0 |
 | src/normal.ts | 4.88 KB | 100 | +50/-10 |
 
 ---
