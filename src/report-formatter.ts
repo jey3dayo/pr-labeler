@@ -3,7 +3,7 @@
  * Provides common markdown generation functions
  */
 
-import type { Violations } from './errors';
+import type { Violations } from './errors/index.js';
 import type { AnalysisResult, FileMetrics } from './file-metrics';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 

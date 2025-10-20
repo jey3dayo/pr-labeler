@@ -7,8 +7,8 @@ import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
 import { logDebug, logInfo } from './actions-io';
-import type { GitHubAPIError } from './errors';
-import { createGitHubAPIError, extractErrorMessage } from './errors';
+import type { GitHubAPIError } from './errors/index.js';
+import { createGitHubAPIError, extractErrorMessage } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import { formatBasicMetrics, formatFileDetails, formatViolations } from './report-formatter';
 import type { PRContext } from './types';

@@ -26,7 +26,7 @@ import { getDiffFiles } from './diff-strategy';
 import { loadDirectoryLabelerConfig } from './directory-labeler/config-loader.js';
 import { decideLabelsForFiles, filterByMaxLabels } from './directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from './directory-labeler/label-applicator.js';
-import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors';
+import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors/index.js';
 import { analyzeFiles } from './file-metrics';
 import { mapActionInputsToConfig } from './input-mapper';
 import { applyLabels } from './label-applicator';

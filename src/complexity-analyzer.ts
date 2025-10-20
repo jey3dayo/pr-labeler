@@ -11,7 +11,7 @@ import { ResultAsync } from 'neverthrow';
 import pLimit from 'p-limit';
 import * as path from 'path';
 
-import { type ComplexityAnalysisError, createComplexityAnalysisError, extractErrorMessage } from './errors.js';
+import { type ComplexityAnalysisError, createComplexityAnalysisError, extractErrorMessage } from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
 
 /**
