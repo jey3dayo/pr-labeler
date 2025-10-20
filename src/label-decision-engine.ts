@@ -166,6 +166,54 @@ function analyzeRiskFactors(
 }
 
 /**
+ * Risk evaluation result containing both label and reason
+ */
+type RiskEvaluation = {
+  label: string | null;
+  reason: string;
+};
+
+/**
+ * Evaluate risk based on file changes and configuration
+ * Combines label decision and reason generation
+ *
+ * @param files - List of changed file paths
+ * @param config - Risk configuration
+ * @returns Risk evaluation with label and reason
+ */
+function evaluateRisk(
+  files: string[],
+  config: {
+    high_if_no_tests_for_core: boolean;
+    core_paths: string[];
+    config_files: string[];
+  },
+): RiskEvaluation {
+  const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
+
+  // High risk: No tests + core changes
+  if (!hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
+    return {
+      label: 'risk/high',
+      reason: 'core functionality changed without test files',
+    };
+  }
+
+  // Medium risk: Config file changes
+  if (hasConfigChanges) {
+    return {
+      label: 'risk/medium',
+      reason: 'configuration files changed',
+    };
+  }
+
+  return {
+    label: null,
+    reason: '',
+  };
+}
+
+/**
  * Decide risk label based on file changes and configuration
  *
  * @param files - List of changed file paths
@@ -181,19 +229,7 @@ export function decideRiskLabel(
     config_files: string[];
   },
 ): string | null {
-  const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
-
-  // High risk: No tests + core changes
-  if (!hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
-    return 'risk/high';
-  }
-
-  // Medium risk: Config file changes
-  if (hasConfigChanges) {
-    return 'risk/medium';
-  }
-
-  return null;
+  return evaluateRisk(files, config).label;
 }
 
 /**
@@ -201,7 +237,7 @@ export function decideRiskLabel(
  *
  * @param files - List of changed file paths
  * @param config - Risk configuration
- * @param label - Risk label
+ * @param label - Risk label (for validation)
  * @returns Reason string
  */
 function getRiskReason(
@@ -213,13 +249,11 @@ function getRiskReason(
   },
   label: string,
 ): string {
-  const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
+  const evaluation = evaluateRisk(files, config);
 
-  if (label === 'risk/high' && !hasTestFiles && hasCoreChanges) {
-    return 'core functionality changed without test files';
-  }
-  if (label === 'risk/medium' && hasConfigChanges) {
-    return 'configuration files changed';
+  // Validate that the provided label matches the evaluated label
+  if (evaluation.label === label) {
+    return evaluation.reason;
   }
 
   return 'unknown risk condition';
