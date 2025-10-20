@@ -103,4 +103,4 @@ export interface LabelUpdate {
     skipped: string[];
     apiCalls: number;
 }
-export declare const DEFAULT_LABELER_CONFIG: LabelerConfig;
+export { DEFAULT_LABELER_CONFIG } from './configs/index.js';

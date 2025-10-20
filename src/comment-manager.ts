@@ -54,7 +54,7 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
 
   // Header
   if (hasViolationsFlag) {
-    body += '## ⚠️ PR Size Check - Violations Found\n\n';
+    body += '## 📊 PR Size Check - Large PR Detected\n\n';
   } else {
     body += '## ✅ PR Size Check Passed\n\n';
   }

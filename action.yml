@@ -85,6 +85,36 @@ inputs:
     required: false
     default: ""
 
+  # Directory-Based Labeling
+  enable_directory_labeling:
+    description: "Enable Directory-Based Labeling feature"
+    required: false
+    default: "false"
+  directory_labeler_config_path:
+    description: "Path to directory labeler configuration file"
+    required: false
+    default: ".github/directory-labeler.yml"
+  auto_create_labels:
+    description: "Automatically create labels if they don't exist"
+    required: false
+    default: "false"
+  label_color:
+    description: "Color for auto-created labels (hex code without #)"
+    required: false
+    default: "cccccc"
+  label_description:
+    description: "Description for auto-created labels"
+    required: false
+    default: ""
+  max_labels:
+    description: "Maximum number of labels to apply (0 for unlimited)"
+    required: false
+    default: "10"
+  use_default_excludes:
+    description: "Use default exclude patterns (node_modules, dist, etc.)"
+    required: false
+    default: "true"
+
   # 認証
   github_token:
     description: "GitHub token for API access (required). Provide explicitly or ensure GITHUB_TOKEN/GH_TOKEN environment variable is set"

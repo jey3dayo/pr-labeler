@@ -70,7 +70,7 @@ Some files could not be analyzed:
 `;
 
 exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring safety) > should match snapshot: with violations 1`] = `
-"## ⚠️ PR Size Check - Violations Found
+"## 📊 PR Size Check - Large PR Detected
 
 ### 📊 Summary
 
@@ -79,7 +79,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 - Files excluded: **0**
 - Binary files skipped: **0**
 
-### 📊 Violations Summary
+### 📊 Size Summary
 
 - **1** file(s) exceed size limit
 - **1** file(s) exceed line limit

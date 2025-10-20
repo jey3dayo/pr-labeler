@@ -34,7 +34,9 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能。複
 - `category/tests` - テストファイルの変更
 - `category/ci-cd` - CI/CD設定の変更
 - `category/documentation` - ドキュメント変更
-- `category/components` - コンポーネント変更
+- `category/config` - 設定ファイルの変更（tsconfig.json, eslint.config.js等）
+- `category/spec` - 仕様書・計画ドキュメントの変更（.kiro/, spec/等）
+- `category/dependencies` - 依存関係ファイルの変更（多言語対応: Node.js, Go, Python, Rust, Ruby）
 - カスタムカテゴリをYAML設定で追加可能
 
 **リスクベースラベル**:
@@ -48,6 +50,53 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能。複
 - ✅ `.github/pr-labeler.yml`でカスタマイズ可能
 - ✅ 冪等性保証（同じPR状態で再実行しても同じラベル）
 - ✅ 権限不足時の適切な処理（フォークPR対応）
+
+### 🆕 Directory-Based Labeler - ディレクトリパスベースの自動ラベル付け
+
+変更ファイルのディレクトリパスに基づいて、自動的にGitHubラベルを付与する機能です。
+
+**主要機能**:
+
+- **📁 パスベースマッピング**: ディレクトリパターン（glob）からラベルを自動決定
+- **🎯 優先順位制御**: priority、最長マッチ、定義順で柔軟な制御
+- **🔄 名前空間ポリシー**: exclusive（置換）/additive（追加）で競合解決
+- **🛡️ 安全設計**: デフォルトで無効、明示的な有効化が必要
+- **✨ ラベル自動作成**: 未存在ラベルの自動作成オプション
+
+**設定例**（`.github/directory-labeler.yml`）:
+
+```yaml
+version: 1
+rules:
+  - label: 'area:frontend'
+    include:
+      - 'src/components/**'
+      - 'src/pages/**'
+    exclude:
+      - '**/__tests__/**'
+    priority: 20
+
+  - label: 'area:backend'
+    include:
+      - 'src/api/**'
+      - 'src/services/**'
+    priority: 20
+
+namespaces:
+  exclusive: ['area']  # area:*ラベルは1つのみ
+  additive: ['scope']  # scope:*ラベルは複数可
+```
+
+**有効化**:
+
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    enable_directory_labeling: true  # 機能を有効化
+```
+
+詳細は[`.github/directory-labeler.yml.example`](.github/directory-labeler.yml.example)を参照してください。
 
 ## 📋 使用方法
 
@@ -186,6 +235,18 @@ jobs:
 | ----------------------------- | ---- | ---------- | ------------------------------------------ |
 | `additional_exclude_patterns` | ❌   | -          | 追加除外パターン（カンマまたは改行区切り） |
 
+### 🆕 Directory-Based Labeling
+
+| パラメータ                      | 必須 | デフォルト                      | 説明                                           |
+| ------------------------------- | ---- | ------------------------------- | ---------------------------------------------- |
+| `enable_directory_labeling`     | ❌   | `false`                         | Directory-Based Labeling機能の有効/無効        |
+| `directory_labeler_config_path` | ❌   | `.github/directory-labeler.yml` | 設定ファイルパス                               |
+| `auto_create_labels`            | ❌   | `false`                         | ラベル未存在時の自動作成                       |
+| `label_color`                   | ❌   | `cccccc`                        | 自動作成ラベルの色（hexカラーコード、#なし）   |
+| `label_description`             | ❌   | `""`                            | 自動作成ラベルの説明                           |
+| `max_labels`                    | ❌   | `10`                            | 適用ラベル数の上限（0で無制限）                |
+| `use_default_excludes`          | ❌   | `true`                          | デフォルト除外パターンの使用（node_modules等） |
+
 ### サイズラベル閾値のデフォルト
 
 ```json
@@ -265,7 +326,9 @@ GitHub Actions job summaryには以下の制限があります：
 - `category/tests` - テストファイルの変更
 - `category/ci-cd` - CI/CD設定の変更
 - `category/documentation` - ドキュメント変更
-- `category/components` - コンポーネント変更
+- `category/config` - 設定ファイルの変更（tsconfig.json, eslint.config.js等）
+- `category/spec` - 仕様書・計画ドキュメントの変更（.kiro/, spec/等）
+- `category/dependencies` - 依存関係ファイルの変更（多言語対応: Node.js, Go, Python, Rust, Ruby）
 - カスタムカテゴリ追加可能（YAML設定）
 
 **リスクラベル**（置換ポリシー）:

@@ -307,8 +307,8 @@ describe('CommentManager', () => {
 
       const body = generateCommentBody(analysisResult);
 
-      expect(body).toContain('⚠️ PR Size Check - Violations Found');
-      expect(body).toContain('### 📊 Violations Summary');
+      expect(body).toContain('📊 PR Size Check - Large PR Detected');
+      expect(body).toContain('### 📊 Size Summary');
       expect(body).toContain('### 🚫 Large Files Detected'); // Updated to match actual heading format
       expect(body).toContain('### ⚠️ Files Exceed Line Limit'); // Updated to match actual heading format
       expect(body).toContain('Total additions exceed limit');

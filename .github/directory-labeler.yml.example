@@ -1,0 +1,121 @@
+# Directory-Based Labeler Configuration Example
+# PRの変更ファイルのディレクトリパスに基づいて、自動的にGitHubラベルを付与
+
+version: 1
+
+# オプション設定（省略可）
+options:
+  # 隠しファイル/ディレクトリ（.github等）をマッチ対象に含める
+  dot: true
+  # 大文字小文字を区別しない（Windows互換性）
+  nocase: false
+  # ベース名のみマッチを有効にする
+  matchBase: false
+
+# ラベルマッピングルール
+rules:
+  # フロントエンド関連
+  - label: 'area:frontend'
+    include:
+      - 'src/components/**'
+      - 'src/pages/**'
+      - 'src/hooks/**'
+      - 'public/**'
+    exclude:
+      - '**/__tests__/**'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+    priority: 20
+
+  # バックエンド関連
+  - label: 'area:backend'
+    include:
+      - 'src/api/**'
+      - 'src/services/**'
+      - 'src/lib/**'
+      - 'server/**'
+    exclude:
+      - '**/__tests__/**'
+      - '**/*.test.ts'
+    priority: 20
+
+  # データベース/スキーマ
+  - label: 'area:database'
+    include:
+      - 'prisma/**'
+      - 'migrations/**'
+      - '**/*.sql'
+      - 'schema/**'
+    priority: 30
+
+  # インフラ/CI/CD
+  - label: 'area:infrastructure'
+    include:
+      - '.github/workflows/**'
+      - 'Dockerfile'
+      - 'docker-compose*.yml'
+      - 'terraform/**'
+      - 'k8s/**'
+      - '.circleci/**'
+    priority: 25
+
+  # 設定ファイル
+  - label: 'scope:config'
+    include:
+      - '*.config.js'
+      - '*.config.ts'
+      - 'tsconfig*.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - '.eslintrc*'
+      - '.prettierrc*'
+    priority: 15
+
+  # テスト
+  - label: 'scope:tests'
+    include:
+      - '**/__tests__/**'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/*.spec.ts'
+      - '**/*.spec.tsx'
+    priority: 10
+
+  # ドキュメント
+  - label: 'scope:docs'
+    include:
+      - '**/*.md'
+      - 'docs/**'
+      - 'README*'
+      - 'CHANGELOG*'
+    priority: 10
+
+  # 型定義
+  - label: 'scope:types'
+    include:
+      - '**/*.d.ts'
+      - 'types/**'
+      - '@types/**'
+    priority: 10
+
+  # コアロジック（高優先度）
+  - label: 'area:core'
+    include:
+      - 'src/core/**'
+      - 'src/utils/**'
+    exclude:
+      - '**/__tests__/**'
+    priority: 50
+
+# 名前空間ポリシー（省略可）
+namespaces:
+  # 相互排他（置換）: 同一名前空間では1つのみ保持
+  exclusive:
+    - 'size'
+    - 'area'
+    - 'type'
+
+  # 加法的（追加）: 複数のラベルを保持
+  additive:
+    - 'scope'
+    - 'meta'

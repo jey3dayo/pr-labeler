@@ -162,7 +162,7 @@ describe('ReportFormatter', () => {
       const result = formatViolations(violations, { includeHeader: true });
 
       expect(result).toContain('**All files are within size limits** ✅');
-      expect(result).not.toContain('### 📊 Violations Summary');
+      expect(result).not.toContain('### 📊 Size Summary');
     });
 
     it('should format large file violations', () => {
@@ -190,7 +190,7 @@ describe('ReportFormatter', () => {
 
       const result = formatViolations(violations);
 
-      expect(result).toContain('### 📊 Violations Summary');
+      expect(result).toContain('### 📊 Size Summary');
       expect(result).toContain('**2** file(s) exceed size limit');
       expect(result).toContain('### 🚫 Large Files Detected');
       expect(result).toContain('| File | Size | Limit | Status |');
@@ -220,7 +220,7 @@ describe('ReportFormatter', () => {
 
       const result = formatViolations(violations);
 
-      expect(result).toContain('### 📊 Violations Summary');
+      expect(result).toContain('### 📊 Size Summary');
       expect(result).toContain('**1** file(s) exceed line limit');
       expect(result).toContain('### ⚠️ Files Exceed Line Limit');
       expect(result).toContain('| File | Lines | Limit | Status |');
@@ -239,7 +239,7 @@ describe('ReportFormatter', () => {
 
       const result = formatViolations(violations);
 
-      expect(result).toContain('### 📊 Violations Summary');
+      expect(result).toContain('### 📊 Size Summary');
       expect(result).toContain('**Total additions exceed limit**');
     });
 
@@ -253,7 +253,7 @@ describe('ReportFormatter', () => {
 
       const result = formatViolations(violations);
 
-      expect(result).toContain('### 📊 Violations Summary');
+      expect(result).toContain('### 📊 Size Summary');
       expect(result).toContain('**File count exceeds limit**');
     });
 
@@ -283,7 +283,7 @@ describe('ReportFormatter', () => {
 
       const result = formatViolations(violations);
 
-      expect(result).toContain('### 📊 Violations Summary');
+      expect(result).toContain('### 📊 Size Summary');
       expect(result).toContain('**1** file(s) exceed size limit');
       expect(result).toContain('**1** file(s) exceed line limit');
       expect(result).toContain('**Total additions exceed limit**');
@@ -302,7 +302,7 @@ describe('ReportFormatter', () => {
 
       const result = formatViolations(violations, { includeHeader: false });
 
-      expect(result).not.toContain('### 📊 Violations Summary');
+      expect(result).not.toContain('### 📊 Size Summary');
       expect(result).toContain('Total additions exceed limit');
     });
   });

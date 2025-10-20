@@ -67,7 +67,22 @@ export interface ComplexityAnalysisError {
     maxSize?: number;
     timeoutSeconds?: number;
 }
-export type AppError = FileAnalysisError | GitHubAPIError | ConfigurationError | ParseError | FileSystemError | ViolationError | DiffError | PatternError | CacheError | ComplexityAnalysisError;
+export interface PermissionError {
+    type: 'PermissionError';
+    required: string;
+    message: string;
+}
+export interface RateLimitError {
+    type: 'RateLimitError';
+    retryAfter?: number;
+    message: string;
+}
+export interface UnexpectedError {
+    type: 'UnexpectedError';
+    originalError?: unknown;
+    message: string;
+}
+export type AppError = FileAnalysisError | GitHubAPIError | ConfigurationError | ParseError | FileSystemError | ViolationError | DiffError | PatternError | CacheError | ComplexityAnalysisError | PermissionError | RateLimitError | UnexpectedError;
 export declare const createFileAnalysisError: (file: string, message: string) => FileAnalysisError;
 export declare const createGitHubAPIError: (message: string, status?: number) => GitHubAPIError;
 export declare const createConfigurationError: (field: string, value: unknown, message: string) => ConfigurationError;
@@ -79,5 +94,8 @@ export declare const createPatternError: (pattern: string, message: string) => P
 export declare const createCacheError: (message: string, key?: string) => CacheError;
 export declare const createComplexityAnalysisError: (reason: ComplexityAnalysisError["reason"], message: string, options?: Partial<Pick<ComplexityAnalysisError, "filename" | "details" | "fileSize" | "maxSize" | "timeoutSeconds">>) => ComplexityAnalysisError;
 export declare function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError;
+export declare const createPermissionError: (required: string, message: string) => PermissionError;
+export declare const createRateLimitError: (message: string, retryAfter?: number) => RateLimitError;
+export declare const createUnexpectedError: (message: string, originalError?: unknown) => UnexpectedError;
 export type { Err, Ok } from 'neverthrow';
 export { err, errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow';

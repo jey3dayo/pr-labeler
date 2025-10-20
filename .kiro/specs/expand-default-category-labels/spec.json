@@ -1,0 +1,22 @@
+{
+  "feature_name": "expand-default-category-labels",
+  "created_at": "2025-10-20T04:37:10Z",
+  "updated_at": "2025-10-20T05:30:00Z",
+  "language": "ja",
+  "phase": "tasks-generated",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "ready_for_implementation": true
+}
