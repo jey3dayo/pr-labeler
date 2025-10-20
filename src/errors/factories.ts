@@ -20,6 +20,21 @@ import type {
 } from './types.js';
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Helper function to conditionally add an optional field to an error object
+ * Reduces code duplication for error factories with optional fields
+ */
+function withOptionalField<T extends object, K extends keyof T>(base: T, key: K, value: T[K] | undefined): T {
+  if (value !== undefined) {
+    base[key] = value;
+  }
+  return base;
+}
+
+// ============================================================================
 // Core Error Factories
 // ============================================================================
 
@@ -30,14 +45,8 @@ export const createFileAnalysisError = (file: string, message: string): FileAnal
 });
 
 export const createGitHubAPIError = (message: string, status?: number): GitHubAPIError => {
-  const error: GitHubAPIError = {
-    type: 'GitHubAPIError',
-    message,
-  };
-  if (status !== undefined) {
-    error.status = status;
-  }
-  return error;
+  const error: GitHubAPIError = { type: 'GitHubAPIError', message };
+  return withOptionalField(error, 'status', status);
 };
 
 export const createConfigurationError = (field: string, value: unknown, message: string): ConfigurationError => ({
@@ -54,14 +63,8 @@ export const createParseError = (input: string, message: string): ParseError => 
 });
 
 export const createFileSystemError = (message: string, path?: string): FileSystemError => {
-  const error: FileSystemError = {
-    type: 'FileSystemError',
-    message,
-  };
-  if (path !== undefined) {
-    error.path = path;
-  }
-  return error;
+  const error: FileSystemError = { type: 'FileSystemError', message };
+  return withOptionalField(error, 'path', path);
 };
 
 export const createViolationError = (violations: Violations, message: string): ViolationError => ({
@@ -83,14 +86,8 @@ export const createPatternError = (pattern: string, message: string): PatternErr
 });
 
 export const createCacheError = (message: string, key?: string): CacheError => {
-  const error: CacheError = {
-    type: 'CacheError',
-    message,
-  };
-  if (key !== undefined) {
-    error.key = key;
-  }
-  return error;
+  const error: CacheError = { type: 'CacheError', message };
+  return withOptionalField(error, 'key', key);
 };
 
 export const createComplexityAnalysisError = (
@@ -132,23 +129,11 @@ export const createPermissionError = (required: string, message: string): Permis
 });
 
 export const createRateLimitError = (message: string, retryAfter?: number): RateLimitError => {
-  const error: RateLimitError = {
-    type: 'RateLimitError',
-    message,
-  };
-  if (retryAfter !== undefined) {
-    error.retryAfter = retryAfter;
-  }
-  return error;
+  const error: RateLimitError = { type: 'RateLimitError', message };
+  return withOptionalField(error, 'retryAfter', retryAfter);
 };
 
 export const createUnexpectedError = (message: string, originalError?: unknown): UnexpectedError => {
-  const error: UnexpectedError = {
-    type: 'UnexpectedError',
-    message,
-  };
-  if (originalError !== undefined) {
-    error.originalError = originalError;
-  }
-  return error;
+  const error: UnexpectedError = { type: 'UnexpectedError', message };
+  return withOptionalField(error, 'originalError', originalError);
 };

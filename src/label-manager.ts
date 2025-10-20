@@ -7,8 +7,8 @@ import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
 import { logDebug, logInfo, logWarning } from './actions-io';
-import type { ConfigurationError, GitHubAPIError, Violations } from './errors';
-import { createConfigurationError, createGitHubAPIError, extractErrorMessage } from './errors';
+import type { ConfigurationError, GitHubAPIError, Violations } from './errors/index.js';
+import { createConfigurationError, createGitHubAPIError, extractErrorMessage } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
 
@@ -160,6 +160,45 @@ export async function getCurrentLabels(token: string, context: PRContext): Promi
 }
 
 /**
+ * Label modifier function type
+ */
+type LabelModifier = (
+  octokit: ReturnType<typeof github.getOctokit>,
+  context: PRContext,
+  labels: string[],
+) => Promise<void>;
+
+/**
+ * Common label modification function
+ * Handles empty check, logging, octokit creation, and error handling
+ */
+async function modifyLabels(
+  labels: string[],
+  token: string,
+  context: PRContext,
+  operation: {
+    name: string;
+    logMessage: (labels: string[]) => string;
+    execute: LabelModifier;
+  },
+): Promise<Result<void, GitHubAPIError>> {
+  if (labels.length === 0) {
+    logDebug(`No labels to ${operation.name}`);
+    return ok(undefined);
+  }
+
+  try {
+    logInfo(operation.logMessage(labels));
+    const octokit = github.getOctokit(token);
+    await operation.execute(octokit, context, labels);
+    return ok(undefined);
+  } catch (error) {
+    const message = extractErrorMessage(error);
+    return err(createGitHubAPIError(`Failed to ${operation.name} labels: ${message}`));
+  }
+}
+
+/**
  * Add labels to the PR
  */
 export async function addLabels(
@@ -167,27 +206,18 @@ export async function addLabels(
   token: string,
   context: PRContext,
 ): Promise<Result<void, GitHubAPIError>> {
-  if (labels.length === 0) {
-    logDebug('No labels to add');
-    return ok(undefined);
-  }
-
-  try {
-    logInfo(`Adding labels: ${labels.join(', ')}`);
-
-    const octokit = github.getOctokit(token);
-    await octokit.rest.issues.addLabels({
-      owner: context.owner,
-      repo: context.repo,
-      issue_number: context.pullNumber,
-      labels,
-    });
-
-    return ok(undefined);
-  } catch (error) {
-    const message = extractErrorMessage(error);
-    return err(createGitHubAPIError(`Failed to add labels: ${message}`));
-  }
+  return modifyLabels(labels, token, context, {
+    name: 'add',
+    logMessage: lbls => `Adding labels: ${lbls.join(', ')}`,
+    execute: async (octokit, ctx, lbls) => {
+      await octokit.rest.issues.addLabels({
+        owner: ctx.owner,
+        repo: ctx.repo,
+        issue_number: ctx.pullNumber,
+        labels: lbls,
+      });
+    },
+  });
 }
 
 /**
@@ -198,36 +228,26 @@ export async function removeLabels(
   token: string,
   context: PRContext,
 ): Promise<Result<void, GitHubAPIError>> {
-  if (labels.length === 0) {
-    logDebug('No labels to remove');
-    return ok(undefined);
-  }
-
-  try {
-    logInfo(`Removing labels: ${labels.join(', ')}`);
-
-    const octokit = github.getOctokit(token);
-
-    // Remove each label individually (GitHub API doesn't support bulk removal)
-    for (const label of labels) {
-      try {
-        await octokit.rest.issues.removeLabel({
-          owner: context.owner,
-          repo: context.repo,
-          issue_number: context.pullNumber,
-          name: label,
-        });
-      } catch (error) {
-        // Log warning but continue removing other labels
-        logWarning(`Failed to remove label '${label}': ${extractErrorMessage(error)}`);
+  return modifyLabels(labels, token, context, {
+    name: 'remove',
+    logMessage: lbls => `Removing labels: ${lbls.join(', ')}`,
+    execute: async (octokit, ctx, lbls) => {
+      // Remove each label individually (GitHub API doesn't support bulk removal)
+      for (const label of lbls) {
+        try {
+          await octokit.rest.issues.removeLabel({
+            owner: ctx.owner,
+            repo: ctx.repo,
+            issue_number: ctx.pullNumber,
+            name: label,
+          });
+        } catch (error) {
+          // Log warning but continue removing other labels
+          logWarning(`Failed to remove label '${label}': ${extractErrorMessage(error)}`);
+        }
       }
-    }
-
-    return ok(undefined);
-  } catch (error) {
-    const message = extractErrorMessage(error);
-    return err(createGitHubAPIError(`Failed to remove labels: ${message}`));
-  }
+    },
+  });
 }
 
 /**

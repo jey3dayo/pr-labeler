@@ -6,7 +6,7 @@
 
 import * as core from '@actions/core';
 
-import { createPatternError, ok, type Result } from '../errors.js';
+import { createPatternError, ok, type Result } from '../errors/index.js';
 import { compilePatterns, matchIncludePatterns, normalizePath } from './pattern-matcher.js';
 import { DEFAULT_EXCLUDES, DEFAULT_OPTIONS, type DirectoryLabelerConfig } from './types.js';
 

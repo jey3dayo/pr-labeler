@@ -8,8 +8,8 @@ import { err, ok, Result } from 'neverthrow';
 import { promisify } from 'util';
 
 import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io';
-import type { DiffError } from './errors';
-import { createDiffError, extractErrorMessage } from './errors';
+import type { DiffError } from './errors/index.js';
+import { createDiffError, extractErrorMessage } from './errors/index.js';
 
 // Create execAsync using promisify
 const execAsync = promisify(exec);

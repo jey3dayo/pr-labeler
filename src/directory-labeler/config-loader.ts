@@ -16,7 +16,7 @@ import {
   extractErrorMessage,
   ok,
   type Result,
-} from '../errors.js';
+} from '../errors/index.js';
 import {
   DEFAULT_NAMESPACES,
   DEFAULT_OPTIONS,

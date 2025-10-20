@@ -1,5 +1,5 @@
 import { Result } from 'neverthrow';
-import type { ConfigurationError } from './errors';
+import type { ConfigurationError } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 import { type SummaryContext } from './report-formatter';

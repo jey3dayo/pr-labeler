@@ -12,8 +12,8 @@ import { promisify } from 'util';
 
 import { logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffFile } from './diff-strategy';
-import type { FileAnalysisError, ViolationDetail, Violations } from './errors';
-import { createFileAnalysisError, extractErrorMessage } from './errors';
+import type { FileAnalysisError, ViolationDetail, Violations } from './errors/index.js';
+import { createFileAnalysisError, extractErrorMessage } from './errors/index.js';
 import { getDefaultExcludePatterns, isExcluded } from './pattern-matcher';
 
 // Create execAsync using promisify

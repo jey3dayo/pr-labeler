@@ -16,7 +16,7 @@ import {
   extractErrorStatus,
   ok,
   type Result,
-} from '../errors.js';
+} from '../errors/index.js';
 import type { LabelDecision } from './decision-engine.js';
 import type { NamespacePolicy } from './types.js';
 

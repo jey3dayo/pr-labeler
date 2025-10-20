@@ -1,5 +1,5 @@
 import { Result } from 'neverthrow';
-import type { DiffError } from './errors';
+import type { DiffError } from './errors/index.js';
 export interface DiffFile {
     filename: string;
     additions: number;

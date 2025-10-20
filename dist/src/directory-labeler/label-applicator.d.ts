@@ -1,5 +1,5 @@
 import * as github from '@actions/github';
-import { createGitHubAPIError, createPermissionError, createRateLimitError, type Result } from '../errors.js';
+import { createGitHubAPIError, createPermissionError, createRateLimitError, type Result } from '../errors/index.js';
 import type { LabelDecision } from './decision-engine.js';
 import type { NamespacePolicy } from './types.js';
 type Octokit = ReturnType<typeof github.getOctokit>;

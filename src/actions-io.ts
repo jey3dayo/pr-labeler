@@ -7,8 +7,8 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
-import type { ConfigurationError } from './errors';
-import { createConfigurationError, extractErrorMessage } from './errors';
+import type { ConfigurationError } from './errors/index.js';
+import { createConfigurationError, extractErrorMessage } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 import {

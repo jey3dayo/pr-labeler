@@ -7,7 +7,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { ResultAsync } from 'neverthrow';
 
-import { createGitHubAPIError, extractErrorMessage, extractErrorStatus, GitHubAPIError } from './errors.js';
+import { createGitHubAPIError, extractErrorMessage, extractErrorStatus, GitHubAPIError } from './errors/index.js';
 import type { LabelDecisions, LabelPolicyConfig, LabelUpdate } from './labeler-types.js';
 import type { PRContext } from './types.js';
 
