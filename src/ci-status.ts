@@ -79,14 +79,15 @@ export async function getCIStatus(
   headSha: string,
 ): Promise<CIStatus | null> {
   try {
-    const { data } = await octokit.rest.checks.listForRef({
+    // Fetch all check runs with pagination to avoid missing checks beyond 100
+    const allCheckRuns = await octokit.paginate(octokit.rest.checks.listForRef, {
       owner,
       repo,
       ref: headSha,
       per_page: 100,
     });
 
-    const checkRuns = data.check_runs.map(run => ({
+    const checkRuns = allCheckRuns.map(run => ({
       name: run.name,
       conclusion: run.conclusion,
     }));
