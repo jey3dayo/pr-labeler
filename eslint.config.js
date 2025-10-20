@@ -50,7 +50,7 @@ module.exports = tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: './tsconfig.json',
+        project: ['./tsconfig.json', './tsconfig.test.json'],
         tsconfigRootDir: __dirname,
       },
     },
@@ -64,7 +64,7 @@ module.exports = tseslint.config(
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: './tsconfig.json',
+          project: ['./tsconfig.json', './tsconfig.test.json'],
         },
         node: true,
       },

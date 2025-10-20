@@ -47,6 +47,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["node_modules", "dist", "coverage", "__tests__/fixtures/**", "__tests__/__tests__/**"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "coverage", "__tests__"]
 }
