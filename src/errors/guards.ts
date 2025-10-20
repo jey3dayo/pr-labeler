@@ -71,3 +71,23 @@ export function isErrorWithTypeAndMessage(obj: unknown): obj is { type: string; 
 export function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError {
   return !!e && typeof e === 'object' && 'type' in e && e.type === 'ComplexityAnalysisError';
 }
+
+// ============================================================================
+// Error Message Extraction
+// ============================================================================
+
+/**
+ * Extracts error message from unknown error value
+ * Handles Error instances, objects with message property, and other types
+ * @param error - Unknown error value
+ * @returns Error message string
+ */
+export function extractErrorMessage(error: unknown): string {
+  if (isError(error)) {
+    return error.message;
+  }
+  if (isErrorWithMessage(error)) {
+    return error.message;
+  }
+  return String(error);
+}

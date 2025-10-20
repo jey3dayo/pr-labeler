@@ -8,7 +8,7 @@ import { err, ok, Result } from 'neverthrow';
 
 import { logDebug, logInfo, logWarning } from './actions-io';
 import type { ConfigurationError, GitHubAPIError, Violations } from './errors';
-import { createConfigurationError, createGitHubAPIError, isError } from './errors';
+import { createConfigurationError, createGitHubAPIError, extractErrorMessage } from './errors';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
 
@@ -154,7 +154,7 @@ export async function getCurrentLabels(token: string, context: PRContext): Promi
 
     return ok(labels);
   } catch (error) {
-    const message = isError(error) ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createGitHubAPIError(`Failed to get labels: ${message}`));
   }
 }
@@ -185,7 +185,7 @@ export async function addLabels(
 
     return ok(undefined);
   } catch (error) {
-    const message = isError(error) ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createGitHubAPIError(`Failed to add labels: ${message}`));
   }
 }
@@ -219,13 +219,13 @@ export async function removeLabels(
         });
       } catch (error) {
         // Log warning but continue removing other labels
-        logWarning(`Failed to remove label '${label}': ${isError(error) ? error.message : 'Unknown error'}`);
+        logWarning(`Failed to remove label '${label}': ${extractErrorMessage(error)}`);
       }
     }
 
     return ok(undefined);
   } catch (error) {
-    const message = isError(error) ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createGitHubAPIError(`Failed to remove labels: ${message}`));
   }
 }

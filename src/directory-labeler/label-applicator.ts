@@ -12,8 +12,7 @@ import {
   createPermissionError,
   createRateLimitError,
   err,
-  isError,
-  isErrorWithMessage,
+  extractErrorMessage,
   isObject,
   ok,
   type Result,
@@ -169,7 +168,7 @@ export async function applyDirectoryLabels(
       result.removed?.push(label);
       core.info(`Removed label: ${label}`);
     } catch (error) {
-      const message = isError(error) ? error.message : String(error);
+      const message = extractErrorMessage(error);
       core.warning(`Failed to remove label "${label}": ${message}`);
       result.failed.push({ label, reason: `Failed to remove: ${message}` });
     }
@@ -198,7 +197,7 @@ export async function applyDirectoryLabels(
       result.applied.push(...labelsToAdd);
       core.info(`Applied labels: ${labelsToAdd.join(', ')}`);
     } catch (error) {
-      const message = isError(error) ? error.message : String(error);
+      const message = extractErrorMessage(error);
       const status = isObject(error) && 'status' in error ? (error.status as number) : undefined;
 
       // ラベル未存在エラー（422）の場合、auto_create_labelsが有効なら作成
@@ -219,19 +218,6 @@ export async function applyDirectoryLabels(
     `Applied: ${result.applied.length}, Skipped: ${result.skipped.length}, Removed: ${result.removed?.length ?? 0}, Failed: ${result.failed.length}`,
   );
   return ok(result);
-}
-
-/**
- * エラーメッセージを抽出
- */
-function extractErrorMessage(error: unknown): string {
-  if (isError(error)) {
-    return error.message;
-  }
-  if (isErrorWithMessage(error)) {
-    return error.message;
-  }
-  return String(error);
 }
 
 /**

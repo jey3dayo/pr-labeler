@@ -13,7 +13,7 @@ import { promisify } from 'util';
 import { logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffFile } from './diff-strategy';
 import type { FileAnalysisError, ViolationDetail, Violations } from './errors';
-import { createFileAnalysisError, isError } from './errors';
+import { createFileAnalysisError, extractErrorMessage } from './errors';
 import { getDefaultExcludePatterns, isExcluded } from './pattern-matcher';
 
 // Create execAsync using promisify
@@ -160,7 +160,7 @@ export async function getFileSize(
       return ok(stats.size);
     }
   } catch (error) {
-    logDebug(`fs.stat failed: ${isError(error) ? error.message : 'Unknown error'}`);
+    logDebug(`fs.stat failed: ${extractErrorMessage(error)}`);
   }
 
   // Strategy 2: Try git ls-tree
@@ -182,7 +182,7 @@ export async function getFileSize(
       }
     }
   } catch (error) {
-    logDebug(`git ls-tree failed: ${isError(error) ? error.message : 'Unknown error'}`);
+    logDebug(`git ls-tree failed: ${extractErrorMessage(error)}`);
   }
 
   // Strategy 3: Try GitHub API
@@ -200,7 +200,7 @@ export async function getFileSize(
       return ok(response.data.size);
     }
   } catch (error) {
-    logDebug(`GitHub API failed: ${isError(error) ? error.message : 'Unknown error'}`);
+    logDebug(`GitHub API failed: ${extractErrorMessage(error)}`);
   }
 
   return err(createFileAnalysisError(filePath, 'Failed to get file size using all strategies'));
@@ -229,7 +229,7 @@ export async function getFileLineCount(
       return ok(lines);
     }
   } catch (error) {
-    logDebug(`wc -l failed: ${isError(error) ? error.message : 'Unknown error'}`);
+    logDebug(`wc -l failed: ${extractErrorMessage(error)}`);
   }
 
   // Strategy 2: Node.js streaming implementation (memory-efficient)
@@ -260,7 +260,7 @@ export async function getFileLineCount(
     logDebug(`Got line count from Node.js streaming: ${lineCount}`);
     return ok(lineCount);
   } catch (error) {
-    const message = isError(error) ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createFileAnalysisError(filePath, `Failed to count lines: ${message}`));
   }
 }
@@ -302,7 +302,7 @@ export async function isBinaryFile(filePath: string): Promise<boolean> {
     return nonPrintable / Math.min(sample.length, 512) > 0.3;
   } catch (error) {
     // If we can't read the file, assume it's text
-    logDebug(`Could not read file for binary detection: ${isError(error) ? error.message : 'Unknown'}`);
+    logDebug(`Could not read file for binary detection: ${extractErrorMessage(error)}`);
     return false;
   }
 }
@@ -422,9 +422,7 @@ export async function analyzeFiles(
       }
     } catch (error) {
       result.metrics.filesWithErrors.push(file.filename);
-      logWarning(
-        `Unexpected error analyzing file ${file.filename}: ${isError(error) ? error.message : 'Unknown'}`,
-      );
+      logWarning(`Unexpected error analyzing file ${file.filename}: ${extractErrorMessage(error)}`);
     }
   }
 

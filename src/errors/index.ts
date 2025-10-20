@@ -42,6 +42,7 @@ export {
 
 // Export all type guard functions
 export {
+  extractErrorMessage,
   isComplexityAnalysisError,
   isError,
   isErrorWithMessage,

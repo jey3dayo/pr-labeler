@@ -7,7 +7,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { ResultAsync } from 'neverthrow';
 
-import { createGitHubAPIError, GitHubAPIError } from './errors.js';
+import { createGitHubAPIError, extractErrorMessage, GitHubAPIError } from './errors.js';
 import type { LabelDecisions, LabelPolicyConfig, LabelUpdate } from './labeler-types.js';
 import type { PRContext } from './types.js';
 
@@ -70,7 +70,7 @@ export function getCurrentLabels(
     }),
     (error): GitHubAPIError => {
       const err = error as { status?: number; message?: string };
-      return createGitHubAPIError(`Failed to get current labels: ${err.message ?? 'Unknown error'}`, err.status);
+      return createGitHubAPIError(`Failed to get current labels: ${extractErrorMessage(error)}`, err.status);
     },
   ).map(response => response.data.map(label => label.name));
 }
@@ -197,7 +197,7 @@ function applyLabelChanges(
         return createGitHubAPIError('Permission denied: cannot apply labels', 403);
       }
 
-      return createGitHubAPIError(`Failed to apply labels: ${err.message ?? 'Unknown error'}`, err.status);
+      return createGitHubAPIError(`Failed to apply labels: ${extractErrorMessage(error)}`, err.status);
     },
   );
 }
