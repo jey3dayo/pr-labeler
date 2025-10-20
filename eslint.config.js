@@ -177,6 +177,8 @@ module.exports = tseslint.config(
       '.vitest/**/*',
       '*.config.js',
       '*.config.ts',
+      '*.config.cjs',
+      '.ncurc.cjs',
       '.eslintrc.js',
       'eslint.config.js',
       '__tests__/fixtures/**/*', // Test fixtures with intentional syntax errors

@@ -8,6 +8,7 @@ import type { Linter } from 'eslint';
 import { ESLint } from 'eslint';
 import { promises as fs } from 'fs';
 import { ResultAsync } from 'neverthrow';
+import pLimit from 'p-limit';
 import * as path from 'path';
 
 import { type ComplexityAnalysisError, createComplexityAnalysisError } from './errors.js';
@@ -52,11 +53,11 @@ export const DEFAULT_ANALYSIS_OPTIONS: Required<AnalysisOptions> = {
  * Check if tsconfig.json exists in the project root
  * @returns True if tsconfig.json exists
  */
-async function hasTsconfigJson(): Promise<boolean> {
+function hasTsconfigJson(): boolean {
   try {
     const tsconfigPath = path.join(process.cwd(), 'tsconfig.json');
-    await fs.access(tsconfigPath);
-    return true;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('fs').existsSync(tsconfigPath);
   } catch {
     return false;
   }
@@ -67,16 +68,16 @@ async function hasTsconfigJson(): Promise<boolean> {
  * @param hasTsconfig - Whether tsconfig.json exists
  * @returns Configured ESLint instance
  */
-async function createESLintInstance(hasTsconfig: boolean): Promise<ESLint> {
-  // Dynamic import for @typescript-eslint/parser
-  const typescriptParser = await import('@typescript-eslint/parser');
+function createESLintInstance(hasTsconfig: boolean): ESLint {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const typescriptParser = require('@typescript-eslint/parser');
 
   return new ESLint({
     overrideConfigFile: true,
     baseConfig: {
       files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
       languageOptions: {
-        parser: typescriptParser.default,
+        parser: typescriptParser,
         parserOptions: {
           ecmaVersion: 'latest',
           sourceType: 'module',
@@ -178,12 +179,12 @@ export class ComplexityAnalyzer {
         }
 
         // 2. Run ESLint complexity rule
-        const hasTsconfig = await hasTsconfigJson();
+        const hasTsconfig = hasTsconfigJson();
         if (!hasTsconfig) {
           core.warning('tsconfig.json not found. Using default parser options for complexity analysis.');
         }
 
-        const eslint = await createESLintInstance(hasTsconfig);
+        const eslint = createESLintInstance(hasTsconfig);
 
         const results = await eslint.lintFiles([filePath]);
 
@@ -261,8 +262,7 @@ export class ComplexityAnalyzer {
         const successful: FileComplexity[] = [];
         const skippedFiles: SkippedFile[] = [];
 
-        // p-limitで並列度制御（dynamic import for ESM module）
-        const pLimit = (await import('p-limit')).default;
+        // p-limitで並列度制御
         const concurrency = Math.min(opts.concurrency, 8);
         const limit = pLimit(concurrency);
 
@@ -321,7 +321,7 @@ export class ComplexityAnalyzer {
         }
 
         // 完全なComplexityMetricsを構築
-        const hasTsconfig = await hasTsconfigJson();
+        const hasTsconfig = hasTsconfigJson();
         const completeMetrics: ComplexityMetrics = {
           ...baseMetrics,
           skippedFiles,
