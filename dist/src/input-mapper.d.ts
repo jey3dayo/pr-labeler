@@ -32,6 +32,13 @@ export interface Config {
     enableSummary: boolean;
     additionalExcludePatterns: string[];
     githubToken: string;
+    enableDirectoryLabeling: boolean;
+    directoryLabelerConfigPath: string;
+    autoCreateLabels: boolean;
+    labelColor: string;
+    labelDescription: string;
+    maxLabels: number;
+    useDefaultExcludes: boolean;
 }
 export declare function parseBoolean(value: string): boolean;
 export declare function parseCommentMode(value: string): 'auto' | 'always' | 'never';
