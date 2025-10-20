@@ -1,6 +1,6 @@
 /**
  * Complexity Analyzer for PR files
- * Uses ESLint standard complexity rule (not eslintcc)
+ * Uses ESLint standard complexity rule
  */
 
 import * as core from '@actions/core';
@@ -102,8 +102,9 @@ function createESLintInstance(hasTsconfig: boolean): ESLint {
  * @returns Parsed function complexity or null
  */
 function parseComplexityMessage(message: Linter.LintMessage): FunctionComplexity | null {
-  // Pattern: "Function 'name' has a complexity of N."
-  const pattern = /Function '(.+)' has a complexity of (\d+)\./;
+  // Pattern: "Function 'name' has a complexity of N." or "Function \"name\" has a complexity of N."
+  // Tightened to handle quoted names with punctuation robustly
+  const pattern = /Function ["']([^"']+)["'] has a complexity of (\d+)\b/i;
   const match = message.message.match(pattern);
 
   if (!match || !match[1] || !match[2]) {
@@ -111,9 +112,15 @@ function parseComplexityMessage(message: Linter.LintMessage): FunctionComplexity
     return null;
   }
 
+  const complexityValue = Number.parseInt(match[2], 10);
+  if (Number.isNaN(complexityValue)) {
+    core.debug(`Invalid complexity value: ${match[2]}`);
+    return null;
+  }
+
   return {
     name: match[1],
-    complexity: parseInt(match[2], 10),
+    complexity: complexityValue,
     loc: {
       start: message.line || 1,
       end: message.endLine || message.line || 1,

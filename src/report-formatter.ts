@@ -185,7 +185,7 @@ export function formatFileDetails(files: FileMetrics[], limit?: number): string 
   const displayFiles = limit ? sortedFiles.slice(0, limit) : sortedFiles;
 
   for (const file of displayFiles) {
-    const changes = `+${file.additions}/-${file.deletions}`;
+    const changes = `+${formatNumber(file.additions)}/-${formatNumber(file.deletions)}`;
     output += `| ${escapeMarkdown(file.path)} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
   }
   output += '\n';
@@ -222,7 +222,7 @@ export function generateComplexitySummary(
   markdown += `| メトリクス | 値 |\n`;
   markdown += `|-----------|-----|\n`;
   markdown += `| 最大複雑度 | ${formatNumber(maxComplexity)} |\n`;
-  markdown += `| 平均複雑度 | ${avgComplexity} |\n`;
+  markdown += `| 平均複雑度 | ${avgComplexity.toFixed(1)} |\n`;
   markdown += `| 分析ファイル数 | ${formatNumber(analyzedFiles)} |\n\n`;
 
   // 高複雑度ファイル（閾値超過、上位10件）
@@ -240,7 +240,8 @@ export function generateComplexitySummary(
 
       // 関数別複雑度の詳細表示（上位5件）
       if (file.functions.length > 0) {
-        const topFunctions = file.functions.sort((a, b) => b.complexity - a.complexity).slice(0, 5);
+        // ソート前にコピーしてミューテーション回避
+        const topFunctions = [...file.functions].sort((a, b) => b.complexity - a.complexity).slice(0, 5);
         markdown += `  <details><summary>関数別複雑度（上位5件）</summary>\n\n`;
         topFunctions.forEach(fn => {
           const fnUrl = `https://github.com/${owner}/${repo}/blob/${sha}/${file.path}#L${fn.loc.start}`;
