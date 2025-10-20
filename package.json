@@ -1,13 +1,13 @@
 {
-  "name": "pr-metrics-action",
+  "name": "pr-labeler",
   "version": "1.0.0",
   "description": "GitHub Action to check file sizes and line counts in PRs, automatically apply labels for large files",
   "author": "jey3dayo",
   "license": "MIT",
-  "homepage": "https://github.com/jey3dayo/pr-metrics-action",
+  "homepage": "https://github.com/jey3dayo/pr-labeler",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jey3dayo/pr-metrics-action.git"
+    "url": "https://github.com/jey3dayo/pr-labeler.git"
   },
   "engines": {
     "node": ">=20"

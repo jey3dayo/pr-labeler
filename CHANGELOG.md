@@ -123,5 +123,5 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 
 ---
 
-[1.0.1]: https://github.com/jey3dayo/pr-metrics-action/releases/tag/v1.0.1
-[1.0.0]: https://github.com/jey3dayo/pr-metrics-action/releases/tag/v1.0.0
+[1.0.1]: https://github.com/jey3dayo/pr-labeler/releases/tag/v1.0.1
+[1.0.0]: https://github.com/jey3dayo/pr-labeler/releases/tag/v1.0.0

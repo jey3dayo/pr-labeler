@@ -2,18 +2,18 @@
 
 ## イントロダクション
 
-PR Labelerは、PRのメトリクス分析に基づいて自動的にラベルを付与するGitHub Actionです。既存のpr-metrics-actionで計算されたメトリクス（サイズ、複雑度、リスク）を活用し、GitHub Actions labelerでは実現できないインテリジェントなラベル付けを提供します。
+PR Labelerは、PRのメトリクス分析に基づいて自動的にラベルを付与するGitHub Actionです。既存のpr-labelerで計算されたメトリクス（サイズ、複雑度、リスク）を活用し、GitHub Actions labelerでは実現できないインテリジェントなラベル付けを提供します。
 
 ### ビジネス価値
 
 - **コードレビュー効率化**: PRの特性を一目で把握し、適切なレビュアーへのアサインを容易にする
 - **品質管理の自動化**: 高リスクや高複雑度のPRを早期検出し、より慎重なレビューを促す
 - **開発プロセスの可視化**: PRのサイズ分布やカテゴリ分類により、チームの開発パターンを可視化
-- **既存資産の活用**: pr-metrics-actionの計算ロジックを再利用し、開発コストを削減
+- **既存資産の活用**: pr-labelerの計算ロジックを再利用し、開発コストを削減
 
 ### プロジェクト背景
 
-- pr-metrics-actionで既にPRメトリクス計算機能を実装済み
+- pr-labelerで既にPRメトリクス計算機能を実装済み
 - actions/labelerはパスベースのみで、メトリクスベースのラベル付けは不可能
 - メトリクス（サイズ、複雑度、リスク）に基づくインテリジェントなラベル付けが必要
 
@@ -181,13 +181,13 @@ runtime:
 
 ### Requirement 7: コアロジックの再利用と型安全性
 
-**Objective:** As a 開発者, I want pr-metrics-actionのコアロジックを再利用し、型安全なコードベースを維持すること, so that 開発効率を高め、バグを最小限に抑える
+**Objective:** As a 開発者, I want pr-labelerのコアロジックを再利用し、型安全なコードベースを維持すること, so that 開発効率を高め、バグを最小限に抑える
 
 #### Acceptance Criteria
 
-1. WHEN ファイルメトリクスを計算する THEN アクション SHALL pr-metrics-actionの`file-metrics.ts`モジュールを再利用する
-2. WHEN Git差分を取得する THEN アクション SHALL pr-metrics-actionの`diff-strategy.ts`モジュールを再利用する
-3. WHEN ファイル除外パターンを適用する THEN アクション SHALL pr-metrics-actionの`pattern-matcher.ts`モジュールを再利用する
+1. WHEN ファイルメトリクスを計算する THEN アクション SHALL pr-labelerの`file-metrics.ts`モジュールを再利用する
+2. WHEN Git差分を取得する THEN アクション SHALL pr-labelerの`diff-strategy.ts`モジュールを再利用する
+3. WHEN ファイル除外パターンを適用する THEN アクション SHALL pr-labelerの`pattern-matcher.ts`モジュールを再利用する
 4. WHERE すべての非同期処理とエラーが発生しうる処理 THE アクション SHALL neverthrowの`Result<T, E>`型を使用する
 5. WHERE すべての関数とモジュール THE アクション SHALL TypeScript strict modeの全設定を満たす
 6. WHEN 型アサーション（`as`）を使用する場合 THEN コード SHALL 最小限に留め、コメントで正当性を説明する

@@ -6,7 +6,7 @@
 
 ## 📋 概要
 
-本文書では、PR Metrics Action プロジェクトのドキュメント管理体系、タグ分類システム、メタデータ形式の統一ルールを定義します。
+本文書では、PR Labeler プロジェクトのドキュメント管理体系、タグ分類システム、メタデータ形式の統一ルールを定義します。
 
 ## 🏷️ タグ体系
 
@@ -76,7 +76,7 @@
 ### ディレクトリ構造
 
 ```
-pr-metrics-action/
+pr-labeler/
 ├── README.md            # プロジェクト概要（ユーザー向け）
 ├── CLAUDE.md           # Claude Code開発ガイド
 ├── docs/
@@ -233,4 +233,4 @@ const example = "code";
 
 ---
 
-**メンテナー**: jey3dayo | **ライセンス**: MIT | **リポジトリ**: [jey3dayo/pr-metrics-action](https://github.com/jey3dayo/pr-metrics-action)
+**メンテナー**: jey3dayo | **ライセンス**: MIT | **リポジトリ**: [jey3dayo/pr-labeler](https://github.com/jey3dayo/pr-labeler)

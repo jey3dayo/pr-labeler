@@ -1,9 +1,9 @@
-# Project Structure - PR Metrics Action
+# Project Structure - PR Labeler
 
 ## Root Directory Organization
 
 ```
-pr-metrics-action/
+pr-labeler/
 ├── .claude/              # Claude Code設定
 │   └── commands/         # カスタムスラッシュコマンド
 ├── .github/              # GitHub設定

@@ -197,6 +197,6 @@ PR Metrics Actionの実装タスクリストです。各タスクは1-3時間で
 タスク承認後、以下のコマンドで実装を開始：
 
 ```bash
-/kiro:spec-impl pr-metrics-action     # 全タスク実行
-/kiro:spec-impl pr-metrics-action 1   # タスク1から開始
+/kiro:spec-impl pr-labeler     # 全タスク実行
+/kiro:spec-impl pr-labeler 1   # タスク1から開始
 ```

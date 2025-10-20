@@ -40,7 +40,7 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
 3. IF 設定ファイルが存在しない THEN Directory-Based Labeler SHALL 空のマッピングルール（デフォルト無効）を使用してラベルを付与せずに正常終了する
 4. WHERE 設定ファイルにマッピングルールが定義されている THE Directory-Based Labeler SHALL パターンマッチングでディレクトリを識別する
 5. WHEN 設定ファイルが不正なフォーマット（必須キー欠落、型不一致、重複ラベル定義等） THEN Directory-Based Labeler SHALL 具体的なエラー箇所と修正方法を含むConfigErrorを返す
-6. IF 設定ファイルにYAMLアンカー/エイリアスが使用されている THEN Directory-Based Labeler SHALL 安全モード（`yaml.load`のデフォルトまたは`FAILSAFE_SCHEMA`）でパースし、マージキー（`<<:`）をサポートする
+6. IF 設定ファイルにYAMLアンカー/エイリアスが使用されている THEN Directory-Based Labeler SHALL 安全モード（`yaml.load` + `DEFAULT_SCHEMA`）でパースし、YAMLアンカー/エイリアスとマージキー（`<<:`）をサポートする。任意コード実行は許可しない
 7. WHEN 設定ファイルが正常に読み込まれる THEN Directory-Based Labeler SHALL バージョン、オプション、ルール、名前空間ポリシーを抽出してバリデーションする
 
 ### 要件3: パターンマッチングと除外ルール
@@ -94,14 +94,24 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
 
 #### 受け入れ基準
 
-1. WHEN Directory-Based Labelerが`action.yml`から呼び出される THEN Directory-Based Labeler SHALL `enable_directory_labeling`入力パラメータ（デフォルト: `false`）で機能の有効/無効を制御する
+1. WHEN Directory-Based Labelerが`action.yml`から呼び出される THEN Directory-Based Labeler SHALL 以下の入力パラメータを受け付ける:
+   - `enable_directory_labeling` (boolean, デフォルト: `false`): 機能の有効/無効
+   - `directory_labeler_config_path` (string, デフォルト: `.github/directory-labeler.yml`): 設定ファイルパス
+   - `auto_create_labels` (boolean, デフォルト: `false`): ラベル未存在時の自動作成
+   - `label_color` (string, デフォルト: `#cccccc`): 自動作成ラベルの色
+   - `label_description` (string, デフォルト: `""`): 自動作成ラベルの説明
+   - `max_labels` (number, デフォルト: `10`): 適用ラベル数の上限
+   - `use_default_excludes` (boolean, デフォルト: `true`): デフォルト除外パターンの使用
 2. IF `enable_directory_labeling`がfalse THEN Directory-Based Labeler SHALL ラベリング処理をスキップして正常終了する
 3. WHERE `directory_labeler_config_path`が指定されている THE Directory-Based Labeler SHALL 指定されたパスから設定ファイルを読み込む
-4. WHEN ラベル適用にGitHub APIを使用する THEN Directory-Based Labeler SHALL `issues: write`権限を必要とし、権限が不足している場合は`PermissionError`を返す
-5. IF `issues: write`権限が不足している THEN Directory-Based Labeler SHALL READMEと`action.yml`で必要権限を明記し、エラーメッセージで設定方法を案内する
-6. WHEN ラベル適用が完了する THEN Directory-Based Labeler SHALL GitHub Actions Summaryに以下の情報を出力する: 適用されたラベル名、決定根拠（マッチパターン）、対象ファイル数、処理結果（applied/skipped/failed）
-7. WHERE GitHub Actions Summaryが出力される THE Directory-Based Labeler SHALL 既存の「actions-summary-output」仕様に従い、`summary.addTable()`でフォーマットされたセクションを追加する
-8. IF Summary出力が失敗する THEN Directory-Based Labeler SHALL エラーログを記録するが、ラベリング処理の成功/失敗には影響しない（非致命的）
+4. WHEN 決定されたラベル数が`max_labels`を超過する THEN Directory-Based Labeler SHALL 優先度順（priority → 最長マッチ → 定義順）で上位N件のみ適用し、非採用ラベルと理由（上限超過）をSummary/ログに出力する
+5. WHEN `auto_create_labels`が`true` AND ラベルが未存在 THEN Directory-Based Labeler SHALL 新規ラベルを作成し、`label_color`と`label_description`を適用する
+6. IF ラベル作成に失敗する（権限不足/レート制限） THEN Directory-Based Labeler SHALL 部分失敗として記録し、Summary/ログに失敗理由を出力する
+7. WHEN ラベル適用にGitHub APIを使用する THEN Directory-Based Labeler SHALL `issues: write`権限を必要とし、権限が不足している場合は`PermissionError`を返す
+8. IF `issues: write`権限が不足している THEN Directory-Based Labeler SHALL READMEと`action.yml`で必要権限を明記し、エラーメッセージで設定方法を案内する
+9. WHEN ラベル適用が完了する THEN Directory-Based Labeler SHALL GitHub Actions Summaryに以下の列を含むテーブルを出力する: ラベル名、決定根拠（マッチパターン）、対象ファイル数、処理結果（applied/skipped/failed）、失敗理由（該当時: 上限超過/権限不足/レート制限/その他）
+10. WHERE GitHub Actions Summaryが出力される THE Directory-Based Labeler SHALL 既存の「actions-summary-output」仕様に従い、`summary.addTable()`でフォーマットされたセクションを追加する
+11. IF Summary出力が失敗する THEN Directory-Based Labeler SHALL エラーログを記録するが、ラベリング処理の成功/失敗には影響しない（非致命的）
 
 ### 要件7: テスタビリティと保守性
 
@@ -123,6 +133,7 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
 #### 受け入れ基準
 
 1. WHEN 設定ファイルが作成される THEN Directory-Based Labeler SHALL 以下のYAML構造をサポートする:
+
    ```yaml
    version: 1  # スキーマバージョン（必須、整数）
    options:    # minimatchオプション（省略可）
@@ -141,6 +152,7 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
      exclusive: ["size", "area", "type"]  # 相互排他（置換）
      additive: ["scope", "meta"]          # 加法的（追加）
    ```
+
 2. IF `version`フィールドが欠落または1以外 THEN Directory-Based Labeler SHALL ConfigErrorを返す
 3. IF `rules`フィールドが欠落または空配列 THEN Directory-Based Labeler SHALL ConfigErrorを返す
 4. WHEN ルール内の`label`フィールドが欠落 THEN Directory-Based Labeler SHALL 該当ルールのインデックスを含むConfigErrorを返す
@@ -226,6 +238,30 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
 - **設定**: `src/components/**` (priority: 10) → `area:components`, `src/components/core/**` (priority: 50) → `area:core`
 - **期待結果**: `area:core`が選択される（優先度: 50 > 10）
 
+### シナリオ11: max_labels超過時のフィルタリング
+
+- **入力**: 複数のディレクトリで15個のラベルが決定される
+- **設定**: `max_labels: 10`
+- **期待結果**: 優先度順（priority → 最長マッチ → 定義順）で上位10個のみ適用され、非採用5個の理由（上限超過）がSummary/ログに記録される
+
+### シナリオ12: auto_create_labels機能の動作
+
+- **入力**: `src/new-module/index.ts`が変更、`area:new-module`ラベルが未存在
+- **設定**: `auto_create_labels: true`, `label_color: #ff0000`, `label_description: "New module"`
+- **期待結果**: `area:new-module`ラベルが自動作成され（色: #ff0000、説明: "New module"）、PRに適用される
+
+### シナリオ13: auto_create_labels作成失敗
+
+- **入力**: `src/feature/A.ts`が変更、`area:feature`ラベルが未存在、権限不足
+- **設定**: `auto_create_labels: true`
+- **期待結果**: ラベル作成が失敗し、部分失敗として記録され、Summary/ログに失敗理由（権限不足）が出力される
+
+### シナリオ14: 既定除外のみ変更
+
+- **入力**: `.git/config`と`node_modules/package/index.js`のみ変更
+- **設定**: `use_default_excludes: true`
+- **期待結果**: ラベルは付与されず、正常終了
+
 ## 非機能要件
 
 ### パフォーマンス
@@ -238,8 +274,8 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
 ### セキュリティ
 
 - GitHub Tokenは環境変数またはGitHub Actions Secretsから安全に取得する
-- YAMLパーサは安全モード（`yaml.load`のデフォルトスキーマまたは`FAILSAFE_SCHEMA`）を使用する
-- 設定ファイルの読み込み時にYAMLインジェクション攻撃を防ぐ（任意コード実行を許可しない）
+- YAMLパーサは安全モード（`yaml.load` + `DEFAULT_SCHEMA`）を使用し、YAMLアンカー/エイリアス、マージキーをサポートするが任意コード実行を許可しない
+- 設定ファイルの読み込み時にYAMLインジェクション攻撃を防ぐ
 - ログ出力時にトークン、URL、個人識別子をマスキングする
 
 ### 互換性

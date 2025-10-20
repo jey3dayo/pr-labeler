@@ -1,5 +1,5 @@
-name: "PR Metrics Action"
-description: "Check file sizes and line counts in PRs, automatically apply labels for large files"
+name: "PR Labeler"
+description: "Intelligent PR labeling with file size checks, automatic categorization, and risk assessment"
 author: "jey3dayo"
 branding:
   icon: "file-text"
