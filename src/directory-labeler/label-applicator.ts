@@ -7,7 +7,17 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
-import { createGitHubAPIError, createPermissionError, createRateLimitError, err, ok, type Result } from '../errors.js';
+import {
+  createGitHubAPIError,
+  createPermissionError,
+  createRateLimitError,
+  err,
+  isError,
+  isErrorWithMessage,
+  isObject,
+  ok,
+  type Result,
+} from '../errors.js';
 import type { LabelDecision } from './decision-engine.js';
 import type { NamespacePolicy } from './types.js';
 
@@ -159,7 +169,7 @@ export async function applyDirectoryLabels(
       result.removed?.push(label);
       core.info(`Removed label: ${label}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = isError(error) ? error.message : String(error);
       core.warning(`Failed to remove label "${label}": ${message}`);
       result.failed.push({ label, reason: `Failed to remove: ${message}` });
     }
@@ -188,9 +198,8 @@ export async function applyDirectoryLabels(
       result.applied.push(...labelsToAdd);
       core.info(`Applied labels: ${labelsToAdd.join(', ')}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const status =
-        typeof error === 'object' && error !== null && 'status' in error ? (error.status as number) : undefined;
+      const message = isError(error) ? error.message : String(error);
+      const status = isObject(error) && 'status' in error ? (error.status as number) : undefined;
 
       // ラベル未存在エラー（422）の場合、auto_create_labelsが有効なら作成
       if (status === 422 && options.autoCreate) {
@@ -216,11 +225,11 @@ export async function applyDirectoryLabels(
  * エラーメッセージを抽出
  */
 function extractErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
+  if (isError(error)) {
     return error.message;
   }
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    return String(error.message);
+  if (isErrorWithMessage(error)) {
+    return error.message;
   }
   return String(error);
 }

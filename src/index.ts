@@ -26,7 +26,7 @@ import { getDiffFiles } from './diff-strategy';
 import { loadDirectoryLabelerConfig } from './directory-labeler/config-loader.js';
 import { decideLabelsForFiles, filterByMaxLabels } from './directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from './directory-labeler/label-applicator.js';
-import type { AppError } from './errors';
+import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors';
 import { analyzeFiles } from './file-metrics';
 import { mapActionInputsToConfig } from './input-mapper';
 import { applyLabels } from './label-applicator';
@@ -414,12 +414,11 @@ async function run(): Promise<void> {
  * Extract error message from various error types
  */
 function getErrorMessage(error: unknown): string {
-  if (error && typeof error === 'object' && 'message' in error) {
-    return String(error.message);
+  if (isErrorWithTypeAndMessage(error)) {
+    return `[${error.type}] ${error.message}`;
   }
-  if (error && typeof error === 'object' && 'type' in error) {
-    const appError = error as AppError;
-    return `[${appError.type}] ${appError.message}`;
+  if (isErrorWithMessage(error)) {
+    return error.message;
   }
   return String(error);
 }

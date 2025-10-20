@@ -11,7 +11,7 @@ import { ResultAsync } from 'neverthrow';
 import pLimit from 'p-limit';
 import * as path from 'path';
 
-import { type ComplexityAnalysisError, createComplexityAnalysisError } from './errors.js';
+import { type ComplexityAnalysisError, createComplexityAnalysisError, isError } from './errors.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
 
 /**
@@ -181,7 +181,7 @@ export class ComplexityAnalyzer {
           }
           throw createComplexityAnalysisError('analysis_failed', `Failed to stat file ${filePath}`, {
             filename: filePath,
-            details: error instanceof Error ? error.message : String(error),
+            details: isError(error) ? error.message : String(error),
           });
         }
 
@@ -245,7 +245,7 @@ export class ComplexityAnalyzer {
         // Convert unknown errors
         return createComplexityAnalysisError('analysis_failed', `Failed to analyze ${filePath}`, {
           filename: filePath,
-          details: error instanceof Error ? error.message : String(error),
+          details: isError(error) ? error.message : String(error),
         });
       },
     );
@@ -343,7 +343,7 @@ export class ComplexityAnalyzer {
           return error as ComplexityAnalysisError;
         }
         return createComplexityAnalysisError('general', 'Failed to analyze files', {
-          details: error instanceof Error ? error.message : String(error),
+          details: isError(error) ? error.message : String(error),
         });
       },
     );

@@ -9,7 +9,7 @@ import { promisify } from 'util';
 
 import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffError } from './errors';
-import { createDiffError } from './errors';
+import { createDiffError, isError } from './errors';
 
 // Create execAsync using promisify
 const execAsync = promisify(exec);
@@ -121,7 +121,7 @@ async function getLocalGitDiff(context: PullRequestContext): Promise<Result<Diff
     logInfo(`Successfully retrieved ${files.length} files using local git`);
     return ok(files);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = isError(error) ? error.message : 'Unknown error';
     logWarning(`Local git diff failed: ${message}`);
     return err(createDiffError('local-git', `Failed to get local git diff: ${message}`));
   }
@@ -200,7 +200,7 @@ async function getGitHubAPIDiff(context: PullRequestContext, token: string): Pro
     logInfo(`Successfully retrieved ${files.length} files using GitHub API`);
     return ok(files);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = isError(error) ? error.message : 'Unknown error';
     logWarning(`GitHub API diff failed: ${message}`);
     return err(createDiffError('github-api', `Failed to get GitHub API diff: ${message}`));
   }

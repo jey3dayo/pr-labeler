@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import * as core from '@actions/core';
 import { load as yamlLoad } from 'js-yaml';
 
-import { createConfigurationError, createFileSystemError, err, ok, type Result } from '../errors.js';
+import { createConfigurationError, createFileSystemError, err, isError, ok, type Result } from '../errors.js';
 import {
   DEFAULT_NAMESPACES,
   DEFAULT_OPTIONS,
@@ -40,7 +40,7 @@ export function loadDirectoryLabelerConfig(
   try {
     fileContent = fs.readFileSync(configPath, 'utf-8');
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = isError(error) ? error.message : String(error);
     return err(createFileSystemError(`Failed to read configuration file: ${message}`, configPath));
   }
 
@@ -50,7 +50,7 @@ export function loadDirectoryLabelerConfig(
     // 安全モード: DEFAULT_SCHEMAでYAMLアンカー/エイリアス、マージキーをサポート、任意コード実行は防止
     rawConfig = yamlLoad(fileContent);
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = isError(error) ? error.message : String(error);
     return err(createConfigurationError('yaml', fileContent, `YAML parse error: ${message}`));
   }
 
