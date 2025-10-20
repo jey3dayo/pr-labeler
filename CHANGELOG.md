@@ -26,8 +26,11 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 - `category/tests` - テストファイルの変更（`__tests__/**`, `**/*.test.ts`）
 - `category/ci-cd` - CI/CD設定の変更（`.github/workflows/**`）
 - `category/documentation` - ドキュメント変更（`docs/**`, `**/*.md`）
-- `category/components` - コンポーネント変更（`src/components/**`）
+- `category/config` - 設定ファイルの変更（`**/tsconfig.json`, `**/eslint.config.*`, `**/mise.toml`等）
+- `category/spec` - 仕様書・計画ドキュメントの変更（`.kiro/**`, `spec/**`等）
+- `category/dependencies` - 依存関係ファイルの変更（`**/package.json`, `**/go.mod`, `**/Cargo.toml`等、多言語対応）
 - minimatchパターンマッチングでカスタマイズ可能
+- 任意階層対応（`**/`プレフィックス）でmonorepo構成もサポート
 - 複数カテゴリ同時付与（加法ポリシー）
 
 **リスクベースラベル**:
