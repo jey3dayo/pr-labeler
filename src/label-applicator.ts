@@ -69,7 +69,10 @@ export function getCurrentLabels(
       issue_number: context.pullNumber,
     }),
     (error): GitHubAPIError => {
-      return createGitHubAPIError(`Failed to get current labels: ${extractErrorMessage(error)}`, extractErrorStatus(error));
+      return createGitHubAPIError(
+        `Failed to get current labels: ${extractErrorMessage(error)}`,
+        extractErrorStatus(error),
+      );
     },
   ).map(response => response.data.map(label => label.name));
 }
