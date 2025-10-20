@@ -1,0 +1,14 @@
+import type { CacheError, ComplexityAnalysisError, ConfigurationError, DiffError, FileAnalysisError, FileSystemError, GitHubAPIError, ParseError, PatternError, PermissionError, RateLimitError, UnexpectedError, ViolationError, Violations } from './types.js';
+export declare const createFileAnalysisError: (file: string, message: string) => FileAnalysisError;
+export declare const createGitHubAPIError: (message: string, status?: number) => GitHubAPIError;
+export declare const createConfigurationError: (field: string, value: unknown, message: string) => ConfigurationError;
+export declare const createParseError: (input: string, message: string) => ParseError;
+export declare const createFileSystemError: (message: string, path?: string) => FileSystemError;
+export declare const createViolationError: (violations: Violations, message: string) => ViolationError;
+export declare const createDiffError: (source: "local-git" | "github-api" | "both", message: string) => DiffError;
+export declare const createPatternError: (pattern: string, message: string) => PatternError;
+export declare const createCacheError: (message: string, key?: string) => CacheError;
+export declare const createComplexityAnalysisError: (reason: ComplexityAnalysisError["reason"], message: string, options?: Partial<Pick<ComplexityAnalysisError, "filename" | "details" | "fileSize" | "maxSize" | "timeoutSeconds">>) => ComplexityAnalysisError;
+export declare const createPermissionError: (required: string, message: string) => PermissionError;
+export declare const createRateLimitError: (message: string, retryAfter?: number) => RateLimitError;
+export declare const createUnexpectedError: (message: string, originalError?: unknown) => UnexpectedError;

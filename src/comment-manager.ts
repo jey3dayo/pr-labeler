@@ -8,7 +8,7 @@ import { err, ok, Result } from 'neverthrow';
 
 import { logDebug, logInfo } from './actions-io';
 import type { GitHubAPIError } from './errors';
-import { createGitHubAPIError } from './errors';
+import { createGitHubAPIError, extractErrorMessage } from './errors';
 import type { AnalysisResult } from './file-metrics';
 import { formatBasicMetrics, formatFileDetails, formatViolations } from './report-formatter';
 import type { PRContext } from './types';
@@ -126,7 +126,7 @@ export async function findExistingComment(
     logDebug('No existing comment found');
     return ok(null);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createGitHubAPIError(`Failed to find existing comment: ${message}`));
   }
 }
@@ -153,7 +153,7 @@ export async function postComment(
     logInfo(`Comment posted successfully (ID: ${response.data.id})`);
     return ok(response.data.id);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createGitHubAPIError(`Failed to post comment: ${message}`));
   }
 }
@@ -181,7 +181,7 @@ export async function updateComment(
     logInfo('Comment updated successfully');
     return ok(undefined);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createGitHubAPIError(`Failed to update comment: ${message}`));
   }
 }
@@ -207,7 +207,7 @@ export async function deleteComment(
     logInfo('Comment deleted successfully');
     return ok(undefined);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     return err(createGitHubAPIError(`Failed to delete comment: ${message}`));
   }
 }

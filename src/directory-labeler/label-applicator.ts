@@ -7,7 +7,16 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
-import { createGitHubAPIError, createPermissionError, createRateLimitError, err, ok, type Result } from '../errors.js';
+import {
+  createGitHubAPIError,
+  createPermissionError,
+  createRateLimitError,
+  err,
+  extractErrorMessage,
+  extractErrorStatus,
+  ok,
+  type Result,
+} from '../errors.js';
 import type { LabelDecision } from './decision-engine.js';
 import type { NamespacePolicy } from './types.js';
 
@@ -115,8 +124,7 @@ export async function applyDirectoryLabels(
     core.debug(`Existing labels: ${existingLabels.join(', ')}`);
   } catch (error) {
     const message = extractErrorMessage(error);
-    const status =
-      typeof error === 'object' && error !== null && 'status' in error ? (error.status as number) : undefined;
+    const status = extractErrorStatus(error);
 
     if (status === 403) {
       return err(createPermissionError('issues: read', `Failed to list labels: ${message}`));
@@ -159,7 +167,7 @@ export async function applyDirectoryLabels(
       result.removed?.push(label);
       core.info(`Removed label: ${label}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = extractErrorMessage(error);
       core.warning(`Failed to remove label "${label}": ${message}`);
       result.failed.push({ label, reason: `Failed to remove: ${message}` });
     }
@@ -188,9 +196,8 @@ export async function applyDirectoryLabels(
       result.applied.push(...labelsToAdd);
       core.info(`Applied labels: ${labelsToAdd.join(', ')}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const status =
-        typeof error === 'object' && error !== null && 'status' in error ? (error.status as number) : undefined;
+      const message = extractErrorMessage(error);
+      const status = extractErrorStatus(error);
 
       // ラベル未存在エラー（422）の場合、auto_create_labelsが有効なら作成
       if (status === 422 && options.autoCreate) {
@@ -210,19 +217,6 @@ export async function applyDirectoryLabels(
     `Applied: ${result.applied.length}, Skipped: ${result.skipped.length}, Removed: ${result.removed?.length ?? 0}, Failed: ${result.failed.length}`,
   );
   return ok(result);
-}
-
-/**
- * エラーメッセージを抽出
- */
-function extractErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    return String(error.message);
-  }
-  return String(error);
 }
 
 /**
@@ -248,10 +242,7 @@ async function createMissingLabels(
       core.info(`Applied label: ${label}`);
       continue; // next label
     } catch (error) {
-      const status =
-        typeof error === 'object' && error !== null && 'status' in error
-          ? ((error as { status: number }).status as number)
-          : undefined;
+      const status = extractErrorStatus(error);
       // 422 ⇒ label likely doesn't exist in the repo; try to create
       if (status !== 422) {
         const message = extractErrorMessage(error);
@@ -273,10 +264,7 @@ async function createMissingLabels(
       });
       core.info(`Created label: ${label}`);
     } catch (error) {
-      const status =
-        typeof error === 'object' && error !== null && 'status' in error
-          ? ((error as { status: number }).status as number)
-          : undefined;
+      const status = extractErrorStatus(error);
       const message = extractErrorMessage(error);
       // If it already exists (422), proceed to add; otherwise record failure and continue
       if (status !== 422) {

@@ -8,7 +8,7 @@ import * as github from '@actions/github';
 import * as yaml from 'js-yaml';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 
-import { ConfigurationError, createConfigurationError } from './errors.js';
+import { ConfigurationError, createConfigurationError, extractErrorMessage, extractErrorStatus } from './errors.js';
 import type { LabelerConfig } from './labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from './labeler-types.js';
 
@@ -40,15 +40,15 @@ export function loadConfig(
       ref,
     }),
     (error): ConfigurationError => {
-      const err = error as { status?: number; message?: string };
-      if (err.status === 404) {
+      const status = extractErrorStatus(error);
+      if (status === 404) {
         core.info(`Configuration file ${CONFIG_FILE_PATH} not found, using defaults`);
         return createConfigurationError(CONFIG_FILE_PATH, 'not found', 'Configuration file not found');
       }
       return createConfigurationError(
         CONFIG_FILE_PATH,
-        err,
-        `Failed to fetch configuration file: ${err.message ?? 'Unknown error'}`,
+        error,
+        `Failed to fetch configuration file: ${extractErrorMessage(error)}`,
       );
     },
   ).andThen(response => {

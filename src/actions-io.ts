@@ -8,7 +8,7 @@ import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
 import type { ConfigurationError } from './errors';
-import { createConfigurationError } from './errors';
+import { createConfigurationError, extractErrorMessage } from './errors';
 import type { AnalysisResult } from './file-metrics';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 import {
@@ -260,7 +260,7 @@ export async function writeSummaryWithAnalysis(
 
     return ok({ action: 'written', bytesWritten });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = extractErrorMessage(error);
     logWarning(`Failed to write summary: ${message}`);
     return err(new Error(`Failed to write GitHub Actions Summary: ${message}`));
   }
