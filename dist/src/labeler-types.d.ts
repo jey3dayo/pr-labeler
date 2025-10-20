@@ -22,6 +22,7 @@ export interface ComplexityConfig {
         high: number;
     };
     extensions: string[];
+    exclude: string[];
 }
 export interface CategoryConfig {
     label: string;
@@ -46,18 +47,33 @@ export interface RuntimeConfig {
 }
 export interface ComplexityMetrics {
     maxComplexity: number;
-    filesAnalyzed: FileComplexity[];
-    filesSkipped: string[];
+    avgComplexity: number;
+    analyzedFiles: number;
+    files: FileComplexity[];
+    skippedFiles: SkippedFile[];
+    syntaxErrorFiles: string[];
+    truncated: boolean;
+    totalPRFiles?: number;
+    hasTsconfig: boolean;
+}
+export interface SkippedFile {
+    path: string;
+    reason: 'too_large' | 'analysis_failed' | 'timeout' | 'binary' | 'encoding_error' | 'syntax_error' | 'general';
+    details?: string;
 }
 export interface FileComplexity {
-    filename: string;
+    path: string;
     complexity: number;
     functions: FunctionComplexity[];
+    isSyntaxError?: boolean;
 }
 export interface FunctionComplexity {
     name: string;
-    line: number;
     complexity: number;
+    loc: {
+        start: number;
+        end: number;
+    };
 }
 export interface PRMetrics {
     totalAdditions: number;
@@ -65,7 +81,7 @@ export interface PRMetrics {
     complexity?: ComplexityMetrics;
 }
 export interface FileMetrics {
-    filename: string;
+    path: string;
     size: number;
     lines: number;
     additions: number;

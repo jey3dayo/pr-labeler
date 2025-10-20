@@ -67,5 +67,10 @@
   },
 
   // 除外パターン
-  "ignores": ["**/node_modules/**", "**/dist/**", "**/.git/**"]
+  "ignores": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.git/**",
+    "**/_*.md" // アンダースコアで始まるmarkdownファイルを除外
+  ]
 }

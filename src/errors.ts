@@ -85,8 +85,13 @@ export interface CacheError {
 // Error Type 10: Complexity Analysis Error
 export interface ComplexityAnalysisError {
   type: 'ComplexityAnalysisError';
+  reason: 'too_large' | 'analysis_failed' | 'timeout' | 'encoding_error' | 'binary' | 'syntax_error' | 'general';
   filename?: string; // エラーが発生したファイル（全ファイル失敗時はundefined）
   message: string;
+  details?: string; // 追加の詳細情報
+  fileSize?: number; // too_largeの場合のファイルサイズ
+  maxSize?: number; // too_largeの場合の制限サイズ
+  timeoutSeconds?: number; // timeoutの場合のタイムアウト時間
 }
 
 // Union type for all application errors
@@ -173,16 +178,42 @@ export const createCacheError = (message: string, key?: string): CacheError => {
   return error;
 };
 
-export const createComplexityAnalysisError = (message: string, filename?: string): ComplexityAnalysisError => {
+export const createComplexityAnalysisError = (
+  reason: ComplexityAnalysisError['reason'],
+  message: string,
+  options?: Partial<Pick<ComplexityAnalysisError, 'filename' | 'details' | 'fileSize' | 'maxSize' | 'timeoutSeconds'>>,
+): ComplexityAnalysisError => {
   const error: ComplexityAnalysisError = {
     type: 'ComplexityAnalysisError',
+    reason,
     message,
   };
-  if (filename !== undefined) {
-    error.filename = filename;
+  if (options?.filename) {
+    error.filename = options.filename;
+  }
+  if (options?.details) {
+    error.details = options.details;
+  }
+  if (options?.fileSize !== undefined) {
+    error.fileSize = options.fileSize;
+  }
+  if (options?.maxSize !== undefined) {
+    error.maxSize = options.maxSize;
+  }
+  if (options?.timeoutSeconds !== undefined) {
+    error.timeoutSeconds = options.timeoutSeconds;
   }
   return error;
 };
+
+/**
+ * Checks if an unknown error is a ComplexityAnalysisError
+ * @param e - Unknown error to check
+ * @returns True if the error is a ComplexityAnalysisError
+ */
+export function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError {
+  return !!e && typeof e === 'object' && 'type' in e && e.type === 'ComplexityAnalysisError';
+}
 
 // Re-export from neverthrow for convenience
 export type { Err, Ok } from 'neverthrow';

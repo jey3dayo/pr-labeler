@@ -138,9 +138,9 @@ describe('Label Decision Engine', () => {
       const metrics: PRMetrics = {
         totalAdditions: 250,
         files: [
-          { filename: 'src/index.ts', size: 5000, lines: 150, additions: 100, deletions: 20 },
-          { filename: '__tests__/index.test.ts', size: 3000, lines: 80, additions: 50, deletions: 10 },
-          { filename: 'docs/README.md', size: 2000, lines: 50, additions: 100, deletions: 5 },
+          { path: 'src/index.ts', size: 5000, lines: 150, additions: 100, deletions: 20 },
+          { path: '__tests__/index.test.ts', size: 3000, lines: 80, additions: 50, deletions: 10 },
+          { path: 'docs/README.md', size: 2000, lines: 50, additions: 100, deletions: 5 },
         ],
       };
 
@@ -157,7 +157,7 @@ describe('Label Decision Engine', () => {
     it('should decide size/small for small PRs', () => {
       const metrics: PRMetrics = {
         totalAdditions: 50,
-        files: [{ filename: 'src/small.ts', size: 1000, lines: 30, additions: 50, deletions: 5 }],
+        files: [{ path: 'src/small.ts', size: 1000, lines: 30, additions: 50, deletions: 5 }],
       };
 
       const result = decideLabels(metrics, config);
@@ -168,7 +168,7 @@ describe('Label Decision Engine', () => {
     it('should decide risk/high for core changes without tests', () => {
       const metrics: PRMetrics = {
         totalAdditions: 100,
-        files: [{ filename: 'src/core.ts', size: 5000, lines: 150, additions: 100, deletions: 10 }],
+        files: [{ path: 'src/core.ts', size: 5000, lines: 150, additions: 100, deletions: 10 }],
       };
 
       const result = decideLabels(metrics, config);
@@ -179,7 +179,7 @@ describe('Label Decision Engine', () => {
     it('should include reasoning for each label', () => {
       const metrics: PRMetrics = {
         totalAdditions: 150,
-        files: [{ filename: 'src/index.ts', size: 5000, lines: 150, additions: 150, deletions: 20 }],
+        files: [{ path: 'src/index.ts', size: 5000, lines: 150, additions: 150, deletions: 20 }],
       };
 
       const result = decideLabels(metrics, config);
@@ -192,7 +192,7 @@ describe('Label Decision Engine', () => {
     it('should not add complexity label when metrics.complexity is undefined', () => {
       const metrics: PRMetrics = {
         totalAdditions: 120,
-        files: [{ filename: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
+        files: [{ path: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
       };
 
       const result = decideLabels(metrics, config);
@@ -208,8 +208,17 @@ describe('Label Decision Engine', () => {
 
       const metrics: PRMetrics = {
         totalAdditions: 120,
-        files: [{ filename: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
-        complexity: { maxComplexity: 99, filesAnalyzed: [], filesSkipped: [] },
+        files: [{ path: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
+        complexity: {
+          maxComplexity: 99,
+          avgComplexity: 50,
+          analyzedFiles: 0,
+          files: [],
+          skippedFiles: [],
+          syntaxErrorFiles: [],
+          truncated: false,
+          hasTsconfig: true,
+        },
       };
 
       const result = decideLabels(metrics, customConfig);

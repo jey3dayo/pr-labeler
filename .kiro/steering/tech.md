@@ -90,7 +90,7 @@ GitHub Event (PR) → Action Runner → dist/index.js
   "bytes": "^3.1.2",          // サイズ文字列パース（"100KB" → バイト数）
   "minimatch": "^10.0.3",     // Globパターンマッチング
   "neverthrow": "^8.2.0",     // Railway-Oriented Programming
-  "eslintcc": "^0.8.3",       // 🆕 循環的複雑度計算（PR Labeler機能）
+  // ESLint標準complexityルールを使用（既存ESLint 9.37.0依存）
   "js-yaml": "^4.1.0"         // 🆕 YAML設定パース（PR Labeler機能）
 }
 ```

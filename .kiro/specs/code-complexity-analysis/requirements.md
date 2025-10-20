@@ -2,7 +2,7 @@
 
 ## はじめに
 
-コード複雑度分析機能は、PR内の変更ファイルに対してeslintccツールを統合し、循環的複雑度（Cyclomatic Complexity）を自動計算する機能である。この機能により、開発者とレビュアーは、コードの複雑性を可視化し、保守性やテスト容易性の低下を早期に検知できる。PR Labeler機能で既に定義された複雑度ベースのラベル付け（complexity/medium、complexity/high）のバックエンドとして動作し、GitHub Actions Summaryでの詳細レポート出力も提供する。
+コード複雑度分析機能は、PR内の変更ファイルに対してESLint標準complexityルールを使用し、循環的複雑度（Cyclomatic Complexity）を自動計算する機能である。この機能により、開発者とレビュアーは、コードの複雑性を可視化し、保守性やテスト容易性の低下を早期に検知できる。PR Labeler機能で既に定義された複雑度ベースのラベル付け（complexity/medium、complexity/high）のバックエンドとして動作し、GitHub Actions Summaryでの詳細レポート出力も提供する。
 
 ## 要件
 
@@ -16,10 +16,10 @@
 2. WHEN 変更ファイルを取得する場合 THEN システムは、GitHub APIのpull_requestイベントから追加（added）、変更（modified）、リネーム（renamed）されたファイルを対象とし、削除（deleted）されたファイルは除外するものとする
 3. IF ファイルがリネーム（renamed）された場合 THEN システムは、リネーム後の新ファイルパスを複雑度計算の対象とするものとする
 4. WHEN PRに含まれるファイル数が多い場合 THEN システムは、GitHub APIのページングを考慮し、最大3000ファイルまで取得するものとする
-5. IF ファイルがTypeScriptまたはJavaScriptファイル（.ts、.tsx、.js、.jsx）の場合 THEN システムは、eslintccライブラリを使用してファイル単位の循環的複雑度を計算するものとする
-6. WHEN eslintccでTypeScript/TSXファイルを解析する場合 THEN システムは、@typescript-eslint/parserをパーサとして使用し、ecmaFeatures.jsxを有効化するものとする
+5. IF ファイルがTypeScriptまたはJavaScriptファイル（.ts、.tsx、.js、.jsx）の場合 THEN システムは、ESLint標準complexityルールを使用してファイル単位の循環的複雑度を計算するものとする
+6. WHEN ESLintでTypeScript/TSXファイルを解析する場合 THEN システムは、@typescript-eslint/parserをパーサとして使用し、ecmaFeatures.jsxを有効化するものとする
 7. WHEN TypeScriptプロジェクトのtsconfig.jsonが存在する場合 THEN システムは、プロジェクト参照を考慮してAST解析を実行するものとする
-8. WHEN eslintccライブラリのバージョンを管理する場合 THEN システムは、Node.js 20以上、TypeScript 5.x系、eslintcc最新版をサポートし、package.jsonのpeerDependenciesに記載するものとする
+8. WHEN ライブラリのバージョンを管理する場合 THEN システムは、Node.js 20以上、TypeScript 5.x系、ESLint 9.x系をサポートする（ESLintは既存依存）ものとする
 9. WHEN ファイルの循環的複雑度を計算する場合 THEN システムは、ファイル全体の複雑度と各関数/メソッドの個別複雑度を抽出するものとする
 10. IF ファイルがTypeScript/JavaScript以外の拡張子を持つ場合 THEN システムは、そのファイルを複雑度計算の対象外として扱い、スキップするものとする
 11. WHEN 複雑度計算が完了した場合 THEN システムは、ファイルごとの複雑度データ（ファイル名、合計複雑度、関数別複雑度、関数の行番号範囲）を構造化データとして保持するものとする
@@ -118,7 +118,7 @@ interface FunctionComplexity {
 
 #### 受入基準
 
-1. WHEN eslintccライブラリがファイルの解析に失敗した場合 THEN システムは、そのファイルをスキップし、エラーログを記録し、他のファイルの計算を継続するものとする
+1. WHEN ESLintがファイルの解析に失敗した場合 THEN システムは、そのファイルをスキップし、エラーログを記録し、他のファイルの計算を継続するものとする
 2. WHEN ファイルのASTパースが構文エラーで失敗した場合 THEN システムは、そのファイルの複雑度を0として記録し、警告をログに出力するものとする
 3. WHEN 複雑度計算の全体タイムアウトを設定する場合 THEN システムは、デフォルト60秒をタイムアウトとし、超過した場合は計算を中止して部分的な結果を返すものとする
 4. WHEN 個別ファイルのタイムアウトを設定する場合 THEN システムは、単一ファイルあたり最大5秒をタイムアウトとし、超過したファイルはスキップするものとする

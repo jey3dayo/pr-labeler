@@ -23,7 +23,7 @@ const execAsync = promisify(exec);
  * File metrics data
  */
 export interface FileMetrics {
-  filename: string;
+  path: string;
   size: number;
   lines: number;
   additions: number;
@@ -387,7 +387,7 @@ export async function analyzeFiles(
       }
 
       const metrics: FileMetrics = {
-        filename: file.filename,
+        path: file.filename,
         size: sizeResult.value,
         lines: lineResult.value,
         additions: file.additions,

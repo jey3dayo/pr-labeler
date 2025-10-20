@@ -314,6 +314,7 @@ export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerCo
         high: userConfig.complexity?.thresholds?.high ?? DEFAULT_LABELER_CONFIG.complexity.thresholds.high,
       },
       extensions: userConfig.complexity?.extensions ?? DEFAULT_LABELER_CONFIG.complexity.extensions,
+      exclude: userConfig.complexity?.exclude ?? DEFAULT_LABELER_CONFIG.complexity.exclude,
     },
     categories: userConfig.categories ?? DEFAULT_LABELER_CONFIG.categories,
     risk: {

@@ -246,15 +246,7 @@ GitHub Actions job summaryには以下の制限があります：
 
 ## 🏷️ 自動適用ラベル
 
-### 基本サイズラベル（既存機能）
-
-- `size/S` - Small (additions ≤ 100 かつ files ≤ 10)
-- `size/M` - Medium (additions ≤ 500 かつ files ≤ 30)
-- `size/L` - Large (additions ≤ 1000 かつ files ≤ 50)
-- `size/XL` - Extra Large (L超過、2000行以下)
-- `size/XXL` - Huge (2000行超)
-
-### 違反ラベル（既存機能）
+### 違反ラベル
 
 - `auto:large-files` - ファイルサイズまたは行数制限違反
 - `auto:too-many-files` - ファイル数制限違反

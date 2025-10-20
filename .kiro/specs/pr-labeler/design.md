@@ -120,17 +120,17 @@ graph TB
 
 **新規導入ライブラリ**:
 
-| ライブラリ | バージョン | 用途             | 選定理由                                                  |
-| ---------- | ---------- | ---------------- | --------------------------------------------------------- |
-| `eslintcc` | 最新       | 循環的複雑度計算 | ESLintベースで型安全、TypeScript AST解析対応、MIT license |
-| `js-yaml`  | 4.1.0      | YAML設定パース   | デファクトスタンダード、型定義完備                        |
+| ライブラリ                   | バージョン | 用途             | 選定理由                                                  |
+| ---------------------------- | ---------- | ---------------- | --------------------------------------------------------- |
+| `ESLint標準complexityルール` | 最新       | 循環的複雑度計算 | ESLintベースで型安全、TypeScript AST解析対応、MIT license |
+| `js-yaml`                    | 4.1.0      | YAML設定パース   | デファクトスタンダード、型定義完備                        |
 
 **技術選定の補足調査**:
 
-**eslintcc**:
+**ESLint標準complexityルール**:
 
-- **公式ドキュメント**: https://eslintcc.github.io/
-- **GitHub**: https://github.com/eslintcc/eslintcc
+- **公式ドキュメント**: <https://eslint.org/>
+- **GitHub**: <https://eslint.org/docs/latest/rules/complexity>
 - **API**: typescript-eslintのASTを使用し、ESLintの`complexity`ルールでファイル単位の循環的複雑度を計算
 - **認証**: 不要（ローカルファイル解析）
 - **制約**: TypeScript AST解析のオーバーヘッド（大規模ファイルで100-500ms程度）
@@ -138,31 +138,31 @@ graph TB
 
 **js-yaml**:
 
-- **公式ドキュメント**: https://github.com/nodeca/js-yaml
+- **公式ドキュメント**: <https://github.com/nodeca/js-yaml>
 - **API**: `yaml.load(fileContent, { schema: yaml.JSON_SCHEMA })`でパース、エラー時は`YAMLException`
 - **バリデーション**: スキーマ定義なし（パース後に手動バリデーション）
 - **代替案**: `yaml`（公式YAML 1.2パーサーだが型定義が弱い）
 
 **実装段階で要調査**:
 
-- eslintccのメモリ使用量（大規模PR時のパフォーマンス影響）
+- ESLint complexityルール分析のメモリ使用量（大規模PR時のパフォーマンス影響）
 - js-yamlのセキュリティ設定（`!!js/function`等の危険な構文の無効化）
 
 ### 重要な設計判断
 
 #### 判断1: 循環的複雑度計算ライブラリ選定
 
-**判断**: `eslintcc`を採用
+**判断**: `ESLint標準complexityルール`を採用
 
 **コンテキスト**: Requirement 2（複雑度ベースの自動ラベル付け）を実現するため、TypeScript/JavaScriptの循環的複雑度を正確に計算できるライブラリが必要。
 
 **代替案**:
 
-1. **eslintcc**: ESLintの`complexity`ルールをベースにした完全なTypeScript AST解析
+1. **ESLint標準complexityルール**: ESLintの`complexity`ルールをベースにした完全なTypeScript AST解析
 2. **cyclomatic-complexity**: 軽量だがJavaScript構文のみサポート、TypeScript固有構文（型ガード、デコレータ）に未対応
 3. **ts-complex**: Halstead複雑度やMaintainability Indexも計算するが過剰機能、依存関係が多い
 
-**選定アプローチ**: eslintcc
+**選定アプローチ**: ESLint標準complexityルール
 
 **動作原理**:
 
@@ -281,7 +281,7 @@ sequenceDiagram
     FA-->>AM: Result<FileMetrics[], Error>
 
     AM->>CA: Calculate complexity for .ts/.tsx files
-    CA->>CA: Parse AST with eslintcc
+    CA->>CA: Parse AST with ESLint標準complexityルール
     CA-->>AM: Result<ComplexityMetrics, Error>
 
     AM->>LD: Determine labels from metrics
@@ -327,11 +327,11 @@ flowchart TB
 
     AnalyzeFiles --> CalcComplexity{Complexity enabled?}
 
-    CalcComplexity -->|Yes| RunESLintCC[Run eslintcc on .ts/.tsx files]
+    CalcComplexity -->|Yes| RunComplexityAnalysis[Run ESLint complexity analysis on .ts/.tsx files]
     CalcComplexity -->|No| SkipComplexity[Skip complexity analysis]
 
-    RunESLintCC -->|Success| ComplexityMetrics[Store complexity metrics]
-    RunESLintCC -->|Error| LogWarning[Log warning, continue without complexity]
+    RunComplexityAnalysis -->|Success| ComplexityMetrics[Store complexity metrics]
+    RunComplexityAnalysis -->|Error| LogWarning[Log warning, continue without complexity]
     LogWarning --> SkipComplexity
 
     ComplexityMetrics --> DecideLabels[Label Decision Engine]
@@ -388,7 +388,7 @@ flowchart TB
 
 **外部依存調査**: js-yaml
 
-- **公式ドキュメント**: https://github.com/nodeca/js-yaml
+- **公式ドキュメント**: <https://github.com/nodeca/js-yaml>
 - **API署名**: `yaml.load(content: string, options?: LoadOptions): any`
 - **認証**: 不要（ローカルパース）
 - **バージョン互換性**: 4.1.0（安定版）、破壊的変更なし（v3からv4へのマイグレーションはschemaオプションの変更のみ）
@@ -507,12 +507,12 @@ function validateLabelerConfig(config: unknown): Result<LabelerConfig, Configura
 **依存関係**
 
 - **Inbound**: Action Main（複雑度分析を要求）
-- **Outbound**: ファイルシステム（ソースコード読み込み）、eslintcc（複雑度計算）
-- **External**: `eslintcc`（ESLintベースの複雑度計算）
+- **Outbound**: ファイルシステム（ソースコード読み込み）、ESLint標準complexityルール（複雑度計算）
+- **External**: `ESLint標準complexityルール`（ESLintベースの複雑度計算）
 
-**外部依存調査**: eslintcc
+**外部依存調査**: ESLint標準complexityルール
 
-- **公式ドキュメント**: https://eslintcc.github.io/
+- **公式ドキュメント**: <https://eslint.org/>
 - **API署名**: `complexity(code: string, options: Options): ComplexityResult`
 - **認証**: 不要（ローカルファイル解析）
 - **バージョン互換性**: 最新版（2024年以降アクティブメンテナンス）
@@ -1410,8 +1410,8 @@ function outputHealthMetrics(metrics: HealthMetrics): void {
    - モック: Octokit（403応答）
 
 4. **複雑度分析失敗フロー**:
-   - eslintccエラー → 警告ログ → 複雑度ラベルなしで継続
-   - モック: eslintcc（throw Error）
+   - ESLint complexityエラー → 警告ログ → 複雑度ラベルなしで継続
+   - モック: ESLint標準complexityルール（throw Error）
 
 5. **冪等性検証**:
    - 同じPR状態で2回実行 → 同じラベル状態（API呼び出し最小化）

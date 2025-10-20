@@ -30,7 +30,11 @@ PR Metrics Actionは、GitHubのPull Requestのサイズと品質を自動的に
 **🆕 PR Labeler機能（インテリジェントラベリング）**:
 
 - **サイズベース**: PR追加行数に基づく4段階ラベル（size/small, size/medium, size/large, size/xlarge）
-- **複雑度ベース**: 循環的複雑度に基づくラベル（complexity/medium, complexity/high）
+- **複雑度ベース**: ESLint標準complexityルールによる循環的複雑度分析
+  - ファイル単位・関数単位の複雑度計算
+  - TypeScript/JavaScript完全サポート（@typescript-eslint/parser使用）
+  - GitHub Actions Summaryに詳細レポート出力（高複雑度ファイル、関数別複雑度）
+  - 自動ラベル付け（complexity/medium, complexity/high）
 - **カテゴリベース**: ディレクトリパターンに基づくラベル（category/tests, category/ci-cd等）
 - **リスクベース**: テストカバレッジとコア変更に基づくラベル（risk/high, risk/medium）
 - **柔軟な設定**: YAML設定ファイル（.github/pr-labeler.yml）でカスタマイズ可能

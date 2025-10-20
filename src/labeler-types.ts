@@ -41,7 +41,8 @@ export interface ComplexityConfig {
     medium: number; // 循環的複雑度閾値（例: 10）
     high: number; // 循環的複雑度閾値（例: 20）
   };
-  extensions: string[]; // 対象拡張子（例: [".ts", ".tsx"]）
+  extensions: string[]; // 対象拡張子（例: [".ts", ".tsx", ".js", ".jsx"]）
+  exclude: string[]; // 除外パターン（minimatch形式）
 }
 
 /**
@@ -94,26 +95,46 @@ export interface RuntimeConfig {
  */
 export interface ComplexityMetrics {
   maxComplexity: number; // PR全体の最大複雑度
-  filesAnalyzed: FileComplexity[]; // ファイル単位の複雑度
-  filesSkipped: string[]; // 非対象拡張子やエラーでスキップされたファイル
+  avgComplexity: number; // PR全体の平均複雑度（小数第1位）
+  analyzedFiles: number; // 複雑度計算対象ファイル数
+  files: FileComplexity[]; // ファイル単位の複雑度
+  skippedFiles: SkippedFile[]; // スキップされたファイル（大容量、解析失敗等）
+  syntaxErrorFiles: string[]; // 構文エラーファイル（複雑度0として扱われた）
+  truncated: boolean; // PRファイル数がGitHub API上限により切り詰められた場合true
+  totalPRFiles?: number; // PR全体のファイル数（truncated時のみ設定）
+  hasTsconfig: boolean; // tsconfig.jsonが見つかったかどうか（Summary注記用）
+}
+
+/**
+ * Skipped file information
+ */
+export interface SkippedFile {
+  path: string;
+  reason: 'too_large' | 'analysis_failed' | 'timeout' | 'binary' | 'encoding_error' | 'syntax_error' | 'general';
+  details?: string; // エラー詳細（オプショナル）
 }
 
 /**
  * Complexity metrics for a single file
  */
 export interface FileComplexity {
-  filename: string;
-  complexity: number; // ファイルの循環的複雑度
-  functions: FunctionComplexity[]; // 関数単位の複雑度（デバッグ用）
+  path: string; // ファイルパス（リポジトリルートからの相対パス）
+  complexity: number; // ファイル全体の複雑度（関数複雑度の合計）
+  functions: FunctionComplexity[]; // 関数単位の複雑度
+  isSyntaxError?: boolean; // 構文エラーの場合true（複雑度0として扱われる）
 }
 
 /**
  * Complexity metrics for a single function
  */
 export interface FunctionComplexity {
-  name: string;
-  line: number;
-  complexity: number;
+  name: string; // 関数/メソッド名
+  complexity: number; // 関数の循環的複雑度
+  loc: {
+    // 関数の行番号範囲
+    start: number; // 開始行番号（1始まり）
+    end: number; // 終了行番号（1始まり）
+  };
 }
 
 /**
@@ -129,7 +150,7 @@ export interface PRMetrics {
  * File metrics (reused from existing types)
  */
 export interface FileMetrics {
-  filename: string;
+  path: string; // ファイルパス（リポジトリルートからの相対パス）
   size: number;
   lines: number;
   additions: number;
@@ -190,7 +211,24 @@ export const DEFAULT_LABELER_CONFIG: LabelerConfig = {
       medium: 10,
       high: 20,
     },
-    extensions: ['.ts', '.tsx'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    exclude: [
+      '**/dist/**',
+      '**/build/**',
+      '**/node_modules/**',
+      '**/vendor/**',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.test.js',
+      '**/*.test.jsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/*.spec.js',
+      '**/*.spec.jsx',
+      '**/*.generated.ts',
+      '**/*.generated.js',
+      '**/__generated__/**',
+    ],
   },
   categories: [
     {

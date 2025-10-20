@@ -305,7 +305,7 @@ describe('GitHub Actions I/O', () => {
           totalAdditions: 200,
           filesAnalyzed: [
             {
-              filename: 'src/test.ts',
+              path: 'src/test.ts',
               size: 5000,
               lines: 100,
               additions: 50,

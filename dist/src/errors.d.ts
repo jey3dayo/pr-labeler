@@ -59,8 +59,13 @@ export interface CacheError {
 }
 export interface ComplexityAnalysisError {
     type: 'ComplexityAnalysisError';
+    reason: 'too_large' | 'analysis_failed' | 'timeout' | 'encoding_error' | 'binary' | 'syntax_error' | 'general';
     filename?: string;
     message: string;
+    details?: string;
+    fileSize?: number;
+    maxSize?: number;
+    timeoutSeconds?: number;
 }
 export type AppError = FileAnalysisError | GitHubAPIError | ConfigurationError | ParseError | FileSystemError | ViolationError | DiffError | PatternError | CacheError | ComplexityAnalysisError;
 export declare const createFileAnalysisError: (file: string, message: string) => FileAnalysisError;
@@ -72,6 +77,7 @@ export declare const createViolationError: (violations: Violations, message: str
 export declare const createDiffError: (source: "local-git" | "github-api" | "both", message: string) => DiffError;
 export declare const createPatternError: (pattern: string, message: string) => PatternError;
 export declare const createCacheError: (message: string, key?: string) => CacheError;
-export declare const createComplexityAnalysisError: (message: string, filename?: string) => ComplexityAnalysisError;
+export declare const createComplexityAnalysisError: (reason: ComplexityAnalysisError["reason"], message: string, options?: Partial<Pick<ComplexityAnalysisError, "filename" | "details" | "fileSize" | "maxSize" | "timeoutSeconds">>) => ComplexityAnalysisError;
+export declare function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError;
 export type { Err, Ok } from 'neverthrow';
 export { err, errAsync, ok, okAsync, Result, ResultAsync } from 'neverthrow';
