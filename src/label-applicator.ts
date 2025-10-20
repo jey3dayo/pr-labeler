@@ -7,7 +7,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { ResultAsync } from 'neverthrow';
 
-import { createGitHubAPIError, extractErrorMessage, GitHubAPIError } from './errors.js';
+import { createGitHubAPIError, extractErrorMessage, extractErrorStatus, GitHubAPIError } from './errors.js';
 import type { LabelDecisions, LabelPolicyConfig, LabelUpdate } from './labeler-types.js';
 import type { PRContext } from './types.js';
 
@@ -69,8 +69,7 @@ export function getCurrentLabels(
       issue_number: context.pullNumber,
     }),
     (error): GitHubAPIError => {
-      const err = error as { status?: number; message?: string };
-      return createGitHubAPIError(`Failed to get current labels: ${extractErrorMessage(error)}`, err.status);
+      return createGitHubAPIError(`Failed to get current labels: ${extractErrorMessage(error)}`, extractErrorStatus(error));
     },
   ).map(response => response.data.map(label => label.name));
 }
@@ -188,16 +187,16 @@ function applyLabelChanges(
       return { added, removed, skipped, apiCalls };
     })(),
     (error): GitHubAPIError => {
-      const err = error as { status?: number; message?: string };
+      const status = extractErrorStatus(error);
 
       // Handle permission errors
-      if (err.status === 403) {
+      if (status === 403) {
         core.warning('Insufficient permissions to apply labels (fork PR or missing pull-requests: write permission)');
         skipped.push(...diff.toAdd);
         return createGitHubAPIError('Permission denied: cannot apply labels', 403);
       }
 
-      return createGitHubAPIError(`Failed to apply labels: ${extractErrorMessage(error)}`, err.status);
+      return createGitHubAPIError(`Failed to apply labels: ${extractErrorMessage(error)}`, status);
     },
   );
 }
@@ -214,8 +213,8 @@ async function retryWithBackoff<T>(fn: () => Promise<T>, maxRetries: number = MA
     try {
       return await fn();
     } catch (error) {
-      const err = error as { status?: number };
-      if (isRateLimitError(err) && i < maxRetries - 1) {
+      const status = extractErrorStatus(error);
+      if (status && (status === 429 || status === 403) && i < maxRetries - 1) {
         const delay = INITIAL_RETRY_DELAY_MS * Math.pow(2, i); // 1s, 2s, 4s
         core.warning(`Rate limit hit, retrying in ${delay}ms (attempt ${i + 1}/${maxRetries})...`);
         await sleep(delay);
@@ -225,30 +224,6 @@ async function retryWithBackoff<T>(fn: () => Promise<T>, maxRetries: number = MA
     }
   }
   throw new Error('Max retries exceeded');
-}
-
-/**
- * Check if error is a rate limit error
- *
- * @param error - Error object
- * @returns True if rate limit error
- */
-function isRateLimitError(error: {
-  status?: number;
-  message?: string;
-  response?: { headers?: Record<string, string> };
-}): boolean {
-  if (error.status === 429) {
-    return true;
-  }
-
-  // GitHub secondary rate limits frequently use 403
-  if (error.status === 403) {
-    const hdrs = error.response?.headers || {};
-    return hdrs['x-ratelimit-remaining'] === '0' || /rate limit|abuse detection/i.test(error.message || '');
-  }
-
-  return false;
 }
 
 /**
