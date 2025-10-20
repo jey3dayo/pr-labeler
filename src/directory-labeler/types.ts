@@ -52,6 +52,8 @@ export interface DirectoryLabelerConfig {
   rules: LabelRule[];
   /** 名前空間ポリシー（省略可） */
   namespaces?: NamespacePolicy;
+  /** デフォルト除外パターンを使用するか（省略可、デフォルト: true） */
+  useDefaultExcludes?: boolean;
 }
 
 /**

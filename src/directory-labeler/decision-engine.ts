@@ -54,8 +54,9 @@ export function decideLabelsForFiles(
   // デフォルトオプションの適用
   const options = config.options || DEFAULT_OPTIONS;
 
-  // デフォルト除外パターンのコンパイル
-  const defaultExcludePatterns = compilePatterns(DEFAULT_EXCLUDES as unknown as string[], options);
+  // デフォルト除外パターンのコンパイル（useDefaultExcludesがfalseの場合はスキップ）
+  const defaultExcludePatterns =
+    config.useDefaultExcludes !== false ? compilePatterns(DEFAULT_EXCLUDES as unknown as string[], options) : [];
 
   // ラベルごとにマッチしたファイルを集約
   const labelToFiles = new Map<

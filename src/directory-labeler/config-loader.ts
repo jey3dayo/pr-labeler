@@ -342,5 +342,6 @@ function applyDefaults(config: DirectoryLabelerConfig): DirectoryLabelerConfig {
     ...config,
     options,
     namespaces,
+    useDefaultExcludes: config.useDefaultExcludes !== false, // デフォルトtrue
   };
 }

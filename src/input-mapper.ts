@@ -160,9 +160,12 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
   }
 
   // Parse Directory-Based Labeler numeric inputs
-  const maxLabels = parseInt(inputs.max_labels, 10);
-  if (isNaN(maxLabels)) {
-    return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a number'));
+  const rawMax = (inputs.max_labels ?? '').trim();
+  const maxLabels = rawMax === '' ? 0 : parseInt(rawMax, 10);
+  if (!Number.isInteger(maxLabels) || maxLabels < 0) {
+    return err(
+      createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'),
+    );
   }
 
   // Construct config object

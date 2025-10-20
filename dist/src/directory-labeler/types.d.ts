@@ -18,6 +18,7 @@ export interface DirectoryLabelerConfig {
     options?: MinimatchOptions;
     rules: LabelRule[];
     namespaces?: NamespacePolicy;
+    useDefaultExcludes?: boolean;
 }
 export declare const DEFAULT_OPTIONS: Required<MinimatchOptions>;
 export declare const DEFAULT_NAMESPACES: Required<NamespacePolicy>;

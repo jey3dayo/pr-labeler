@@ -77,22 +77,23 @@ graph TB
 
 ### 主要設計決定
 
-#### Decision 1: DEFAULT_LABELER_CONFIG.categoriesの直接変更
+#### Decision 1: 設定ファイルの分離とモジュール化
 
-- **決定**: `src/labeler-types.ts`のDEFAULT_LABELER_CONFIG.categoriesオブジェクトに直接パターンを追加・削除する
+- **決定**: `src/configs/categories.ts`に`DEFAULT_CATEGORIES`を定義し、`src/configs/default-config.ts`で統合する
 - **コンテキスト**: カテゴリ拡張を実現する最小限の変更方法を決定する必要がある
 - **代替案**:
-  1. 設定ファイルの分離（configs/categories.ts等に分割）
+  1. `src/labeler-types.ts`のDEFAULT_LABELER_CONFIG.categoriesに直接パターンを追加・削除
   2. 実行時マージ機能の追加（デフォルト設定+ユーザー設定のマージロジック）
   3. プラグインアーキテクチャ（カテゴリを動的にロード）
-- **選択アプローチ**: DEFAULT_LABELER_CONFIGの直接変更
+- **選択アプローチ**: 設定ファイルの分離（`src/configs/`モジュール）
 - **理由**:
-  - 最小限の変更で要件を満たす（型定義やロジック変更不要）
+  - 設定の責務を明確に分離（型定義と設定値を分離）
   - 既存のアーキテクチャパターンを維持
+  - 保守性向上（カテゴリ設定の変更箇所が明確）
   - テスト影響範囲が限定的（DecisionEngineのテストは既存のまま）
 - **トレードオフ**:
-  - 獲得: 実装コスト最小化、既存機能への影響なし、後方互換性の完全保証
-  - 犠牲: labeler-types.tsファイルサイズ増加（将来的なリファクタリング候補）
+  - 獲得: 設定の保守性向上、型定義ファイルの肥大化防止、モジュール化による再利用性
+  - 犠牲: わずかなファイル数の増加（`src/configs/`ディレクトリ）
 
 #### Decision 2: 任意階層対応のパターンプレフィックス（`**/`）
 

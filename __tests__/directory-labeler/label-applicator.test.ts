@@ -246,16 +246,24 @@ describe('Directory-Based Labeler: Label Applicator', () => {
         data: [],
       });
 
-      // ラベル作成を試行して、未存在エラー（404）を返す想定
+      // 1回目のaddLabels呼び出し（バッチ処理）で422エラー
       mockOctokit.rest.issues.addLabels.mockRejectedValueOnce({
         status: 422,
         message: 'Validation Failed',
       });
 
+      // 2回目のaddLabels呼び出し（createMissingLabels内の個別処理）でも422エラー
+      mockOctokit.rest.issues.addLabels.mockRejectedValueOnce({
+        status: 422,
+        message: 'Validation Failed',
+      });
+
+      // ラベル作成
       mockOctokit.rest.issues.createLabel.mockResolvedValue({
         data: { name: 'area:new-module', color: 'cccccc', description: '' },
       });
 
+      // 3回目のaddLabels呼び出し（ラベル作成後の適用）で成功
       mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
 
       const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES, {

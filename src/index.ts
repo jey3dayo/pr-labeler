@@ -260,6 +260,9 @@ async function run(): Promise<void> {
       } else {
         const dirConfig = dirConfigResult.value;
 
+        // Actionの入力でuse_default_excludesを上書き
+        dirConfig.useDefaultExcludes = config.useDefaultExcludes;
+
         // Step 7.8.2: Decide labels based on file paths
         const fileList = files.map(f => f.filename);
         const directoryDecisionsResult = decideLabelsForFiles(fileList, dirConfig);
