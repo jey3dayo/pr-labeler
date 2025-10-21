@@ -119,9 +119,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   // Validate language field
   if (cfg.language !== undefined) {
     if (cfg.language !== 'en' && cfg.language !== 'ja') {
-      return errAsync(
-        createConfigurationError('language', cfg.language, "language must be either 'en' or 'ja'"),
-      );
+      return errAsync(createConfigurationError('language', cfg.language, "language must be either 'en' or 'ja'"));
     }
   }
 
@@ -331,7 +329,17 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   }
 
   // Warn about unknown keys (future extension)
-  const knownKeys = ['language', 'size', 'complexity', 'categoryLabeling', 'categories', 'risk', 'exclude', 'labels', 'runtime'];
+  const knownKeys = [
+    'language',
+    'size',
+    'complexity',
+    'categoryLabeling',
+    'categories',
+    'risk',
+    'exclude',
+    'labels',
+    'runtime',
+  ];
   const unknownKeys = Object.keys(config).filter(key => !knownKeys.includes(key));
   if (unknownKeys.length > 0) {
     core.warning(`Unknown configuration keys will be ignored: ${unknownKeys.join(', ')}`);
