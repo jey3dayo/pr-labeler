@@ -13,7 +13,9 @@ import type { AnalysisResult } from './file-metrics';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 import {
   formatBasicMetrics,
+  formatBestPractices,
   formatFileDetails,
+  formatImprovementActions,
   formatViolations,
   generateComplexitySummary,
   type SummaryContext,
@@ -239,6 +241,8 @@ export async function writeSummaryWithAnalysis(
     markdown += '# 📊 PR Labeler\n\n';
     markdown += formatBasicMetrics(analysis.metrics);
     markdown += formatViolations(analysis.violations);
+    markdown += formatImprovementActions(analysis.violations);
+    markdown += formatBestPractices();
 
     // Add file details (limit to 100 files for large PRs)
     if (analysis.metrics.filesAnalyzed.length > 0) {

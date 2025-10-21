@@ -7,8 +7,10 @@ import type { SummaryContext } from '../src/report-formatter';
 import {
   escapeMarkdown,
   formatBasicMetrics,
+  formatBestPractices,
   formatBytes,
   formatFileDetails,
+  formatImprovementActions,
   formatNumber,
   formatViolations,
   generateComplexitySummary,
@@ -656,6 +658,154 @@ describe('ReportFormatter', () => {
       expect(result).toContain('⚠️ 構文エラーファイル');
       expect(result).toContain('⚠️ PRファイル数制限');
       expect(result).toContain('⚠️ tsconfig.json未検出');
+    });
+  });
+
+  describe('formatImprovementActions', () => {
+    it('should return empty string when no violations exist', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+
+      const result = formatImprovementActions(violations);
+
+      expect(result).toBe('');
+    });
+
+    it('should return improvement actions when violations exist', () => {
+      const violations: Violations = {
+        largeFiles: [
+          {
+            file: 'large-file.ts',
+            actualValue: 2000000,
+            limit: 1000000,
+            violationType: 'size',
+            severity: 'critical',
+          },
+        ],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+
+      const result = formatImprovementActions(violations);
+
+      expect(result).toContain('### 💡 Improvement Actions');
+      expect(result).toContain('Here are some ways to reduce your PR size');
+    });
+
+    it('should include all improvement sections', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [
+          {
+            file: 'long-file.ts',
+            actualValue: 1000,
+            limit: 500,
+            violationType: 'lines',
+            severity: 'warning',
+          },
+        ],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+
+      const result = formatImprovementActions(violations);
+
+      expect(result).toContain('#### 📦 PR Splitting Strategies');
+      expect(result).toContain('Split by feature');
+      expect(result).toContain('Split by file groups');
+      expect(result).toContain('Separate refactoring and new features');
+
+      expect(result).toContain('#### 🔨 Large File Refactoring');
+      expect(result).toContain('Split functions or classes into multiple files');
+      expect(result).toContain('Extract common logic into separate modules');
+      expect(result).toContain('Organize files by layer');
+
+      expect(result).toContain('#### 📄 Handling Generated/Lock Files');
+      expect(result).toContain('Exclude lock files');
+      expect(result).toContain('Manage build artifacts');
+      expect(result).toContain('auto-generated code in separate PRs');
+    });
+
+    it('should return improvement actions when exceedsAdditions is true', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: true,
+        exceedsFileCount: false,
+      };
+
+      const result = formatImprovementActions(violations);
+
+      expect(result).not.toBe('');
+      expect(result).toContain('### 💡 Improvement Actions');
+    });
+
+    it('should return improvement actions when exceedsFileCount is true', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: true,
+      };
+
+      const result = formatImprovementActions(violations);
+
+      expect(result).not.toBe('');
+      expect(result).toContain('### 💡 Improvement Actions');
+    });
+  });
+
+  describe('formatBestPractices', () => {
+    it('should return best practices content', () => {
+      const result = formatBestPractices();
+
+      expect(result).toContain('### 📚 Best Practices');
+      expect(result).not.toBe('');
+    });
+
+    it('should include recommended PR size guidelines', () => {
+      const result = formatBestPractices();
+
+      expect(result).toContain('#### Recommended PR Size');
+      expect(result).toContain('✅ **Recommended**: Under 400 lines');
+      expect(result).toContain('Review time: 15-30 minutes');
+      expect(result).toContain('Bug detection rate: High');
+      expect(result).toContain('⚠️ **Acceptable**: 400-1000 lines');
+      expect(result).toContain('Review time: 1-2 hours');
+      expect(result).toContain('Incremental review recommended');
+      expect(result).toContain('🚫 **Avoid**: Over 1000 lines');
+      expect(result).toContain('Review efficiency significantly decreases');
+      expect(result).toContain('Higher risk of missing bugs');
+    });
+
+    it('should include file size guidelines', () => {
+      const result = formatBestPractices();
+
+      expect(result).toContain('#### File Size Guidelines');
+      expect(result).toContain('Aim for under 500 lines per file');
+      expect(result).toContain('For complex files, under 300 lines is ideal');
+    });
+
+    it('should include review efficiency tips', () => {
+      const result = formatBestPractices();
+
+      expect(result).toContain('#### Review Efficiency Tips');
+      expect(result).toContain('Smaller PRs merge faster');
+      expect(result).toContain('reduce CI/CD load');
+      expect(result).toContain('Large PRs tend to require multiple review rounds');
+      expect(result).toContain('minimize context switching');
+    });
+
+    it('should always return the same content (idempotent)', () => {
+      const result1 = formatBestPractices();
+      const result2 = formatBestPractices();
+
+      expect(result1).toBe(result2);
     });
   });
 });
