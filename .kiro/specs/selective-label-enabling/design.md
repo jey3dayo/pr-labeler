@@ -28,6 +28,50 @@
 
 課題: sizeだけ `apply_size_labels`/`applySizeLabels` で制御、complexityは `config.complexity.enabled`、category/riskに有効化制御なし。命名も不一致。
 
+## 破壊的変更（Breaking Changes）
+
+**注意**: このPRはv1実装のため、v0.xからの後方互換性は**提供しません**。
+
+### 削除されたInputs
+
+以下のinputsは完全に削除されました:
+
+- `apply_size_labels` (boolean)
+- `size_label_thresholds` (JSON: `{small: number, medium: number, ...}`)
+
+### マイグレーションガイド
+
+**v0.xから移行する場合:**
+
+1. **`apply_size_labels`を削除し、`size_enabled`に置き換え**
+
+```diff
+- apply_size_labels: 'true'
++ size_enabled: 'true'
+```
+
+2. **`size_label_thresholds`を削除し、`size_thresholds`に置き換え**
+
+```diff
+- size_label_thresholds: '{"small": 100, "medium": 300, "large": 800}'
++ size_thresholds: '{"small": 50, "medium": 300, "large": 800}'
+```
+
+**注意**: 閾値の意味が変更されています:
+
+- **v0.x**: `additions + files`の合計で判定
+- **v1**: `additions`のみで判定
+
+3. **ラベル名の変更**
+
+- v0.x: `S`, `M`, `L`, `XL`, `XXL`
+- v1: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
+
+### ラベル判定ロジックの変更
+
+- **v0.x**: `label-manager.ts`の`applySizeLabels`ロジック（additions + files）
+- **v1**: `label-decision-engine.ts`のPR Labelerロジック（additionsのみ）に統一
+
 ## 既存サイズ機能との衝突と方針決定
 
 ### 問題点
