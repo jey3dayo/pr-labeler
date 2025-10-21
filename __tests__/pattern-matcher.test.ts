@@ -143,6 +143,11 @@ describe('PatternMatcher', () => {
       expect(isExcluded('packages/lib/build/main.js', defaultPatterns)).toBe(true);
       expect(isExcluded('src/compiled/dist/output.js', defaultPatterns)).toBe(true);
       expect(isExcluded('apps/web/out/bundle.js', defaultPatterns)).toBe(true);
+
+      // Test files
+      expect(isExcluded('__tests__/unit.test.ts', defaultPatterns)).toBe(true);
+      expect(isExcluded('src/components/__tests__/Button.test.tsx', defaultPatterns)).toBe(true);
+      expect(isExcluded('tests/unit.spec.js', defaultPatterns)).toBe(true);
     });
 
     it('should not exclude files that dont match patterns', () => {
@@ -151,7 +156,6 @@ describe('PatternMatcher', () => {
       expect(isExcluded('src/index.ts', defaultPatterns)).toBe(false);
       expect(isExcluded('README.md', defaultPatterns)).toBe(false);
       expect(isExcluded('src/components/Button.tsx', defaultPatterns)).toBe(false);
-      expect(isExcluded('tests/unit.test.ts', defaultPatterns)).toBe(false);
     });
 
     it('should work with custom patterns', () => {

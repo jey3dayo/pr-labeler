@@ -57,6 +57,17 @@ export const DEFAULT_EXCLUDE_PATTERNS: string[] = [
   'reports/**',
   'test-results/**',
 
+  // Test files
+  '**/__tests__/**',
+  '**/*.test.ts',
+  '**/*.test.tsx',
+  '**/*.test.js',
+  '**/*.test.jsx',
+  '**/*.spec.ts',
+  '**/*.spec.tsx',
+  '**/*.spec.js',
+  '**/*.spec.jsx',
+
   // Logs
   '*.log',
   'logs/**',
