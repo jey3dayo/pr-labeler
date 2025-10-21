@@ -260,6 +260,45 @@ invalid line
       }
     });
 
+    it('should handle rename format {old => new} correctly', async () => {
+      const gitOutput = `141\t0\tsrc/{pattern-matcher.ts => configs/default-excludes.ts}
+50\t30\t{old-file.ts => new-file.ts}
+100\t0\tpath/to/{old.ts => new.ts}
+20\t10\tregular-file.ts`;
+
+      mockExecAsync.mockResolvedValue({
+        stdout: gitOutput,
+        stderr: '',
+      });
+
+      const result = await getDiffFiles(context, 'test-token');
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.files).toHaveLength(4);
+
+        // First rename with prefix
+        expect(result.value.files[0]?.filename).toBe('src/configs/default-excludes.ts');
+        expect(result.value.files[0]?.additions).toBe(141);
+        expect(result.value.files[0]?.deletions).toBe(0);
+
+        // Rename without prefix
+        expect(result.value.files[1]?.filename).toBe('new-file.ts');
+        expect(result.value.files[1]?.additions).toBe(50);
+        expect(result.value.files[1]?.deletions).toBe(30);
+
+        // Rename with path prefix
+        expect(result.value.files[2]?.filename).toBe('path/to/new.ts');
+        expect(result.value.files[2]?.additions).toBe(100);
+        expect(result.value.files[2]?.deletions).toBe(0);
+
+        // Regular file (no rename)
+        expect(result.value.files[3]?.filename).toBe('regular-file.ts');
+        expect(result.value.files[3]?.additions).toBe(20);
+        expect(result.value.files[3]?.deletions).toBe(10);
+      }
+    });
+
     it('should use correct git command with diff-filter', async () => {
       const gitOutput = '10\t0\tfile.ts';
       mockExecAsync.mockResolvedValue({

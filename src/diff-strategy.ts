@@ -55,11 +55,21 @@ function parseGitDiffLine(line: string): DiffFile | null {
 
   const additions = parseInt(parts[0] ?? '', 10);
   const deletions = parseInt(parts[1] ?? '', 10);
-  const filename = parts[2] ?? '';
+  let filename = parts[2] ?? '';
 
   // Skip if parsing failed
   if (isNaN(additions) || isNaN(deletions) || !filename) {
     return null;
+  }
+
+  // Handle rename format: "path/{old => new}" -> "path/new"
+  // Also handles: "{old => new}" -> "new"
+  const renameMatch = filename.match(/^(.*)\{(.+) => (.+)\}(.*)$/);
+  if (renameMatch) {
+    const prefix = renameMatch[1] ?? '';
+    const newName = renameMatch[3] ?? '';
+    const suffix = renameMatch[4] ?? '';
+    filename = prefix + newName + suffix;
   }
 
   // Determine status based on additions and deletions
