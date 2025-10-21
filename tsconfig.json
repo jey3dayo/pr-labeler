@@ -13,6 +13,8 @@
     "declaration": true,
     "removeComments": true,
     "newLine": "lf",
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
 
     /* Interop Constraints */
     "esModuleInterop": true,
