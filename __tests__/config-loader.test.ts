@@ -98,8 +98,106 @@ size:
 
       const result = await validateLabelerConfig(config);
       expect(result.isErr()).toBe(true);
+    });
+
+    it('should accept valid language field (en)', async () => {
+      const config = {
+        language: 'en',
+        size: {
+          thresholds: {
+            small: 100,
+            medium: 500,
+            large: 1000,
+          },
+        },
+      };
+
+      const result = await validateLabelerConfig(config);
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.language).toBe('en');
+      }
+    });
+
+    it('should accept valid language field (ja)', async () => {
+      const config = {
+        language: 'ja',
+        size: {
+          thresholds: {
+            small: 100,
+            medium: 500,
+            large: 1000,
+          },
+        },
+      };
+
+      const result = await validateLabelerConfig(config);
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.language).toBe('ja');
+      }
+    });
+
+    it('should reject invalid language field', async () => {
+      const config = {
+        language: 'fr',
+        size: {
+          thresholds: {
+            small: 100,
+            medium: 500,
+            large: 1000,
+          },
+        },
+      };
+
+      const result = await validateLabelerConfig(config);
+      expect(result.isErr()).toBe(true);
       const error = result._unsafeUnwrapErr();
-      expect(error.message).toContain('must be less than medium');
+      expect(error.field).toBe('language');
+    });
+
+    it('should accept valid display_name in categories', async () => {
+      const config = {
+        categories: [
+          {
+            label: 'category/tests',
+            patterns: ['**/*.test.ts'],
+            display_name: {
+              en: 'Tests',
+              ja: 'テスト',
+            },
+          },
+        ],
+      };
+
+      const result = await validateLabelerConfig(config);
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.categories[0]?.display_name).toEqual({
+          en: 'Tests',
+          ja: 'テスト',
+        });
+      }
+    });
+
+    it('should reject invalid display_name structure', async () => {
+      const config = {
+        categories: [
+          {
+            label: 'category/tests',
+            patterns: ['**/*.test.ts'],
+            display_name: {
+              en: 'Tests',
+              // missing ja
+            },
+          },
+        ],
+      };
+
+      const result = await validateLabelerConfig(config);
+      expect(result.isErr()).toBe(true);
+      const error = result._unsafeUnwrapErr();
+      expect(error.field).toContain('display_name');
     });
 
     it('should reject invalid threshold ordering (medium >= large)', async () => {

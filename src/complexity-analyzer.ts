@@ -146,24 +146,21 @@ export class ComplexityAnalyzer {
         try {
           const stats = await fs.stat(filePath);
           if (stats.size > opts.maxFileSize) {
-            throw createComplexityAnalysisError(
-              'too_large',
-              `File ${filePath} exceeds max size (${stats.size} > ${opts.maxFileSize})`,
-              {
-                filename: filePath,
-                fileSize: stats.size,
-                maxSize: opts.maxFileSize,
-              },
-            );
+            throw createComplexityAnalysisError('too_large', {
+              filename: filePath,
+              fileSize: stats.size,
+              maxSize: opts.maxFileSize,
+              details: `File ${filePath} exceeds max size (${stats.size} > ${opts.maxFileSize})`,
+            });
           }
         } catch (error) {
           if (error && typeof error === 'object' && 'reason' in error) {
             // Re-throw ComplexityAnalysisError
             throw error;
           }
-          throw createComplexityAnalysisError('analysis_failed', `Failed to stat file ${filePath}`, {
+          throw createComplexityAnalysisError('analysis_failed', {
             filename: filePath,
-            details: extractErrorMessage(error),
+            details: `Failed to stat file ${filePath}: ${extractErrorMessage(error)}`,
           });
         }
 
@@ -178,15 +175,17 @@ export class ComplexityAnalyzer {
         const results = await eslint.lintFiles([filePath]);
 
         if (!results || results.length === 0) {
-          throw createComplexityAnalysisError('analysis_failed', `No ESLint results for ${filePath}`, {
+          throw createComplexityAnalysisError('analysis_failed', {
             filename: filePath,
+            details: `No ESLint results for ${filePath}`,
           });
         }
 
         const result = results[0];
         if (!result) {
-          throw createComplexityAnalysisError('analysis_failed', `Empty ESLint result for ${filePath}`, {
+          throw createComplexityAnalysisError('analysis_failed', {
             filename: filePath,
+            details: `Empty ESLint result for ${filePath}`,
           });
         }
 
@@ -225,9 +224,9 @@ export class ComplexityAnalyzer {
         }
 
         // Convert unknown errors
-        return createComplexityAnalysisError('analysis_failed', `Failed to analyze ${filePath}`, {
+        return createComplexityAnalysisError('analysis_failed', {
           filename: filePath,
-          details: extractErrorMessage(error),
+          details: `Failed to analyze ${filePath}: ${extractErrorMessage(error)}`,
         });
       },
     );
@@ -304,8 +303,8 @@ export class ComplexityAnalyzer {
         const baseMetrics = aggregateMetrics(successful);
 
         if (!baseMetrics) {
-          throw createComplexityAnalysisError('general', 'No files could be analyzed', {
-            details: `Analyzed: ${successful.length}, Skipped: ${skippedFiles.length}`,
+          throw createComplexityAnalysisError('general', {
+            details: `No files could be analyzed. Analyzed: ${successful.length}, Skipped: ${skippedFiles.length}`,
           });
         }
 
@@ -324,8 +323,8 @@ export class ComplexityAnalyzer {
         if (error && typeof error === 'object' && 'reason' in error) {
           return error as ComplexityAnalysisError;
         }
-        return createComplexityAnalysisError('general', 'Failed to analyze files', {
-          details: extractErrorMessage(error),
+        return createComplexityAnalysisError('general', {
+          details: `Failed to analyze files: ${extractErrorMessage(error)}`,
         });
       },
     );

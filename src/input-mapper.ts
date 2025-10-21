@@ -52,6 +52,8 @@ export interface Config {
   labelDescription: string;
   maxLabels: number;
   useDefaultExcludes: boolean;
+  // i18n Support
+  language?: string; // Language code (e.g., 'en', 'ja', 'en-US', 'ja-JP')
 }
 
 /**
@@ -336,6 +338,8 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     labelDescription: inputs.label_description,
     maxLabels,
     useDefaultExcludes: parseBoolean(inputs.use_default_excludes),
+    // i18n Support
+    language: inputs.language,
   };
 
   return ok(config);

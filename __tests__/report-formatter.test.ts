@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Violations } from '../src/errors';
 import type { AnalysisResult, FileMetrics } from '../src/file-metrics';
+import { changeLanguage, initializeI18n, resetI18n } from '../src/i18n';
+import type { Config } from '../src/input-mapper';
 import type { ComplexityConfig, ComplexityMetrics } from '../src/labeler-types';
 import type { SummaryContext } from '../src/report-formatter';
 import {
@@ -20,6 +22,12 @@ describe('ReportFormatter', () => {
   beforeEach(() => {
     // Mock Date for consistent timestamp
     vi.setSystemTime(new Date('2025-10-18T15:30:00Z'));
+
+    // Initialize i18n with English for consistent test results
+    resetI18n();
+    const config: Config = { language: 'en' } as Config;
+    initializeI18n(config);
+    changeLanguage('en'); // 明示的に英語に変更
   });
 
   afterEach(() => {
@@ -31,24 +39,24 @@ describe('ReportFormatter', () => {
     });
 
     it('should format bytes (< 1KB)', () => {
-      expect(formatBytes(512)).toBe('512.00 B');
+      expect(formatBytes(512)).toBe('512 B');
     });
 
     it('should format kilobytes', () => {
-      expect(formatBytes(1024)).toBe('1.00 KB');
-      expect(formatBytes(5120)).toBe('5.00 KB');
-      expect(formatBytes(50000)).toBe('48.83 KB');
+      expect(formatBytes(1024)).toBe('1 KB');
+      expect(formatBytes(5120)).toBe('5 KB');
+      expect(formatBytes(50000)).toBe('48.8 KB');
     });
 
     it('should format megabytes', () => {
-      expect(formatBytes(1048576)).toBe('1.00 MB');
-      expect(formatBytes(2000000)).toBe('1.91 MB');
-      expect(formatBytes(1000000)).toBe('976.56 KB');
+      expect(formatBytes(1048576)).toBe('1 MB');
+      expect(formatBytes(2000000)).toBe('1.9 MB');
+      expect(formatBytes(1000000)).toBe('976.6 KB');
     });
 
     it('should format gigabytes', () => {
-      expect(formatBytes(1073741824)).toBe('1.00 GB');
-      expect(formatBytes(5368709120)).toBe('5.00 GB');
+      expect(formatBytes(1073741824)).toBe('1 GB');
+      expect(formatBytes(5368709120)).toBe('5 GB');
     });
   });
 
@@ -85,9 +93,9 @@ describe('ReportFormatter', () => {
 
       const result = formatBasicMetrics(metrics, { includeHeader: true });
 
-      expect(result).toContain('### 📊 Summary');
-      expect(result).toContain('Total additions: **500**');
-      expect(result).toContain('Files analyzed: **3**');
+      expect(result).toContain('### 📊 Basic Metrics');
+      expect(result).toContain('Total Additions: **500**');
+      expect(result).toContain('Total Files Changed: **3**');
       expect(result).toContain('2025-10-18T15:30:00');
     });
 
@@ -103,9 +111,9 @@ describe('ReportFormatter', () => {
 
       const result = formatBasicMetrics(metrics, { includeHeader: false });
 
-      expect(result).not.toContain('### 📊 Summary');
-      expect(result).toContain('Total additions: **200**');
-      expect(result).toContain('Files analyzed: **1**');
+      expect(result).not.toContain('### 📊 Basic Metrics');
+      expect(result).toContain('Total Additions: **200**');
+      expect(result).toContain('Total Files Changed: **1**');
     });
 
     it('should handle zero files', () => {
@@ -120,7 +128,7 @@ describe('ReportFormatter', () => {
 
       const result = formatBasicMetrics(metrics);
 
-      expect(result).toContain('**No files to analyze**');
+      expect(result).toContain('**No files to display**');
     });
 
     it('should show excluded and skipped files', () => {
@@ -135,7 +143,7 @@ describe('ReportFormatter', () => {
 
       const result = formatBasicMetrics(metrics);
 
-      expect(result).toContain('Files excluded: **3**');
+      expect(result).toContain('Excluded Files: **3**');
       expect(result).toContain('Binary files skipped: **2**');
     });
 
@@ -167,7 +175,7 @@ describe('ReportFormatter', () => {
       const result = formatViolations(violations, { includeHeader: true });
 
       expect(result).toContain('**All files are within size limits** ✅');
-      expect(result).not.toContain('### 📊 Size Summary');
+      expect(result).not.toContain('Size Summary');
     });
 
     it('should format large file violations', () => {
@@ -196,12 +204,12 @@ describe('ReportFormatter', () => {
       const result = formatViolations(violations);
 
       expect(result).toContain('### 📊 Size Summary');
-      expect(result).toContain('**2** file(s) exceed size limit');
+      expect(result).toContain('2 file(s) exceed size limit');
       expect(result).toContain('### 🚫 Large Files Detected');
-      expect(result).toContain('| File | Size | Limit | Status |');
+      expect(result).toContain('| File Name | Size | Limit | Status |');
       expect(result).toContain('src/large.ts');
-      expect(result).toContain('1.91 MB');
-      expect(result).toContain('976.56 KB');
+      expect(result).toContain('1.9 MB');
+      expect(result).toContain('976.6 KB');
       expect(result).toContain('🚫 Critical');
       expect(result).toContain('src/big.ts');
       expect(result).toContain('⚠️ Warning');
@@ -226,9 +234,9 @@ describe('ReportFormatter', () => {
       const result = formatViolations(violations);
 
       expect(result).toContain('### 📊 Size Summary');
-      expect(result).toContain('**1** file(s) exceed line limit');
+      expect(result).toContain('1 file(s) exceed line limit');
       expect(result).toContain('### ⚠️ Files Exceed Line Limit');
-      expect(result).toContain('| File | Lines | Limit | Status |');
+      expect(result).toContain('| File Name | Lines | Limit | Status |');
       expect(result).toContain('src/long.ts');
       expect(result).toContain('2,000');
       expect(result).toContain('1,000');
@@ -245,7 +253,7 @@ describe('ReportFormatter', () => {
       const result = formatViolations(violations);
 
       expect(result).toContain('### 📊 Size Summary');
-      expect(result).toContain('**Total additions exceed limit**');
+      expect(result).toContain('Total additions exceed limit');
     });
 
     it('should format file count violation', () => {
@@ -259,7 +267,7 @@ describe('ReportFormatter', () => {
       const result = formatViolations(violations);
 
       expect(result).toContain('### 📊 Size Summary');
-      expect(result).toContain('**File count exceeds limit**');
+      expect(result).toContain('File count exceeds limit');
     });
 
     it('should format all violations combined', () => {
@@ -289,10 +297,10 @@ describe('ReportFormatter', () => {
       const result = formatViolations(violations);
 
       expect(result).toContain('### 📊 Size Summary');
-      expect(result).toContain('**1** file(s) exceed size limit');
-      expect(result).toContain('**1** file(s) exceed line limit');
-      expect(result).toContain('**Total additions exceed limit**');
-      expect(result).toContain('**File count exceeds limit**');
+      expect(result).toContain('1 file(s) exceed size limit');
+      expect(result).toContain('1 file(s) exceed line limit');
+      expect(result).toContain('Total additions exceed limit');
+      expect(result).toContain('File count exceeds limit');
       expect(result).toContain('### 🚫 Large Files Detected');
       expect(result).toContain('### ⚠️ Files Exceed Line Limit');
     });
@@ -334,9 +342,9 @@ describe('ReportFormatter', () => {
       const result = formatFileDetails(files);
 
       expect(result).toContain('### 📈 Top Large Files');
-      expect(result).toContain('| File | Size | Lines | Changes |');
+      expect(result).toContain('| File Name | Size | Lines | Changes |');
       expect(result).toContain('src/file1.ts');
-      expect(result).toContain('48.83 KB');
+      expect(result).toContain('48.8 KB');
       expect(result).toContain('500');
       expect(result).toContain('+100/-20');
       expect(result).toContain('src/file2.ts');
@@ -444,12 +452,12 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('## 📊 コード複雑度分析');
-      expect(result).toContain('最大複雑度');
+      expect(result).toContain('## 📊 Code Complexity Analysis');
+      expect(result).toContain('Maximum Complexity');
       expect(result).toContain('25');
-      expect(result).toContain('平均複雑度');
+      expect(result).toContain('Average Complexity');
       expect(result).toContain('15.5');
-      expect(result).toContain('高複雑度ファイル（上位10件）');
+      expect(result).toContain('High Complexity Files (Top 10)');
       expect(result).toContain('src/complex1.ts');
       expect(result).toContain('src/complex2.ts');
     });
@@ -481,13 +489,13 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('関数別複雑度（上位5件）');
+      expect(result).toContain('Function Complexity (Top 5)');
       expect(result).toContain('func1');
       expect(result).toContain('func2');
       expect(result).toContain('func3');
       expect(result).toContain('func4');
       expect(result).toContain('func5');
-      expect(result).toContain('+2個の関数（表示省略）');
+      expect(result).toContain('+2 more functions (not shown)');
     });
 
     it('should show remaining files message when more than 10 high complexity files', () => {
@@ -509,7 +517,7 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('+5件のファイルが複雑度閾値を超過（表示省略）');
+      expect(result).toContain('+5 more files exceed complexity threshold (not shown)');
     });
 
     it('should show all files below threshold message when no high complexity files', () => {
@@ -528,8 +536,8 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('✅ すべてのファイルが複雑度閾値以下です');
-      expect(result).toContain('medium閾値: 10未満');
+      expect(result).toContain('✅ All files are below complexity threshold');
+      expect(result).toContain('medium threshold: 10');
     });
 
     it('should display skipped files warning with various reasons', () => {
@@ -550,15 +558,15 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('⚠️ スキップされたファイル');
+      expect(result).toContain('⚠️ Skipped Files');
       expect(result).toContain('large-file.ts');
-      expect(result).toContain('ファイルサイズ超過（1MB以上）');
+      expect(result).toContain('File size exceeded (1MB or more)');
       expect(result).toContain('binary-file.bin');
-      expect(result).toContain('バイナリファイル');
+      expect(result).toContain('Binary file');
       expect(result).toContain('error-file.ts');
       expect(result).toContain('Parse error');
       expect(result).toContain('timeout-file.ts');
-      expect(result).toContain('タイムアウト');
+      expect(result).toContain('Timeout');
     });
 
     it('should display syntax error files warning', () => {
@@ -574,11 +582,11 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('⚠️ 構文エラーファイル');
-      expect(result).toContain('複雑度0として集計対象に含まれています');
+      expect(result).toContain('⚠️ Syntax Error Files');
+      expect(result).toContain('counted with complexity 0 in the metrics');
       expect(result).toContain('src/error1.ts');
       expect(result).toContain('src/error2.ts');
-      expect(result).toContain('構文エラーは開発者の修正対象');
+      expect(result).toContain('Syntax errors should be fixed by developers');
     });
 
     it('should display PR file truncation warning', () => {
@@ -596,11 +604,11 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('⚠️ PRファイル数制限');
-      expect(result).toContain('PR全体のファイル数: 3,500');
-      expect(result).toContain('分析対象ファイル数: 3,000');
-      expect(result).toContain('未分析ファイル数: 500');
-      expect(result).toContain('GitHub APIの3000ファイル制限');
+      expect(result).toContain('⚠️ PR File Count Limitation');
+      expect(result).toContain('Total PR Files: 3,500');
+      expect(result).toContain('Analyzed Files: 3,000');
+      expect(result).toContain('Unanalyzed Files: 500');
+      expect(result).toContain("GitHub API's 3000 file limit");
     });
 
     it('should display tsconfig not found warning', () => {
@@ -616,8 +624,8 @@ describe('ReportFormatter', () => {
 
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
-      expect(result).toContain('⚠️ tsconfig.json未検出');
-      expect(result).toContain('既定の設定');
+      expect(result).toContain('⚠️ tsconfig.json Not Found');
+      expect(result).toContain('using default settings');
       expect(result).toContain("ecmaVersion: 'latest'");
     });
 
@@ -651,13 +659,13 @@ describe('ReportFormatter', () => {
       const result = generateComplexitySummary(metrics, baseConfig, baseContext);
 
       // All warnings should be present
-      expect(result).toContain('高複雑度ファイル（上位10件）');
-      expect(result).toContain('関数別複雑度（上位5件）');
-      expect(result).toContain('+2件のファイルが複雑度閾値を超過');
-      expect(result).toContain('⚠️ スキップされたファイル');
-      expect(result).toContain('⚠️ 構文エラーファイル');
-      expect(result).toContain('⚠️ PRファイル数制限');
-      expect(result).toContain('⚠️ tsconfig.json未検出');
+      expect(result).toContain('High Complexity Files (Top 10)');
+      expect(result).toContain('Function Complexity (Top 5)');
+      expect(result).toContain('+2 more files exceed complexity threshold');
+      expect(result).toContain('⚠️ Skipped Files');
+      expect(result).toContain('⚠️ Syntax Error Files');
+      expect(result).toContain('⚠️ PR File Count Limitation');
+      expect(result).toContain('⚠️ tsconfig.json Not Found');
     });
   });
 
@@ -772,13 +780,13 @@ describe('ReportFormatter', () => {
       const result = formatBestPractices();
 
       expect(result).toContain('#### Recommended PR Size');
-      expect(result).toContain('✅ **Recommended**: Under 400 lines');
+      expect(result).toContain('✅ **Recommended: Under 400 lines**');
       expect(result).toContain('Review time: 15-30 minutes');
       expect(result).toContain('Bug detection rate: High');
-      expect(result).toContain('⚠️ **Acceptable**: 400-1000 lines');
+      expect(result).toContain('⚠️ **Acceptable: 400-1000 lines**');
       expect(result).toContain('Review time: 1-2 hours');
       expect(result).toContain('Incremental review recommended');
-      expect(result).toContain('🚫 **Avoid**: Over 1000 lines');
+      expect(result).toContain('🚫 **Avoid: Over 1000 lines**');
       expect(result).toContain('Review efficiency significantly decreases');
       expect(result).toContain('Higher risk of missing bugs');
     });
@@ -795,10 +803,9 @@ describe('ReportFormatter', () => {
       const result = formatBestPractices();
 
       expect(result).toContain('#### Review Efficiency Tips');
-      expect(result).toContain('Smaller PRs merge faster');
-      expect(result).toContain('reduce CI/CD load');
+      expect(result).toContain('Smaller PRs merge faster and reduce CI/CD load');
       expect(result).toContain('Large PRs tend to require multiple review rounds');
-      expect(result).toContain('minimize context switching');
+      expect(result).toContain('Group related changes together to minimize context switching');
     });
 
     it('should always return the same content (idempotent)', () => {
@@ -806,6 +813,187 @@ describe('ReportFormatter', () => {
       const result2 = formatBestPractices();
 
       expect(result1).toBe(result2);
+    });
+  });
+
+  describe('Summary Output Snapshots (Multilingual)', () => {
+    interface TestContext {
+      config: Config;
+      analysisResult: AnalysisResult;
+      hasViolations: boolean;
+      prContext: { owner: string; repo: string; pullNumber: number };
+      complexityMetrics: ComplexityMetrics;
+      complexityConfig: ComplexityConfig;
+      labels: string[];
+      summaryContext: SummaryContext;
+    }
+
+    const createTestContext = (): TestContext => {
+      const fileMetrics: FileMetrics = {
+        path: 'src/example.ts',
+        size: 51200, // 50 KB
+        lines: 450,
+        additions: 120,
+        deletions: 30,
+      };
+
+      const violations: Violations = {
+        largeFiles: [
+          {
+            file: 'src/example.ts',
+            actualValue: 51200, // 50 KB
+            limit: 10000, // 10 KB limit
+            violationType: 'size',
+            severity: 'warning',
+          },
+        ],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+
+      const analysisResult: AnalysisResult = {
+        metrics: {
+          totalFiles: 10,
+          totalAdditions: 500,
+          filesAnalyzed: [fileMetrics],
+          filesExcluded: ['node_modules/package.json', 'dist/index.js'],
+          filesSkippedBinary: ['icon.png', 'logo.svg'],
+          filesWithErrors: [],
+        },
+        violations,
+      };
+
+      const complexityMetrics: ComplexityMetrics = {
+        maxComplexity: 15,
+        avgComplexity: 5.2,
+        analyzedFiles: 15,
+        files: [
+          {
+            path: 'src/complex.ts',
+            complexity: 15,
+            functions: [
+              { name: 'processData', complexity: 15, loc: { start: 42, end: 58 } },
+              { name: 'validateInput', complexity: 8, loc: { start: 120, end: 135 } },
+            ],
+          },
+        ],
+        syntaxErrorFiles: [],
+        skippedFiles: [],
+        truncated: false,
+        hasTsconfig: true,
+      };
+
+      const complexityConfig: ComplexityConfig = {
+        enabled: true,
+        thresholds: { medium: 10, high: 20 },
+        maxFileSize: 1048576,
+        timeout: 30000,
+        excludePatterns: [],
+      };
+
+      const summaryContext: SummaryContext = {
+        owner: 'test',
+        repo: 'repo',
+        sha: 'abc123def456',
+      };
+
+      return {
+        config: {} as Config,
+        analysisResult,
+        hasViolations: true,
+        prContext: { owner: 'test', repo: 'repo', pullNumber: 123 },
+        complexityMetrics,
+        complexityConfig,
+        labels: ['size/large', 'complexity/medium'],
+        summaryContext,
+      };
+    };
+
+    beforeEach(() => {
+      resetI18n();
+    });
+
+    it('should match English snapshot', () => {
+      const config: Config = { language: 'en' } as Config;
+      initializeI18n(config);
+      changeLanguage('en');
+
+      const context = createTestContext();
+      const basicMetrics = formatBasicMetrics(context.analysisResult.metrics);
+      const violations = formatViolations(context.analysisResult.violations);
+      const complexitySummary = generateComplexitySummary(
+        context.complexityMetrics,
+        context.complexityConfig,
+        context.summaryContext,
+      );
+      const fileDetails = formatFileDetails(context.analysisResult.metrics.filesAnalyzed, 10);
+      const improvementActions = formatImprovementActions(context.analysisResult.violations);
+      const bestPractices = formatBestPractices();
+
+      expect(basicMetrics).toMatchSnapshot('basic-metrics-en');
+      expect(violations).toMatchSnapshot('violations-en');
+      expect(complexitySummary).toMatchSnapshot('complexity-summary-en');
+      expect(fileDetails).toMatchSnapshot('file-details-en');
+      expect(improvementActions).toMatchSnapshot('improvement-actions-en');
+      expect(bestPractices).toMatchSnapshot('best-practices-en');
+    });
+
+    it('should match Japanese snapshot', () => {
+      const config: Config = { language: 'ja' } as Config;
+      initializeI18n(config);
+      changeLanguage('ja');
+
+      const context = createTestContext();
+      const basicMetrics = formatBasicMetrics(context.analysisResult.metrics);
+      const violations = formatViolations(context.analysisResult.violations);
+      const complexitySummary = generateComplexitySummary(
+        context.complexityMetrics,
+        context.complexityConfig,
+        context.summaryContext,
+      );
+      const fileDetails = formatFileDetails(context.analysisResult.metrics.filesAnalyzed, 10);
+      const improvementActions = formatImprovementActions(context.analysisResult.violations);
+      const bestPractices = formatBestPractices();
+
+      expect(basicMetrics).toMatchSnapshot('basic-metrics-ja');
+      expect(violations).toMatchSnapshot('violations-ja');
+      expect(complexitySummary).toMatchSnapshot('complexity-summary-ja');
+      expect(fileDetails).toMatchSnapshot('file-details-ja');
+      expect(improvementActions).toMatchSnapshot('improvement-actions-ja');
+      expect(bestPractices).toMatchSnapshot('best-practices-ja');
+    });
+
+    it('should detect regression in English output', () => {
+      const config: Config = { language: 'en' } as Config;
+      initializeI18n(config);
+      changeLanguage('en');
+
+      const context = createTestContext();
+      const output1 = formatBasicMetrics(context.analysisResult.metrics);
+      const output2 = formatBasicMetrics(context.analysisResult.metrics);
+
+      // Should be idempotent
+      expect(output1).toBe(output2);
+      // Should contain expected English phrases
+      expect(output1).toContain('Total Additions');
+      expect(output1).not.toContain('合計追加行数'); // Not Japanese
+    });
+
+    it('should detect regression in Japanese output', () => {
+      const config: Config = { language: 'ja' } as Config;
+      initializeI18n(config);
+      changeLanguage('ja');
+
+      const context = createTestContext();
+      const output1 = formatBasicMetrics(context.analysisResult.metrics);
+      const output2 = formatBasicMetrics(context.analysisResult.metrics);
+
+      // Should be idempotent
+      expect(output1).toBe(output2);
+      // Should contain expected Japanese phrases
+      expect(output1).toContain('総追加行数');
+      expect(output1).not.toContain('Total Additions'); // Not English
     });
   });
 });

@@ -131,7 +131,7 @@ export async function applyDirectoryLabels(
     }
 
     if (status === 429) {
-      return err(createRateLimitError(`Rate limit exceeded: ${message}`));
+      return err(createRateLimitError(undefined, `Rate limit exceeded: ${message}`));
     }
 
     return err(createGitHubAPIError(`Failed to list labels: ${message}`, status));

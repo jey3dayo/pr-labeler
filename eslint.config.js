@@ -167,6 +167,7 @@ module.exports = tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/consistent-type-assertions': 'off',
       'no-console': 'off',
       'import/no-cycle': 'off',
     },
@@ -185,6 +186,7 @@ module.exports = tseslint.config(
       '.ncurc.cjs',
       '.eslintrc.js',
       'eslint.config.js',
+      'scripts/**/*', // Build scripts
       '__tests__/fixtures/**/*', // Test fixtures with intentional syntax errors
       '__tests__/__tests__/**/*', // Duplicate test fixtures directory
     ],

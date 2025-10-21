@@ -1,0 +1,91 @@
+{
+  "initialization": {
+    "starting": "PR Labelerを開始します",
+    "gettingInputs": "アクション入力を取得中...",
+    "analyzingPr": "PR #{{prNumber}} を分析中（{{owner}}/{{repo}}）",
+    "i18nInitializing": "i18nを初期化中（言語: {{language}}）",
+    "i18nInitialized": "i18nの初期化が成功しました（言語: {{language}}）",
+    "i18nLanguageChanged": "i18nの言語を変更しました: {{language}}",
+    "i18nFailed": "i18nの初期化に失敗しました: {{message}}。英語にフォールバックします。",
+    "configLoaded": "設定を読み込みました: {{path}}",
+    "usingDefaultConfig": "デフォルトのラベラー設定を使用します"
+  },
+  "analysis": {
+    "gettingDiff": "PR差分ファイルを取得中...",
+    "retrievedFiles": "{{strategy}}戦略で{{count}}個のファイルを取得しました",
+    "analyzingFiles": "ファイルを分析中...",
+    "analysisComplete": "分析完了:",
+    "filesAnalyzed": "分析ファイル数: {{count}}",
+    "filesExcluded": "除外ファイル数: {{count}}",
+    "binaryFilesSkipped": "バイナリファイルスキップ数: {{count}}",
+    "totalAdditions": "総追加行数: {{count}}",
+    "complexityAnalyzing": "コード複雑度を分析中...",
+    "complexityFilesToAnalyze": "分析対象ファイル数: {{count}}",
+    "complexityResults": "最大複雑度: {{max}}, 平均: {{avg}}, ファイル数: {{files}}"
+  },
+  "labels": {
+    "loading": "PR Labeler設定を読み込み中...",
+    "loadedCustom": ".github/pr-labeler.ymlからカスタム設定を読み込みました",
+    "merging": "アクション入力とラベラー設定をマージ中...",
+    "decidingLabels": "PRメトリクスに基づいてラベルを決定中...",
+    "labelsToAdd": "追加するラベル: {{labels}}",
+    "labelsToRemove": "削除するラベル: {{labels}}",
+    "applying": "PR Labelerの決定を適用中...",
+    "applied": "適用完了: +{{added}}ラベル, -{{removed}}ラベル",
+    "applyFailed": "ラベル適用に失敗しました: {{message}}",
+    "apiCalls": "API呼び出し数: {{count}}",
+    "skipped": "ラベル操作をスキップしました（権限不足）",
+    "dryRun": "ドライラン: ラベルAPI呼び出しをスキップ（決定は上記にログ出力）"
+  },
+  "directoryLabeling": {
+    "starting": "ディレクトリベースラベリングを開始...",
+    "configNotFound": "設定ファイルが見つかりません: {{path}}",
+    "skipped": "ディレクトリベースラベリングをスキップします",
+    "configLoadFailed": "設定の読み込みに失敗しました: {{message}}",
+    "decideFailed": "ラベル決定に失敗しました: {{message}}",
+    "decided": "ファイルパスから{{count}}個のラベルを決定しました",
+    "noLabelsMatched": "変更ファイルに一致するラベルがありません",
+    "rejected": "max_labels制限により{{count}}個のラベルを拒否しました",
+    "rejectedDetail": "  - {{label}}: {{reason}}",
+    "applyResult": "適用: {{applied}}, スキップ: {{skipped}}, 削除: {{removed}}, 失敗: {{failed}}",
+    "applyFailed": "ラベル適用に失敗しました: {{message}}",
+    "permissionError": "権限エラー: {{message}}",
+    "permissionHint": "GITHUB_TOKENに'pull-requests: write'権限があることを確認してください",
+    "failedDetail": "  - {{label}}: {{reason}}"
+  },
+  "comment": {
+    "managing": "PRコメントを管理中...",
+    "manageFailed": "コメント管理に失敗しました: {{message}}",
+    "action": "コメント {{action}}"
+  },
+  "summary": {
+    "writing": "GitHub Actions Summaryを書き込み中...",
+    "writeFailed": "Summary書き込みに失敗しました: {{message}}",
+    "written": "Summaryの書き込みが成功しました（{{bytes}}バイト）"
+  },
+  "ciStatus": {
+    "fetching": "リスク評価のためCI状態を取得中...",
+    "status": "CI状態: tests={{tests}}, typeCheck={{typeCheck}}, build={{build}}, lint={{lint}}",
+    "notAvailable": "CI状態は利用できません",
+    "fetchedCommits": "{{count}}件のコミットメッセージを取得しました",
+    "fetchCommitsFailed": "コミットメッセージの取得に失敗しました"
+  },
+  "draft": {
+    "skipping": "skip_draft_prが有効なため、ドラフトPRをスキップします",
+    "summaryWritten": "ドラフトPR用のSummaryを書き込みました"
+  },
+  "violations": {
+    "detected": "違反が検出されました:",
+    "largeFiles": "{{count}}個の大きなファイル",
+    "exceedsFileLines": "{{count}}個のファイルが行数制限を超過",
+    "exceedsAdditions": "総追加行数が制限を超過",
+    "exceedsFileCount": "ファイル数が制限を超過",
+    "allChecksPassed": "すべてのチェックが合格しました！"
+  },
+  "completion": {
+    "success": "PR Labelerが正常に完了しました",
+    "skippedDraft": "PR Labelerが完了しました（ドラフトPRをスキップ）",
+    "failed": "アクションが失敗しました: {{message}}",
+    "failedViolations": "PRに違反があり、fail_on_violationが有効です"
+  }
+}

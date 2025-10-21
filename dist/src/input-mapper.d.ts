@@ -51,6 +51,7 @@ export interface Config {
     labelDescription: string;
     maxLabels: number;
     useDefaultExcludes: boolean;
+    language?: string;
 }
 export declare function parseBoolean(value: string): boolean;
 export declare function parseBooleanStrict(value: string): Result<boolean, ConfigurationError>;

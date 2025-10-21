@@ -1,0 +1,24 @@
+{
+  "size": {
+    "small": "サイズ: 小",
+    "medium": "サイズ: 中",
+    "large": "サイズ: 大",
+    "xlarge": "サイズ: 特大"
+  },
+  "complexity": {
+    "medium": "複雑度: 中",
+    "high": "複雑度: 高"
+  },
+  "category": {
+    "tests": "カテゴリ: テスト",
+    "ciCd": "カテゴリ: CI/CD",
+    "documentation": "カテゴリ: ドキュメント",
+    "config": "カテゴリ: 設定",
+    "spec": "カテゴリ: 仕様",
+    "dependencies": "カテゴリ: 依存関係"
+  },
+  "risk": {
+    "high": "リスク: 高",
+    "medium": "リスク: 中"
+  }
+}

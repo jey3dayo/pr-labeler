@@ -1,0 +1,24 @@
+{
+  "size": {
+    "small": "Size: Small",
+    "medium": "Size: Medium",
+    "large": "Size: Large",
+    "xlarge": "Size: Extra Large"
+  },
+  "complexity": {
+    "medium": "Complexity: Medium",
+    "high": "Complexity: High"
+  },
+  "category": {
+    "tests": "Category: Tests",
+    "ciCd": "Category: CI/CD",
+    "documentation": "Category: Documentation",
+    "config": "Category: Configuration",
+    "spec": "Category: Specification",
+    "dependencies": "Category: Dependencies"
+  },
+  "risk": {
+    "high": "Risk: High",
+    "medium": "Risk: Medium"
+  }
+}

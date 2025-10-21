@@ -18,6 +18,7 @@ export interface CategoryLabelingConfig {
  * Complete labeler configuration
  */
 export interface LabelerConfig {
+  language?: 'en' | 'ja'; // 言語選択（デフォルト: 英語）
   size: SizeConfig;
   complexity: ComplexityConfig;
   categoryLabeling: CategoryLabelingConfig;
@@ -56,12 +57,21 @@ export interface ComplexityConfig {
 }
 
 /**
+ * Multi-language display name
+ */
+export interface DisplayName {
+  en: string;
+  ja: string;
+}
+
+/**
  * Category-based labeling configuration
  */
 export interface CategoryConfig {
   label: string; // ラベル名（例: "category/tests"）
   patterns: string[]; // minimatchパターン（例: ["__tests__/**", "**/*.test.ts"]）
   exclude?: string[]; // 除外パターン（例: [".kiro/**"]）
+  display_name?: DisplayName; // 多言語表示名（オプション）
 }
 
 /**

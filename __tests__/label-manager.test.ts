@@ -9,6 +9,7 @@ vi.mock('@actions/core');
 // Import after mocking
 import type { Violations } from '../src/errors';
 import type { AnalysisResult } from '../src/file-metrics';
+import { initializeI18n, resetI18n } from '../src/i18n.js';
 import {
   addLabels,
   getCurrentLabels,
@@ -27,6 +28,23 @@ describe('LabelManager', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Initialize i18n with English
+    const originalLang = process.env['LANG'];
+    const originalLanguage = process.env['LANGUAGE'];
+    delete process.env['LANG'];
+    delete process.env['LANGUAGE'];
+
+    resetI18n();
+    initializeI18n({ language: 'en' } as any);
+
+    // Restore original environment variables
+    if (originalLang) {
+      process.env['LANG'] = originalLang;
+    }
+    if (originalLanguage) {
+      process.env['LANGUAGE'] = originalLanguage;
+    }
 
     // Setup GitHub mock
     mockListLabels = vi.fn();
@@ -340,7 +358,7 @@ describe('LabelManager', () => {
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
         expect(result.error.type).toBe('GitHubAPIError');
-        expect(result.error.message).toContain('Failed to add labels');
+        expect(result.error.message).toContain('GitHub API error');
       }
     });
   });

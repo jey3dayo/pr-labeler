@@ -39,16 +39,15 @@ export function loadDirectoryLabelerConfig(
 > {
   // ファイル存在チェック
   if (!fs.existsSync(configPath)) {
-    return err(createFileSystemError(`Configuration file not found: ${configPath}`, configPath));
+    return err(createFileSystemError(configPath, 'notFound'));
   }
 
   // ファイル読み込み
   let fileContent: string;
   try {
     fileContent = fs.readFileSync(configPath, 'utf-8');
-  } catch (error) {
-    const message = extractErrorMessage(error);
-    return err(createFileSystemError(`Failed to read configuration file: ${message}`, configPath));
+  } catch {
+    return err(createFileSystemError(configPath, 'read'));
   }
 
   // YAMLパース

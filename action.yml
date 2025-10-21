@@ -136,6 +136,12 @@ inputs:
     required: false
     default: "true"
 
+  # 多言語対応
+  language:
+    description: "Language for output messages (en, ja, en-US, ja-JP)"
+    required: false
+    default: "en"
+
   # 認証
   github_token:
     description: "GitHub token for API access (required). Provide explicitly or ensure GITHUB_TOKEN/GH_TOKEN environment variable is set"

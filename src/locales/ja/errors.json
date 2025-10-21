@@ -1,0 +1,42 @@
+{
+  "configuration": {
+    "invalidLanguage": "無効な言語コード: {{code}}。英語にフォールバックします。",
+    "invalidField": "設定フィールドが無効です: {{field}}",
+    "parsingFailed": "設定の解析に失敗しました: {{message}}",
+    "invalidValue": "{{field}}の値が無効です: {{value}}"
+  },
+  "github": {
+    "apiError": "GitHub APIエラー: {{message}}",
+    "rateLimitExceeded": "レート制限を超過しました。再試行: {{resetTime}}",
+    "authenticationFailed": "認証に失敗しました。GITHUB_TOKENを確認してください。",
+    "notFound": "リソースが見つかりません: {{resource}}",
+    "permissionDenied": "権限が拒否されました: {{operation}}"
+  },
+  "fileSystem": {
+    "fileNotFound": "ファイルが見つかりません: {{path}}",
+    "readError": "ファイルの読み込みに失敗しました: {{path}}",
+    "writeError": "ファイルの書き込みに失敗しました: {{path}}",
+    "permissionDenied": "権限が拒否されました: {{path}}"
+  },
+  "parsing": {
+    "invalidFormat": "無効な形式: {{input}}",
+    "sizeParseError": "無効なサイズ形式: {{input}}",
+    "numberParseError": "無効な数値形式: {{input}}",
+    "yamlParseError": "YAMLの解析に失敗しました: {{message}}"
+  },
+  "analysis": {
+    "fileAnalysisError": "ファイルの分析に失敗しました: {{file}}",
+    "complexityAnalysisError": "複雑度の分析に失敗しました: {{message}}",
+    "diffError": "差分の取得に失敗しました: {{message}}",
+    "cacheError": "キャッシュエラー: {{message}}"
+  },
+  "pattern": {
+    "invalidPattern": "無効なパターン: {{pattern}}",
+    "matchError": "パターンマッチエラー: {{message}}"
+  },
+  "violation": {
+    "fileSizeExceeded": "ファイルサイズ超過: {{file}} ({{size}} > {{limit}})",
+    "fileLinesExceeded": "ファイル行数超過: {{file}} ({{lines}} > {{limit}})",
+    "prSizeExceeded": "PRサイズが制限を超過しました"
+  }
+}
