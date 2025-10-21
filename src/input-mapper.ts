@@ -118,7 +118,7 @@ export function parseExcludePatterns(value: string): string[] {
 }
 
 /**
- * Parse size thresholds from JSON string (旧形式: S/M/L with additions + files)
+ * Parse size thresholds from JSON string (v0.x の形式: S/M/L with additions + files)
  */
 export function parseSizeThresholds(value: string): Result<SizeThresholds, ParseError> {
   try {

@@ -38,19 +38,19 @@
 
 ### 採用方針
 
-**方式A: 旧サイズ機能を廃止し、PR Labeler に一本化**（採用）
+**方式A: v0.x のサイズ機能を廃止し、PR Labeler に一本化**（採用）
 
 - **理由**: 命名統一の目的と一貫性を保つ
 - **影響**:
   - `label-manager.ts` のサイズ関連ロジックを削除
-  - README/docs から旧記述を削除
+  - README/docs から v0.x の記述を削除
   - CHANGELOG.md にマイグレーションガイドを追加
 
 ### 実装方針
 
 - `label-manager.ts` の `applySizeLabels` ロジックを完全削除
 - PR Labeler の `size/small〜xlarge` ラベルに統一
-- 旧 `apply_size_labels`/`size_label_thresholds` inputs を action.yml から削除
+- 削除された `apply_size_labels`/`size_label_thresholds` inputs を action.yml から削除
 
 ## 変更設計（ハイライト）
 
@@ -61,15 +61,15 @@
 - `categoryLabeling: { enabled: boolean }` を新設（`categories: CategoryConfig[]` は現行のまま保持）
 - `risk: { enabled: boolean; ...現行フィールド }` を拡張
 
-2. Inputsとマッピング
+1. Inputsとマッピング
 
 - 新規inputs: `size_enabled`, `size_thresholds`, `complexity_enabled`, `complexity_thresholds`, `category_enabled`, `risk_enabled`
-- 旧inputsの削除: `apply_size_labels` と `size_label_thresholds` は action.yml から削除（v1実装のため後方互換性なし）
+- 削除された inputs: `apply_size_labels` と `size_label_thresholds` は action.yml から削除（v1実装のため後方互換性なし）
 - 文字列ブール（"true"/"false" 等）は既存の `parseBoolean` を再利用。閾値JSONは専用パーサを実装
 
-3. データフロー統合
+1. データフロー統合
 
-- `ActionInputs` に新規フィールドを追加（string型）、旧フィールド（`apply_size_labels`, `size_label_thresholds`）を削除
+- `ActionInputs` に新規フィールドを追加（string型）、削除されたフィールド（`apply_size_labels`, `size_label_thresholds`）を削除
 - `Config`（input-mapper内部型）に `sizeEnabled/complexityEnabled/categoryEnabled/riskEnabled` を追加
 - `mapActionInputsToConfig` で新規inputsを処理、デフォルトは `true`
 - `mergeWithDefaults` に各 enabled の適用を追加
@@ -109,7 +109,7 @@ Label Decisions
 - category: `config.categoryLabeling.enabled` が false の場合はカテゴリ判定をスキップ
 - risk: `config.risk.enabled` が false の場合はリスク判定をスキップ
 
-5. Summary出力
+1. Summary出力
 
 - 無効化されたラベル種別を一覧としてSummaryに追記（例: "Disabled: size, category"）
 
@@ -279,17 +279,17 @@ export async function writeSummaryWithAnalysis(
 ## 代替案と採用理由
 
 - 代替: `categories` そのものに `enabled` を埋め込む → 設定スキーマの意味が混同されるため不採用（パターン定義と制御フラグは責務分離）
-- 代替: 旧inputsを維持して段階的移行 → v1実装のため後方互換性を考慮する必要がないため不採用
+- 代替: 削除された inputs を維持して段階的移行 → v1実装のため後方互換性を考慮する必要がないため不採用
 
 ## 互換性
 
-- v1実装のため、旧inputs（`apply_size_labels`, `size_label_thresholds`）は削除
+- v1実装のため、削除された inputs（`apply_size_labels`, `size_label_thresholds`）は削除
 - YAML設定はデフォルト値でカバー（新設の `categoryLabeling.enabled`, `risk.enabled`, `size.enabled` はデフォルトtrue）
 
 ## トレーサビリティ（要件対応）
 
 - Req1: 4種のenabledフラグ → 型/入力/判定の各層で分岐を実装
-- Req2: 命名統一 → 新inputs導入、旧inputs削除
+- Req2: 命名統一 → 新inputs導入、inputs 削除
 - Req3: 閾値カスタム → `*_thresholds` パース/検証を追加
 - Req4: 型とデータフロー → `ActionInputs/Config/LabelerConfig` を拡張
 - Req5: 判定分岐 → 各カテゴリでスキップ実装＋reasoning非出力

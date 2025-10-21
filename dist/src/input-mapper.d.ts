@@ -22,8 +22,19 @@ export interface Config {
     prFilesLimit: number;
     applyLabels: boolean;
     autoRemoveLabels: boolean;
-    applySizeLabels: boolean;
-    sizeThresholds: SizeThresholds;
+    sizeEnabled: boolean;
+    sizeThresholdsV2: {
+        small: number;
+        medium: number;
+        large: number;
+    };
+    complexityEnabled: boolean;
+    complexityThresholdsV2: {
+        medium: number;
+        high: number;
+    };
+    categoryEnabled: boolean;
+    riskEnabled: boolean;
     largeFilesLabel: string;
     tooManyFilesLabel: string;
     skipDraftPr: boolean;
@@ -41,7 +52,17 @@ export interface Config {
     useDefaultExcludes: boolean;
 }
 export declare function parseBoolean(value: string): boolean;
+export declare function parseBooleanStrict(value: string): Result<boolean, ConfigurationError>;
 export declare function parseCommentMode(value: string): 'auto' | 'always' | 'never';
 export declare function parseExcludePatterns(value: string): string[];
 export declare function parseSizeThresholds(value: string): Result<SizeThresholds, ParseError>;
+export declare function parseSizeThresholdsV2(value: string): Result<{
+    small: number;
+    medium: number;
+    large: number;
+}, ParseError>;
+export declare function parseComplexityThresholdsV2(value: string): Result<{
+    medium: number;
+    high: number;
+}, ParseError>;
 export declare function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, ConfigurationError | ParseError>;
