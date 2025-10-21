@@ -32,6 +32,7 @@ export interface ComplexityConfig {
 export interface CategoryConfig {
     label: string;
     patterns: string[];
+    exclude?: string[];
 }
 export interface RiskConfig {
     enabled: boolean;

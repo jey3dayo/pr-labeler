@@ -434,17 +434,20 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(sizes[path as string] || 1000));
       });
 
-      mockExecAsync.mockImplementation((cmd: string) => {
-        if (cmd.includes('large.ts')) {
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          if (args[1] === 'src/large.ts') {
+            return Promise.resolve({
+              stdout: '     2000 src/large.ts', // Exceeds line limit
+              stderr: '',
+            });
+          }
           return Promise.resolve({
-            stdout: '     2000 src/large.ts', // Exceeds line limit
+            stdout: '     100 file',
             stderr: '',
           });
         }
-        return Promise.resolve({
-          stdout: '     100 file',
-          stderr: '',
-        });
+        return Promise.reject(new Error('Unknown command'));
       });
 
       const smallConfig = {
@@ -480,14 +483,17 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(1000));
       });
 
-      mockExecAsync.mockImplementation((cmd: string) => {
-        if (cmd.includes('error.ts')) {
-          return Promise.reject(new Error('File not found'));
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          if (args[1] === 'src/error.ts') {
+            return Promise.reject(new Error('File not found'));
+          }
+          return Promise.resolve({
+            stdout: '     100 file',
+            stderr: '',
+          });
         }
-        return Promise.resolve({
-          stdout: '     100 file',
-          stderr: '',
-        });
+        return Promise.reject(new Error('Unknown command'));
       });
 
       const result = await analyzeFiles(files, config, 'token', context);

@@ -14,6 +14,7 @@ export declare function decideComplexityLabel(complexity: number, thresholds: {
 export declare function decideCategoryLabels(files: string[], categories: Array<{
     label: string;
     patterns: string[];
+    exclude?: string[];
 }>): string[];
 export declare function decideRiskLabel(files: string[], config: {
     high_if_no_tests_for_core: boolean;
