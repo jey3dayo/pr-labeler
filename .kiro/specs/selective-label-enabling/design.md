@@ -50,7 +50,7 @@
 + size_enabled: 'true'
 ```
 
-2. **`size_label_thresholds`を削除し、`size_thresholds`に置き換え**
+1. **`size_label_thresholds`を削除し、`size_thresholds`に置き換え**
 
 ```diff
 - size_label_thresholds: '{"small": 100, "medium": 300, "large": 800}'
@@ -62,7 +62,7 @@
 - **v0.x**: `additions + files`の合計で判定
 - **v1**: `additions`のみで判定
 
-3. **ラベル名の変更**
+1. **ラベル名の変更**
 
 - v0.x: `S`, `M`, `L`, `XL`, `XXL`
 - v1: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
