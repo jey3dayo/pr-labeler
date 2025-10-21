@@ -24,6 +24,7 @@ export const DEFAULT_ANALYSIS_OPTIONS: Required<AnalysisOptions> = {
     '**/build/**',
     '**/node_modules/**',
     '**/vendor/**',
+    '**/__tests__/**',
     '**/*.test.ts',
     '**/*.test.tsx',
     '**/*.test.js',
