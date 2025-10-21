@@ -27,6 +27,7 @@ export interface Config {
         small: number;
         medium: number;
         large: number;
+        xlarge: number;
     };
     complexityEnabled: boolean;
     complexityThresholdsV2: {
@@ -60,6 +61,7 @@ export declare function parseSizeThresholdsV2(value: string): Result<{
     small: number;
     medium: number;
     large: number;
+    xlarge: number;
 }, ParseError>;
 export declare function parseComplexityThresholdsV2(value: string): Result<{
     medium: number;

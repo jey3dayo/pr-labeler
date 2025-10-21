@@ -31,7 +31,7 @@ export interface Config {
   autoRemoveLabels: boolean;
   // PR Labeler - Selective Label Enabling
   sizeEnabled: boolean;
-  sizeThresholdsV2: { small: number; medium: number; large: number };
+  sizeThresholdsV2: { small: number; medium: number; large: number; xlarge: number };
   complexityEnabled: boolean;
   complexityThresholdsV2: { medium: number; high: number };
   categoryEnabled: boolean;
@@ -160,21 +160,26 @@ export function parseSizeThresholds(value: string): Result<SizeThresholds, Parse
  */
 export function parseSizeThresholdsV2(
   value: string,
-): Result<{ small: number; medium: number; large: number }, ParseError> {
+): Result<{ small: number; medium: number; large: number; xlarge: number }, ParseError> {
   try {
     const parsed = JSON.parse(value);
 
     // Validate required fields
-    if (typeof parsed.small !== 'number' || typeof parsed.medium !== 'number' || typeof parsed.large !== 'number') {
-      return err(createParseError(value, 'Missing or invalid required size thresholds (small, medium, large)'));
+    if (
+      typeof parsed.small !== 'number' ||
+      typeof parsed.medium !== 'number' ||
+      typeof parsed.large !== 'number' ||
+      typeof parsed.xlarge !== 'number'
+    ) {
+      return err(createParseError(value, 'Missing or invalid required size thresholds (small, medium, large, xlarge)'));
     }
 
     // Validate non-negative values
-    if (parsed.small < 0 || parsed.medium < 0 || parsed.large < 0) {
+    if (parsed.small < 0 || parsed.medium < 0 || parsed.large < 0 || parsed.xlarge < 0) {
       return err(createParseError(value, 'Size threshold values must be non-negative'));
     }
 
-    // Validate monotonicity (small < medium < large)
+    // Validate monotonicity (small < medium < large < xlarge)
     if (parsed.small >= parsed.medium) {
       return err(
         createParseError(value, `size.thresholds.small (${parsed.small}) must be less than medium (${parsed.medium})`),
@@ -185,8 +190,13 @@ export function parseSizeThresholdsV2(
         createParseError(value, `size.thresholds.medium (${parsed.medium}) must be less than large (${parsed.large})`),
       );
     }
+    if (parsed.large >= parsed.xlarge) {
+      return err(
+        createParseError(value, `size.thresholds.large (${parsed.large}) must be less than xlarge (${parsed.xlarge})`),
+      );
+    }
 
-    return ok({ small: parsed.small, medium: parsed.medium, large: parsed.large });
+    return ok({ small: parsed.small, medium: parsed.medium, large: parsed.large, xlarge: parsed.xlarge });
   } catch (_error) {
     return err(createParseError(value, 'Invalid JSON for size thresholds'));
   }

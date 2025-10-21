@@ -46,9 +46,10 @@ export const DEFAULT_LABELER_CONFIG: LabelerConfig = {
   size: {
     enabled: true, // サイズラベルはデフォルトで有効
     thresholds: {
-      small: 100,
+      small: 200,
       medium: 500,
       large: 1000,
+      xlarge: 3000,
     },
   },
   complexity: {

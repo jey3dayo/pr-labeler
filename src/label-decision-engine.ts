@@ -104,11 +104,11 @@ export function decideLabels(
  *
  * @param additions - Total additions in PR
  * @param thresholds - Size thresholds configuration
- * @returns Size label (size/small, size/medium, size/large, or size/xlarge)
+ * @returns Size label (size/small, size/medium, size/large, size/xlarge, or size/xxlarge)
  */
 export function decideSizeLabel(
   additions: number,
-  thresholds: { small: number; medium: number; large: number },
+  thresholds: { small: number; medium: number; large: number; xlarge: number },
 ): string {
   if (additions < thresholds.small) {
     return 'size/small';
@@ -119,7 +119,10 @@ export function decideSizeLabel(
   if (additions < thresholds.large) {
     return 'size/large';
   }
-  return 'size/xlarge';
+  if (additions < thresholds.xlarge) {
+    return 'size/xlarge';
+  }
+  return 'size/xxlarge';
 }
 
 /**

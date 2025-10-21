@@ -34,9 +34,10 @@ export interface LabelerConfig {
 export interface SizeConfig {
   enabled: boolean; // サイズラベルの有効化フラグ
   thresholds: {
-    small: number; // additions上限（例: 100）
+    small: number; // additions上限（例: 200）
     medium: number; // additions上限（例: 500）
     large: number; // additions上限（例: 1000）
+    xlarge: number; // additions上限（例: 3000）
   };
 }
 

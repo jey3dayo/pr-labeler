@@ -87,11 +87,11 @@ describe('Selective Label Enabling - Input Parsing', () => {
 
   describe('parseSizeThresholdsV2', () => {
     it('should parse valid size thresholds', () => {
-      const json = '{"small": 100, "medium": 500, "large": 1000}';
+      const json = '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}';
       const result = parseSizeThresholdsV2(json);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
-        expect(result.value).toEqual({ small: 100, medium: 500, large: 1000 });
+        expect(result.value).toEqual({ small: 200, medium: 500, large: 1000, xlarge: 3000 });
       }
     });
 
@@ -111,13 +111,13 @@ describe('Selective Label Enabling - Input Parsing', () => {
     });
 
     it('should reject negative values', () => {
-      const json = '{"small": -10, "medium": 500, "large": 1000}';
+      const json = '{"small": -10, "medium": 500, "large": 1000, "xlarge": 3000}';
       const result = parseSizeThresholdsV2(json);
       expect(result.isErr()).toBe(true);
     });
 
     it('should reject invalid ordering (small >= medium)', () => {
-      const json = '{"small": 500, "medium": 100, "large": 1000}';
+      const json = '{"small": 500, "medium": 100, "large": 1000, "xlarge": 3000}';
       const result = parseSizeThresholdsV2(json);
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
@@ -127,9 +127,19 @@ describe('Selective Label Enabling - Input Parsing', () => {
     });
 
     it('should reject invalid ordering (medium >= large)', () => {
-      const json = '{"small": 100, "medium": 1000, "large": 500}';
+      const json = '{"small": 100, "medium": 1000, "large": 500, "xlarge": 3000}';
       const result = parseSizeThresholdsV2(json);
       expect(result.isErr()).toBe(true);
+    });
+
+    it('should reject invalid ordering (large >= xlarge)', () => {
+      const json = '{"small": 100, "medium": 500, "large": 3000, "xlarge": 1000}';
+      const result = parseSizeThresholdsV2(json);
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('large');
+        expect(result.error.message).toContain('xlarge');
+      }
     });
   });
 

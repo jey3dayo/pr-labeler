@@ -118,7 +118,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
   // Validate size thresholds
   if (cfg.size?.thresholds) {
-    const { small, medium, large } = cfg.size.thresholds;
+    const { small, medium, large, xlarge } = cfg.size.thresholds;
 
     // Check for non-negative integers
     if (small !== undefined && (typeof small !== 'number' || small < 0 || !Number.isInteger(small))) {
@@ -148,11 +148,21 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
         ),
       );
     }
+    if (xlarge !== undefined && (typeof xlarge !== 'number' || xlarge < 0 || !Number.isInteger(xlarge))) {
+      return errAsync(
+        createConfigurationError(
+          'size.thresholds.xlarge',
+          xlarge,
+          'size.thresholds.xlarge must be a non-negative integer',
+        ),
+      );
+    }
 
-    // Check threshold ordering: small < medium < large
+    // Check threshold ordering: small < medium < large < xlarge
     const finalSmall = small ?? DEFAULT_LABELER_CONFIG.size.thresholds.small;
     const finalMedium = medium ?? DEFAULT_LABELER_CONFIG.size.thresholds.medium;
     const finalLarge = large ?? DEFAULT_LABELER_CONFIG.size.thresholds.large;
+    const finalXLarge = xlarge ?? DEFAULT_LABELER_CONFIG.size.thresholds.xlarge;
 
     if (finalSmall >= finalMedium) {
       return errAsync(
@@ -169,6 +179,15 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
           'size.thresholds',
           { medium: finalMedium, large: finalLarge },
           `size.thresholds.medium (${finalMedium}) must be less than large (${finalLarge})`,
+        ),
+      );
+    }
+    if (finalLarge >= finalXLarge) {
+      return errAsync(
+        createConfigurationError(
+          'size.thresholds',
+          { large: finalLarge, xlarge: finalXLarge },
+          `size.thresholds.large (${finalLarge}) must be less than xlarge (${finalXLarge})`,
         ),
       );
     }
@@ -317,6 +336,7 @@ export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerCo
         small: userConfig.size?.thresholds?.small ?? DEFAULT_LABELER_CONFIG.size.thresholds.small,
         medium: userConfig.size?.thresholds?.medium ?? DEFAULT_LABELER_CONFIG.size.thresholds.medium,
         large: userConfig.size?.thresholds?.large ?? DEFAULT_LABELER_CONFIG.size.thresholds.large,
+        xlarge: userConfig.size?.thresholds?.xlarge ?? DEFAULT_LABELER_CONFIG.size.thresholds.xlarge,
       },
     },
     complexity: {

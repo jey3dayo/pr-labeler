@@ -12,17 +12,17 @@ import { DEFAULT_LABELER_CONFIG } from '../src/labeler-types';
 
 describe('Label Decision Engine', () => {
   describe('decideSizeLabel', () => {
-    const thresholds = { small: 100, medium: 500, large: 1000 };
+    const thresholds = { small: 200, medium: 500, large: 1000, xlarge: 3000 };
 
-    it('should return size/small for additions < 100', () => {
+    it('should return size/small for additions < 200', () => {
       expect(decideSizeLabel(0, thresholds)).toBe('size/small');
-      expect(decideSizeLabel(50, thresholds)).toBe('size/small');
-      expect(decideSizeLabel(99, thresholds)).toBe('size/small');
+      expect(decideSizeLabel(100, thresholds)).toBe('size/small');
+      expect(decideSizeLabel(199, thresholds)).toBe('size/small');
     });
 
-    it('should return size/medium for 100 <= additions < 500', () => {
-      expect(decideSizeLabel(100, thresholds)).toBe('size/medium');
-      expect(decideSizeLabel(250, thresholds)).toBe('size/medium');
+    it('should return size/medium for 200 <= additions < 500', () => {
+      expect(decideSizeLabel(200, thresholds)).toBe('size/medium');
+      expect(decideSizeLabel(350, thresholds)).toBe('size/medium');
       expect(decideSizeLabel(499, thresholds)).toBe('size/medium');
     });
 
@@ -32,10 +32,16 @@ describe('Label Decision Engine', () => {
       expect(decideSizeLabel(999, thresholds)).toBe('size/large');
     });
 
-    it('should return size/xlarge for additions >= 1000', () => {
+    it('should return size/xlarge for 1000 <= additions < 3000', () => {
       expect(decideSizeLabel(1000, thresholds)).toBe('size/xlarge');
-      expect(decideSizeLabel(1001, thresholds)).toBe('size/xlarge');
-      expect(decideSizeLabel(5000, thresholds)).toBe('size/xlarge');
+      expect(decideSizeLabel(2000, thresholds)).toBe('size/xlarge');
+      expect(decideSizeLabel(2999, thresholds)).toBe('size/xlarge');
+    });
+
+    it('should return size/xxlarge for additions >= 3000', () => {
+      expect(decideSizeLabel(3000, thresholds)).toBe('size/xxlarge');
+      expect(decideSizeLabel(5000, thresholds)).toBe('size/xxlarge');
+      expect(decideSizeLabel(10000, thresholds)).toBe('size/xxlarge');
     });
   });
 

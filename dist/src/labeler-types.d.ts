@@ -17,6 +17,7 @@ export interface SizeConfig {
         small: number;
         medium: number;
         large: number;
+        xlarge: number;
     };
 }
 export interface ComplexityConfig {

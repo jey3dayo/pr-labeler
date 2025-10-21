@@ -70,6 +70,21 @@ describe('Integration Tests', () => {
         apply_size_labels: 'true',
         size_label_thresholds:
           '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}',
+        // Selective Label Enabling inputs (required for new API)
+        size_enabled: 'true',
+        size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
+        complexity_enabled: 'true',
+        complexity_thresholds: '{"medium": 10, "high": 20}',
+        category_enabled: 'true',
+        risk_enabled: 'true',
+        // Directory Labeling inputs
+        enable_directory_labeling: 'false',
+        directory_labeler_config_path: '.github/directory-labeler.yml',
+        auto_create_labels: 'false',
+        label_color: 'cccccc',
+        label_description: '',
+        max_labels: '10',
+        use_default_excludes: 'true',
         large_files_label: 'auto:large-files',
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
@@ -279,7 +294,7 @@ describe('Integration Tests', () => {
           enable_summary: 'true',
           // Selective Label Enabling inputs
           size_enabled: 'true',
-          size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+          size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
           complexity_enabled: 'true',
           complexity_thresholds: '{"medium": 10, "high": 20}',
           category_enabled: 'true',
@@ -352,7 +367,7 @@ describe('Integration Tests', () => {
           additional_exclude_patterns: '',
           enable_summary: 'true',
           size_enabled: 'false', // サイズラベルを無効化
-          size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+          size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
           complexity_enabled: 'true',
           complexity_thresholds: '{"medium": 10, "high": 20}',
           category_enabled: 'true',

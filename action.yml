@@ -40,14 +40,14 @@ inputs:
 
   # PR Labeler - ラベル種別の選択的有効化
   size_enabled:
-    description: "Enable size labels (size/small, size/medium, size/large, size/xlarge)"
+    description: "Enable size labels (size/small, size/medium, size/large, size/xlarge, size/xxlarge)"
     required: false
     default: "true"
 
   size_thresholds:
     description: "JSON string for size label thresholds (additions-based)"
     required: false
-    default: '{"small": 100, "medium": 500, "large": 1000}'
+    default: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}'
 
   complexity_enabled:
     description: "Enable complexity labels (complexity/medium, complexity/high)"

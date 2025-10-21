@@ -6,6 +6,7 @@ export declare function decideSizeLabel(additions: number, thresholds: {
     small: number;
     medium: number;
     large: number;
+    xlarge: number;
 }): string;
 export declare function decideComplexityLabel(complexity: number, thresholds: {
     medium: number;

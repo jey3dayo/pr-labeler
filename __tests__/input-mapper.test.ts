@@ -26,7 +26,7 @@ const getDefaultDirectoryLabelingInputs = () => ({
 // デフォルトのPR Labeler入力値を持つヘルパー
 const getDefaultPRLabelerInputs = () => ({
   size_enabled: 'true',
-  size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+  size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
   complexity_enabled: 'true',
   complexity_thresholds: '{"medium": 10, "high": 20}',
   category_enabled: 'true',
@@ -209,7 +209,7 @@ describe('InputMapper', () => {
         apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
-        size_thresholds: '{"small": -100, "medium": 500, "large": 1000}', // Negative value
+        size_thresholds: '{"small": -100, "medium": 500, "large": 1000, "xlarge": 3000}', // Negative value
         complexity_enabled: 'true',
         complexity_thresholds: '{"medium": 10, "high": 20}',
         category_enabled: 'true',
@@ -242,7 +242,7 @@ describe('InputMapper', () => {
         apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
-        size_thresholds: '{"small": 1000, "medium": 500, "large": 100}', // Incorrect order
+        size_thresholds: '{"small": 1000, "medium": 500, "large": 100, "xlarge": 3000}', // Incorrect order
         complexity_enabled: 'true',
         complexity_thresholds: '{"medium": 10, "high": 20}',
         category_enabled: 'true',
@@ -277,7 +277,7 @@ describe('InputMapper', () => {
         apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
-        size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+        size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
         complexity_thresholds: 'invalid-json', // Invalid JSON
         category_enabled: 'true',
@@ -310,7 +310,7 @@ describe('InputMapper', () => {
         apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
-        size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+        size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
         complexity_thresholds: '{"medium": -10, "high": 20}', // Negative value
         category_enabled: 'true',
@@ -343,7 +343,7 @@ describe('InputMapper', () => {
         apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
-        size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+        size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
         complexity_thresholds: '{"medium": 20, "high": 10}', // Incorrect order
         category_enabled: 'true',
@@ -400,9 +400,10 @@ describe('InputMapper', () => {
         expect(config.autoRemoveLabels).toBe(true);
         // PR Labeler - Selective Label Enabling
         expect(config.sizeEnabled).toBe(true);
-        expect(config.sizeThresholdsV2.small).toBe(100);
+        expect(config.sizeThresholdsV2.small).toBe(200);
         expect(config.sizeThresholdsV2.medium).toBe(500);
         expect(config.sizeThresholdsV2.large).toBe(1000);
+        expect(config.sizeThresholdsV2.xlarge).toBe(3000);
         expect(config.complexityEnabled).toBe(true);
         expect(config.categoryEnabled).toBe(true);
         expect(config.riskEnabled).toBe(true);

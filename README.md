@@ -24,10 +24,11 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能。複
 
 **サイズベースラベル**（自動置換）:
 
-- `size/small` - 追加行数 < 100行
-- `size/medium` - 追加行数 100-500行
-- `size/large` - 追加行数 500-1000行
-- `size/xlarge` - 追加行数 >= 1000行
+- `size/small` - 追加行数 < 200行
+- `size/medium` - 追加行数 200-499行
+- `size/large` - 追加行数 500-999行
+- `size/xlarge` - 追加行数 1000-2999行
+- `size/xxlarge` - 追加行数 >= 3000行
 
 **カテゴリベースラベル**（加法的）:
 
@@ -274,10 +275,11 @@ jobs:
 
 ラベル適用ルール:
 
-- `size/small`: additions < 100
-- `size/medium`: 100 ≤ additions < 500
+- `size/small`: additions < 200
+- `size/medium`: 200 ≤ additions < 500
 - `size/large`: 500 ≤ additions < 1000
-- `size/xlarge`: additions ≥ 1000
+- `size/xlarge`: 1000 ≤ additions < 3000
+- `size/xxlarge`: additions ≥ 3000
 
 **複雑度ラベル** (`complexity_thresholds`):
 
@@ -344,10 +346,11 @@ GitHub Actions job summaryには以下の制限があります：
 
 **サイズラベル**（置換ポリシー）:
 
-- `size/small` - 追加行数 < 100行
-- `size/medium` - 追加行数 100-500行
-- `size/large` - 追加行数 500-1000行
-- `size/xlarge` - 追加行数 >= 1000行
+- `size/small` - 追加行数 < 200行
+- `size/medium` - 追加行数 200-499行
+- `size/large` - 追加行数 500-999行
+- `size/xlarge` - 追加行数 1000-2999行
+- `size/xxlarge` - 追加行数 >= 3000行
 
 **カテゴリラベル**（加法ポリシー - 複数付与可能）:
 
