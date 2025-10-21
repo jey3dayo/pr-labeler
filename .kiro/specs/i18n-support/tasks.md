@@ -231,17 +231,18 @@
   - dist/サイズの検証（翻訳リソース込みで許容範囲内）
   - _Requirements: Non-functional (品質保証)_
 
-- [ ] 11.3 ドキュメントと移行ガイドの作成
+- [x] 11.3 ドキュメントと移行ガイドの作成
   - README.mdに多言語設定の使用方法を追加
     - `LANGUAGE`環境変数の説明と使用例
     - `pr-labeler.yml`の`language`フィールド説明
     - `display_name`設定例（英語・日本語サンプル）
-  - 移行ガイドの作成（MIGRATION.md）
+  - 移行ガイドの作成（docs/i18n-error-migration-guide.md）
     - 英語のみ設定から多言語設定への移行手順
     - display_nameの追加方法
     - 後方互換性の説明
   - API.mdに多言語関連APIの説明追加
   - _Requirements: ドキュメント整備（実装完了後のユーザー対応）_
+  - **完了**: README.md、API.md、docs/i18n-error-migration-guide.mdにドキュメント追加完了
 
 - [ ] 11.4 翻訳品質管理の整備
   - 用語集の作成（docs/i18n-glossary.md）

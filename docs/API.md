@@ -284,6 +284,121 @@ PR Labelerの詳細なAPI仕様書です。
 
 ---
 
+### 🌐 多言語設定パラメータ
+
+#### `language`（設定ファイル: `.github/pr-labeler.yml`）
+
+- **型**: `string`
+- **必須**: ❌
+- **デフォルト**: なし（環境変数または `'en'` が使用される）
+- **説明**: 出力メッセージ、エラーメッセージ、ログ、PRコメントの言語設定
+- **サポート言語**: `"en"` (English), `"ja"` (日本語)
+- **優先順位**:
+  1. `LANGUAGE` 環境変数
+  2. `LANG` 環境変数
+  3. `.github/pr-labeler.yml` の `language` フィールド
+  4. デフォルト: `'en'` (English)
+- **使用例**:
+
+  ```yaml
+  # .github/pr-labeler.yml
+  language: ja  # 日本語で出力
+
+  size:
+    thresholds:
+      small: 100
+      medium: 500
+      large: 1000
+  ```
+
+  または環境変数で指定:
+
+  ```yaml
+  # .github/workflows/pr-check.yml
+  - uses: jey3dayo/pr-labeler@v1
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+    env:
+      LANGUAGE: ja  # 日本語で出力
+  ```
+
+- **動作**:
+  - GitHub Actions Summary、エラーメッセージ、ログ、PRコメントが指定した言語で出力されます
+  - GitHub API呼び出し時のラベル名（`label` フィールド）は常に英語のまま使用されます
+  - カスタムラベル表示名は `display_name` で多言語対応できます
+
+#### `display_name`（カテゴリ設定の多言語表示名）
+
+- **型**: `object`
+- **必須**: ❌
+- **説明**: カテゴリラベルの多言語表示名
+- **構造**:
+
+  ```typescript
+  {
+    en: string;  // 英語表示名
+    ja: string;  // 日本語表示名
+  }
+  ```
+
+- **優先順位**:
+  1. `.github/pr-labeler.yml` の `display_name`（カスタム翻訳）
+  2. 組み込みの翻訳リソース（`labels` 名前空間）
+  3. ラベル名そのまま
+
+- **使用例**:
+
+  ```yaml
+  # .github/pr-labeler.yml
+  language: ja
+
+  categories:
+    - label: 'category/tests'
+      patterns:
+        - '__tests__/**'
+        - '**/*.test.ts'
+      display_name:
+        en: 'Test Files'
+        ja: 'テストファイル'
+
+    - label: 'category/docs'
+      patterns:
+        - 'docs/**'
+        - '**/*.md'
+      display_name:
+        en: 'Documentation'
+        ja: 'ドキュメント'
+  ```
+
+- **動作**:
+  - GitHub Actions SummaryやPRコメントで、現在の言語に応じた表示名が使用されます
+  - 例: `language: ja` の場合、「テストファイル」と表示されます
+  - GitHub APIでは常に英語のラベル名（`label: 'category/tests'`）が使用されます
+
+- **バリデーション**:
+  - `display_name` が設定される場合、`en` と `ja` の両方が必須です
+  - どちらか一方のみの設定はエラーになります
+
+  ```yaml
+  # ❌ エラー: ja が欠けている
+  categories:
+    - label: 'category/tests'
+      patterns: ['**/*.test.ts']
+      display_name:
+        en: 'Tests'
+        # ja がない！
+
+  # ✅ 正しい設定
+  categories:
+    - label: 'category/tests'
+      patterns: ['**/*.test.ts']
+      display_name:
+        en: 'Tests'
+        ja: 'テスト'
+  ```
+
+---
+
 ## 📤 Outputs
 
 ### `large_files`

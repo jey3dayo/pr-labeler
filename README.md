@@ -200,6 +200,64 @@ jobs:
     enable_summary: "true"             # GitHub Actions Summaryに出力
 ```
 
+### 🌐 多言語設定
+
+PR Labelerは英語と日本語の出力に対応しています。GitHub Actions Summary、エラーメッセージ、ログ、PRコメントが選択した言語で表示されます。
+
+#### 環境変数で言語を指定
+
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+  env:
+    LANGUAGE: ja  # または 'en' (デフォルト: 'en')
+```
+
+#### 設定ファイルで言語を指定
+
+`.github/pr-labeler.yml`:
+
+```yaml
+# 言語設定（オプション）
+language: ja  # 'en' または 'ja' (デフォルト: 'en')
+
+# カテゴリラベルの多言語表示名（オプション）
+categories:
+  - label: 'category/tests'
+    patterns:
+      - '__tests__/**'
+      - '**/*.test.ts'
+    display_name:
+      en: 'Test Files'
+      ja: 'テストファイル'
+
+  - label: 'category/documentation'
+    patterns:
+      - 'docs/**'
+      - '**/*.md'
+    display_name:
+      en: 'Documentation'
+      ja: 'ドキュメント'
+```
+
+#### 言語決定の優先順位
+
+1. `LANGUAGE` 環境変数
+2. `LANG` 環境変数
+3. `pr-labeler.yml` の `language` フィールド
+4. デフォルト: 英語（`en`）
+
+#### 多言語表示名の優先順位
+
+ラベルの表示名は以下の優先順位で決定されます：
+
+1. `.github/pr-labeler.yml` の `display_name`（カスタム翻訳）
+2. 組み込みの翻訳リソース（`labels` 名前空間）
+3. ラベル名そのまま
+
+**注意**: GitHub API呼び出しでは常に英語のラベル名（`label` フィールド）が使用されます。`display_name` は表示のみに使用されます。
+
 ## 🔧 入力パラメータ
 
 ### 基本制限
