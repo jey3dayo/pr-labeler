@@ -11,8 +11,12 @@ import { ResultAsync } from 'neverthrow';
 import pLimit from 'p-limit';
 import * as path from 'path';
 
+import { DEFAULT_ANALYSIS_OPTIONS } from './configs/default-config.js';
 import { type ComplexityAnalysisError, createComplexityAnalysisError, extractErrorMessage } from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
+
+// Re-export for backward compatibility
+export { DEFAULT_ANALYSIS_OPTIONS };
 
 /**
  * Analysis options for complexity calculation
@@ -25,29 +29,6 @@ export interface AnalysisOptions {
   extensions?: string[]; // 対象拡張子（デフォルト: ['.ts', '.tsx', '.js', '.jsx']）
   exclude?: string[]; // 除外パターン
 }
-
-/**
- * Default analysis options
- */
-export const DEFAULT_ANALYSIS_OPTIONS: Required<AnalysisOptions> = {
-  concurrency: 8,
-  timeout: 60,
-  fileTimeout: 5,
-  maxFileSize: 1024 * 1024, // 1MB
-  extensions: ['.ts', '.tsx', '.js', '.jsx'],
-  exclude: [
-    '**/dist/**',
-    '**/build/**',
-    '**/node_modules/**',
-    '**/vendor/**',
-    '**/*.test.ts',
-    '**/*.test.tsx',
-    '**/*.spec.ts',
-    '**/*.spec.tsx',
-    '**/*.generated.ts',
-    '**/__generated__/**',
-  ],
-};
 
 /**
  * Check if tsconfig.json exists in the project root

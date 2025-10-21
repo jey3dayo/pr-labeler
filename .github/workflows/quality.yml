@@ -304,6 +304,7 @@ jobs:
             **/__tests__/**
             **/*.test.ts
             **/*.spec.ts
+            src/index.ts
 
   quality-gate:
     name: Quality Gate

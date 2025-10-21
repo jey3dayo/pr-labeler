@@ -7,6 +7,7 @@ import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
 import { logDebug, logInfo, logWarning } from './actions-io';
+import { AUTO_LABEL_PREFIX, SIZE_LABEL_PREFIX, SIZE_LABELS, VIOLATION_LABELS } from './configs/label-defaults.js';
 import type { ConfigurationError, GitHubAPIError, Violations } from './errors/index.js';
 import { createConfigurationError, createGitHubAPIError, extractErrorMessage } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
@@ -36,27 +37,6 @@ export interface LabelUpdate {
   removed: string[];
   current: string[];
 }
-
-// Size label prefixes
-const SIZE_LABEL_PREFIX = 'size:';
-const AUTO_LABEL_PREFIX = 'auto:';
-
-// Size label values
-const SIZE_LABELS = {
-  S: 'size:S',
-  M: 'size:M',
-  L: 'size:L',
-  XL: 'size:XL',
-  XXL: 'size:XXL',
-};
-
-// Violation label mappings
-const VIOLATION_LABELS = {
-  largeFiles: 'auto:large-files',
-  tooManyLines: 'auto:too-many-lines',
-  excessiveChanges: 'auto:excessive-changes',
-  tooManyFiles: 'auto:too-many-files',
-};
 
 /**
  * Validate size label thresholds
