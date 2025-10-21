@@ -6,11 +6,11 @@
  */
 
 // 翻訳リソースの型定義をimport
-import type summaryEn from '../locales/en/summary.json';
-import type errorsEn from '../locales/en/errors.json';
-import type logsEn from '../locales/en/logs.json';
-import type labelsEn from '../locales/en/labels.json';
 import type commonEn from '../locales/en/common.json';
+import type errorsEn from '../locales/en/errors.json';
+import type labelsEn from '../locales/en/labels.json';
+import type logsEn from '../locales/en/logs.json';
+import type summaryEn from '../locales/en/summary.json';
 
 /**
  * 翻訳リソースの型定義
