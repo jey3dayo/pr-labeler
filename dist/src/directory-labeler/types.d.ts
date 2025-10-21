@@ -1,3 +1,5 @@
+import { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS } from '../configs/directory-labeler-defaults.js';
+export { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS };
 export interface MinimatchOptions {
     dot?: boolean;
     nocase?: boolean;
@@ -20,7 +22,4 @@ export interface DirectoryLabelerConfig {
     namespaces?: NamespacePolicy;
     useDefaultExcludes?: boolean;
 }
-export declare const DEFAULT_OPTIONS: Required<MinimatchOptions>;
-export declare const DEFAULT_NAMESPACES: Required<NamespacePolicy>;
-export declare const DEFAULT_EXCLUDES: readonly string[];
 export declare const INTERNAL_PATH_SEPARATOR: "/";

@@ -130,12 +130,16 @@ module.exports = tseslint.config(
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
 
-      // クラス構文の禁止
+      // クラス構文と Dynamic Import の禁止
       'no-restricted-syntax': [
         'error',
         {
           selector: 'ClassDeclaration',
           message: 'クラス構文の使用は禁止されています。関数とオブジェクトを使用してください。',
+        },
+        {
+          selector: 'ImportExpression',
+          message: 'Dynamic import()の使用は禁止されています。静的importを使用してください。',
         },
       ],
     },

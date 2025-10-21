@@ -3,12 +3,14 @@
  * Measures file sizes, line counts, and aggregates metrics
  */
 
+import { exec } from 'node:child_process';
+import { createReadStream, promises as fs } from 'node:fs';
+import * as path from 'node:path';
+import { createInterface } from 'node:readline';
+import { promisify } from 'node:util';
+
 import * as github from '@actions/github';
-import { exec } from 'child_process';
-import { promises as fs } from 'fs';
 import { err, ok, Result } from 'neverthrow';
-import * as path from 'path';
-import { promisify } from 'util';
 
 import { logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffFile } from './diff-strategy';
@@ -234,9 +236,6 @@ export async function getFileLineCount(
 
   // Strategy 2: Node.js streaming implementation (memory-efficient)
   try {
-    const { createReadStream } = await import('fs');
-    const { createInterface } = await import('readline');
-
     const fileStream = createReadStream(filePath, { encoding: 'utf-8' });
     const rl = createInterface({
       input: fileStream,

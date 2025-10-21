@@ -1,5 +1,7 @@
+import { createReadStream, promises as fs } from 'node:fs';
+import { createInterface } from 'node:readline';
+
 import * as github from '@actions/github';
-import { promises as fs } from 'fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Create hoisted mock function
@@ -16,6 +18,11 @@ vi.mock('fs', () => ({
     readFile: vi.fn(),
     access: vi.fn(),
   },
+  createReadStream: vi.fn(),
+}));
+
+vi.mock('readline', () => ({
+  createInterface: vi.fn(),
 }));
 
 vi.mock('child_process');
@@ -174,7 +181,7 @@ describe('FileMetrics', () => {
     it('should fallback to Node.js streaming implementation when wc fails', async () => {
       mockExecAsync.mockRejectedValue(new Error('Command not found'));
 
-      // Mock dynamic imports for streaming
+      // Mock streaming for static imports
       const mockReadStream = {
         destroy: vi.fn(),
         on: vi.fn(),
@@ -194,15 +201,8 @@ describe('FileMetrics', () => {
         },
       };
 
-      vi.doMock('fs', async () => ({
-        ...(await vi.importActual<typeof import('fs')>('fs')),
-        createReadStream: vi.fn(() => mockReadStream),
-      }));
-
-      vi.doMock('readline', async () => ({
-        ...(await vi.importActual<typeof import('readline')>('readline')),
-        createInterface: vi.fn(() => mockReadlineInterface),
-      }));
+      vi.mocked(createReadStream).mockReturnValue(mockReadStream as any);
+      vi.mocked(createInterface).mockReturnValue(mockReadlineInterface as any);
 
       const result = await getFileLineCount('src/test.ts');
 
@@ -230,15 +230,8 @@ describe('FileMetrics', () => {
         },
       };
 
-      vi.doMock('fs', async () => ({
-        ...(await vi.importActual<typeof import('fs')>('fs')),
-        createReadStream: vi.fn(() => mockReadStream),
-      }));
-
-      vi.doMock('readline', async () => ({
-        ...(await vi.importActual<typeof import('readline')>('readline')),
-        createInterface: vi.fn(() => mockReadlineInterface),
-      }));
+      vi.mocked(createReadStream).mockReturnValue(mockReadStream as any);
+      vi.mocked(createInterface).mockReturnValue(mockReadlineInterface as any);
 
       const result = await getFileLineCount('src/large.ts', 50000);
 
@@ -257,12 +250,9 @@ describe('FileMetrics', () => {
       mockExecAsync.mockRejectedValue(new Error('Command not found'));
 
       // Mock createReadStream to throw error
-      vi.doMock('fs', async () => ({
-        ...(await vi.importActual<typeof import('fs')>('fs')),
-        createReadStream: vi.fn(() => {
-          throw new Error('Permission denied');
-        }),
-      }));
+      vi.mocked(createReadStream).mockImplementation(() => {
+        throw new Error('Permission denied');
+      });
 
       const result = await getFileLineCount('src/test.ts');
 

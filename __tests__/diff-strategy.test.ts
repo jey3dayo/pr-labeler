@@ -13,9 +13,10 @@ vi.mock('@actions/github');
 vi.mock('@actions/core');
 
 // Import after mocking
+import { promisify } from 'node:util';
+
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { promisify } from 'util';
 
 import { getDiffFiles } from '../src/diff-strategy';
 

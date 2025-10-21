@@ -2,7 +2,8 @@
  * Tests for Complexity Analyzer
  */
 
-import * as path from 'path';
+import * as path from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { aggregateMetrics, ComplexityAnalyzer } from '../src/complexity-analyzer.js';

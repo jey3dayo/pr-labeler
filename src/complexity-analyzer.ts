@@ -3,13 +3,14 @@
  * Uses ESLint standard complexity rule
  */
 
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+
 import * as core from '@actions/core';
 import type { Linter } from 'eslint';
 import { ESLint } from 'eslint';
-import { promises as fs } from 'fs';
 import { ResultAsync } from 'neverthrow';
 import pLimit from 'p-limit';
-import * as path from 'path';
 
 import { DEFAULT_ANALYSIS_OPTIONS } from './configs/default-config.js';
 import { type ComplexityAnalysisError, createComplexityAnalysisError, extractErrorMessage } from './errors/index.js';

@@ -3,8 +3,9 @@
  * Analyzes pull request files and enforces size limits
  */
 
+import * as path from 'node:path';
+
 import * as github from '@actions/github';
-import * as path from 'path';
 
 import {
   getActionInputs,
