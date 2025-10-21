@@ -19,6 +19,7 @@ export const DEFAULT_CATEGORIES: CategoryConfig[] = [
   {
     label: 'category/documentation',
     patterns: ['docs/**', '**/*.md'],
+    exclude: ['.kiro/**', '.specify/**', 'spec/**', 'specs/**'],
   },
   {
     label: 'category/config',

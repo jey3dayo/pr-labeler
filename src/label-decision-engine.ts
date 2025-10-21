@@ -148,12 +148,28 @@ export function decideComplexityLabel(complexity: number, thresholds: { medium: 
  */
 export function decideCategoryLabels(
   files: string[],
-  categories: Array<{ label: string; patterns: string[] }>,
+  categories: Array<{ label: string; patterns: string[]; exclude?: string[] }>,
 ): string[] {
   const matchedLabels: string[] = [];
 
   for (const category of categories) {
-    const hasMatch = files.some(file => category.patterns.some(pattern => minimatch(file, pattern)));
+    const hasMatch = files.some(file => {
+      // パターンにマッチするかチェック
+      const matchesPattern = category.patterns.some(pattern => minimatch(file, pattern));
+      if (!matchesPattern) {
+        return false;
+      }
+
+      // 除外パターンがある場合、除外パターンにマッチしないことを確認
+      if (category.exclude) {
+        const matchesExclude = category.exclude.some(pattern => minimatch(file, pattern));
+        if (matchesExclude) {
+          return false;
+        }
+      }
+
+      return true;
+    });
     if (hasMatch) {
       matchedLabels.push(category.label);
     }

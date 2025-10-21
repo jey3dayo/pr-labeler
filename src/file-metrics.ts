@@ -3,7 +3,7 @@
  * Measures file sizes, line counts, and aggregates metrics
  */
 
-import { exec } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { createReadStream, promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import { createInterface } from 'node:readline';
@@ -18,8 +18,8 @@ import type { FileAnalysisError, ViolationDetail, Violations } from './errors/in
 import { createFileAnalysisError, extractErrorMessage } from './errors/index.js';
 import { getDefaultExcludePatterns, isExcluded } from './pattern-matcher';
 
-// Create execAsync using promisify
-const execAsync = promisify(exec);
+// Create execFileAsync using promisify
+const execFileAsync = promisify(execFile);
 
 /**
  * File metrics data
@@ -167,7 +167,7 @@ export async function getFileSize(
 
   // Strategy 2: Try git ls-tree
   try {
-    const { stdout } = await execAsync(`git ls-tree -l HEAD "${filePath}"`);
+    const { stdout } = await execFileAsync('git', ['ls-tree', '-l', 'HEAD', filePath]);
     // Parse output: "100644 blob abc123    1234\tfilename"
     // Split by tab first to separate metadata from filename
     const tabParts = stdout.trim().split('\t');
@@ -220,7 +220,7 @@ export async function getFileLineCount(
 
   // Strategy 1: Try wc -l (fastest for large files)
   try {
-    const { stdout } = await execAsync(`wc -l "${filePath}"`);
+    const { stdout } = await execFileAsync('wc', ['-l', filePath]);
     const match = stdout.match(/^\s*(\d+)/);
     if (match && match[1]) {
       const lines = parseInt(match[1], 10);

@@ -12,7 +12,7 @@ const { mockExecAsync } = vi.hoisted(() => {
 });
 
 // Setup mocks
-vi.mock('fs', () => ({
+vi.mock('node:fs', () => ({
   promises: {
     stat: vi.fn(),
     readFile: vi.fn(),
@@ -21,14 +21,14 @@ vi.mock('fs', () => ({
   createReadStream: vi.fn(),
 }));
 
-vi.mock('readline', () => ({
+vi.mock('node:readline', () => ({
   createInterface: vi.fn(),
 }));
 
-vi.mock('child_process');
+vi.mock('node:child_process');
 
 // Mock util to return our hoisted mock function
-vi.mock('util', () => ({
+vi.mock('node:util', () => ({
   promisify: () => mockExecAsync,
 }));
 
@@ -175,7 +175,7 @@ describe('FileMetrics', () => {
       if (result.isOk()) {
         expect(result.value).toBe(150);
       }
-      expect(mockExecAsync).toHaveBeenCalledWith('wc -l "src/test.ts"');
+      expect(mockExecAsync).toHaveBeenCalledWith('wc', ['-l', 'src/test.ts']);
     });
 
     it('should fallback to Node.js streaming implementation when wc fails', async () => {
@@ -340,15 +340,15 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(sizes[path as string] || 1000));
       });
 
-      // Mock line counts
-      mockExecAsync.mockImplementation((cmd: string) => {
-        if (cmd.includes('wc -l')) {
+      // Mock line counts (execFile format: command, args[])
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
           const lines: Record<string, string> = {
-            '"src/index.ts"': '     200 src/index.ts',
-            '"src/utils.ts"': '     150 src/utils.ts',
-            '"src/new.ts"': '     300 src/new.ts',
+            'src/index.ts': '     200 src/index.ts',
+            'src/utils.ts': '     150 src/utils.ts',
+            'src/new.ts': '     300 src/new.ts',
           };
-          const file = cmd.match(/"([^"]+)"/)?.[0] || '';
+          const file = args[1] || '';
           return Promise.resolve({
             stdout: lines[file] || '     100 unknown',
             stderr: '',

@@ -60,6 +60,7 @@ export interface ComplexityConfig {
 export interface CategoryConfig {
   label: string; // ラベル名（例: "category/tests"）
   patterns: string[]; // minimatchパターン（例: ["__tests__/**", "**/*.test.ts"]）
+  exclude?: string[]; // 除外パターン（例: [".kiro/**"]）
 }
 
 /**
