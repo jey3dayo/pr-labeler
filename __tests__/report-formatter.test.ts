@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Violations } from '../src/errors';
 import type { AnalysisResult, FileMetrics } from '../src/file-metrics';
+import type { ComplexityConfig, ComplexityMetrics } from '../src/labeler-types';
+import type { SummaryContext } from '../src/report-formatter';
 import {
   escapeMarkdown,
   formatBasicMetrics,
@@ -9,6 +11,7 @@ import {
   formatFileDetails,
   formatNumber,
   formatViolations,
+  generateComplexitySummary,
 } from '../src/report-formatter';
 
 describe('ReportFormatter', () => {
@@ -396,6 +399,263 @@ describe('ReportFormatter', () => {
 
     it('should handle empty string', () => {
       expect(escapeMarkdown('')).toBe('');
+    });
+  });
+
+  describe('generateComplexitySummary', () => {
+    const baseContext: SummaryContext = {
+      owner: 'test-owner',
+      repo: 'test-repo',
+      sha: 'abc123',
+    };
+
+    const baseConfig: ComplexityConfig = {
+      enabled: true,
+      thresholds: { medium: 10, high: 20 },
+      exclude: [],
+    };
+
+    it('should generate summary with high complexity files', () => {
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 25,
+        avgComplexity: 15.5,
+        analyzedFiles: 5,
+        files: [
+          {
+            path: 'src/complex1.ts',
+            complexity: 25,
+            functions: [
+              { name: 'complexFunc1', complexity: 15, loc: { start: 10, end: 50 } },
+              { name: 'complexFunc2', complexity: 10, loc: { start: 60, end: 80 } },
+            ],
+          },
+          {
+            path: 'src/complex2.ts',
+            complexity: 18,
+            functions: [{ name: 'func1', complexity: 18, loc: { start: 5, end: 30 } }],
+          },
+        ],
+        skippedFiles: [],
+        syntaxErrorFiles: [],
+        hasTsconfig: true,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('## 📊 コード複雑度分析');
+      expect(result).toContain('最大複雑度');
+      expect(result).toContain('25');
+      expect(result).toContain('平均複雑度');
+      expect(result).toContain('15.5');
+      expect(result).toContain('高複雑度ファイル（上位10件）');
+      expect(result).toContain('src/complex1.ts');
+      expect(result).toContain('src/complex2.ts');
+    });
+
+    it('should display function details for high complexity files', () => {
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 30,
+        avgComplexity: 20,
+        analyzedFiles: 1,
+        files: [
+          {
+            path: 'src/multi-function.ts',
+            complexity: 30,
+            functions: [
+              { name: 'func1', complexity: 15, loc: { start: 10, end: 50 } },
+              { name: 'func2', complexity: 10, loc: { start: 60, end: 80 } },
+              { name: 'func3', complexity: 8, loc: { start: 90, end: 110 } },
+              { name: 'func4', complexity: 6, loc: { start: 120, end: 140 } },
+              { name: 'func5', complexity: 4, loc: { start: 150, end: 160 } },
+              { name: 'func6', complexity: 2, loc: { start: 170, end: 180 } },
+              { name: 'func7', complexity: 1, loc: { start: 190, end: 195 } },
+            ],
+          },
+        ],
+        skippedFiles: [],
+        syntaxErrorFiles: [],
+        hasTsconfig: true,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('関数別複雑度（上位5件）');
+      expect(result).toContain('func1');
+      expect(result).toContain('func2');
+      expect(result).toContain('func3');
+      expect(result).toContain('func4');
+      expect(result).toContain('func5');
+      expect(result).toContain('+2個の関数（表示省略）');
+    });
+
+    it('should show remaining files message when more than 10 high complexity files', () => {
+      const files = Array.from({ length: 15 }, (_, i) => ({
+        path: `src/file${i + 1}.ts`,
+        complexity: 15 + i,
+        functions: [],
+      }));
+
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 29,
+        avgComplexity: 20,
+        analyzedFiles: 15,
+        files,
+        skippedFiles: [],
+        syntaxErrorFiles: [],
+        hasTsconfig: true,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('+5件のファイルが複雑度閾値を超過（表示省略）');
+    });
+
+    it('should show all files below threshold message when no high complexity files', () => {
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 5,
+        avgComplexity: 3,
+        analyzedFiles: 10,
+        files: [
+          { path: 'src/simple1.ts', complexity: 5, functions: [] },
+          { path: 'src/simple2.ts', complexity: 3, functions: [] },
+        ],
+        skippedFiles: [],
+        syntaxErrorFiles: [],
+        hasTsconfig: true,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('✅ すべてのファイルが複雑度閾値以下です');
+      expect(result).toContain('medium閾値: 10未満');
+    });
+
+    it('should display skipped files warning with various reasons', () => {
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 10,
+        avgComplexity: 5,
+        analyzedFiles: 5,
+        files: [],
+        skippedFiles: [
+          { path: 'large-file.ts', reason: 'too_large' },
+          { path: 'binary-file.bin', reason: 'binary' },
+          { path: 'error-file.ts', reason: 'analysis_failed', details: 'Parse error' },
+          { path: 'timeout-file.ts', reason: 'timeout' },
+        ],
+        syntaxErrorFiles: [],
+        hasTsconfig: true,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('⚠️ スキップされたファイル');
+      expect(result).toContain('large-file.ts');
+      expect(result).toContain('ファイルサイズ超過（1MB以上）');
+      expect(result).toContain('binary-file.bin');
+      expect(result).toContain('バイナリファイル');
+      expect(result).toContain('error-file.ts');
+      expect(result).toContain('Parse error');
+      expect(result).toContain('timeout-file.ts');
+      expect(result).toContain('タイムアウト');
+    });
+
+    it('should display syntax error files warning', () => {
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 10,
+        avgComplexity: 5,
+        analyzedFiles: 5,
+        files: [],
+        skippedFiles: [],
+        syntaxErrorFiles: ['src/error1.ts', 'src/error2.ts'],
+        hasTsconfig: true,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('⚠️ 構文エラーファイル');
+      expect(result).toContain('複雑度0として集計対象に含まれています');
+      expect(result).toContain('src/error1.ts');
+      expect(result).toContain('src/error2.ts');
+      expect(result).toContain('構文エラーは開発者の修正対象');
+    });
+
+    it('should display PR file truncation warning', () => {
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 10,
+        avgComplexity: 5,
+        analyzedFiles: 3000,
+        files: [],
+        skippedFiles: [],
+        syntaxErrorFiles: [],
+        truncated: true,
+        totalPRFiles: 3500,
+        hasTsconfig: true,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('⚠️ PRファイル数制限');
+      expect(result).toContain('PR全体のファイル数: 3,500');
+      expect(result).toContain('分析対象ファイル数: 3,000');
+      expect(result).toContain('未分析ファイル数: 500');
+      expect(result).toContain('GitHub APIの3000ファイル制限');
+    });
+
+    it('should display tsconfig not found warning', () => {
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 10,
+        avgComplexity: 5,
+        analyzedFiles: 5,
+        files: [],
+        skippedFiles: [],
+        syntaxErrorFiles: [],
+        hasTsconfig: false,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      expect(result).toContain('⚠️ tsconfig.json未検出');
+      expect(result).toContain('既定の設定');
+      expect(result).toContain("ecmaVersion: 'latest'");
+    });
+
+    it('should display all warnings in a complex scenario', () => {
+      // Create files with the first one having highest complexity to ensure it's in top 10
+      const files = Array.from({ length: 12 }, (_, i) => ({
+        path: `src/complex${i + 1}.ts`,
+        complexity: i === 0 ? 30 : 15 + i, // First file has highest complexity
+        functions:
+          i === 0
+            ? Array.from({ length: 7 }, (_, j) => ({
+                name: `func${j + 1}`,
+                complexity: 10 - j,
+                loc: { start: j * 10, end: j * 10 + 8 },
+              }))
+            : [],
+      }));
+
+      const metrics: ComplexityMetrics = {
+        maxComplexity: 30,
+        avgComplexity: 18,
+        analyzedFiles: 3000,
+        files,
+        skippedFiles: [{ path: 'large.ts', reason: 'too_large' }],
+        syntaxErrorFiles: ['error.ts'],
+        truncated: true,
+        totalPRFiles: 3500,
+        hasTsconfig: false,
+      };
+
+      const result = generateComplexitySummary(metrics, baseConfig, baseContext);
+
+      // All warnings should be present
+      expect(result).toContain('高複雑度ファイル（上位10件）');
+      expect(result).toContain('関数別複雑度（上位5件）');
+      expect(result).toContain('+2件のファイルが複雑度閾値を超過');
+      expect(result).toContain('⚠️ スキップされたファイル');
+      expect(result).toContain('⚠️ 構文エラーファイル');
+      expect(result).toContain('⚠️ PRファイル数制限');
+      expect(result).toContain('⚠️ tsconfig.json未検出');
     });
   });
 });

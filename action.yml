@@ -38,15 +38,36 @@ inputs:
     required: false
     default: "true"
 
-  apply_size_labels:
-    description: "Apply size labels (size/S, size/M, size/L, size/XL)"
+  # PR Labeler - ラベル種別の選択的有効化
+  size_enabled:
+    description: "Enable size labels (size/small, size/medium, size/large, size/xlarge, size/xxlarge)"
     required: false
     default: "true"
 
-  size_label_thresholds:
-    description: "JSON string for size label thresholds"
+  size_thresholds:
+    description: "JSON string for size label thresholds (additions-based)"
     required: false
-    default: '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}'
+    default: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}'
+
+  complexity_enabled:
+    description: "Enable complexity labels (complexity/medium, complexity/high)"
+    required: false
+    default: "true"
+
+  complexity_thresholds:
+    description: "JSON string for complexity label thresholds"
+    required: false
+    default: '{"medium": 10, "high": 20}'
+
+  category_enabled:
+    description: "Enable category labels (category/tests, category/docs, etc.)"
+    required: false
+    default: "true"
+
+  risk_enabled:
+    description: "Enable risk labels (risk/high, risk/medium)"
+    required: false
+    default: "true"
 
   large_files_label:
     description: "Label for files exceeding size or line limits"

@@ -1,8 +1,13 @@
 /**
- * Directory-Based Labeler: 型定義とデフォルト設定
+ * Directory-Based Labeler: 型定義
  *
  * PRの変更ファイルのディレクトリパスに基づいて、自動的にGitHubラベルを付与する機能の型定義。
  */
+
+import { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS } from '../configs/directory-labeler-defaults.js';
+
+// Re-export for backward compatibility
+export { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS };
 
 /**
  * minimatchオプションの型定義
@@ -55,48 +60,6 @@ export interface DirectoryLabelerConfig {
   /** デフォルト除外パターンを使用するか（省略可、デフォルト: true） */
   useDefaultExcludes?: boolean;
 }
-
-/**
- * デフォルトのminimatchオプション
- */
-export const DEFAULT_OPTIONS: Required<MinimatchOptions> = {
-  dot: true,
-  nocase: false,
-  matchBase: false,
-} as const;
-
-/**
- * デフォルトの名前空間ポリシー
- */
-export const DEFAULT_NAMESPACES: Required<NamespacePolicy> = {
-  exclusive: ['size', 'area', 'type'],
-  additive: ['scope', 'meta'],
-} as const;
-
-/**
- * デフォルトの除外パターン
- *
- * これらのパターンは、Pattern Matcherレベルで共通適用され、
- * ユーザー設定の除外パターンと論理和で組み合わせられます。
- */
-export const DEFAULT_EXCLUDES: readonly string[] = [
-  '.vscode/**',
-  '.idea/**',
-  '.husky/**',
-  'node_modules/**',
-  '.git/**',
-  '**/*.lock',
-  '**/package-lock.json',
-  '**/pnpm-lock.yaml',
-  '**/yarn.lock',
-  '**/composer.lock',
-  '**/Gemfile.lock',
-  '**/Cargo.lock',
-  '**/poetry.lock',
-  '**/Pipfile.lock',
-  '**/.DS_Store',
-  '**/Thumbs.db',
-] as const;
 
 /**
  * 内部実装定数: パス区切り文字

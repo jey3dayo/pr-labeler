@@ -8,11 +8,19 @@
 // ============================================================================
 
 /**
+ * Category labeling configuration
+ */
+export interface CategoryLabelingConfig {
+  enabled: boolean; // カテゴリラベルの有効化フラグ
+}
+
+/**
  * Complete labeler configuration
  */
 export interface LabelerConfig {
   size: SizeConfig;
   complexity: ComplexityConfig;
+  categoryLabeling: CategoryLabelingConfig;
   categories: CategoryConfig[];
   risk: RiskConfig;
   exclude: ExcludeConfig;
@@ -24,10 +32,12 @@ export interface LabelerConfig {
  * Size-based labeling configuration
  */
 export interface SizeConfig {
+  enabled: boolean; // サイズラベルの有効化フラグ
   thresholds: {
-    small: number; // additions上限（例: 100）
+    small: number; // additions上限（例: 200）
     medium: number; // additions上限（例: 500）
     large: number; // additions上限（例: 1000）
+    xlarge: number; // additions上限（例: 3000）
   };
 }
 
@@ -51,12 +61,14 @@ export interface ComplexityConfig {
 export interface CategoryConfig {
   label: string; // ラベル名（例: "category/tests"）
   patterns: string[]; // minimatchパターン（例: ["__tests__/**", "**/*.test.ts"]）
+  exclude?: string[]; // 除外パターン（例: [".kiro/**"]）
 }
 
 /**
  * Risk-based labeling configuration
  */
 export interface RiskConfig {
+  enabled: boolean; // リスクラベルの有効化フラグ
   high_if_no_tests_for_core: boolean;
   core_paths: string[]; // コア機能パス（例: ["src/**"]）
   coverage_threshold?: number; // カバレッジ閾値（例: 80）

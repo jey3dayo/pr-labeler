@@ -3,12 +3,14 @@
  * Measures file sizes, line counts, and aggregates metrics
  */
 
+import { execFile } from 'node:child_process';
+import { createReadStream, promises as fs } from 'node:fs';
+import * as path from 'node:path';
+import { createInterface } from 'node:readline';
+import { promisify } from 'node:util';
+
 import * as github from '@actions/github';
-import { exec } from 'child_process';
-import { promises as fs } from 'fs';
 import { err, ok, Result } from 'neverthrow';
-import * as path from 'path';
-import { promisify } from 'util';
 
 import { logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffFile } from './diff-strategy';
@@ -16,8 +18,8 @@ import type { FileAnalysisError, ViolationDetail, Violations } from './errors/in
 import { createFileAnalysisError, extractErrorMessage } from './errors/index.js';
 import { getDefaultExcludePatterns, isExcluded } from './pattern-matcher';
 
-// Create execAsync using promisify
-const execAsync = promisify(exec);
+// Create execFileAsync using promisify
+const execFileAsync = promisify(execFile);
 
 /**
  * File metrics data
@@ -165,7 +167,7 @@ export async function getFileSize(
 
   // Strategy 2: Try git ls-tree
   try {
-    const { stdout } = await execAsync(`git ls-tree -l HEAD "${filePath}"`);
+    const { stdout } = await execFileAsync('git', ['ls-tree', '-l', 'HEAD', filePath]);
     // Parse output: "100644 blob abc123    1234\tfilename"
     // Split by tab first to separate metadata from filename
     const tabParts = stdout.trim().split('\t');
@@ -218,7 +220,7 @@ export async function getFileLineCount(
 
   // Strategy 1: Try wc -l (fastest for large files)
   try {
-    const { stdout } = await execAsync(`wc -l "${filePath}"`);
+    const { stdout } = await execFileAsync('wc', ['-l', filePath]);
     const match = stdout.match(/^\s*(\d+)/);
     if (match && match[1]) {
       const lines = parseInt(match[1], 10);
@@ -234,9 +236,6 @@ export async function getFileLineCount(
 
   // Strategy 2: Node.js streaming implementation (memory-efficient)
   try {
-    const { createReadStream } = await import('fs');
-    const { createInterface } = await import('readline');
-
     const fileStream = createReadStream(filePath, { encoding: 'utf-8' });
     const rl = createInterface({
       input: fileStream,

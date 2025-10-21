@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### 🆕 選択的ラベル有効化機能
+
+各ラベル種別（size/complexity/category/risk）を個別にON/OFF可能にする統一インターフェースを追加 (#25)。
+
+**新規inputs（統一された命名規則）**:
+
+- `size_enabled` - サイズラベルの有効/無効（デフォルト: `"true"`）
+- `size_thresholds` - サイズラベル閾値（JSON形式: `{"small": 100, "medium": 500, "large": 1000}`）
+- `complexity_enabled` - 複雑度ラベルの有効/無効（デフォルト: `"true"`）
+- `complexity_thresholds` - 複雑度ラベル閾値（JSON形式: `{"medium": 10, "high": 20}`）
+- `category_enabled` - カテゴリラベルの有効/無効（デフォルト: `"true"`）
+- `risk_enabled` - リスクラベルの有効/無効（デフォルト: `"true"`）
+
+**統一された命名規則**:
+
+- すべてのラベル種別で `*_enabled` と `*_thresholds` の一貫したパターンを採用
+- より直感的で学習しやすいAPI設計
+
+**GitHub Actions Summary拡張**:
+
+- 無効化されたラベル種別の情報をSummaryに表示
+- デバッグとトラブルシューティングの容易性向上
+
 #### 🆕 PR Labeler - インテリジェント自動ラベル付け機能
 
 PRメトリクス分析に基づいた高度な自動ラベル付け機能を追加。従来のサイズラベル（S/M/L/XL/XXL）に加え、複数のディメンションでPRを分類します。

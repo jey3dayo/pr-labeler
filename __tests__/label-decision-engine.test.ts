@@ -12,17 +12,17 @@ import { DEFAULT_LABELER_CONFIG } from '../src/labeler-types';
 
 describe('Label Decision Engine', () => {
   describe('decideSizeLabel', () => {
-    const thresholds = { small: 100, medium: 500, large: 1000 };
+    const thresholds = { small: 200, medium: 500, large: 1000, xlarge: 3000 };
 
-    it('should return size/small for additions < 100', () => {
+    it('should return size/small for additions < 200', () => {
       expect(decideSizeLabel(0, thresholds)).toBe('size/small');
-      expect(decideSizeLabel(50, thresholds)).toBe('size/small');
-      expect(decideSizeLabel(99, thresholds)).toBe('size/small');
+      expect(decideSizeLabel(100, thresholds)).toBe('size/small');
+      expect(decideSizeLabel(199, thresholds)).toBe('size/small');
     });
 
-    it('should return size/medium for 100 <= additions < 500', () => {
-      expect(decideSizeLabel(100, thresholds)).toBe('size/medium');
-      expect(decideSizeLabel(250, thresholds)).toBe('size/medium');
+    it('should return size/medium for 200 <= additions < 500', () => {
+      expect(decideSizeLabel(200, thresholds)).toBe('size/medium');
+      expect(decideSizeLabel(350, thresholds)).toBe('size/medium');
       expect(decideSizeLabel(499, thresholds)).toBe('size/medium');
     });
 
@@ -32,10 +32,16 @@ describe('Label Decision Engine', () => {
       expect(decideSizeLabel(999, thresholds)).toBe('size/large');
     });
 
-    it('should return size/xlarge for additions >= 1000', () => {
+    it('should return size/xlarge for 1000 <= additions < 3000', () => {
       expect(decideSizeLabel(1000, thresholds)).toBe('size/xlarge');
-      expect(decideSizeLabel(1001, thresholds)).toBe('size/xlarge');
-      expect(decideSizeLabel(5000, thresholds)).toBe('size/xlarge');
+      expect(decideSizeLabel(2000, thresholds)).toBe('size/xlarge');
+      expect(decideSizeLabel(2999, thresholds)).toBe('size/xlarge');
+    });
+
+    it('should return size/xxlarge for additions >= 3000', () => {
+      expect(decideSizeLabel(3000, thresholds)).toBe('size/xxlarge');
+      expect(decideSizeLabel(5000, thresholds)).toBe('size/xxlarge');
+      expect(decideSizeLabel(10000, thresholds)).toBe('size/xxlarge');
     });
   });
 
@@ -310,6 +316,90 @@ describe('Label Decision Engine', () => {
       const result = decideLabels(metrics, customConfig);
       const decisions = result._unsafeUnwrap();
       expect(decisions.labelsToAdd.find(l => l.startsWith('complexity/'))).toBeUndefined();
+    });
+
+    it('should not add size label when disabled in config', () => {
+      const customConfig = {
+        ...config,
+        size: { ...config.size, enabled: false },
+      };
+
+      const metrics: PRMetrics = {
+        totalAdditions: 1200,
+        files: [{ path: 'src/a.ts', size: 1000, lines: 50, additions: 1200, deletions: 0 }],
+      };
+
+      const result = decideLabels(metrics, customConfig);
+      const decisions = result._unsafeUnwrap();
+      expect(decisions.labelsToAdd.find(l => l.startsWith('size/'))).toBeUndefined();
+      expect(decisions.reasoning.find(r => r.category === 'size')).toBeUndefined();
+    });
+
+    it('should not add category labels when disabled in config', () => {
+      const customConfig = {
+        ...config,
+        categoryLabeling: { enabled: false },
+      };
+
+      const metrics: PRMetrics = {
+        totalAdditions: 120,
+        files: [
+          { path: '__tests__/foo.test.ts', size: 1000, lines: 50, additions: 120, deletions: 0 },
+          { path: 'docs/guide.md', size: 500, lines: 20, additions: 30, deletions: 0 },
+        ],
+      };
+
+      const result = decideLabels(metrics, customConfig);
+      const decisions = result._unsafeUnwrap();
+      expect(decisions.labelsToAdd.find(l => l.startsWith('category/'))).toBeUndefined();
+      expect(decisions.reasoning.find(r => r.category === 'category')).toBeUndefined();
+    });
+
+    it('should not add risk label when disabled in config', () => {
+      const customConfig = {
+        ...config,
+        risk: { ...config.risk, enabled: false },
+      };
+
+      const metrics: PRMetrics = {
+        totalAdditions: 120,
+        files: [{ path: 'src/critical.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
+      };
+
+      const result = decideLabels(metrics, customConfig);
+      const decisions = result._unsafeUnwrap();
+      expect(decisions.labelsToAdd.find(l => l.startsWith('risk/'))).toBeUndefined();
+      expect(decisions.reasoning.find(r => r.category === 'risk')).toBeUndefined();
+    });
+
+    it('should work with all label types disabled', () => {
+      const customConfig = {
+        ...config,
+        size: { ...config.size, enabled: false },
+        complexity: { ...config.complexity, enabled: false },
+        categoryLabeling: { enabled: false },
+        risk: { ...config.risk, enabled: false },
+      };
+
+      const metrics: PRMetrics = {
+        totalAdditions: 1200,
+        files: [{ path: '__tests__/foo.test.ts', size: 1000, lines: 50, additions: 1200, deletions: 0 }],
+        complexity: {
+          maxComplexity: 99,
+          avgComplexity: 50,
+          analyzedFiles: 1,
+          files: [],
+          skippedFiles: [],
+          syntaxErrorFiles: [],
+          truncated: false,
+          hasTsconfig: true,
+        },
+      };
+
+      const result = decideLabels(metrics, customConfig);
+      const decisions = result._unsafeUnwrap();
+      expect(decisions.labelsToAdd).toEqual([]);
+      expect(decisions.reasoning).toEqual([]);
     });
   });
 });

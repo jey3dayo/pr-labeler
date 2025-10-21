@@ -30,8 +30,13 @@ export interface ActionInputs {
   pr_files_limit: string;
   apply_labels: string;
   auto_remove_labels: string;
-  apply_size_labels: string;
-  size_label_thresholds: string;
+  // PR Labeler - Selective Label Enabling
+  size_enabled: string;
+  size_thresholds: string;
+  complexity_enabled: string;
+  complexity_thresholds: string;
+  category_enabled: string;
+  risk_enabled: string;
   large_files_label: string;
   too_many_files_label: string;
   skip_draft_pr: string;
@@ -113,10 +118,13 @@ export function getActionInputs(): ActionInputs {
     pr_files_limit: core.getInput('pr_files_limit') || '50',
     apply_labels: core.getInput('apply_labels') || 'true',
     auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
-    apply_size_labels: core.getInput('apply_size_labels') || 'true',
-    size_label_thresholds:
-      core.getInput('size_label_thresholds') ||
-      '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}',
+    // PR Labeler - Selective Label Enabling
+    size_enabled: core.getInput('size_enabled') || 'true',
+    size_thresholds: core.getInput('size_thresholds') || '{"small": 100, "medium": 500, "large": 1000}',
+    complexity_enabled: core.getInput('complexity_enabled') || 'true',
+    complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 10, "high": 20}',
+    category_enabled: core.getInput('category_enabled') || 'true',
+    risk_enabled: core.getInput('risk_enabled') || 'true',
     large_files_label: core.getInput('large_files_label') || 'auto:large-files',
     too_many_files_label: core.getInput('too_many_files_label') || 'auto:too-many-files',
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
@@ -207,12 +215,15 @@ export interface SummaryWriteResult {
  * @param complexity.metrics - Complexity analysis metrics (ComplexityMetrics)
  * @param complexity.config - Complexity configuration settings (ComplexityConfig)
  * @param complexity.context - Summary context for GitHub URLs (SummaryContext)
+ * @param options - Optional summary options
+ * @param options.disabledFeatures - List of disabled label types (size, complexity, category, risk)
  * @returns Result<SummaryWriteResult, Error>
  */
 export async function writeSummaryWithAnalysis(
   analysis: AnalysisResult,
   config: { enableSummary: boolean },
   complexity?: { metrics: ComplexityMetrics; config: ComplexityConfig; context: SummaryContext },
+  options?: { disabledFeatures?: string[] },
 ): Promise<Result<SummaryWriteResult, Error>> {
   // Skip if disabled
   if (!config.enableSummary) {
@@ -250,6 +261,12 @@ export async function writeSummaryWithAnalysis(
     // Complexity section (if provided)
     if (complexity) {
       markdown += generateComplexitySummary(complexity.metrics, complexity.config, complexity.context);
+    }
+
+    // Disabled features section (if any)
+    if (options?.disabledFeatures && options.disabledFeatures.length > 0) {
+      markdown += '\n---\n\n';
+      markdown += `> **ℹ️ Disabled label types:** ${options.disabledFeatures.join(', ')}\n`;
     }
 
     // Write summary

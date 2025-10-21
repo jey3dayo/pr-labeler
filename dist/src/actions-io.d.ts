@@ -11,8 +11,12 @@ export interface ActionInputs {
     pr_files_limit: string;
     apply_labels: string;
     auto_remove_labels: string;
-    apply_size_labels: string;
-    size_label_thresholds: string;
+    size_enabled: string;
+    size_thresholds: string;
+    complexity_enabled: string;
+    complexity_thresholds: string;
+    category_enabled: string;
+    risk_enabled: string;
     large_files_label: string;
     too_many_files_label: string;
     skip_draft_pr: string;
@@ -58,6 +62,8 @@ export declare function writeSummaryWithAnalysis(analysis: AnalysisResult, confi
     metrics: ComplexityMetrics;
     config: ComplexityConfig;
     context: SummaryContext;
+}, options?: {
+    disabledFeatures?: string[];
 }): Promise<Result<SummaryWriteResult, Error>>;
 export declare function getPullRequestContext(): {
     owner: string;

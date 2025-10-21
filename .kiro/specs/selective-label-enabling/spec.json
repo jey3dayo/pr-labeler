@@ -1,0 +1,36 @@
+{
+  "feature_name": "selective-label-enabling",
+  "created_at": "2025-10-20T10:44:12Z",
+  "updated_at": "2025-10-21T10:21:00Z",
+  "language": "ja",
+  "phase": "completed",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "ready_for_implementation": true,
+  "implementation_completed": true,
+  "quality_checks": {
+    "lint": "passed",
+    "type_check": "passed",
+    "tests": "passed (440 tests)",
+    "build": "passed",
+    "coverage": "85.00%"
+  },
+  "coverage_improvement": {
+    "initial": "82.73%",
+    "final": "85.00%",
+    "improvement": "+2.27pt",
+    "notable": "report-formatter.ts: 55.61% → 100%"
+  }
+}

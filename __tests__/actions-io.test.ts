@@ -127,7 +127,13 @@ describe('GitHub Actions I/O', () => {
       expect(inputs.pr_files_limit).toBe('50');
       expect(inputs.apply_labels).toBe('true');
       expect(inputs.auto_remove_labels).toBe('true');
-      expect(inputs.apply_size_labels).toBe('true');
+      // PR Labeler - Selective Label Enabling
+      expect(inputs.size_enabled).toBe('true');
+      expect(inputs.size_thresholds).toBe('{"small": 100, "medium": 500, "large": 1000}');
+      expect(inputs.complexity_enabled).toBe('true');
+      expect(inputs.complexity_thresholds).toBe('{"medium": 10, "high": 20}');
+      expect(inputs.category_enabled).toBe('true');
+      expect(inputs.risk_enabled).toBe('true');
       expect(inputs.large_files_label).toBe('auto:large-files');
       expect(inputs.too_many_files_label).toBe('auto:too-many-files');
       expect(inputs.skip_draft_pr).toBe('true');
@@ -166,7 +172,11 @@ describe('GitHub Actions I/O', () => {
       expect(inputs.pr_files_limit).toBe('100');
       expect(inputs.apply_labels).toBe('false');
       expect(inputs.auto_remove_labels).toBe('false');
-      expect(inputs.apply_size_labels).toBe('false');
+      // PR Labeler - Selective Label Enabling (expect defaults)
+      expect(inputs.size_enabled).toBe('true');
+      expect(inputs.complexity_enabled).toBe('true');
+      expect(inputs.category_enabled).toBe('true');
+      expect(inputs.risk_enabled).toBe('true');
       expect(inputs.large_files_label).toBe('custom:large');
       expect(inputs.too_many_files_label).toBe('custom:many-files');
       expect(inputs.skip_draft_pr).toBe('false');

@@ -2,10 +2,11 @@
  * Diff strategy - retrieves PR diff files using local git or GitHub API
  */
 
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+
 import * as github from '@actions/github';
-import { exec } from 'child_process';
 import { err, ok, Result } from 'neverthrow';
-import { promisify } from 'util';
 
 import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffError } from './errors/index.js';
@@ -54,11 +55,21 @@ function parseGitDiffLine(line: string): DiffFile | null {
 
   const additions = parseInt(parts[0] ?? '', 10);
   const deletions = parseInt(parts[1] ?? '', 10);
-  const filename = parts[2] ?? '';
+  let filename = parts[2] ?? '';
 
   // Skip if parsing failed
   if (isNaN(additions) || isNaN(deletions) || !filename) {
     return null;
+  }
+
+  // Handle rename format: "path/{old => new}" -> "path/new"
+  // Also handles: "{old => new}" -> "new"
+  const renameMatch = filename.match(/^(.*)\{(.+) => (.+)\}(.*)$/);
+  if (renameMatch) {
+    const prefix = renameMatch[1] ?? '';
+    const newName = renameMatch[3] ?? '';
+    const suffix = renameMatch[4] ?? '';
+    filename = prefix + newName + suffix;
   }
 
   // Determine status based on additions and deletions

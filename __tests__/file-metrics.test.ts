@@ -1,5 +1,7 @@
+import { createReadStream, promises as fs } from 'node:fs';
+import { createInterface } from 'node:readline';
+
 import * as github from '@actions/github';
-import { promises as fs } from 'fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Create hoisted mock function
@@ -10,18 +12,23 @@ const { mockExecAsync } = vi.hoisted(() => {
 });
 
 // Setup mocks
-vi.mock('fs', () => ({
+vi.mock('node:fs', () => ({
   promises: {
     stat: vi.fn(),
     readFile: vi.fn(),
     access: vi.fn(),
   },
+  createReadStream: vi.fn(),
 }));
 
-vi.mock('child_process');
+vi.mock('node:readline', () => ({
+  createInterface: vi.fn(),
+}));
+
+vi.mock('node:child_process');
 
 // Mock util to return our hoisted mock function
-vi.mock('util', () => ({
+vi.mock('node:util', () => ({
   promisify: () => mockExecAsync,
 }));
 
@@ -168,13 +175,13 @@ describe('FileMetrics', () => {
       if (result.isOk()) {
         expect(result.value).toBe(150);
       }
-      expect(mockExecAsync).toHaveBeenCalledWith('wc -l "src/test.ts"');
+      expect(mockExecAsync).toHaveBeenCalledWith('wc', ['-l', 'src/test.ts']);
     });
 
     it('should fallback to Node.js streaming implementation when wc fails', async () => {
       mockExecAsync.mockRejectedValue(new Error('Command not found'));
 
-      // Mock dynamic imports for streaming
+      // Mock streaming for static imports
       const mockReadStream = {
         destroy: vi.fn(),
         on: vi.fn(),
@@ -194,15 +201,8 @@ describe('FileMetrics', () => {
         },
       };
 
-      vi.doMock('fs', async () => ({
-        ...(await vi.importActual<typeof import('fs')>('fs')),
-        createReadStream: vi.fn(() => mockReadStream),
-      }));
-
-      vi.doMock('readline', async () => ({
-        ...(await vi.importActual<typeof import('readline')>('readline')),
-        createInterface: vi.fn(() => mockReadlineInterface),
-      }));
+      vi.mocked(createReadStream).mockReturnValue(mockReadStream as any);
+      vi.mocked(createInterface).mockReturnValue(mockReadlineInterface as any);
 
       const result = await getFileLineCount('src/test.ts');
 
@@ -230,15 +230,8 @@ describe('FileMetrics', () => {
         },
       };
 
-      vi.doMock('fs', async () => ({
-        ...(await vi.importActual<typeof import('fs')>('fs')),
-        createReadStream: vi.fn(() => mockReadStream),
-      }));
-
-      vi.doMock('readline', async () => ({
-        ...(await vi.importActual<typeof import('readline')>('readline')),
-        createInterface: vi.fn(() => mockReadlineInterface),
-      }));
+      vi.mocked(createReadStream).mockReturnValue(mockReadStream as any);
+      vi.mocked(createInterface).mockReturnValue(mockReadlineInterface as any);
 
       const result = await getFileLineCount('src/large.ts', 50000);
 
@@ -257,12 +250,9 @@ describe('FileMetrics', () => {
       mockExecAsync.mockRejectedValue(new Error('Command not found'));
 
       // Mock createReadStream to throw error
-      vi.doMock('fs', async () => ({
-        ...(await vi.importActual<typeof import('fs')>('fs')),
-        createReadStream: vi.fn(() => {
-          throw new Error('Permission denied');
-        }),
-      }));
+      vi.mocked(createReadStream).mockImplementation(() => {
+        throw new Error('Permission denied');
+      });
 
       const result = await getFileLineCount('src/test.ts');
 
@@ -350,15 +340,15 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(sizes[path as string] || 1000));
       });
 
-      // Mock line counts
-      mockExecAsync.mockImplementation((cmd: string) => {
-        if (cmd.includes('wc -l')) {
+      // Mock line counts (execFile format: command, args[])
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
           const lines: Record<string, string> = {
-            '"src/index.ts"': '     200 src/index.ts',
-            '"src/utils.ts"': '     150 src/utils.ts',
-            '"src/new.ts"': '     300 src/new.ts',
+            'src/index.ts': '     200 src/index.ts',
+            'src/utils.ts': '     150 src/utils.ts',
+            'src/new.ts': '     300 src/new.ts',
           };
-          const file = cmd.match(/"([^"]+)"/)?.[0] || '';
+          const file = args[1] || '';
           return Promise.resolve({
             stdout: lines[file] || '     100 unknown',
             stderr: '',
@@ -444,17 +434,20 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(sizes[path as string] || 1000));
       });
 
-      mockExecAsync.mockImplementation((cmd: string) => {
-        if (cmd.includes('large.ts')) {
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          if (args[1] === 'src/large.ts') {
+            return Promise.resolve({
+              stdout: '     2000 src/large.ts', // Exceeds line limit
+              stderr: '',
+            });
+          }
           return Promise.resolve({
-            stdout: '     2000 src/large.ts', // Exceeds line limit
+            stdout: '     100 file',
             stderr: '',
           });
         }
-        return Promise.resolve({
-          stdout: '     100 file',
-          stderr: '',
-        });
+        return Promise.reject(new Error('Unknown command'));
       });
 
       const smallConfig = {
@@ -490,14 +483,17 @@ describe('FileMetrics', () => {
         return Promise.resolve(createMockStats(1000));
       });
 
-      mockExecAsync.mockImplementation((cmd: string) => {
-        if (cmd.includes('error.ts')) {
-          return Promise.reject(new Error('File not found'));
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          if (args[1] === 'src/error.ts') {
+            return Promise.reject(new Error('File not found'));
+          }
+          return Promise.resolve({
+            stdout: '     100 file',
+            stderr: '',
+          });
         }
-        return Promise.resolve({
-          stdout: '     100 file',
-          stderr: '',
-        });
+        return Promise.reject(new Error('Unknown command'));
       });
 
       const result = await analyzeFiles(files, config, 'token', context);

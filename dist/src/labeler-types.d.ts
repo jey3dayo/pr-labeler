@@ -1,6 +1,10 @@
+export interface CategoryLabelingConfig {
+    enabled: boolean;
+}
 export interface LabelerConfig {
     size: SizeConfig;
     complexity: ComplexityConfig;
+    categoryLabeling: CategoryLabelingConfig;
     categories: CategoryConfig[];
     risk: RiskConfig;
     exclude: ExcludeConfig;
@@ -8,10 +12,12 @@ export interface LabelerConfig {
     runtime: RuntimeConfig;
 }
 export interface SizeConfig {
+    enabled: boolean;
     thresholds: {
         small: number;
         medium: number;
         large: number;
+        xlarge: number;
     };
 }
 export interface ComplexityConfig {
@@ -27,8 +33,10 @@ export interface ComplexityConfig {
 export interface CategoryConfig {
     label: string;
     patterns: string[];
+    exclude?: string[];
 }
 export interface RiskConfig {
+    enabled: boolean;
     high_if_no_tests_for_core: boolean;
     core_paths: string[];
     coverage_threshold?: number;
