@@ -314,3 +314,75 @@ export function generateComplexitySummary(
 
   return markdown;
 }
+
+/**
+ * Format improvement actions section
+ * Displays actionable suggestions when violations exist
+ * @param violations - Violation details
+ * @returns Markdown formatted improvement actions (empty string if no violations)
+ */
+export function formatImprovementActions(violations: Violations): string {
+  // Only show improvement actions when violations exist
+  if (!hasViolations(violations)) {
+    return '';
+  }
+
+  let output = '';
+  output += '### 💡 Improvement Actions\n\n';
+  output += 'Here are some ways to reduce your PR size:\n\n';
+
+  // PR splitting strategies
+  output += '#### 📦 PR Splitting Strategies\n';
+  output += '- **Split by feature**: Create separate PRs for independent features\n';
+  output += '- **Split by file groups**: Group related files and merge incrementally\n';
+  output += '- **Separate refactoring and new features**: Keep code improvements and new functionality in different PRs\n\n';
+
+  // Large file refactoring
+  output += '#### 🔨 Large File Refactoring\n';
+  output += '- Split functions or classes into multiple files\n';
+  output += '- Extract common logic into separate modules\n';
+  output += '- Organize files by layer (utils, services, components)\n\n';
+
+  // Generated files and lock files
+  output += '#### 📄 Handling Generated/Lock Files\n';
+  output += '- Exclude lock files (package-lock.json, yarn.lock) in `.github/pr-labeler.yml`\n';
+  output += '- Manage build artifacts (dist/, build/) with `.gitignore`\n';
+  output += '- Consider updating auto-generated code in separate PRs\n\n';
+
+  return output;
+}
+
+/**
+ * Format best practices section
+ * Always displays PR size guidelines and best practices
+ * @returns Markdown formatted best practices
+ */
+export function formatBestPractices(): string {
+  let output = '';
+  output += '### 📚 Best Practices\n\n';
+
+  // Recommended PR size
+  output += '#### Recommended PR Size\n';
+  output += '- ✅ **Recommended**: Under 400 lines\n';
+  output += '  - Review time: 15-30 minutes\n';
+  output += '  - Bug detection rate: High\n';
+  output += '- ⚠️ **Acceptable**: 400-1000 lines\n';
+  output += '  - Review time: 1-2 hours\n';
+  output += '  - Incremental review recommended\n';
+  output += '- 🚫 **Avoid**: Over 1000 lines\n';
+  output += '  - Review efficiency significantly decreases\n';
+  output += '  - Higher risk of missing bugs\n\n';
+
+  // File size guidelines
+  output += '#### File Size Guidelines\n';
+  output += '- Aim for under 500 lines per file\n';
+  output += '- For complex files, under 300 lines is ideal\n\n';
+
+  // Review efficiency tips
+  output += '#### Review Efficiency Tips\n';
+  output += '- Smaller PRs merge faster and reduce CI/CD load\n';
+  output += '- Large PRs tend to require multiple review rounds\n';
+  output += '- Group related changes together to minimize context switching\n\n';
+
+  return output;
+}

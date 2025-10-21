@@ -10,7 +10,13 @@ import { logDebug, logInfo } from './actions-io';
 import type { GitHubAPIError } from './errors/index.js';
 import { createGitHubAPIError, extractErrorMessage } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
-import { formatBasicMetrics, formatFileDetails, formatViolations } from './report-formatter';
+import {
+  formatBasicMetrics,
+  formatBestPractices,
+  formatFileDetails,
+  formatImprovementActions,
+  formatViolations,
+} from './report-formatter';
 import type { PRContext } from './types';
 
 /**
@@ -68,6 +74,8 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
 
   // Violations section (using shared formatter)
   body += formatViolations(violations);
+  body += formatImprovementActions(violations);
+  body += formatBestPractices();
 
   // Top large files (using shared formatter, limit to 10)
   if (metrics.filesAnalyzed.length > 0) {
