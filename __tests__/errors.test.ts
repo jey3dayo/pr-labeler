@@ -1,5 +1,5 @@
 import { err, ok, Result } from 'neverthrow';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import type {
   AppError,
@@ -29,6 +29,7 @@ import {
   isObject,
   isString,
 } from '../src/errors';
+import { initializeI18n, resetI18n } from '../src/i18n.js';
 
 describe('Error Types', () => {
   describe('FileAnalysisError', () => {
@@ -357,6 +358,25 @@ describe('Result Type Utilities', () => {
 });
 
 describe('Error Factory Functions', () => {
+  beforeEach(() => {
+    // Override environment variables to ensure English language
+    const originalLang = process.env['LANG'];
+    const originalLanguage = process.env['LANGUAGE'];
+    delete process.env['LANG'];
+    delete process.env['LANGUAGE'];
+
+    resetI18n();
+    initializeI18n({ language: 'en' } as any);
+
+    // Restore original environment variables
+    if (originalLang) {
+      process.env['LANG'] = originalLang;
+    }
+    if (originalLanguage) {
+      process.env['LANGUAGE'] = originalLanguage;
+    }
+  });
+
   describe('createFileAnalysisError', () => {
     it('should create FileAnalysisError with correct structure', () => {
       const error = createFileAnalysisError('src/test.ts', 'Analysis failed');
@@ -373,7 +393,7 @@ describe('Error Factory Functions', () => {
 
       expect(error.type).toBe('GitHubAPIError');
       expect(error.status).toBe(403);
-      expect(error.message).toBe('API rate limit exceeded');
+      expect(error.message).toBe('GitHub API error: API rate limit exceeded');
     });
 
     it('should create GitHubAPIError without status', () => {
@@ -381,7 +401,7 @@ describe('Error Factory Functions', () => {
 
       expect(error.type).toBe('GitHubAPIError');
       expect(error.status).toBeUndefined();
-      expect(error.message).toBe('Network error');
+      expect(error.message).toBe('GitHub API error: Network error');
     });
   });
 
@@ -416,19 +436,19 @@ describe('Error Factory Functions', () => {
   });
 
   describe('createFileSystemError', () => {
-    it('should create FileSystemError with path', () => {
-      const error = createFileSystemError('File not found', '/src/missing.ts');
+    it('should create FileSystemError with path and operation', () => {
+      const error = createFileSystemError('/src/missing.ts', 'notFound');
 
       expect(error.type).toBe('FileSystemError');
       expect(error.path).toBe('/src/missing.ts');
-      expect(error.message).toBe('File not found');
+      expect(error.message).toBe('File not found: /src/missing.ts');
     });
 
-    it('should create FileSystemError without path', () => {
-      const error = createFileSystemError('Permission denied');
+    it('should create FileSystemError with custom message', () => {
+      const error = createFileSystemError('/src/file.ts', undefined, 'Permission denied');
 
       expect(error.type).toBe('FileSystemError');
-      expect(error.path).toBeUndefined();
+      expect(error.path).toBe('/src/file.ts');
       expect(error.message).toBe('Permission denied');
     });
   });
@@ -465,7 +485,7 @@ describe('Error Factory Functions', () => {
 
       expect(error.type).toBe('DiffError');
       expect(error.source).toBe('local-git');
-      expect(error.message).toBe('git command failed');
+      expect(error.message).toBe('Failed to get diff: git command failed');
     });
 
     it('should create DiffError with github-api source', () => {
@@ -473,7 +493,7 @@ describe('Error Factory Functions', () => {
 
       expect(error.type).toBe('DiffError');
       expect(error.source).toBe('github-api');
-      expect(error.message).toBe('API request failed');
+      expect(error.message).toBe('Failed to get diff: API request failed');
     });
 
     it('should create DiffError with both source', () => {
@@ -481,7 +501,7 @@ describe('Error Factory Functions', () => {
 
       expect(error.type).toBe('DiffError');
       expect(error.source).toBe('both');
-      expect(error.message).toBe('All diff strategies failed');
+      expect(error.message).toBe('Failed to get diff: All diff strategies failed');
     });
   });
 
@@ -496,16 +516,16 @@ describe('Error Factory Functions', () => {
   });
 
   describe('createCacheError', () => {
-    it('should create CacheError with key', () => {
-      const error = createCacheError('Cache miss', 'file:123:size');
+    it('should create CacheError with key and details', () => {
+      const error = createCacheError('file:123:size', 'Cache miss');
 
       expect(error.type).toBe('CacheError');
       expect(error.key).toBe('file:123:size');
-      expect(error.message).toBe('Cache miss');
+      expect(error.message).toBe('Cache error: Cache miss');
     });
 
-    it('should create CacheError without key', () => {
-      const error = createCacheError('Cache unavailable');
+    it('should create CacheError with custom message', () => {
+      const error = createCacheError(undefined, undefined, 'Cache unavailable');
 
       expect(error.type).toBe('CacheError');
       expect(error.key).toBeUndefined();

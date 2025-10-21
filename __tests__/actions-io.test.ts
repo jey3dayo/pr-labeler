@@ -6,14 +6,20 @@ import {
   getActionInputs,
   getGitHubToken,
   logDebug,
+  logDebugI18n,
   logError,
+  logErrorI18n,
   logInfo,
+  logInfoI18n,
   logWarning,
+  logWarningI18n,
   setActionOutputs,
   setFailed,
   writeSummaryWithAnalysis,
 } from '../src/actions-io';
 import type { AnalysisResult } from '../src/file-metrics';
+import { changeLanguage, initializeI18n, resetI18n } from '../src/i18n';
+import type { Config } from '../src/input-mapper';
 
 // Mock @actions/core
 vi.mock('@actions/core');
@@ -24,6 +30,12 @@ describe('GitHub Actions I/O', () => {
     // Reset environment variables
     delete process.env['GITHUB_TOKEN'];
     delete process.env['GH_TOKEN'];
+
+    // Initialize i18n with English for consistent test results
+    resetI18n();
+    const config: Config = { language: 'en' } as Config;
+    initializeI18n(config);
+    changeLanguage('en'); // 明示的に英語に変更
   });
 
   afterEach(() => {
@@ -347,8 +359,8 @@ describe('GitHub Actions I/O', () => {
       // Verify markdown content includes expected sections
       const markdown = mockSummary.addRaw.mock.calls[0][0];
       expect(markdown).toContain('# 📊 PR Labeler');
-      expect(markdown).toContain('### 📊 Summary');
-      expect(markdown).toContain('Total additions:');
+      expect(markdown).toContain('### 📊 Basic Metrics');
+      expect(markdown).toContain('Total Additions:');
     });
 
     it('should handle summary write errors gracefully', async () => {
@@ -412,6 +424,202 @@ describe('GitHub Actions I/O', () => {
       expect(markdown).toContain('### 📊 Size Summary');
       expect(markdown).toContain('### 🚫 Large Files Detected');
       expect(markdown).toContain('src/large.ts');
+    });
+  });
+
+  describe('i18n Log Helpers', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      resetI18n();
+    });
+
+    describe('logInfoI18n', () => {
+      it('should translate log message in English', () => {
+        const config: Config = { language: 'en' } as Config;
+        initializeI18n(config);
+        changeLanguage('en');
+        const spy = vi.mocked(core.info);
+
+        logInfoI18n('initialization.starting');
+
+        expect(spy).toHaveBeenCalledWith('Starting PR Labeler');
+      });
+
+      it('should translate log message in Japanese', () => {
+        const config: Config = { language: 'ja' } as Config;
+        initializeI18n(config);
+        changeLanguage('ja');
+        const spy = vi.mocked(core.info);
+
+        logInfoI18n('initialization.starting');
+
+        expect(spy).toHaveBeenCalledWith('PR Labelerを開始します');
+      });
+
+      it('should interpolate variables in English', () => {
+        const config: Config = { language: 'en' } as Config;
+        initializeI18n(config);
+        changeLanguage('en');
+        const spy = vi.mocked(core.info);
+
+        logInfoI18n('initialization.analyzingPr', { prNumber: 123, owner: 'user', repo: 'test-repo' });
+
+        expect(spy).toHaveBeenCalledWith('Analyzing PR #123 in user/test-repo');
+      });
+
+      it('should interpolate variables in Japanese', () => {
+        const config: Config = { language: 'ja' } as Config;
+        initializeI18n(config);
+        changeLanguage('ja');
+        const spy = vi.mocked(core.info);
+
+        logInfoI18n('initialization.analyzingPr', { prNumber: 123, owner: 'user', repo: 'test-repo' });
+
+        expect(spy).toHaveBeenCalledWith('PR #123 を分析中（user/test-repo）');
+      });
+
+      it('should fallback to key when i18n not initialized', () => {
+        // i18n未初期化のまま呼び出し
+        const spy = vi.mocked(core.info);
+
+        logInfoI18n('initialization.starting');
+
+        expect(spy).toHaveBeenCalledWith('initialization.starting');
+      });
+    });
+
+    describe('logWarningI18n', () => {
+      it('should translate warning message in English', () => {
+        const config: Config = { language: 'en' } as Config;
+        initializeI18n(config);
+        changeLanguage('en');
+        const spy = vi.mocked(core.warning);
+
+        logWarningI18n('initialization.i18nFailed', { message: 'Invalid JSON' });
+
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('Failed to initialize i18n'));
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON'));
+      });
+
+      it('should translate warning message in Japanese', () => {
+        const config: Config = { language: 'ja' } as Config;
+        initializeI18n(config);
+        changeLanguage('ja');
+        const spy = vi.mocked(core.warning);
+
+        logWarningI18n('initialization.i18nFailed', { message: 'Invalid JSON' });
+
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('i18nの初期化に失敗しました'));
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON'));
+      });
+
+      it('should fallback when i18n not initialized', () => {
+        const spy = vi.mocked(core.warning);
+
+        logWarningI18n('initialization.i18nFailed');
+
+        expect(spy).toHaveBeenCalledWith('initialization.i18nFailed');
+      });
+    });
+
+    describe('logErrorI18n', () => {
+      it('should translate error message in English', () => {
+        const config: Config = { language: 'en' } as Config;
+        initializeI18n(config);
+        changeLanguage('en');
+        const spy = vi.mocked(core.error);
+
+        logErrorI18n('completion.failed', { message: 'Network error' });
+
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('Action failed'));
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('Network error'));
+      });
+
+      it('should translate error message in Japanese', () => {
+        const config: Config = { language: 'ja' } as Config;
+        initializeI18n(config);
+        changeLanguage('ja');
+        const spy = vi.mocked(core.error);
+
+        logErrorI18n('completion.failed', { message: 'Network error' });
+
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('アクションが失敗しました'));
+        expect(spy).toHaveBeenCalledWith(expect.stringContaining('Network error'));
+      });
+
+      it('should fallback when i18n not initialized', () => {
+        const spy = vi.mocked(core.error);
+
+        logErrorI18n('completion.failed');
+
+        expect(spy).toHaveBeenCalledWith('completion.failed');
+      });
+    });
+
+    describe('logDebugI18n', () => {
+      it('should translate debug message in English', () => {
+        const config: Config = { language: 'en' } as Config;
+        initializeI18n(config);
+        changeLanguage('en');
+        const spy = vi.mocked(core.debug);
+
+        logDebugI18n('analysis.gettingDiff');
+
+        expect(spy).toHaveBeenCalledWith('Getting PR diff files...');
+      });
+
+      it('should translate debug message in Japanese', () => {
+        const config: Config = { language: 'ja' } as Config;
+        initializeI18n(config);
+        changeLanguage('ja');
+        const spy = vi.mocked(core.debug);
+
+        logDebugI18n('analysis.gettingDiff');
+
+        expect(spy).toHaveBeenCalledWith('PR差分ファイルを取得中...');
+      });
+
+      it('should fallback when i18n not initialized', () => {
+        const spy = vi.mocked(core.debug);
+
+        logDebugI18n('analysis.gettingDiff');
+
+        expect(spy).toHaveBeenCalledWith('analysis.gettingDiff');
+      });
+    });
+
+    describe('Technical Details Preservation', () => {
+      it('should preserve filename in translated messages', () => {
+        const config: Config = { language: 'ja' } as Config;
+        initializeI18n(config);
+        changeLanguage('ja');
+
+        // i18n初期化ログをクリア
+        vi.clearAllMocks();
+        const spy = vi.mocked(core.info);
+
+        logInfoI18n('analysis.retrievedFiles', { count: 5, strategy: 'api' });
+
+        const message = spy.mock.calls[0][0] as string;
+        expect(message).toContain('5');
+        expect(message).toContain('api');
+      });
+
+      it('should preserve error messages in original form', () => {
+        const config: Config = { language: 'ja' } as Config;
+        initializeI18n(config);
+        changeLanguage('ja');
+
+        // i18n初期化ログをクリア
+        vi.clearAllMocks();
+        const spy = vi.mocked(core.warning);
+
+        const errorMessage = 'File not found: /path/to/file.ts';
+        logWarningI18n('initialization.i18nFailed', { message: errorMessage });
+
+        const message = spy.mock.calls[0][0] as string;
+        expect(message).toContain(errorMessage); // エラーメッセージはそのまま保持
+      });
     });
   });
 });

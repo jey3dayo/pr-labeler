@@ -284,6 +284,121 @@ PR Labelerの詳細なAPI仕様書です。
 
 ---
 
+### 🌐 多言語設定パラメータ
+
+#### `language`（設定ファイル: `.github/pr-labeler.yml`）
+
+- **型**: `string`
+- **必須**: ❌
+- **デフォルト**: なし（環境変数または `'en'` が使用される）
+- **説明**: 出力メッセージ、エラーメッセージ、ログ、PRコメントの言語設定
+- **サポート言語**: `"en"` (English), `"ja"` (日本語)
+- **優先順位**:
+  1. `LANGUAGE` 環境変数
+  2. `LANG` 環境変数
+  3. `.github/pr-labeler.yml` の `language` フィールド
+  4. デフォルト: `'en'` (English)
+- **使用例**:
+
+  ```yaml
+  # .github/pr-labeler.yml
+  language: ja  # 日本語で出力
+
+  size:
+    thresholds:
+      small: 100
+      medium: 500
+      large: 1000
+  ```
+
+  または環境変数で指定:
+
+  ```yaml
+  # .github/workflows/pr-check.yml
+  - uses: jey3dayo/pr-labeler@v1
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+    env:
+      LANGUAGE: ja  # 日本語で出力
+  ```
+
+- **動作**:
+  - GitHub Actions Summary、エラーメッセージ、ログ、PRコメントが指定した言語で出力されます
+  - GitHub API呼び出し時のラベル名（`label` フィールド）は常に英語のまま使用されます
+  - カスタムラベル表示名は `display_name` で多言語対応できます
+
+#### `display_name`（カテゴリ設定の多言語表示名）
+
+- **型**: `object`
+- **必須**: ❌
+- **説明**: カテゴリラベルの多言語表示名
+- **構造**:
+
+  ```typescript
+  {
+    en: string;  // 英語表示名
+    ja: string;  // 日本語表示名
+  }
+  ```
+
+- **優先順位**:
+  1. `.github/pr-labeler.yml` の `display_name`（カスタム翻訳）
+  2. 組み込みの翻訳リソース（`labels` 名前空間）
+  3. ラベル名そのまま
+
+- **使用例**:
+
+  ```yaml
+  # .github/pr-labeler.yml
+  language: ja
+
+  categories:
+    - label: 'category/tests'
+      patterns:
+        - '__tests__/**'
+        - '**/*.test.ts'
+      display_name:
+        en: 'Test Files'
+        ja: 'テストファイル'
+
+    - label: 'category/docs'
+      patterns:
+        - 'docs/**'
+        - '**/*.md'
+      display_name:
+        en: 'Documentation'
+        ja: 'ドキュメント'
+  ```
+
+- **動作**:
+  - GitHub Actions SummaryやPRコメントで、現在の言語に応じた表示名が使用されます
+  - 例: `language: ja` の場合、「テストファイル」と表示されます
+  - GitHub APIでは常に英語のラベル名（`label: 'category/tests'`）が使用されます
+
+- **バリデーション**:
+  - `display_name` が設定される場合、`en` と `ja` の両方が必須です
+  - どちらか一方のみの設定はエラーになります
+
+  ```yaml
+  # ❌ エラー: ja が欠けている
+  categories:
+    - label: 'category/tests'
+      patterns: ['**/*.test.ts']
+      display_name:
+        en: 'Tests'
+        # ja がない！
+
+  # ✅ 正しい設定
+  categories:
+    - label: 'category/tests'
+      patterns: ['**/*.test.ts']
+      display_name:
+        en: 'Tests'
+        ja: 'テスト'
+  ```
+
+---
+
 ## 📤 Outputs
 
 ### `large_files`
@@ -664,8 +779,571 @@ permissions:
 
 ---
 
+## 🌍 エラーファクトリーの多言語化 (i18n Integration)
+
+### 概要
+
+全てのエラーファクトリー関数は、i18nextベースの翻訳システムと統合されています。エラーメッセージは、ユーザーが設定した言語（英語または日本語）に応じて自動的に翻訳されます。
+
+### サポートする言語
+
+- `en` (English) - デフォルト
+- `ja` (日本語)
+
+### エラーファクトリー関数の基本シグネチャ
+
+全てのエラーファクトリー関数は、以下のパターンに従います:
+
+```typescript
+createXxxError(
+  ...requiredParams: T[],
+  customMessage?: string  // オプション: カスタムメッセージ
+): XxxError
+```
+
+### 翻訳統合の仕組み
+
+#### 1. デフォルト動作（翻訳キーを使用）
+
+```typescript
+// 英語環境 (language: 'en')
+const error = createConfigurationError('language', 'invalid');
+// => message: "Invalid configuration field: language"
+
+// 日本語環境 (language: 'ja')
+const error = createConfigurationError('language', 'invalid');
+// => message: "設定フィールドが無効です: language"
+```
+
+#### 2. カスタムメッセージ（翻訳をバイパス）
+
+```typescript
+// 任意の言語環境
+const error = createConfigurationError('field', 'value', 'Custom error message');
+// => message: "Custom error message" (翻訳されない)
+```
+
+### エラーファクトリー関数リファレンス
+
+#### createConfigurationError
+
+設定パラメータの検証エラー
+
+```typescript
+createConfigurationError(
+  field: string,
+  value: unknown,
+  customMessage?: string
+): ConfigurationError
+```
+
+**翻訳キー**: `errors.configuration.invalidField`
+
+**パラメータ**:
+
+- `field`: 設定フィールド名（例: `"language"`, `"file_size_limit"`）
+- `value`: 不正な値（デバッグ用、エラーオブジェクトに保持）
+- `customMessage`: オプション - カスタムエラーメッセージ
+
+**例**:
+
+```typescript
+// 翻訳版 (EN: "Invalid configuration field: file_size_limit")
+const error = createConfigurationError('file_size_limit', '10KB 20MB');
+
+// 翻訳版 (JA: "設定フィールドが無効です: file_size_limit")
+initializeI18n({ language: 'ja' } as Config);
+const errorJa = createConfigurationError('file_size_limit', '10KB 20MB');
+
+// カスタムメッセージ版
+const errorCustom = createConfigurationError(
+  'file_size_limit',
+  '10KB 20MB',
+  'Multiple units detected. Use single value like "10KB" or "20MB"'
+);
+```
+
+#### createGitHubAPIError
+
+GitHub API呼び出しエラー
+
+```typescript
+createGitHubAPIError(
+  message: string,
+  status?: number
+): GitHubAPIError
+```
+
+**翻訳キー**: `errors.github.apiError`
+
+**パラメータ**:
+
+- `message`: エラーの詳細メッセージ（APIレスポンスから取得）
+- `status`: オプション - HTTPステータスコード
+
+**例**:
+
+```typescript
+// EN: "GitHub API error: API request failed"
+const error = createGitHubAPIError('API request failed', 404);
+
+// JA: "GitHub APIエラー: APIリクエストが失敗しました"
+initializeI18n({ language: 'ja' } as Config);
+const errorJa = createGitHubAPIError('APIリクエストが失敗しました', 404);
+```
+
+#### createFileSystemError
+
+ファイルシステム操作エラー
+
+```typescript
+createFileSystemError(
+  path: string,
+  operation?: 'read' | 'write' | 'notFound' | 'permission',
+  customMessage?: string
+): FileSystemError
+```
+
+**翻訳キー**:
+
+- `errors.fileSystem.readError` - ファイル読み込みエラー
+- `errors.fileSystem.writeError` - ファイル書き込みエラー
+- `errors.fileSystem.fileNotFound` - ファイル未検出
+- `errors.fileSystem.permissionDenied` - 権限エラー
+
+**パラメータ**:
+
+- `path`: ファイルパス（技術詳細として保持）
+- `operation`: オプション - 操作種別（デフォルト: `'read'`）
+- `customMessage`: オプション - カスタムエラーメッセージ
+
+**例**:
+
+```typescript
+// EN: "Failed to read file: /path/to/file"
+const error = createFileSystemError('/path/to/file', 'read');
+
+// JA: "ファイルの読み込みに失敗しました: /path/to/file"
+initializeI18n({ language: 'ja' } as Config);
+const errorJa = createFileSystemError('/path/to/file', 'read');
+
+// EN: "File not found: /missing.ts"
+const errorNotFound = createFileSystemError('/missing.ts', 'notFound');
+```
+
+#### createParseError
+
+JSON解析・検証エラー
+
+```typescript
+createParseError(
+  input: string,
+  customMessage?: string
+): ParseError
+```
+
+**翻訳キー**: `errors.parsing.invalidFormat`
+
+**パラメータ**:
+
+- `input`: 不正な入力文字列（技術詳細として保持）
+- `customMessage`: オプション - カスタムエラーメッセージ
+
+**例**:
+
+```typescript
+// EN: "Invalid format: 100XYZ"
+const error = createParseError('100XYZ');
+
+// JA: "無効な形式: 100XYZ"
+initializeI18n({ language: 'ja' } as Config);
+const errorJa = createParseError('100XYZ');
+
+// カスタムメッセージ（JSONパースエラー用）
+const errorCustom = createParseError(
+  '{"invalid": json}',
+  'Invalid JSON for size thresholds'
+);
+```
+
+#### createFileAnalysisError
+
+ファイル分析エラー（非致命的）
+
+```typescript
+createFileAnalysisError(file: string): FileAnalysisError
+```
+
+**翻訳キー**: `errors.analysis.fileAnalysisError`
+
+**パラメータ**:
+
+- `file`: ファイルパス
+
+**例**:
+
+```typescript
+// EN: "Failed to analyze file: src/test.ts"
+const error = createFileAnalysisError('src/test.ts');
+
+// JA: "ファイルの分析に失敗しました: src/test.ts"
+initializeI18n({ language: 'ja' } as Config);
+const errorJa = createFileAnalysisError('src/test.ts');
+```
+
+#### createDiffError
+
+Diff取得エラー
+
+```typescript
+createDiffError(
+  source: 'local-git' | 'github-api',
+  customMessage?: string
+): DiffError
+```
+
+**翻訳キー**: `errors.analysis.diffError`
+
+**例**:
+
+```typescript
+// EN: "Failed to get diff: git command failed"
+const error = createDiffError('local-git', 'git command failed');
+
+// JA: "差分の取得に失敗しました: gitコマンドが失敗しました"
+initializeI18n({ language: 'ja' } as Config);
+const errorJa = createDiffError('local-git', 'gitコマンドが失敗しました');
+```
+
+#### createPatternError
+
+パターンマッチングエラー
+
+```typescript
+createPatternError(pattern: string): PatternError
+```
+
+**翻訳キー**: `errors.pattern.invalidPattern`
+
+**例**:
+
+```typescript
+// EN: "Invalid pattern: *.invalid"
+const error = createPatternError('*.invalid');
+
+// JA: "無効なパターン: *.invalid"
+initializeI18n({ language: 'ja' } as Config);
+const errorJa = createPatternError('*.invalid');
+```
+
+#### その他のエラーファクトリー
+
+- `createCacheError(key: string)` - キャッシュエラー
+- `createComplexityAnalysisError(reason, context)` - 複雑度分析エラー
+- `createPermissionError(required: string)` - 権限エラー
+- `createRateLimitError(retryAfter: number)` - レート制限エラー
+- `createUnexpectedError(originalError: Error)` - 予期しないエラー
+- `createViolationError(violations)` - 制限違反エラー
+
+詳細は `src/errors/factories.ts` を参照してください。
+
+### 技術詳細の保持
+
+翻訳されたエラーメッセージでも、以下の技術詳細は**変更されずに保持**されます:
+
+```typescript
+// ファイルパスの保持
+const error = createFileSystemError('/path/to/file', 'read');
+// error.path === '/path/to/file' (変更されない)
+// error.message に "/path/to/file" が含まれる
+
+// HTTPステータスコードの保持
+const error2 = createGitHubAPIError('API error', 401);
+// error2.status === 401 (変更されない)
+
+// パターン文字列の保持
+const error3 = createPatternError('**/*.test.ts');
+// error3.pattern === '**/*.test.ts' (変更されない)
+// error3.message に "**/*.test.ts" が含まれる
+```
+
+### 翻訳リソースの構造
+
+#### ファイル構成
+
+```
+src/locales/
+├── en/
+│   ├── errors.json    # エラーメッセージ (英語)
+│   ├── logs.json      # ログメッセージ (英語)
+│   └── summary.json   # サマリーメッセージ (英語)
+└── ja/
+    ├── errors.json    # エラーメッセージ (日本語)
+    ├── logs.json      # ログメッセージ (日本語)
+    └── summary.json   # サマリーメッセージ (日本語)
+```
+
+#### errors.json の構造
+
+```json
+{
+  "configuration": {
+    "invalidLanguage": "Invalid language code: {{code}}. Falling back to English.",
+    "invalidField": "Invalid configuration field: {{field}}",
+    "parsingFailed": "Failed to parse configuration: {{message}}",
+    "invalidValue": "Invalid value for {{field}}: {{value}}"
+  },
+  "github": {
+    "apiError": "GitHub API error: {{message}}",
+    "rateLimitExceeded": "Rate limit exceeded. Retry after: {{resetTime}}",
+    "authenticationFailed": "Authentication failed. Check GITHUB_TOKEN.",
+    "notFound": "Resource not found: {{resource}}",
+    "permissionDenied": "Permission denied: {{operation}}"
+  },
+  "fileSystem": {
+    "fileNotFound": "File not found: {{path}}",
+    "readError": "Failed to read file: {{path}}",
+    "writeError": "Failed to write file: {{path}}",
+    "permissionDenied": "Permission denied: {{path}}"
+  },
+  // ... その他のカテゴリ
+}
+```
+
+### 新しいエラーの追加方法
+
+#### ステップ1: 翻訳リソースにキーを追加
+
+`src/locales/en/errors.json` と `src/locales/ja/errors.json` の両方にキーを追加:
+
+```json
+// src/locales/en/errors.json
+{
+  "myCategory": {
+    "myNewError": "My new error message: {{detail}}"
+  }
+}
+```
+
+```json
+// src/locales/ja/errors.json
+{
+  "myCategory": {
+    "myNewError": "新しいエラーメッセージ: {{detail}}"
+  }
+}
+```
+
+#### ステップ2: エラー型定義を追加
+
+`src/errors/types.ts` にエラー型を定義:
+
+```typescript
+export type MyNewError = {
+  type: 'MyNewError';
+  message: string;
+  detail: string;
+};
+```
+
+#### ステップ3: エラーファクトリー関数を実装
+
+`src/errors/factories.ts` にファクトリー関数を追加:
+
+```typescript
+export const createMyNewError = (detail: string, customMessage?: string): MyNewError => ({
+  type: 'MyNewError',
+  message: customMessage || t('errors', 'myCategory.myNewError', { detail }),
+  detail,
+});
+```
+
+#### ステップ4: テストを追加
+
+`__tests__/error-factories-i18n.test.ts` にテストを追加:
+
+```typescript
+describe('MyNewError', () => {
+  it('should return English message', () => {
+    initializeI18n({ language: 'en' } as Config);
+    const error = createMyNewError('test detail');
+    expect(error.message).toContain('My new error message');
+    expect(error.message).toContain('test detail');
+  });
+
+  it('should return Japanese message', () => {
+    initializeI18n({ language: 'ja' } as Config);
+    const error = createMyNewError('テスト詳細');
+    expect(error.message).toContain('新しいエラーメッセージ');
+    expect(error.message).toContain('テスト詳細');
+  });
+});
+```
+
+#### ステップ5: 型定義の再生成
+
+```bash
+pnpm build
+```
+
+これにより、`scripts/generate-i18n-types.ts` が実行され、翻訳キーの型定義が自動生成されます。
+
+### 既存コードの移行ガイド
+
+#### 移行前（ハードコードされたメッセージ）
+
+```typescript
+throw createConfigurationError('field', value, 'Hard-coded English message');
+```
+
+#### 移行後（翻訳キー使用）
+
+```typescript
+// カスタムメッセージを削除し、翻訳キーに依存
+throw createConfigurationError('field', value);
+```
+
+#### 移行チェックリスト
+
+- [ ] 翻訳リソース（`src/locales/*/errors.json`）に対応するキーが存在するか確認
+- [ ] カスタムメッセージが必要な場合のみ、`customMessage` パラメータを使用
+- [ ] テストで両言語（英語・日本語）の出力を確認
+- [ ] 技術詳細（ファイルパス、エラーコード等）が適切に保持されているか確認
+
+#### カスタムメッセージが必要なケース
+
+以下の場合は、`customMessage` パラメータを使用してください:
+
+1. **詳細な技術情報を含むエラー**:
+
+   ```typescript
+   createConfigurationError(
+     'file_size_limit',
+     '10KB 20MB',
+     'Multiple units detected. Use single value like "10KB" or "20MB"'
+   );
+   ```
+
+2. **動的な翻訳が不可能な場合**:
+
+   ```typescript
+   const errorDetails = generateComplexErrorMessage();
+   createParseError(input, errorDetails);
+   ```
+
+3. **翻訳リソースに未登録のエラー**（一時的な対応）:
+
+   ```typescript
+   createConfigurationError('newField', value, 'Temporary error message');
+   // TODO: 翻訳リソースに登録後、customMessage を削除
+   ```
+
+### ベストプラクティス
+
+#### 1. 翻訳キーの命名規則
+
+- **名前空間**: `errors`, `logs`, `summary` を使用
+- **カテゴリ分け**: 関連するエラーをカテゴリでグループ化
+  - `configuration.*` - 設定エラー
+  - `github.*` - GitHub APIエラー
+  - `fileSystem.*` - ファイルシステムエラー
+  - `parsing.*` - パースエラー
+  - `analysis.*` - 分析エラー
+  - `pattern.*` - パターンマッチングエラー
+  - `violation.*` - 制限違反エラー
+- **変数補間**: `{{variable}}` 形式を使用
+
+#### 2. 技術詳細の扱い
+
+- **翻訳しない**: ファイルパス、エラーコード、HTTPステータスコード
+- **変数補間で保持**: `{{path}}`, `{{code}}`, `{{message}}` などを使用
+- **エラーオブジェクトに保持**: `error.path`, `error.status` などのプロパティに格納
+
+#### 3. テストパターン
+
+```typescript
+describe('Error Factory i18n', () => {
+  // 英語テスト
+  it('should return English message', () => {
+    initializeI18n({ language: 'en' } as Config);
+    const error = createXxxError(...);
+    expect(error.message).toContain('Expected English text');
+  });
+
+  // 日本語テスト
+  it('should return Japanese message', () => {
+    initializeI18n({ language: 'ja' } as Config);
+    const error = createXxxError(...);
+    expect(error.message).toContain('期待される日本語テキスト');
+  });
+
+  // 技術詳細保持テスト
+  it('should preserve technical details', () => {
+    const error = createXxxError('/path/to/file');
+    expect(error.path).toBe('/path/to/file');
+    expect(error.message).toContain('/path/to/file');
+  });
+});
+```
+
+#### 4. 後方互換性
+
+- 既存のエラーファクトリー関数は、`customMessage` パラメータをサポート
+- `customMessage` を渡すと、翻訳をバイパスしてカスタムメッセージを使用
+- 既存コードは変更なしで動作（破壊的変更なし）
+
+### よくある質問 (FAQ)
+
+#### Q1: カスタムメッセージと翻訳キーの使い分けは？
+
+**A**: 基本的には翻訳キーを使用し、以下の場合のみカスタムメッセージを使用します:
+
+- 詳細な技術情報を含むエラー（翻訳リソースに収まらない）
+- 動的に生成されるエラーメッセージ
+- 一時的な対応（翻訳リソース登録前）
+
+#### Q2: 翻訳リソースに新しいキーを追加した後、型エラーが出る
+
+**A**: `pnpm build` を実行して型定義を再生成してください。`scripts/generate-i18n-types.ts` が自動的に型定義を更新します。
+
+#### Q3: 既存のエラーメッセージを翻訳対応にするには？
+
+**A**: 移行チェックリストに従って以下を実施:
+
+1. 翻訳リソースにキーを追加
+2. `customMessage` パラメータを削除
+3. テストで両言語の出力を確認
+
+#### Q4: 英語と日本語以外の言語をサポートしたい
+
+**A**: 現在は `en` と `ja` のみサポートしています。他の言語を追加するには:
+
+1. `src/locales/{lang}/` ディレクトリを追加
+2. `src/types/i18n.d.ts` の `LanguageCode` に言語コードを追加
+3. `src/i18n.ts` の `normalizeLanguageCode` 関数を更新
+
+#### Q5: エラーメッセージに複数の変数を含めたい
+
+**A**: 翻訳リソースで複数の変数を定義できます:
+
+```json
+{
+  "myError": "Error in {{file}} at line {{line}}: {{message}}"
+}
+```
+
+```typescript
+t('errors', 'myError', { file: 'test.ts', line: 42, message: 'syntax error' });
+// => "Error in test.ts at line 42: syntax error"
+```
+
+---
+
 ## 📚 関連ドキュメント
 
 - [README.md](../README.md) - 基本的な使用方法
 - [action.yml](../action.yml) - アクション定義
 - [pattern-matcher.ts](../src/pattern-matcher.ts) - デフォルト除外パターン一覧
+- [src/errors/factories.ts](../src/errors/factories.ts) - エラーファクトリー実装
+- [src/locales/](../src/locales/) - 翻訳リソース
+- [**tests**/error-factories-i18n.test.ts](../__tests__/error-factories-i18n.test.ts) - i18nテスト

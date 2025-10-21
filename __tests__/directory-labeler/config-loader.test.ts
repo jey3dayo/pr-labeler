@@ -13,12 +13,30 @@ import {
   validateDirectoryLabelerConfig,
 } from '../../src/directory-labeler/config-loader.js';
 import type { DirectoryLabelerConfig } from '../../src/directory-labeler/types.js';
+import { initializeI18n, resetI18n } from '../../src/i18n.js';
 
 describe('Directory-Based Labeler: Config Loader', () => {
   let tempDir: string;
   let configPath: string;
 
   beforeEach(() => {
+    // Initialize i18n with English
+    const originalLang = process.env['LANG'];
+    const originalLanguage = process.env['LANGUAGE'];
+    delete process.env['LANG'];
+    delete process.env['LANGUAGE'];
+
+    resetI18n();
+    initializeI18n({ language: 'en' } as any);
+
+    // Restore original environment variables
+    if (originalLang) {
+      process.env['LANG'] = originalLang;
+    }
+    if (originalLanguage) {
+      process.env['LANGUAGE'] = originalLanguage;
+    }
+
     // テスト用の一時ディレクトリを作成
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dir-labeler-test-'));
     configPath = path.join(tempDir, 'directory-labeler.yml');
@@ -66,7 +84,7 @@ rules:
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
         expect(result.error.type).toBe('FileSystemError');
-        expect(result.error.message).toContain('not found');
+        expect(result.error.message).toContain('File not found');
       }
     });
 

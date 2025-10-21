@@ -1,7 +1,8 @@
 /**
- * Error factory functions for creating typed error objects
+ * Error factory functions for creating typed error objects with i18n support
  */
 
+import { t } from '../i18n.js';
 import type {
   CacheError,
   ComplexityAnalysisError,
@@ -38,63 +39,169 @@ function withOptionalField<T extends object, K extends keyof T>(base: T, key: K,
 // Core Error Factories
 // ============================================================================
 
-export const createFileAnalysisError = (file: string, message: string): FileAnalysisError => ({
+/**
+ * ファイル分析エラーを作成
+ *
+ * @param file - エラーが発生したファイルパス
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns FileAnalysisError
+ */
+export const createFileAnalysisError = (file: string, customMessage?: string): FileAnalysisError => ({
   type: 'FileAnalysisError',
   file,
-  message,
+  message: customMessage || t('errors', 'analysis.fileAnalysisError', { file }),
 });
 
+/**
+ * GitHub APIエラーを作成
+ *
+ * @param message - 詳細なエラーメッセージ
+ * @param status - HTTPステータスコード(オプション)
+ * @returns GitHubAPIError
+ */
 export const createGitHubAPIError = (message: string, status?: number): GitHubAPIError => {
-  const error: GitHubAPIError = { type: 'GitHubAPIError', message };
+  const translatedMessage = t('errors', 'github.apiError', { message });
+  const error: GitHubAPIError = { type: 'GitHubAPIError', message: translatedMessage };
   return withOptionalField(error, 'status', status);
 };
 
-export const createConfigurationError = (field: string, value: unknown, message: string): ConfigurationError => ({
+/**
+ * 設定エラーを作成
+ *
+ * @param field - エラーが発生した設定フィールド
+ * @param value - 無効な値
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns ConfigurationError
+ */
+export const createConfigurationError = (
+  field: string,
+  value: unknown,
+  customMessage?: string,
+): ConfigurationError => ({
   type: 'ConfigurationError',
   field,
   value,
-  message,
+  message: customMessage || t('errors', 'configuration.invalidField', { field }),
 });
 
-export const createParseError = (input: string, message: string): ParseError => ({
+/**
+ * パースエラーを作成
+ *
+ * @param input - パースに失敗した入力
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns ParseError
+ */
+export const createParseError = (input: string, customMessage?: string): ParseError => ({
   type: 'ParseError',
   input,
-  message,
+  message: customMessage || t('errors', 'parsing.invalidFormat', { input }),
 });
 
-export const createFileSystemError = (message: string, path?: string): FileSystemError => {
-  const error: FileSystemError = { type: 'FileSystemError', message };
-  return withOptionalField(error, 'path', path);
+/**
+ * ファイルシステムエラーを作成
+ *
+ * @param path - エラーが発生したファイルパス
+ * @param operation - 実行しようとした操作（'read' | 'write' | 'notFound' | 'permission'）
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns FileSystemError
+ */
+export const createFileSystemError = (
+  path: string,
+  operation?: 'read' | 'write' | 'notFound' | 'permission',
+  customMessage?: string,
+): FileSystemError => {
+  let message: string;
+  if (customMessage) {
+    message = customMessage;
+  } else if (operation) {
+    const keyMap = {
+      read: 'fileSystem.readError',
+      write: 'fileSystem.writeError',
+      notFound: 'fileSystem.fileNotFound',
+      permission: 'fileSystem.permissionDenied',
+    } as const;
+    message = t('errors', keyMap[operation], { path });
+  } else {
+    message = t('errors', 'fileSystem.readError', { path });
+  }
+
+  return { type: 'FileSystemError', message, path };
 };
 
-export const createViolationError = (violations: Violations, message: string): ViolationError => ({
+/**
+ * 違反エラーを作成
+ *
+ * @param violations - 違反情報
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns ViolationError
+ */
+export const createViolationError = (violations: Violations, customMessage?: string): ViolationError => ({
   type: 'ViolationError',
   violations,
-  message,
+  message: customMessage || t('errors', 'violation.prSizeExceeded'),
 });
 
-export const createDiffError = (source: 'local-git' | 'github-api' | 'both', message: string): DiffError => ({
+/**
+ * Diff取得エラーを作成
+ *
+ * @param source - エラーソース
+ * @param details - 詳細なエラー情報
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns DiffError
+ */
+export const createDiffError = (
+  source: 'local-git' | 'github-api' | 'both',
+  details?: string,
+  customMessage?: string,
+): DiffError => ({
   type: 'DiffError',
   source,
-  message,
+  message: customMessage || t('errors', 'analysis.diffError', { message: details || 'unknown error' }),
 });
 
-export const createPatternError = (pattern: string, message: string): PatternError => ({
+/**
+ * パターンエラーを作成
+ *
+ * @param pattern - エラーが発生したパターン
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns PatternError
+ */
+export const createPatternError = (pattern: string, customMessage?: string): PatternError => ({
   type: 'PatternError',
   pattern,
-  message,
+  message: customMessage || t('errors', 'pattern.invalidPattern', { pattern }),
 });
 
-export const createCacheError = (message: string, key?: string): CacheError => {
+/**
+ * キャッシュエラーを作成
+ *
+ * @param key - キャッシュキー(オプション)
+ * @param details - 詳細なエラー情報(オプション)
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns CacheError
+ */
+export const createCacheError = (key?: string, details?: string, customMessage?: string): CacheError => {
+  const message = customMessage || t('errors', 'analysis.cacheError', { message: details || 'cache operation failed' });
   const error: CacheError = { type: 'CacheError', message };
   return withOptionalField(error, 'key', key);
 };
 
+/**
+ * 複雑度分析エラーを作成
+ *
+ * @param reason - エラー理由
+ * @param options - 詳細情報(オプション)
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns ComplexityAnalysisError
+ */
 export const createComplexityAnalysisError = (
   reason: ComplexityAnalysisError['reason'],
-  message: string,
   options?: Partial<Pick<ComplexityAnalysisError, 'filename' | 'details' | 'fileSize' | 'maxSize' | 'timeoutSeconds'>>,
+  customMessage?: string,
 ): ComplexityAnalysisError => {
+  const message =
+    customMessage || t('errors', 'analysis.complexityAnalysisError', { message: options?.details || reason });
+
   const error: ComplexityAnalysisError = {
     type: 'ComplexityAnalysisError',
     reason,
@@ -122,18 +229,43 @@ export const createComplexityAnalysisError = (
 // Directory-Based Labeler: Error Factories
 // ============================================================================
 
-export const createPermissionError = (required: string, message: string): PermissionError => ({
+/**
+ * 権限エラーを作成
+ *
+ * @param required - 必要な権限
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns PermissionError
+ */
+export const createPermissionError = (required: string, customMessage?: string): PermissionError => ({
   type: 'PermissionError',
   required,
-  message,
+  message: customMessage || t('errors', 'github.permissionDenied', { operation: required }),
 });
 
-export const createRateLimitError = (message: string, retryAfter?: number): RateLimitError => {
+/**
+ * レート制限エラーを作成
+ *
+ * @param retryAfter - 再試行までの秒数(オプション)
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns RateLimitError
+ */
+export const createRateLimitError = (retryAfter?: number, customMessage?: string): RateLimitError => {
+  const resetTime = retryAfter ? new Date(Date.now() + retryAfter * 1000).toISOString() : 'unknown';
+  const message = customMessage || t('errors', 'github.rateLimitExceeded', { resetTime });
   const error: RateLimitError = { type: 'RateLimitError', message };
   return withOptionalField(error, 'retryAfter', retryAfter);
 };
 
-export const createUnexpectedError = (message: string, originalError?: unknown): UnexpectedError => {
+/**
+ * 予期しないエラーを作成
+ *
+ * @param originalError - 元のエラー(オプション)
+ * @param customMessage - カスタムエラーメッセージ(オプション、後方互換性のため)
+ * @returns UnexpectedError
+ */
+export const createUnexpectedError = (originalError?: unknown, customMessage?: string): UnexpectedError => {
+  const details = originalError instanceof Error ? originalError.message : String(originalError || 'unknown error');
+  const message = customMessage || `Unexpected error occurred: ${details}`;
   const error: UnexpectedError = { type: 'UnexpectedError', message };
   return withOptionalField(error, 'originalError', originalError);
 };

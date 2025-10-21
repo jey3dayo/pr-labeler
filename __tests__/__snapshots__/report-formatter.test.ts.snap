@@ -1,0 +1,211 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > basic-metrics-en 1`] = `
+"### 📊 Basic Metrics
+
+- Total Additions: **500**
+- Total Files Changed: **1**
+- Excluded Files: **2**
+- Binary files skipped: **2**
+- Analysis Time: 2025-10-18T15:30:00.000Z
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > best-practices-en 1`] = `
+"### 📚 Best Practices
+
+#### Recommended PR Size
+- ✅ **Recommended: Under 400 lines**
+  - Review time: 15-30 minutes
+  - Bug detection rate: High
+- ⚠️ **Acceptable: 400-1000 lines**
+  - Review time: 1-2 hours
+  - Incremental review recommended
+- 🚫 **Avoid: Over 1000 lines**
+  - Review efficiency significantly decreases
+  - Higher risk of missing bugs
+
+#### File Size Guidelines
+- Aim for under 500 lines per file
+- For complex files, under 300 lines is ideal
+
+#### Review Efficiency Tips
+- Smaller PRs merge faster and reduce CI/CD load
+- Large PRs tend to require multiple review rounds
+- Group related changes together to minimize context switching
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > complexity-summary-en 1`] = `
+"## 📊 Code Complexity Analysis
+
+| Metrics | Value |
+|-----------|-----|
+| Maximum Complexity | 15 |
+| Average Complexity | 5.2 |
+| Analyzed Files | 15 |
+
+### High Complexity Files (Top 10)
+
+- [src/complex.ts](https://github.com/test/repo/blob/abc123def456/src/complex.ts): 15 (medium)
+  <details><summary>Function Complexity (Top 5)</summary>
+
+  - [processData](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L42): 15 (L42-58)
+  - [validateInput](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L120): 8 (L120-135)
+  </details>
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > file-details-en 1`] = `
+"### 📈 Top Large Files
+
+| File Name | Size | Lines | Changes |
+|------|------|-------|----------|
+| src/example.ts | 50 KB | 450 | +120/-30 |
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > improvement-actions-en 1`] = `
+"### 💡 Improvement Actions
+
+Here are some ways to reduce your PR size:
+
+#### 📦 PR Splitting Strategies
+- **Split by feature: Create separate PRs for independent features**
+- **Split by file groups: Group related files and merge incrementally**
+- **Separate refactoring and new features: Keep code improvements and new functionality in different PRs**
+
+#### 🔨 Large File Refactoring
+- Split functions or classes into multiple files
+- Extract common logic into separate modules
+- Organize files by layer (utils, services, components)
+
+#### 📄 Handling Generated/Lock Files
+- Exclude lock files (package-lock.json, yarn.lock) in \`.github/pr-labeler.yml\`
+- Manage build artifacts (dist/, build/) with \`.gitignore\`
+- Consider updating auto-generated code in separate PRs
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > violations-en 1`] = `
+"### 📊 Size Summary
+
+- **1 file(s) exceed size limit**
+
+### 🚫 Large Files Detected
+
+| File Name | Size | Limit | Status |
+|------|------|-------|--------|
+| src/example.ts | 50 KB | 9.8 KB | ⚠️ Warning |
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > basic-metrics-ja 1`] = `
+"### 📊 基本メトリクス
+
+- 総追加行数: **500**
+- 変更ファイル数: **1**
+- 除外ファイル数: **2**
+- バイナリファイルをスキップ: **2**
+- 分析時刻: 2025-10-18T15:30:00.000Z
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > best-practices-ja 1`] = `
+"### 📚 ベストプラクティス
+
+#### 推奨PRサイズ
+- ✅ **推奨: 400行未満**
+  - レビュー時間: 15-30分
+  - バグ検出率: 高
+- ⚠️ **許容範囲: 400-1000行**
+  - レビュー時間: 1-2時間
+  - 段階的なレビューを推奨
+- 🚫 **避けるべき: 1000行超**
+  - レビュー効率が大幅に低下
+  - バグ見逃しのリスクが高まる
+
+#### ファイルサイズガイドライン
+- 1ファイルあたり500行未満を目指す
+- 複雑なファイルの場合、300行未満が理想的
+
+#### レビュー効率向上のヒント
+- 小さなPRはマージが早く、CI/CD負荷も軽減
+- 大きなPRは複数回のレビューが必要になりがち
+- 関連する変更をまとめてコンテキスト切り替えを最小化
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > complexity-summary-ja 1`] = `
+"## 📊 コード複雑度分析
+
+| メトリクス | 値 |
+|-----------|-----|
+| 最大複雑度 | 15 |
+| 平均複雑度 | 5.2 |
+| 分析ファイル数 | 15 |
+
+### 高複雑度ファイル（上位10件）
+
+- [src/complex.ts](https://github.com/test/repo/blob/abc123def456/src/complex.ts): 15 (中)
+  <details><summary>関数別複雑度（上位5件）</summary>
+
+  - [processData](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L42): 15 (L42-58)
+  - [validateInput](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L120): 8 (L120-135)
+  </details>
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > file-details-ja 1`] = `
+"### 📈 上位の大規模ファイル
+
+| ファイル名 | サイズ | 行数 | 変更 |
+|------|------|-------|----------|
+| src/example.ts | 50 KB | 450 | +120/-30 |
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > improvement-actions-ja 1`] = `
+"### 💡 改善アクション
+
+PRサイズを削減する方法をいくつか紹介します：
+
+#### 📦 PR分割戦略
+- **機能別に分割: 独立した機能ごとに別々のPRを作成**
+- **ファイルグループ別に分割: 関連ファイルをグループ化して段階的にマージ**
+- **リファクタリングと新機能を分離: コード改善と新機能を別々のPRに分ける**
+
+#### 🔨 大規模ファイルのリファクタリング
+- 関数やクラスを複数のファイルに分割
+- 共通ロジックを別モジュールに抽出
+- レイヤー別にファイルを整理（utils、services、components）
+
+#### 📄 生成ファイル/ロックファイルの扱い
+- \`.github/pr-labeler.yml\`でロックファイル（package-lock.json、yarn.lock）を除外
+- \`.gitignore\`でビルド成果物（dist/、build/）を管理
+- 自動生成コードの更新は別PRで行うことを検討
+
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > violations-ja 1`] = `
+"### 📊 サイズサマリ
+
+- **1個のファイルがサイズ制限を超過**
+
+### 🚫 大規模ファイルを検出
+
+| ファイル名 | サイズ | 制限値 | ステータス |
+|------|------|-------|--------|
+| src/example.ts | 50 KB | 9.8 KB | ⚠️ 警告 |
+
+"
+`;

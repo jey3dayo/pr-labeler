@@ -116,6 +116,25 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
   const cfg = config as Partial<LabelerConfig>;
 
+  // Validate language field
+  if (cfg.language !== undefined) {
+    if (typeof cfg.language !== 'string') {
+      return errAsync(createConfigurationError('language', cfg.language, 'language must be a string'));
+    }
+    const lang = String(cfg.language).toLowerCase();
+    const isEn = /^en(?:[-_].+)?$/.test(lang);
+    const isJa = /^ja(?:[-_].+)?$/.test(lang);
+    if (!isEn && !isJa) {
+      return errAsync(
+        createConfigurationError(
+          'language',
+          cfg.language,
+          "language must start with 'en' or 'ja' (e.g., 'en', 'en-US', 'ja', 'ja-JP')",
+        ),
+      );
+    }
+  }
+
   // Validate size thresholds
   if (cfg.size?.thresholds) {
     const { small, medium, large, xlarge } = cfg.size.thresholds;
@@ -243,7 +262,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
         return errAsync(createConfigurationError(`categories[${i}]`, category, 'Category config must be an object'));
       }
 
-      const cat = category as { label?: unknown; patterns?: unknown };
+      const cat = category as { label?: unknown; patterns?: unknown; display_name?: unknown };
 
       if (typeof cat.label !== 'string') {
         return errAsync(
@@ -255,6 +274,41 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
         return errAsync(
           createConfigurationError(`categories[${i}].patterns`, cat.patterns, 'Category patterns must be an array'),
         );
+      }
+
+      // Validate display_name if present
+      if (cat.display_name !== undefined) {
+        if (typeof cat.display_name !== 'object' || cat.display_name === null) {
+          return errAsync(
+            createConfigurationError(
+              `categories[${i}].display_name`,
+              cat.display_name,
+              'display_name must be an object',
+            ),
+          );
+        }
+
+        const displayName = cat.display_name as { en?: unknown; ja?: unknown };
+
+        if (typeof displayName.en !== 'string') {
+          return errAsync(
+            createConfigurationError(
+              `categories[${i}].display_name.en`,
+              displayName.en,
+              'display_name.en must be a string',
+            ),
+          );
+        }
+
+        if (typeof displayName.ja !== 'string') {
+          return errAsync(
+            createConfigurationError(
+              `categories[${i}].display_name.ja`,
+              displayName.ja,
+              'display_name.ja must be a string',
+            ),
+          );
+        }
       }
 
       for (let j = 0; j < cat.patterns.length; j++) {
@@ -287,7 +341,17 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   }
 
   // Warn about unknown keys (future extension)
-  const knownKeys = ['size', 'complexity', 'categoryLabeling', 'categories', 'risk', 'exclude', 'labels', 'runtime'];
+  const knownKeys = [
+    'language',
+    'size',
+    'complexity',
+    'categoryLabeling',
+    'categories',
+    'risk',
+    'exclude',
+    'labels',
+    'runtime',
+  ];
   const unknownKeys = Object.keys(config).filter(key => !knownKeys.includes(key));
   if (unknownKeys.length > 0) {
     core.warning(`Unknown configuration keys will be ignored: ${unknownKeys.join(', ')}`);
@@ -330,6 +394,7 @@ function isValidMinimatchPattern(pattern: string): boolean {
  */
 export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerConfig {
   return {
+    ...(userConfig.language !== undefined && { language: userConfig.language }), // Preserve language if specified
     size: {
       enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
       thresholds: {

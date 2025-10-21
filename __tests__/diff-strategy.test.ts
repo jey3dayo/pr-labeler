@@ -19,6 +19,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 import { getDiffFiles } from '../src/diff-strategy';
+import { initializeI18n, resetI18n } from '../src/i18n.js';
 
 describe('DiffStrategy', () => {
   let mockExecAsync: ReturnType<typeof vi.fn>;
@@ -27,6 +28,24 @@ describe('DiffStrategy', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Initialize i18n for error factory functions with English language
+    // Override environment variables to ensure English language
+    const originalLang = process.env['LANG'];
+    const originalLanguage = process.env['LANGUAGE'];
+    delete process.env['LANG'];
+    delete process.env['LANGUAGE'];
+
+    resetI18n();
+    initializeI18n({ language: 'en' } as any);
+
+    // Restore original environment variables
+    if (originalLang) {
+      process.env['LANG'] = originalLang;
+    }
+    if (originalLanguage) {
+      process.env['LANGUAGE'] = originalLanguage;
+    }
 
     // Get the mocked execAsync function
     // promisify is already mocked to return the same function every time
@@ -195,7 +214,7 @@ describe('DiffStrategy', () => {
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
         expect(result.error.type).toBe('DiffError');
-        expect(result.error.message).toContain('Failed to get diff files');
+        expect(result.error.message).toContain('Failed to get diff');
       }
     });
 

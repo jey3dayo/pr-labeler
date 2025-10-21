@@ -1,0 +1,10 @@
+{
+  "comment": {
+    "headerViolation": "PRサイズチェック - 大規模なPRを検出",
+    "headerPassed": "PRサイズチェック合格",
+    "analysisErrors": "分析エラー",
+    "filesNotAnalyzed": "一部のファイルを分析できませんでした:",
+    "andMore": "...他{{count}}件",
+    "footer": "[PR Labeler](https://github.com/marketplace/actions/pr-labeler)により生成"
+  }
+}

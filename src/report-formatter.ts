@@ -5,7 +5,9 @@
 
 import type { Violations } from './errors/index.js';
 import type { AnalysisResult, FileMetrics } from './file-metrics';
+import { t } from './i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
+import { formatFileSize, formatNumber as formatNumberWithLocale } from './utils/formatting.js';
 
 /**
  * Summary context for generating GitHub URLs
@@ -18,24 +20,18 @@ export interface SummaryContext {
 
 /**
  * Format bytes to human-readable string
+ * @deprecated Use formatFileSize from utils/formatting.ts instead
  */
 export function formatBytes(bytes: number): string {
-  if (bytes === 0) {
-    return '0 B';
-  }
-
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  return formatFileSize(bytes);
 }
 
 /**
  * Format number with thousands separator
+ * @deprecated Use formatNumberWithLocale from utils/formatting.ts instead
  */
 export function formatNumber(num: number): string {
-  return num.toLocaleString('en-US');
+  return formatNumberWithLocale(num);
 }
 
 /**
@@ -43,6 +39,7 @@ export function formatNumber(num: number): string {
  */
 export interface FormatBasicMetricsOptions {
   includeHeader?: boolean;
+  includeTimestamp?: boolean;
 }
 
 /**
@@ -50,33 +47,35 @@ export interface FormatBasicMetricsOptions {
  * Displays PR additions, files analyzed, excluded files, and timestamp
  */
 export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?: FormatBasicMetricsOptions): string {
-  const { includeHeader = true } = options || {};
+  const { includeHeader = true, includeTimestamp = true } = options || {};
   let output = '';
 
   // Header
   if (includeHeader) {
-    output += '### 📊 Summary\n\n';
+    output += `### 📊 ${t('summary', 'basicMetrics.title')}\n\n`;
   }
 
   // Empty check
   if (metrics.totalFiles === 0) {
-    output += '**No files to analyze**\n\n';
+    output += `**${t('summary', 'fileDetails.noFiles')}**\n\n`;
     return output;
   }
 
   // Basic metrics
-  output += `- Total additions: **${formatNumber(metrics.totalAdditions)}**\n`;
-  output += `- Files analyzed: **${metrics.filesAnalyzed.length}**\n`;
-  output += `- Files excluded: **${metrics.filesExcluded.length}**\n`;
-  output += `- Binary files skipped: **${metrics.filesSkippedBinary.length}**\n`;
+  output += `- ${t('summary', 'basicMetrics.totalAdditions')}: **${formatNumber(metrics.totalAdditions)}**\n`;
+  output += `- ${t('summary', 'basicMetrics.totalFiles')}: **${metrics.filesAnalyzed.length}**\n`;
+  output += `- ${t('summary', 'basicMetrics.excludedFiles')}: **${metrics.filesExcluded.length}**\n`;
+  output += `- ${t('summary', 'basicMetrics.binaryFilesSkipped')}: **${metrics.filesSkippedBinary.length}**\n`;
 
   // Files with errors
   if (metrics.filesWithErrors.length > 0) {
-    output += `- Files with errors: **${metrics.filesWithErrors.length}** ⚠️\n`;
+    output += `- ${t('summary', 'basicMetrics.filesWithErrors')}: **${metrics.filesWithErrors.length}** ⚠️\n`;
   }
 
   // Timestamp
-  output += `- Executed at: ${new Date().toISOString()}\n`;
+  if (includeTimestamp) {
+    output += `- ${t('summary', 'basicMetrics.analysisTime')}: ${new Date().toISOString()}\n`;
+  }
   output += '\n';
 
   return output;
@@ -112,53 +111,59 @@ export function formatViolations(violations: Violations, options?: FormatViolati
 
   // No violations - success message
   if (!hasViolationsFlag) {
-    output += '**All files are within size limits** ✅\n';
+    output += `**${t('summary', 'violations.allWithinLimits')}** ✅\n`;
     output += '\n';
     return output;
   }
 
   // Size summary header
   if (includeHeader) {
-    output += '### 📊 Size Summary\n\n';
+    output += `### 📊 ${t('summary', 'violations.sizeSummary')}\n\n`;
   }
 
   // Summary list
   if (violations.largeFiles.length > 0) {
-    output += `- **${violations.largeFiles.length}** file(s) exceed size limit\n`;
+    output += `- **${t('summary', 'violations.filesExceedSize', { count: violations.largeFiles.length })}**\n`;
   }
   if (violations.exceedsFileLines.length > 0) {
-    output += `- **${violations.exceedsFileLines.length}** file(s) exceed line limit\n`;
+    output += `- **${t('summary', 'violations.filesExceedLines', { count: violations.exceedsFileLines.length })}**\n`;
   }
   if (violations.exceedsAdditions) {
-    output += '- **Total additions exceed limit**\n';
+    output += `- **${t('summary', 'violations.totalAdditionsExceed')}**\n`;
   }
   if (violations.exceedsFileCount) {
-    output += '- **File count exceeds limit**\n';
+    output += `- **${t('summary', 'violations.fileCountExceed')}**\n`;
   }
   output += '\n';
 
   // Large files detail table
   if (violations.largeFiles.length > 0) {
-    output += '### 🚫 Large Files Detected\n\n';
-    output += '| File | Size | Limit | Status |\n';
+    output += `### 🚫 ${t('summary', 'violations.largeFilesDetected')}\n\n`;
+    output += `| ${t('summary', 'fileDetails.fileName')} | ${t('summary', 'fileDetails.size')} | ${t('summary', 'fileDetails.limit')} | ${t('summary', 'fileDetails.status')} |\n`;
     output += '|------|------|-------|--------|\n';
 
     for (const violation of violations.largeFiles) {
-      const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-      output += `| ${escapeMarkdown(violation.file)} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${status} |\n`;
+      const statusText =
+        violation.severity === 'critical'
+          ? `🚫 ${t('summary', 'violations.statusCritical')}`
+          : `⚠️ ${t('summary', 'violations.statusWarning')}`;
+      output += `| ${escapeMarkdown(violation.file)} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${statusText} |\n`;
     }
     output += '\n';
   }
 
   // Files exceed line limit detail table
   if (violations.exceedsFileLines.length > 0) {
-    output += '### ⚠️ Files Exceed Line Limit\n\n';
-    output += '| File | Lines | Limit | Status |\n';
+    output += `### ⚠️ ${t('summary', 'violations.filesExceedLineLimit')}\n\n`;
+    output += `| ${t('summary', 'fileDetails.fileName')} | ${t('summary', 'fileDetails.lines')} | ${t('summary', 'fileDetails.limit')} | ${t('summary', 'fileDetails.status')} |\n`;
     output += '|------|-------|-------|--------|\n';
 
     for (const violation of violations.exceedsFileLines) {
-      const status = violation.severity === 'critical' ? '🚫 Critical' : '⚠️ Warning';
-      output += `| ${escapeMarkdown(violation.file)} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${status} |\n`;
+      const statusText =
+        violation.severity === 'critical'
+          ? `🚫 ${t('summary', 'violations.statusCritical')}`
+          : `⚠️ ${t('summary', 'violations.statusWarning')}`;
+      output += `| ${escapeMarkdown(violation.file)} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${statusText} |\n`;
     }
     output += '\n';
   }
@@ -176,8 +181,8 @@ export function formatFileDetails(files: FileMetrics[], limit?: number): string 
   }
 
   let output = '';
-  output += '### 📈 Top Large Files\n\n';
-  output += '| File | Size | Lines | Changes |\n';
+  output += `### 📈 ${t('summary', 'fileDetails.topLargeFiles')}\n\n`;
+  output += `| ${t('summary', 'fileDetails.fileName')} | ${t('summary', 'fileDetails.size')} | ${t('summary', 'fileDetails.lines')} | ${t('summary', 'fileDetails.changes')} |\n`;
   output += '|------|------|-------|----------|\n';
 
   // Sort by size descending and limit
@@ -216,14 +221,14 @@ export function generateComplexitySummary(
   const { thresholds } = config;
   const { owner, repo, sha } = context;
 
-  let markdown = `## 📊 コード複雑度分析\n\n`;
+  let markdown = `## 📊 ${t('summary', 'complexity.title')}\n\n`;
 
   // 基本メトリクス
-  markdown += `| メトリクス | 値 |\n`;
+  markdown += `| ${t('summary', 'complexity.metrics')} | ${t('summary', 'complexity.value')} |\n`;
   markdown += `|-----------|-----|\n`;
-  markdown += `| 最大複雑度 | ${formatNumber(maxComplexity)} |\n`;
-  markdown += `| 平均複雑度 | ${avgComplexity.toFixed(1)} |\n`;
-  markdown += `| 分析ファイル数 | ${formatNumber(analyzedFiles)} |\n\n`;
+  markdown += `| ${t('summary', 'complexity.maxComplexity')} | ${formatNumber(maxComplexity)} |\n`;
+  markdown += `| ${t('summary', 'complexity.avgComplexity')} | ${avgComplexity.toFixed(1)} |\n`;
+  markdown += `| ${t('summary', 'complexity.analyzedFiles')} | ${formatNumber(analyzedFiles)} |\n\n`;
 
   // 高複雑度ファイル（閾値超過、上位10件）
   const highComplexityFiles = metrics.files
@@ -232,9 +237,12 @@ export function generateComplexitySummary(
     .slice(0, 10);
 
   if (highComplexityFiles.length > 0) {
-    markdown += `### 高複雑度ファイル（上位10件）\n\n`;
+    markdown += `### ${t('summary', 'complexity.highFiles')}\n\n`;
     highComplexityFiles.forEach(file => {
-      const level = file.complexity >= thresholds.high ? 'high' : 'medium';
+      const level =
+        file.complexity >= thresholds.high
+          ? t('summary', 'complexity.level.high')
+          : t('summary', 'complexity.level.medium');
       const fileUrl = `https://github.com/${owner}/${repo}/blob/${sha}/${file.path}`;
       markdown += `- [${escapeMarkdown(file.path)}](${fileUrl}): ${file.complexity} (${level})\n`;
 
@@ -242,13 +250,13 @@ export function generateComplexitySummary(
       if (file.functions.length > 0) {
         // ソート前にコピーしてミューテーション回避
         const topFunctions = [...file.functions].sort((a, b) => b.complexity - a.complexity).slice(0, 5);
-        markdown += `  <details><summary>関数別複雑度（上位5件）</summary>\n\n`;
+        markdown += `  <details><summary>${t('summary', 'complexity.functionDetails')}</summary>\n\n`;
         topFunctions.forEach(fn => {
           const fnUrl = `https://github.com/${owner}/${repo}/blob/${sha}/${file.path}#L${fn.loc.start}`;
           markdown += `  - [${escapeMarkdown(fn.name)}](${fnUrl}): ${fn.complexity} (L${fn.loc.start}-${fn.loc.end})\n`;
         });
         if (file.functions.length > 5) {
-          markdown += `  - *+${file.functions.length - 5}個の関数（表示省略）*\n`;
+          markdown += `  - *${t('summary', 'complexity.moreFunctions', { count: file.functions.length - 5 })}*\n`;
         }
         markdown += `  </details>\n`;
       }
@@ -256,27 +264,20 @@ export function generateComplexitySummary(
 
     const remaining = metrics.files.filter(f => f.complexity >= thresholds.medium).length - 10;
     if (remaining > 0) {
-      markdown += `\n*+${remaining}件のファイルが複雑度閾値を超過（表示省略）*\n\n`;
+      markdown += `\n*${t('summary', 'complexity.moreFiles', { count: remaining })}*\n\n`;
     }
   } else {
-    markdown += `✅ すべてのファイルが複雑度閾値以下です（medium閾値: ${thresholds.medium}未満）\n\n`;
+    markdown += `✅ ${t('summary', 'complexity.allBelowThreshold', { threshold: thresholds.medium })}\n\n`;
   }
 
   // スキップファイル警告（詳細な理由付き）
   if (metrics.skippedFiles.length > 0) {
-    markdown += `### ⚠️ スキップされたファイル\n\n`;
-    markdown += `以下のファイルは複雑度計算から除外されました（集計対象外）：\n\n`;
+    markdown += `### ⚠️ ${t('summary', 'complexity.skippedFiles.title')}\n\n`;
+    markdown += `${t('summary', 'complexity.skippedFiles.reason')}\n\n`;
     metrics.skippedFiles.forEach(file => {
-      const reasonText: Record<string, string> = {
-        too_large: 'ファイルサイズ超過（1MB以上）',
-        analysis_failed: 'AST解析失敗',
-        timeout: 'タイムアウト',
-        binary: 'バイナリファイル',
-        encoding_error: 'エンコーディングエラー',
-        syntax_error: '構文エラー',
-        general: '一般エラー',
-      };
-      markdown += `- \`${escapeMarkdown(file.path)}\`: ${reasonText[file.reason] || file.reason}`;
+      const reasonKey = `complexity.skipReasons.${file.reason}` as const;
+      const reasonText = t('summary', reasonKey);
+      markdown += `- \`${escapeMarkdown(file.path)}\`: ${reasonText}`;
       if (file.details) {
         markdown += ` - ${escapeMarkdown(file.details)}`;
       }
@@ -287,29 +288,29 @@ export function generateComplexitySummary(
 
   // 構文エラーファイル警告（集計対象に含まれることを強調）
   if (metrics.syntaxErrorFiles.length > 0) {
-    markdown += `### ⚠️ 構文エラーファイル\n\n`;
-    markdown += `以下のファイルは構文エラーのため、**複雑度0として集計対象に含まれています**：\n\n`;
+    markdown += `### ⚠️ ${t('summary', 'complexity.syntaxErrorFiles.title')}\n\n`;
+    markdown += `${t('summary', 'complexity.syntaxErrorFiles.reason')}\n\n`;
     metrics.syntaxErrorFiles.forEach(filePath => {
       markdown += `- \`${escapeMarkdown(filePath)}\`\n`;
     });
-    markdown += `\n> **注意**: 構文エラーは開発者の修正対象であり、PRの品質評価に含まれます。\n\n`;
+    markdown += `\n> **${t('summary', 'complexity.syntaxErrorFiles.note')}**\n\n`;
   }
 
   // PRファイル数トランケーション警告
   if (metrics.truncated && metrics.totalPRFiles) {
-    markdown += `\n### ⚠️ PRファイル数制限\n\n`;
-    markdown += `GitHub APIの制限により、PR内の一部ファイルが分析対象外となりました。\n`;
-    markdown += `- PR全体のファイル数: ${formatNumber(metrics.totalPRFiles)}\n`;
-    markdown += `- 分析対象ファイル数: ${formatNumber(metrics.analyzedFiles)}\n`;
-    markdown += `- 未分析ファイル数: ${formatNumber(metrics.totalPRFiles - metrics.analyzedFiles)}\n\n`;
-    markdown += `> **注意**: 大規模PRでは、GitHub APIの3000ファイル制限により全ファイルを分析できない場合があります。\n`;
+    markdown += `\n### ⚠️ ${t('summary', 'complexity.prFilesLimit.title')}\n\n`;
+    markdown += `${t('summary', 'complexity.prFilesLimit.reason')}\n`;
+    markdown += `- ${t('summary', 'complexity.prFilesLimit.totalFiles')}: ${formatNumber(metrics.totalPRFiles)}\n`;
+    markdown += `- ${t('summary', 'complexity.prFilesLimit.analyzedFiles')}: ${formatNumber(metrics.analyzedFiles)}\n`;
+    markdown += `- ${t('summary', 'complexity.prFilesLimit.skippedFiles')}: ${formatNumber(metrics.totalPRFiles - metrics.analyzedFiles)}\n\n`;
+    markdown += `> **${t('summary', 'complexity.prFilesLimit.note')}**\n`;
   }
 
   // tsconfig.json未検出警告
   if (!metrics.hasTsconfig) {
-    markdown += `\n### ⚠️ tsconfig.json未検出\n\n`;
-    markdown += `tsconfig.jsonが見つからなかったため、既定の設定（ecmaVersion: 'latest', sourceType: 'module'）を使用しました。\n`;
-    markdown += `> **注意**: TypeScriptプロジェクトの場合、tsconfig.jsonがあるとより正確な解析が可能です。\n`;
+    markdown += `\n### ⚠️ ${t('summary', 'complexity.tsconfigNotFound.title')}\n\n`;
+    markdown += `${t('summary', 'complexity.tsconfigNotFound.reason')}\n`;
+    markdown += `> **${t('summary', 'complexity.tsconfigNotFound.note')}**\n`;
   }
 
   return markdown;
@@ -328,26 +329,26 @@ export function formatImprovementActions(violations: Violations): string {
   }
 
   let output = '';
-  output += '### 💡 Improvement Actions\n\n';
-  output += 'Here are some ways to reduce your PR size:\n\n';
+  output += `### 💡 ${t('summary', 'improvementActions.title')}\n\n`;
+  output += `${t('summary', 'improvementActions.intro')}\n\n`;
 
   // PR splitting strategies
-  output += '#### 📦 PR Splitting Strategies\n';
-  output += '- **Split by feature**: Create separate PRs for independent features\n';
-  output += '- **Split by file groups**: Group related files and merge incrementally\n';
-  output += '- **Separate refactoring and new features**: Keep code improvements and new functionality in different PRs\n\n';
+  output += `#### 📦 ${t('summary', 'improvementActions.splitting.title')}\n`;
+  output += `- **${t('summary', 'improvementActions.splitting.byFeature')}**\n`;
+  output += `- **${t('summary', 'improvementActions.splitting.byFileGroups')}**\n`;
+  output += `- **${t('summary', 'improvementActions.splitting.separateRefactoring')}**\n\n`;
 
   // Large file refactoring
-  output += '#### 🔨 Large File Refactoring\n';
-  output += '- Split functions or classes into multiple files\n';
-  output += '- Extract common logic into separate modules\n';
-  output += '- Organize files by layer (utils, services, components)\n\n';
+  output += `#### 🔨 ${t('summary', 'improvementActions.refactoring.title')}\n`;
+  output += `- ${t('summary', 'improvementActions.refactoring.splitFunctions')}\n`;
+  output += `- ${t('summary', 'improvementActions.refactoring.extractCommon')}\n`;
+  output += `- ${t('summary', 'improvementActions.refactoring.organizeByLayer')}\n\n`;
 
   // Generated files and lock files
-  output += '#### 📄 Handling Generated/Lock Files\n';
-  output += '- Exclude lock files (package-lock.json, yarn.lock) in `.github/pr-labeler.yml`\n';
-  output += '- Manage build artifacts (dist/, build/) with `.gitignore`\n';
-  output += '- Consider updating auto-generated code in separate PRs\n\n';
+  output += `#### 📄 ${t('summary', 'improvementActions.generated.title')}\n`;
+  output += `- ${t('summary', 'improvementActions.generated.excludeLock')}\n`;
+  output += `- ${t('summary', 'improvementActions.generated.manageArtifacts')}\n`;
+  output += `- ${t('summary', 'improvementActions.generated.separateGenerated')}\n\n`;
 
   return output;
 }
@@ -359,30 +360,30 @@ export function formatImprovementActions(violations: Violations): string {
  */
 export function formatBestPractices(): string {
   let output = '';
-  output += '### 📚 Best Practices\n\n';
+  output += `### 📚 ${t('summary', 'bestPractices.title')}\n\n`;
 
   // Recommended PR size
-  output += '#### Recommended PR Size\n';
-  output += '- ✅ **Recommended**: Under 400 lines\n';
-  output += '  - Review time: 15-30 minutes\n';
-  output += '  - Bug detection rate: High\n';
-  output += '- ⚠️ **Acceptable**: 400-1000 lines\n';
-  output += '  - Review time: 1-2 hours\n';
-  output += '  - Incremental review recommended\n';
-  output += '- 🚫 **Avoid**: Over 1000 lines\n';
-  output += '  - Review efficiency significantly decreases\n';
-  output += '  - Higher risk of missing bugs\n\n';
+  output += `#### ${t('summary', 'bestPractices.prSize.title')}\n`;
+  output += `- ✅ **${t('summary', 'bestPractices.prSize.recommended')}**\n`;
+  output += `  - ${t('summary', 'bestPractices.prSize.recommendedTime')}\n`;
+  output += `  - ${t('summary', 'bestPractices.prSize.recommendedBugRate')}\n`;
+  output += `- ⚠️ **${t('summary', 'bestPractices.prSize.acceptable')}**\n`;
+  output += `  - ${t('summary', 'bestPractices.prSize.acceptableTime')}\n`;
+  output += `  - ${t('summary', 'bestPractices.prSize.acceptableAdvice')}\n`;
+  output += `- 🚫 **${t('summary', 'bestPractices.prSize.avoid')}**\n`;
+  output += `  - ${t('summary', 'bestPractices.prSize.avoidEfficiency')}\n`;
+  output += `  - ${t('summary', 'bestPractices.prSize.avoidRisk')}\n\n`;
 
   // File size guidelines
-  output += '#### File Size Guidelines\n';
-  output += '- Aim for under 500 lines per file\n';
-  output += '- For complex files, under 300 lines is ideal\n\n';
+  output += `#### ${t('summary', 'bestPractices.fileSize.title')}\n`;
+  output += `- ${t('summary', 'bestPractices.fileSize.under500')}\n`;
+  output += `- ${t('summary', 'bestPractices.fileSize.under300')}\n\n`;
 
   // Review efficiency tips
-  output += '#### Review Efficiency Tips\n';
-  output += '- Smaller PRs merge faster and reduce CI/CD load\n';
-  output += '- Large PRs tend to require multiple review rounds\n';
-  output += '- Group related changes together to minimize context switching\n\n';
+  output += `#### ${t('summary', 'bestPractices.reviewTips.title')}\n`;
+  output += `- ${t('summary', 'bestPractices.reviewTips.smallerFaster')}\n`;
+  output += `- ${t('summary', 'bestPractices.reviewTips.largeMultiple')}\n`;
+  output += `- ${t('summary', 'bestPractices.reviewTips.groupRelated')}\n\n`;
 
   return output;
 }

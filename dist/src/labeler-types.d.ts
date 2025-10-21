@@ -2,6 +2,7 @@ export interface CategoryLabelingConfig {
     enabled: boolean;
 }
 export interface LabelerConfig {
+    language?: 'en' | 'ja';
     size: SizeConfig;
     complexity: ComplexityConfig;
     categoryLabeling: CategoryLabelingConfig;
@@ -30,10 +31,15 @@ export interface ComplexityConfig {
     extensions: string[];
     exclude: string[];
 }
+export interface DisplayName {
+    en: string;
+    ja: string;
+}
 export interface CategoryConfig {
     label: string;
     patterns: string[];
     exclude?: string[];
+    display_name?: DisplayName;
 }
 export interface RiskConfig {
     enabled: boolean;

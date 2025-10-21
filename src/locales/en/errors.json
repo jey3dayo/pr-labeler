@@ -1,0 +1,42 @@
+{
+  "configuration": {
+    "invalidLanguage": "Invalid language code: {{code}}. Falling back to English.",
+    "invalidField": "Invalid configuration field: {{field}}",
+    "parsingFailed": "Failed to parse configuration: {{message}}",
+    "invalidValue": "Invalid value for {{field}}: {{value}}"
+  },
+  "github": {
+    "apiError": "GitHub API error: {{message}}",
+    "rateLimitExceeded": "Rate limit exceeded. Retry after: {{resetTime}}",
+    "authenticationFailed": "Authentication failed. Check GITHUB_TOKEN.",
+    "notFound": "Resource not found: {{resource}}",
+    "permissionDenied": "Permission denied: {{operation}}"
+  },
+  "fileSystem": {
+    "fileNotFound": "File not found: {{path}}",
+    "readError": "Failed to read file: {{path}}",
+    "writeError": "Failed to write file: {{path}}",
+    "permissionDenied": "Permission denied: {{path}}"
+  },
+  "parsing": {
+    "invalidFormat": "Invalid format: {{input}}",
+    "sizeParseError": "Invalid size format: {{input}}",
+    "numberParseError": "Invalid number format: {{input}}",
+    "yamlParseError": "Failed to parse YAML: {{message}}"
+  },
+  "analysis": {
+    "fileAnalysisError": "Failed to analyze file: {{file}}",
+    "complexityAnalysisError": "Failed to analyze complexity: {{message}}",
+    "diffError": "Failed to get diff: {{message}}",
+    "cacheError": "Cache error: {{message}}"
+  },
+  "pattern": {
+    "invalidPattern": "Invalid pattern: {{pattern}}",
+    "matchError": "Pattern match error: {{message}}"
+  },
+  "violation": {
+    "fileSizeExceeded": "File size exceeded: {{file}} ({{size}} > {{limit}})",
+    "fileLinesExceeded": "File lines exceeded: {{file}} ({{lines}} > {{limit}})",
+    "prSizeExceeded": "PR size exceeded limit"
+  }
+}

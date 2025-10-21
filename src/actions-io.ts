@@ -10,6 +10,7 @@ import { err, ok, Result } from 'neverthrow';
 import type { ConfigurationError } from './errors/index.js';
 import { createConfigurationError, extractErrorMessage } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
+import { isInitialized, t } from './i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 import {
   formatBasicMetrics,
@@ -54,6 +55,8 @@ export interface ActionInputs {
   label_description: string;
   max_labels: string;
   use_default_excludes: string;
+  // i18n Support
+  language: string;
 }
 
 /**
@@ -142,6 +145,8 @@ export function getActionInputs(): ActionInputs {
     label_description: core.getInput('label_description') || '',
     max_labels: core.getInput('max_labels') || '10',
     use_default_excludes: core.getInput('use_default_excludes') || 'true',
+    // i18n Support
+    language: core.getInput('language') || 'en',
   };
 }
 
@@ -164,6 +169,21 @@ export function setActionOutputs(outputs: ActionOutputs): void {
  */
 export function logInfo(message: string): void {
   core.info(message);
+}
+
+/**
+ * 未初期化時にキーとパラメータを安全に文字列化するフォールバック
+ */
+function formatFallbackMessage(key: string, params?: Record<string, unknown>): string {
+  if (!params || Object.keys(params).length === 0) {
+    return key;
+  }
+
+  try {
+    return `${key}: ${JSON.stringify(params)}`;
+  } catch (_error) {
+    return key;
+  }
 }
 
 /**
@@ -317,4 +337,78 @@ export function getPullRequestContext(): {
     headSha: pullRequest['head'].sha,
     isDraft: pullRequest['draft'] === true,
   };
+}
+
+/**
+ * i18n対応のログ出力ヘルパー（情報ログ）
+ *
+ * @param key - 翻訳キー（例: 'initialization.starting'）
+ * @param params - 補間変数（オプション）
+ *
+ * @example
+ * logInfoI18n('initialization.starting');
+ * logInfoI18n('initialization.analyzingPr', { prNumber: 123, owner: 'user', repo: 'test-repo' });
+ */
+export function logInfoI18n(key: string, params?: Record<string, unknown>): void {
+  if (!isInitialized()) {
+    // i18n未初期化時はキーをそのまま出力（フォールバック）
+    logInfo(formatFallbackMessage(key, params));
+    return;
+  }
+  const message = t('logs', key, params);
+  core.info(message);
+}
+
+/**
+ * i18n対応のログ出力ヘルパー（警告ログ）
+ *
+ * @param key - 翻訳キー（例: 'initialization.i18nFailed'）
+ * @param params - 補間変数（オプション）
+ *
+ * @example
+ * logWarningI18n('initialization.i18nFailed', { message: 'Invalid JSON' });
+ */
+export function logWarningI18n(key: string, params?: Record<string, unknown>): void {
+  if (!isInitialized()) {
+    logWarning(formatFallbackMessage(key, params));
+    return;
+  }
+  const message = t('logs', key, params);
+  core.warning(message);
+}
+
+/**
+ * i18n対応のログ出力ヘルパー（エラーログ）
+ *
+ * @param key - 翻訳キー（例: 'completion.failed'）
+ * @param params - 補間変数（オプション）
+ *
+ * @example
+ * logErrorI18n('completion.failed', { message: 'Network error' });
+ */
+export function logErrorI18n(key: string, params?: Record<string, unknown>): void {
+  if (!isInitialized()) {
+    logError(formatFallbackMessage(key, params));
+    return;
+  }
+  const message = t('logs', key, params);
+  core.error(message);
+}
+
+/**
+ * i18n対応のログ出力ヘルパー（デバッグログ）
+ *
+ * @param key - 翻訳キー（例: 'analysis.gettingDiff'）
+ * @param params - 補間変数（オプション）
+ *
+ * @example
+ * logDebugI18n('analysis.gettingDiff');
+ */
+export function logDebugI18n(key: string, params?: Record<string, unknown>): void {
+  if (!isInitialized()) {
+    logDebug(formatFallbackMessage(key, params));
+    return;
+  }
+  const message = t('logs', key, params);
+  core.debug(message);
 }

@@ -22,6 +22,7 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 - `code-complexity-analysis`: コード複雑度分析機能 - ESLint標準complexityルールによるPR内のコード複雑度評価
 - `expand-default-category-labels`: デフォルトカテゴリラベル拡張機能 - config/spec/dependencies等の新カテゴリ追加
 - `selective-label-enabling`: ラベル種別の選択的有効化機能 - size/complexity/category/riskを個別にON/OFF可能にし、input設計を統一
+- `i18n-support`: 多言語対応機能 - 出力メッセージ、エラーメッセージ、設定ファイルの英語・日本語対応
 - Check `.kiro/specs/` for active specifications
 - Use `/kiro:spec-status [feature-name]` to check progress
 

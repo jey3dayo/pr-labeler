@@ -1,0 +1,163 @@
+{
+  "overview": {
+    "title": "PR Metrics Overview",
+    "subtitle": "Automated analysis of pull request metrics"
+  },
+  "draftPr": {
+    "title": "Draft PR Skipped",
+    "message": "Analysis skipped as this PR is in draft status."
+  },
+  "basicMetrics": {
+    "title": "Basic Metrics",
+    "totalAdditions": "Total Additions",
+    "totalFiles": "Total Files Changed",
+    "excludedFiles": "Excluded Files",
+    "binaryFilesSkipped": "Binary files skipped",
+    "filesWithErrors": "Files with errors",
+    "analysisTime": "Analysis Time"
+  },
+  "violations": {
+    "title": "Violations",
+    "sizeSummary": "Size Summary",
+    "allWithinLimits": "All files are within size limits",
+    "filesExceedSize": "{{count}} file(s) exceed size limit",
+    "filesExceedLines": "{{count}} file(s) exceed line limit",
+    "totalAdditionsExceed": "Total additions exceed limit",
+    "fileCountExceed": "File count exceeds limit",
+    "largeFilesDetected": "Large Files Detected",
+    "filesExceedLineLimit": "Files Exceed Line Limit",
+    "statusCritical": "Critical",
+    "statusWarning": "Warning",
+    "largeFiles": "Large Files",
+    "tooManyFiles": "Too Many Files",
+    "excessiveAdditions": "Excessive Additions",
+    "noViolations": "No violations detected"
+  },
+  "complexity": {
+    "title": "Code Complexity Analysis",
+    "metrics": "Metrics",
+    "value": "Value",
+    "maxComplexity": "Maximum Complexity",
+    "avgComplexity": "Average Complexity",
+    "analyzedFiles": "Analyzed Files",
+    "highFiles": "High Complexity Files (Top 10)",
+    "allBelowThreshold": "All files are below complexity threshold (medium threshold: {{threshold}})",
+    "level": {
+      "high": "high",
+      "medium": "medium"
+    },
+    "functionDetails": "Function Complexity (Top 5)",
+    "moreFunctions": "+{{count}} more functions (not shown)",
+    "moreFiles": "+{{count}} more files exceed complexity threshold (not shown)",
+    "skippedFiles": {
+      "title": "Skipped Files",
+      "reason": "The following files were excluded from complexity analysis (not counted in metrics):",
+      "syntaxErrorNote": "Note: Syntax errors should be fixed by developers and are included in PR quality assessment."
+    },
+    "syntaxErrorFiles": {
+      "title": "Syntax Error Files",
+      "reason": "The following files have syntax errors and are **counted with complexity 0 in the metrics**:",
+      "note": "Note: Syntax errors should be fixed by developers and are included in PR quality assessment."
+    },
+    "skipReasons": {
+      "too_large": "File size exceeded (1MB or more)",
+      "analysis_failed": "AST parsing failed",
+      "timeout": "Timeout",
+      "binary": "Binary file",
+      "encoding_error": "Encoding error",
+      "syntax_error": "Syntax error",
+      "general": "General error"
+    },
+    "prFilesLimit": {
+      "title": "PR File Count Limitation",
+      "reason": "Some files in this PR were excluded from analysis due to GitHub API limitations.",
+      "totalFiles": "Total PR Files",
+      "analyzedFiles": "Analyzed Files",
+      "skippedFiles": "Unanalyzed Files",
+      "note": "Note: Large PRs may not be fully analyzed due to GitHub API's 3000 file limit."
+    },
+    "tsconfigNotFound": {
+      "title": "tsconfig.json Not Found",
+      "reason": "tsconfig.json was not found, using default settings (ecmaVersion: 'latest', sourceType: 'module').",
+      "note": "Note: For TypeScript projects, having a tsconfig.json enables more accurate analysis."
+    },
+    "highComplexityFiles": "High Complexity Files",
+    "averageComplexity": "Average Complexity",
+    "totalComplexity": "Total Complexity",
+    "noComplexityData": "No complexity data available"
+  },
+  "recommendations": {
+    "title": "Recommendations",
+    "splitPr": "Consider splitting this PR into smaller changes",
+    "reviewCarefully": "Review carefully due to high complexity",
+    "goodSize": "PR size is appropriate for review"
+  },
+  "fileDetails": {
+    "title": "File Details",
+    "topLargeFiles": "Top Large Files",
+    "fileName": "File Name",
+    "size": "Size",
+    "lines": "Lines",
+    "additions": "Additions",
+    "changes": "Changes",
+    "limit": "Limit",
+    "status": "Status",
+    "noFiles": "No files to display"
+  },
+  "labels": {
+    "applied": "Applied Labels",
+    "noLabels": "No labels applied"
+  },
+  "improvementActions": {
+    "title": "Improvement Actions",
+    "intro": "Here are some ways to reduce your PR size:",
+    "splitting": {
+      "title": "PR Splitting Strategies",
+      "byFeature": "Split by feature: Create separate PRs for independent features",
+      "byFileGroups": "Split by file groups: Group related files and merge incrementally",
+      "separateRefactoring": "Separate refactoring and new features: Keep code improvements and new functionality in different PRs"
+    },
+    "refactoring": {
+      "title": "Large File Refactoring",
+      "splitFunctions": "Split functions or classes into multiple files",
+      "extractCommon": "Extract common logic into separate modules",
+      "organizeByLayer": "Organize files by layer (utils, services, components)"
+    },
+    "generated": {
+      "title": "Handling Generated/Lock Files",
+      "excludeLock": "Exclude lock files (package-lock.json, yarn.lock) in `.github/pr-labeler.yml`",
+      "manageArtifacts": "Manage build artifacts (dist/, build/) with `.gitignore`",
+      "separateGenerated": "Consider updating auto-generated code in separate PRs"
+    }
+  },
+  "bestPractices": {
+    "title": "Best Practices",
+    "keepSmall": "Keep PRs small and focused",
+    "splitLogical": "Split large changes into logical commits",
+    "documentChanges": "Document significant changes in commit messages",
+    "reviewBefore": "Review your own code before requesting review",
+    "prSize": {
+      "title": "Recommended PR Size",
+      "recommended": "Recommended: Under 400 lines",
+      "recommendedTime": "Review time: 15-30 minutes",
+      "recommendedBugRate": "Bug detection rate: High",
+      "acceptable": "Acceptable: 400-1000 lines",
+      "acceptableTime": "Review time: 1-2 hours",
+      "acceptableAdvice": "Incremental review recommended",
+      "avoid": "Avoid: Over 1000 lines",
+      "avoidEfficiency": "Review efficiency significantly decreases",
+      "avoidRisk": "Higher risk of missing bugs"
+    },
+    "fileSize": {
+      "title": "File Size Guidelines",
+      "under500": "Aim for under 500 lines per file",
+      "under300": "For complex files, under 300 lines is ideal"
+    },
+    "reviewTips": {
+      "title": "Review Efficiency Tips",
+      "smallerFaster": "Smaller PRs merge faster and reduce CI/CD load",
+      "largeMultiple": "Large PRs tend to require multiple review rounds",
+      "groupRelated": "Group related changes together to minimize context switching"
+    }
+  }
+}

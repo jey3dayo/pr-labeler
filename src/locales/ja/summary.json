@@ -1,0 +1,163 @@
+{
+  "overview": {
+    "title": "PRメトリクス概要",
+    "subtitle": "プルリクエストメトリクスの自動分析"
+  },
+  "draftPr": {
+    "title": "ドラフトPRをスキップ",
+    "message": "Draft PRのため分析をスキップしました。"
+  },
+  "basicMetrics": {
+    "title": "基本メトリクス",
+    "totalAdditions": "総追加行数",
+    "totalFiles": "変更ファイル数",
+    "excludedFiles": "除外ファイル数",
+    "binaryFilesSkipped": "バイナリファイルをスキップ",
+    "filesWithErrors": "エラーのあるファイル",
+    "analysisTime": "分析時刻"
+  },
+  "violations": {
+    "title": "違反",
+    "sizeSummary": "サイズサマリ",
+    "allWithinLimits": "すべてのファイルがサイズ制限内です",
+    "filesExceedSize": "{{count}}個のファイルがサイズ制限を超過",
+    "filesExceedLines": "{{count}}個のファイルが行数制限を超過",
+    "totalAdditionsExceed": "総追加行数が制限を超過",
+    "fileCountExceed": "ファイル数が制限を超過",
+    "largeFilesDetected": "大規模ファイルを検出",
+    "filesExceedLineLimit": "行数制限超過ファイル",
+    "statusCritical": "クリティカル",
+    "statusWarning": "警告",
+    "largeFiles": "大規模ファイル",
+    "tooManyFiles": "ファイル数超過",
+    "excessiveAdditions": "追加行数超過",
+    "noViolations": "違反は検出されませんでした"
+  },
+  "complexity": {
+    "title": "コード複雑度分析",
+    "metrics": "メトリクス",
+    "value": "値",
+    "maxComplexity": "最大複雑度",
+    "avgComplexity": "平均複雑度",
+    "analyzedFiles": "分析ファイル数",
+    "highFiles": "高複雑度ファイル（上位10件）",
+    "allBelowThreshold": "すべてのファイルが複雑度閾値以下です（medium閾値: {{threshold}}未満）",
+    "level": {
+      "high": "高",
+      "medium": "中"
+    },
+    "functionDetails": "関数別複雑度（上位5件）",
+    "moreFunctions": "+{{count}}個の関数（表示省略）",
+    "moreFiles": "+{{count}}件のファイルが複雑度閾値を超過（表示省略）",
+    "skippedFiles": {
+      "title": "スキップされたファイル",
+      "reason": "以下のファイルは複雑度分析から除外されました（集計対象外）：",
+      "syntaxErrorNote": "注意: 構文エラーは開発者の修正対象であり、PRの品質評価に含まれます。"
+    },
+    "syntaxErrorFiles": {
+      "title": "構文エラーファイル",
+      "reason": "以下のファイルは構文エラーのため、**複雑度0として集計対象に含まれています**：",
+      "note": "注意: 構文エラーは開発者の修正対象であり、PRの品質評価に含まれます。"
+    },
+    "skipReasons": {
+      "too_large": "ファイルサイズ超過（1MB以上）",
+      "analysis_failed": "AST解析失敗",
+      "timeout": "タイムアウト",
+      "binary": "バイナリファイル",
+      "encoding_error": "エンコーディングエラー",
+      "syntax_error": "構文エラー",
+      "general": "一般エラー"
+    },
+    "prFilesLimit": {
+      "title": "PRファイル数制限",
+      "reason": "GitHub APIの制限により、PR内の一部ファイルが分析対象外となりました。",
+      "totalFiles": "PR全体のファイル数",
+      "analyzedFiles": "分析対象ファイル数",
+      "skippedFiles": "未分析ファイル数",
+      "note": "注意: 大規模PRでは、GitHub APIの3000ファイル制限により全ファイルを分析できない場合があります。"
+    },
+    "tsconfigNotFound": {
+      "title": "tsconfig.json未検出",
+      "reason": "tsconfig.jsonが見つからなかったため、既定の設定（ecmaVersion: 'latest', sourceType: 'module'）を使用しました。",
+      "note": "注意: TypeScriptプロジェクトの場合、tsconfig.jsonがあるとより正確な解析が可能です。"
+    },
+    "highComplexityFiles": "High Complexity Files",
+    "averageComplexity": "Average Complexity",
+    "totalComplexity": "Total Complexity",
+    "noComplexityData": "No complexity data available"
+  },
+  "recommendations": {
+    "title": "推奨事項",
+    "splitPr": "このPRを小さな変更に分割することを検討してください",
+    "reviewCarefully": "複雑度が高いため、慎重にレビューしてください",
+    "goodSize": "PRサイズはレビューに適切です"
+  },
+  "fileDetails": {
+    "title": "ファイル詳細",
+    "topLargeFiles": "上位の大規模ファイル",
+    "fileName": "ファイル名",
+    "size": "サイズ",
+    "lines": "行数",
+    "additions": "追加行数",
+    "changes": "変更",
+    "limit": "制限値",
+    "status": "ステータス",
+    "noFiles": "表示するファイルがありません"
+  },
+  "labels": {
+    "applied": "適用されたラベル",
+    "noLabels": "ラベルは適用されていません"
+  },
+  "improvementActions": {
+    "title": "改善アクション",
+    "intro": "PRサイズを削減する方法をいくつか紹介します：",
+    "splitting": {
+      "title": "PR分割戦略",
+      "byFeature": "機能別に分割: 独立した機能ごとに別々のPRを作成",
+      "byFileGroups": "ファイルグループ別に分割: 関連ファイルをグループ化して段階的にマージ",
+      "separateRefactoring": "リファクタリングと新機能を分離: コード改善と新機能を別々のPRに分ける"
+    },
+    "refactoring": {
+      "title": "大規模ファイルのリファクタリング",
+      "splitFunctions": "関数やクラスを複数のファイルに分割",
+      "extractCommon": "共通ロジックを別モジュールに抽出",
+      "organizeByLayer": "レイヤー別にファイルを整理（utils、services、components）"
+    },
+    "generated": {
+      "title": "生成ファイル/ロックファイルの扱い",
+      "excludeLock": "`.github/pr-labeler.yml`でロックファイル（package-lock.json、yarn.lock）を除外",
+      "manageArtifacts": "`.gitignore`でビルド成果物（dist/、build/）を管理",
+      "separateGenerated": "自動生成コードの更新は別PRで行うことを検討"
+    }
+  },
+  "bestPractices": {
+    "title": "ベストプラクティス",
+    "keepSmall": "PRは小さく、焦点を絞った内容に保つ",
+    "splitLogical": "大きな変更を論理的なコミットに分割する",
+    "documentChanges": "重要な変更をコミットメッセージに記録する",
+    "reviewBefore": "レビューを依頼する前に自分でコードをレビューする",
+    "prSize": {
+      "title": "推奨PRサイズ",
+      "recommended": "推奨: 400行未満",
+      "recommendedTime": "レビュー時間: 15-30分",
+      "recommendedBugRate": "バグ検出率: 高",
+      "acceptable": "許容範囲: 400-1000行",
+      "acceptableTime": "レビュー時間: 1-2時間",
+      "acceptableAdvice": "段階的なレビューを推奨",
+      "avoid": "避けるべき: 1000行超",
+      "avoidEfficiency": "レビュー効率が大幅に低下",
+      "avoidRisk": "バグ見逃しのリスクが高まる"
+    },
+    "fileSize": {
+      "title": "ファイルサイズガイドライン",
+      "under500": "1ファイルあたり500行未満を目指す",
+      "under300": "複雑なファイルの場合、300行未満が理想的"
+    },
+    "reviewTips": {
+      "title": "レビュー効率向上のヒント",
+      "smallerFaster": "小さなPRはマージが早く、CI/CD負荷も軽減",
+      "largeMultiple": "大きなPRは複数回のレビューが必要になりがち",
+      "groupRelated": "関連する変更をまとめてコンテキスト切り替えを最小化"
+    }
+  }
+}

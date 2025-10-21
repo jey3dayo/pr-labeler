@@ -31,6 +31,7 @@ export interface ActionInputs {
     label_description: string;
     max_labels: string;
     use_default_excludes: string;
+    language: string;
 }
 export interface ActionOutputs {
     large_files: string;
@@ -73,3 +74,7 @@ export declare function getPullRequestContext(): {
     headSha: string;
     isDraft: boolean;
 };
+export declare function logInfoI18n(key: string, params?: Record<string, unknown>): void;
+export declare function logWarningI18n(key: string, params?: Record<string, unknown>): void;
+export declare function logErrorI18n(key: string, params?: Record<string, unknown>): void;
+export declare function logDebugI18n(key: string, params?: Record<string, unknown>): void;
