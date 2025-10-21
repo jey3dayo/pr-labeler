@@ -48,8 +48,7 @@ pr-labeler/
 src/
 ├── index.ts                   # エントリーポイント（main関数）
 ├── types.ts                   # 共通型定義
-├── errors.ts                  # エラークラス定義
-├── input-mapper.ts            # Actions入力パース・検証
+├── input-mapper.ts            # Actions入力パース・検証（選択的ラベル有効化を含む）
 ├── file-metrics.ts            # ファイルメトリクス分析
 ├── diff-strategy.ts           # Git差分ベースの分析戦略
 ├── pattern-matcher.ts         # ファイル除外パターンマッチ
@@ -57,36 +56,64 @@ src/
 ├── comment-manager.ts         # PRコメント管理
 ├── report-formatter.ts        # Markdownレポート生成
 ├── actions-io.ts              # GitHub Actions I/O（summary, output）
-├── labeler-types.ts           # 🆕 PR Labeler型定義とデフォルト設定
-├── config-loader.ts           # 🆕 YAML設定読み込みとバリデーション
-├── label-decision-engine.ts   # 🆕 ラベル判定ロジック（サイズ/複雑度/カテゴリ/リスク）
-├── label-applicator.ts        # 🆕 ラベル適用と冪等性保証
-├── complexity-analyzer.ts     # 🆕 コード複雑度分析（ESLint標準API使用）
-└── parsers/                   # パーサーモジュール
-    └── size-parser.ts         # サイズ文字列パース（"100KB" → バイト数）
+├── ci-status.ts               # CI実行状態管理
+├── labeler-types.ts           # PR Labeler型定義とデフォルト設定
+├── config-loader.ts           # YAML設定読み込みとバリデーション（PR Labeler）
+├── label-decision-engine.ts   # ラベル判定ロジック（サイズ/複雑度/カテゴリ/リスク）
+├── label-applicator.ts        # ラベル適用と冪等性保証
+├── complexity-analyzer.ts     # コード複雑度分析（ESLint標準API使用）
+├── parsers/                   # パーサーモジュール
+│   └── size-parser.ts         # サイズ文字列パース（"100KB" → バイト数）
+├── directory-labeler/         # 🆕 Directory-Based Labeling機能
+│   ├── config-loader.ts       # directory-labeler.yml設定読み込み
+│   ├── decision-engine.ts     # パス→ラベルマッピングと優先順位制御
+│   ├── pattern-matcher.ts     # Globパターンマッチングとフィルタリング
+│   ├── label-applicator.ts    # 名前空間ポリシーに基づくラベル適用
+│   ├── logging.ts             # 構造化ロギング
+│   └── types.ts               # Directory Labeler専用型定義
+├── errors/                    # 🆕 統一エラーハンドリング
+│   ├── types.ts               # エラー型定義
+│   ├── factories.ts           # エラーファクトリー関数
+│   ├── guards.ts              # 型ガード関数
+│   └── index.ts               # エクスポート
+└── configs/                   # 🆕 設定管理
+    ├── default-config.ts      # デフォルト設定値
+    ├── categories.ts          # デフォルトカテゴリ定義
+    └── index.ts               # エクスポート
 ```
 
 ### `__tests__/` - Test Files
 
 ```
 __tests__/
-├── __snapshots__/             # Vitestスナップショット
-├── index.test.ts              # メインフロー統合テスト
-├── input-mapper.test.ts       # 入力検証テスト
-├── file-metrics.test.ts       # メトリクス分析テスト
-├── diff-strategy.test.ts      # 差分戦略テスト
-├── pattern-matcher.test.ts    # パターンマッチテスト
-├── label-manager.test.ts      # ラベル管理テスト
-├── comment-manager.test.ts    # コメント管理テスト
-├── report-formatter.test.ts   # レポート生成テスト
-├── actions-io.test.ts         # Actions I/Oテスト
-├── errors.test.ts             # エラーハンドリングテスト
-├── integration.test.ts        # 統合テスト
-├── complexity-analyzer.test.ts # 🆕 複雑度分析テスト
-├── size-parser.test.ts        # サイズパーサーテスト
-└── fixtures/                  # テストフィクスチャー
-    ├── complexity-sample.ts   # 複雑度テスト用サンプルコード
-    └── syntax-error.ts        # 構文エラーテストケース
+├── __snapshots__/                    # Vitestスナップショット
+├── index.test.ts                     # メインフロー統合テスト
+├── input-mapper.test.ts              # 入力検証テスト（選択的ラベル有効化を含む）
+├── file-metrics.test.ts              # メトリクス分析テスト
+├── diff-strategy.test.ts             # 差分戦略テスト
+├── pattern-matcher.test.ts           # パターンマッチテスト
+├── label-manager.test.ts             # ラベル管理テスト
+├── comment-manager.test.ts           # コメント管理テスト
+├── report-formatter.test.ts          # レポート生成テスト
+├── actions-io.test.ts                # Actions I/Oテスト
+├── errors.test.ts                    # エラーハンドリングテスト
+├── integration.test.ts               # 統合テスト
+├── label-decision-engine.test.ts     # ラベル判定ロジックテスト
+├── label-applicator.test.ts          # ラベル適用テスト
+├── config-loader.test.ts             # 設定読み込みテスト
+├── complexity-analyzer.test.ts       # 複雑度分析テスト
+├── selective-label-enabling.test.ts  # 🆕 選択的ラベル有効化テスト
+├── size-parser.test.ts               # サイズパーサーテスト
+├── directory-labeler/                # 🆕 Directory-Based Labelerテスト
+│   ├── config-loader.test.ts         # 設定読み込みテスト
+│   ├── decision-engine.test.ts       # 判定エンジンテスト
+│   ├── pattern-matcher.test.ts       # パターンマッチテスト
+│   ├── label-applicator.test.ts      # ラベル適用テスト
+│   ├── logging.test.ts               # ロギングテスト
+│   └── integration.test.ts           # 統合テスト
+└── fixtures/                         # テストフィクスチャー
+    ├── complexity-sample.ts          # 複雑度テスト用サンプルコード
+    └── syntax-error.ts               # 構文エラーテストケース
 ```
 
 テストファイルは対応するソースファイルと1対1でマッピング。
@@ -141,7 +168,9 @@ docs/
 
 各モジュールは単一責任原則に従い、明確な境界を持つ：
 
-1. **Input Mapper**: 入力検証のみ（ビジネスロジックなし）
+**基本モジュール**:
+
+1. **Input Mapper**: 入力検証のみ（ビジネスロジックなし、選択的ラベル有効化を含む）
 2. **File Metrics**: ファイル分析のみ（API呼び出しなし）
 3. **Diff Strategy**: Git差分収集のみ（分析ロジックなし）
 4. **Pattern Matcher**: パターンマッチのみ（ファイルI/Oなし）
@@ -149,12 +178,32 @@ docs/
 6. **Comment Manager**: コメント操作のみ（レポート生成は委譲）
 7. **Report Formatter**: Markdown生成のみ（GitHub API呼び出しなし）
 
+**PR Labelerモジュール**:
+
+1. **Complexity Analyzer**: コード複雑度分析のみ（ESLint標準API使用）
+2. **Label Decision Engine**: メトリクスベースのラベル判定のみ
+3. **Label Applicator**: ラベル適用と冪等性保証のみ
+4. **Config Loader**: YAML設定読み込みとバリデーションのみ
+
+**Directory-Based Labelerモジュール**:
+
+1. **Directory Config Loader**: directory-labeler.yml読み込みのみ
+2. **Directory Decision Engine**: パス→ラベルマッピングと優先順位制御のみ
+3. **Directory Pattern Matcher**: Globパターンマッチングのみ
+4. **Directory Label Applicator**: 名前空間ポリシーに基づくラベル適用のみ
+5. **Directory Logging**: 構造化ロギングのみ
+
+**共通モジュール**:
+
+1. **Error Handling** (`errors/`): 統一されたエラー生成・型ガード・ハンドリング
+2. **Configuration** (`configs/`): デフォルト設定値とカテゴリ定義の管理
+
 ### Data Flow Pattern
 
 ```
 Input (GitHub Actions)
   ↓
-Input Mapper → Validated Config
+Input Mapper → Validated Config (選択的ラベル有効化を含む)
   ↓
 Diff Strategy → File List
   ↓
@@ -162,15 +211,27 @@ Pattern Matcher → Filtered Files
   ↓
 File Metrics → Metrics Data
   ↓
-┌─────────────┴─────────────┐
-↓                           ↓
-Label Manager          Report Formatter
-  ↓                           ↓
-GitHub API (labels)    Comment Manager
-                              ↓
-                       GitHub API (comments)
-                              ↓
-                       Actions I/O (summary, outputs)
+┌─────────────┴────────────────────────────────┐
+↓                                              ↓
+PR Labeler Flow                     Directory-Based Labeler Flow
+  ↓                                              ↓
+Complexity Analyzer (if enabled)      Directory Config Loader
+  ↓                                              ↓
+Label Decision Engine                  Decision Engine (priority/matching)
+  ↓                                              ↓
+Label Applicator (冪等性保証)          Label Applicator (namespace policy)
+  ↓                                              ↓
+  └──────────────┬───────────────────────────────┘
+                 ↓
+         Label Manager (GitHub API)
+                 ↓
+         Report Formatter
+                 ↓
+         Comment Manager
+                 ↓
+         GitHub API (comments)
+                 ↓
+         Actions I/O (summary, outputs)
 ```
 
 ### Error Handling Pattern

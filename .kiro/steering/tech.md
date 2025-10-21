@@ -34,7 +34,38 @@ GitHub Event (PR) → Action Runner → dist/index.js
 6. **Comment Manager** (`comment-manager.ts`): PRコメントの作成・更新
 7. **Report Formatter** (`report-formatter.ts`): Markdownレポート生成
 
-**🆕 PR Labeler機能（新規）**: 8. **Configuration Loader** (`config-loader.ts`): YAML設定の読み込みとバリデーション9. **Label Decision Engine** (`label-decision-engine.ts`): メトリクスベースのラベル判定ロジック 10. **Label Applicator** (`label-applicator.ts`): 冪等性を保証したラベル適用 11. **Labeler Types** (`labeler-types.ts`): PR Labeler用の型定義とデフォルト設定
+**🆕 PR Labeler機能（新規）**:
+
+1. **Configuration Loader** (`config-loader.ts`): YAML設定の読み込みとバリデーション
+2. **Label Decision Engine** (`label-decision-engine.ts`): メトリクスベースのラベル判定ロジック
+3. **Label Applicator** (`label-applicator.ts`): 冪等性を保証したラベル適用
+4. **Labeler Types** (`labeler-types.ts`): PR Labeler用の型定義とデフォルト設定
+5. **Complexity Analyzer** (`complexity-analyzer.ts`): ESLint標準complexityルールによる循環的複雑度分析
+6. **Input Mapper** (`input-mapper.ts`): 選択的ラベル有効化を含む入力パラメータマッピング
+
+**🆕 Directory-Based Labeler機能**:
+
+1. **Directory Labeler Config Loader** (`directory-labeler/config-loader.ts`): directory-labeler.yml設定の読み込み
+2. **Directory Labeler Decision Engine** (`directory-labeler/decision-engine.ts`): パス→ラベルマッピングと優先順位制御
+3. **Directory Labeler Pattern Matcher** (`directory-labeler/pattern-matcher.ts`): Globパターンマッチングとフィルタリング
+4. **Directory Labeler Label Applicator** (`directory-labeler/label-applicator.ts`): 名前空間ポリシーに基づくラベル適用
+5. **Directory Labeler Logging** (`directory-labeler/logging.ts`): 構造化ロギング
+6. **Directory Labeler Types** (`directory-labeler/types.ts`): Directory Labeler専用型定義
+
+**共通モジュール（リファクタリング）**:
+
+1. **Error Handling** (`errors/`):
+
+- `errors/types.ts`: 統一されたエラー型定義
+- `errors/factories.ts`: エラーファクトリー関数
+- `errors/guards.ts`: 型ガード関数
+- `errors/index.ts`: エラーモジュールエクスポート
+
+1. **Configuration Management** (`configs/`):
+
+- `configs/default-config.ts`: デフォルト設定値
+- `configs/categories.ts`: デフォルトカテゴリ定義
+- `configs/index.ts`: 設定モジュールエクスポート
 
 ### Error Handling Architecture
 
@@ -87,11 +118,12 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ```json
 {
-  "bytes": "^3.1.2",          // サイズ文字列パース（"100KB" → バイト数）
-  "minimatch": "^10.0.3",     // Globパターンマッチング
-  "neverthrow": "^8.2.0",     // Railway-Oriented Programming
-  // ESLint標準complexityルールを使用（既存ESLint 9.37.0依存）
-  "js-yaml": "^4.1.0"         // 🆕 YAML設定パース（PR Labeler機能）
+  "bytes": "^3.1.2",               // サイズ文字列パース（"100KB" → バイト数）
+  "minimatch": "^10.0.3",          // Globパターンマッチング
+  "neverthrow": "^8.2.0",          // Railway-Oriented Programming
+  "p-limit": "3.1.0",              // 🆕 並行処理制御（複雑度分析の並列化）
+  "js-yaml": "^4.1.0",             // 🆕 YAML設定パース（PR Labeler / Directory Labeler）
+  "@typescript-eslint/parser": "^8.46.1"  // 🆕 TypeScript AST解析（複雑度分析）
 }
 ```
 
