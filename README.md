@@ -50,6 +50,8 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能。複
 - ✅ `.github/pr-labeler.yml`でカスタマイズ可能
 - ✅ 冪等性保証（同じPR状態で再実行しても同じラベル）
 - ✅ 権限不足時の適切な処理（フォークPR対応）
+- ✅ **🆕 選択的有効化**: 各ラベル種別（size/complexity/category/risk）を個別にON/OFF可能
+- ✅ **🆕 統一されたinput命名**: `*_enabled` と `*_thresholds` の一貫した命名規則
 
 ### 🆕 Directory-Based Labeler - ディレクトリパスベースの自動ラベル付け
 
@@ -211,14 +213,25 @@ jobs:
 
 ### ラベル設定
 
-| パラメータ              | 必須 | デフォルト            | 説明                               |
-| ----------------------- | ---- | --------------------- | ---------------------------------- |
-| `apply_labels`          | ❌   | `true`                | 自動ラベル適用の有効/無効          |
-| `auto_remove_labels`    | ❌   | `true`                | 制限クリア時にラベルを自動削除     |
-| `apply_size_labels`     | ❌   | `true`                | サイズラベル（S/M/L/XL/XXL）の適用 |
-| `size_label_thresholds` | ❌   | 下記参照              | サイズラベルの閾値設定（JSON）     |
-| `large_files_label`     | ❌   | `auto:large-files`    | ファイルサイズ/行数違反ラベル      |
-| `too_many_files_label`  | ❌   | `auto:too-many-files` | ファイル数超過ラベル               |
+| パラメータ             | 必須 | デフォルト            | 説明                           |
+| ---------------------- | ---- | --------------------- | ------------------------------ |
+| `apply_labels`         | ❌   | `true`                | 自動ラベル適用の有効/無効      |
+| `auto_remove_labels`   | ❌   | `true`                | 制限クリア時にラベルを自動削除 |
+| `large_files_label`    | ❌   | `auto:large-files`    | ファイルサイズ/行数違反ラベル  |
+| `too_many_files_label` | ❌   | `auto:too-many-files` | ファイル数超過ラベル           |
+
+### 🆕 PR Labeler - 選択的ラベル有効化
+
+各ラベル種別を個別に制御できます（統一された命名規則: `*_enabled` と `*_thresholds`）
+
+| パラメータ              | 必須 | デフォルト                           | 説明                                      |
+| ----------------------- | ---- | ------------------------------------ | ----------------------------------------- |
+| `size_enabled`          | ❌   | `true`                               | サイズラベルの有効/無効                   |
+| `size_thresholds`       | ❌   | `{"small": 100, "medium": 500, ...}` | サイズラベル閾値（JSON、additions-based） |
+| `complexity_enabled`    | ❌   | `true`                               | 複雑度ラベルの有効/無効                   |
+| `complexity_thresholds` | ❌   | `{"medium": 10, "high": 20}`         | 複雑度ラベル閾値（JSON）                  |
+| `category_enabled`      | ❌   | `true`                               | カテゴリラベルの有効/無効                 |
+| `risk_enabled`          | ❌   | `true`                               | リスクラベルの有効/無効                   |
 
 ### 動作設定
 
@@ -247,23 +260,38 @@ jobs:
 | `max_labels`                    | ❌   | `10`                            | 適用ラベル数の上限（0で無制限）                |
 | `use_default_excludes`          | ❌   | `true`                          | デフォルト除外パターンの使用（node_modules等） |
 
-### サイズラベル閾値のデフォルト
+### PR Labelerラベル閾値のデフォルト
+
+**サイズラベル** (`size_thresholds`):
 
 ```json
 {
-  "S": { "additions": 100, "files": 10 },
-  "M": { "additions": 500, "files": 30 },
-  "L": { "additions": 1000, "files": 50 }
+  "small": 100,
+  "medium": 500,
+  "large": 1000
 }
 ```
 
-**ラベル適用ルール**:
+ラベル適用ルール:
 
-- **S**: additions ≤ 100 かつ files ≤ 10
-- **M**: additions ≤ 500 かつ files ≤ 30
-- **L**: additions ≤ 1000 かつ files ≤ 50
-- **XL**: Lを超えるが2000行以下
-- **XXL**: 2000行超
+- `size/small`: additions < 100
+- `size/medium`: 100 ≤ additions < 500
+- `size/large`: 500 ≤ additions < 1000
+- `size/xlarge`: additions ≥ 1000
+
+**複雑度ラベル** (`complexity_thresholds`):
+
+```json
+{
+  "medium": 10,
+  "high": 20
+}
+```
+
+ラベル適用ルール:
+
+- `complexity/medium`: 10 ≤ 最大循環的複雑度 < 20
+- `complexity/high`: 最大循環的複雑度 ≥ 20
 
 ## 📊 GitHub Actions Summary出力
 
@@ -427,6 +455,63 @@ GitHub Actions Summaryのみを使用：
     comment_on_pr: "never"
     enable_summary: "true"  # Summaryのみ出力
 ```
+
+### 🆕 選択的ラベル有効化
+
+各ラベル種別（size/complexity/category/risk）を個別にON/OFFできます。
+
+#### デフォルト（すべて有効）
+
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    # すべてのラベル種別がデフォルトで有効
+```
+
+#### 複雑度ラベルのみ無効化
+
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    complexity_enabled: "false"  # 複雑度ラベルを無効化
+    # size, category, riskラベルは有効
+```
+
+#### カスタム閾値 + 一部無効化
+
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    # サイズラベル: カスタム閾値で有効
+    size_enabled: "true"
+    size_thresholds: '{"small": 50, "medium": 200, "large": 500}'
+    # 複雑度ラベル: カスタム閾値で有効
+    complexity_enabled: "true"
+    complexity_thresholds: '{"medium": 15, "high": 30}'
+    # カテゴリラベル: 無効化
+    category_enabled: "false"
+    # リスクラベル: 有効（デフォルト）
+```
+
+#### サイズとリスクラベルのみ使用
+
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    size_enabled: "true"
+    complexity_enabled: "false"
+    category_enabled: "false"
+    risk_enabled: "true"
+```
+
+**統一された命名規則**:
+
+- `*_enabled`: 各ラベル種別の有効/無効を制御（デフォルト: `"true"`）
+- `*_thresholds`: 各ラベル種別の閾値をJSON形式で指定
 
 ### 🆕 PR Labeler設定のカスタマイズ
 
