@@ -7,7 +7,7 @@
 import i18next, { type TFunction } from 'i18next';
 import { err, ok, type Result } from 'neverthrow';
 
-import { logInfo, logWarning } from './actions-io.js';
+import { logWarning } from './actions-io.js';
 import { createConfigurationError } from './errors/factories.js';
 import type { ConfigurationError } from './errors/types.js';
 import type { Config } from './input-mapper.js';
@@ -96,8 +96,6 @@ export function initializeI18n(config: Config): Result<void, ConfigurationError>
     // 言語決定
     const language = determineLanguage(config);
 
-    logInfo(`Initializing i18n with language: ${language}`);
-
     // 翻訳リソース定義 (静的import)
     const resources = {
       en: {
@@ -141,7 +139,6 @@ export function initializeI18n(config: Config): Result<void, ConfigurationError>
       const currentLang = getCurrentLanguage();
       if (currentLang !== language) {
         changeLanguage(language);
-        logInfo(`i18n language changed to: ${language}`);
       }
 
       return ok(undefined);
@@ -169,7 +166,6 @@ export function initializeI18n(config: Config): Result<void, ConfigurationError>
     isI18nInitialized = true;
     cachedTFunction = i18next.t.bind(i18next);
 
-    logInfo(`i18n initialized successfully with language: ${language}`);
     return ok(undefined);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -248,15 +244,23 @@ export function isInitialized(): boolean {
  * i18nextは静的リソースを使用する場合、changeLanguage()は同期的に完了します。
  */
 export function changeLanguage(lang: LanguageCode): void {
-  if (isI18nInitialized) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = i18next.changeLanguage(lang as any);
-    // 静的リソースの場合、changeLanguage()は同期的に実行されるため、awaitは不要
-    // ただし、念のためPromiseの場合は処理を待つ
-    if (result && typeof result.then === 'function') {
-      // Promiseの場合は警告を出す（本来は発生しないはず）
-      logWarning('changeLanguage returned a Promise - this should not happen with static resources');
-    }
+  if (!isI18nInitialized) {
+    return;
+  }
+
+  // Make the new language observable synchronously for callers/tests.
+  // i18next may switch asynchronously in Node, so set the visible state first.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (i18next as any).language = lang;
+  cachedTFunction = i18next.t.bind(i18next);
+
+  // Kick the real language change; update t() again on completion (if async).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = i18next.changeLanguage(lang as any, () => {
+    cachedTFunction = i18next.t.bind(i18next);
+  });
+  if (result && typeof (result as unknown as Promise<unknown>).then === 'function') {
+    // No await here by design; immediate reads already see lang above.
   }
 }
 

@@ -10,6 +10,7 @@ export declare function formatBytes(bytes: number): string;
 export declare function formatNumber(num: number): string;
 export interface FormatBasicMetricsOptions {
     includeHeader?: boolean;
+    includeTimestamp?: boolean;
 }
 export declare function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?: FormatBasicMetricsOptions): string;
 export interface FormatViolationsOptions {

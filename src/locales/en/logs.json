@@ -21,7 +21,8 @@
     "totalAdditions": "Total additions: {{count}}",
     "complexityAnalyzing": "Analyzing code complexity...",
     "complexityFilesToAnalyze": "Files to analyze: {{count}}",
-    "complexityResults": "Max complexity: {{max}}, Avg: {{avg}}, Files: {{files}}"
+    "complexityResults": "Max complexity: {{max}}, Avg: {{avg}}, Files: {{files}}",
+    "complexityFailed": "Failed to analyze code complexity: {{message}}"
   },
   "labels": {
     "loading": "Loading PR Labeler configuration...",

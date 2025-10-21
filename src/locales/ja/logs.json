@@ -21,7 +21,8 @@
     "totalAdditions": "総追加行数: {{count}}",
     "complexityAnalyzing": "コード複雑度を分析中...",
     "complexityFilesToAnalyze": "分析対象ファイル数: {{count}}",
-    "complexityResults": "最大複雑度: {{max}}, 平均: {{avg}}, ファイル数: {{files}}"
+    "complexityResults": "最大複雑度: {{max}}, 平均: {{avg}}, ファイル数: {{files}}",
+    "complexityFailed": "コード複雑度の解析に失敗しました: {{message}}"
   },
   "labels": {
     "loading": "PR Labeler設定を読み込み中...",

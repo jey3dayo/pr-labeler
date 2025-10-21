@@ -45,8 +45,6 @@ import type { PRContext } from './types';
  */
 async function run(): Promise<void> {
   try {
-    logInfo(`🚀 ${t('logs', 'initialization.starting')}`);
-
     // Step 1: Get and validate inputs
     logInfoI18n('initialization.gettingInputs');
     const inputs = getActionInputs();
@@ -221,7 +219,7 @@ async function run(): Promise<void> {
         logErrorI18n('completion.failed', { message: complexityResult.error.message });
         setFailed('Complexity analysis failed');
       } else {
-        logWarningI18n('initialization.i18nFailed', { message: complexityResult.error.message });
+        logWarningI18n('analysis.complexityFailed', { message: complexityResult.error.message });
       }
     }
 

@@ -131,7 +131,18 @@ export async function applyDirectoryLabels(
     }
 
     if (status === 429) {
-      return err(createRateLimitError(undefined, `Rate limit exceeded: ${message}`));
+      // Extract Retry-After header if available
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errorWithResponse = error as any;
+      const retryAfterHeader =
+        errorWithResponse?.response?.headers?.['retry-after'] ?? errorWithResponse?.response?.headers?.['Retry-After'];
+      const retryAfter =
+        typeof retryAfterHeader === 'string'
+          ? Number.parseInt(retryAfterHeader, 10)
+          : typeof retryAfterHeader === 'number'
+            ? retryAfterHeader
+            : undefined;
+      return err(createRateLimitError(Number.isFinite(retryAfter) ? (retryAfter as number) : undefined));
     }
 
     return err(createGitHubAPIError(`Failed to list labels: ${message}`, status));

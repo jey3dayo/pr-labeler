@@ -172,6 +172,21 @@ export function logInfo(message: string): void {
 }
 
 /**
+ * 未初期化時にキーとパラメータを安全に文字列化するフォールバック
+ */
+function formatFallbackMessage(key: string, params?: Record<string, unknown>): string {
+  if (!params || Object.keys(params).length === 0) {
+    return key;
+  }
+
+  try {
+    return `${key}: ${JSON.stringify(params)}`;
+  } catch (_error) {
+    return key;
+  }
+}
+
+/**
  * Log debug message
  */
 export function logDebug(message: string): void {
@@ -337,7 +352,7 @@ export function getPullRequestContext(): {
 export function logInfoI18n(key: string, params?: Record<string, unknown>): void {
   if (!isInitialized()) {
     // i18n未初期化時はキーをそのまま出力（フォールバック）
-    logInfo(key);
+    logInfo(formatFallbackMessage(key, params));
     return;
   }
   const message = t('logs', key, params);
@@ -355,7 +370,7 @@ export function logInfoI18n(key: string, params?: Record<string, unknown>): void
  */
 export function logWarningI18n(key: string, params?: Record<string, unknown>): void {
   if (!isInitialized()) {
-    logWarning(key);
+    logWarning(formatFallbackMessage(key, params));
     return;
   }
   const message = t('logs', key, params);
@@ -373,7 +388,7 @@ export function logWarningI18n(key: string, params?: Record<string, unknown>): v
  */
 export function logErrorI18n(key: string, params?: Record<string, unknown>): void {
   if (!isInitialized()) {
-    logError(key);
+    logError(formatFallbackMessage(key, params));
     return;
   }
   const message = t('logs', key, params);
@@ -391,7 +406,7 @@ export function logErrorI18n(key: string, params?: Record<string, unknown>): voi
  */
 export function logDebugI18n(key: string, params?: Record<string, unknown>): void {
   if (!isInitialized()) {
-    logDebug(key);
+    logDebug(formatFallbackMessage(key, params));
     return;
   }
   const message = t('logs', key, params);

@@ -39,6 +39,7 @@ export function formatNumber(num: number): string {
  */
 export interface FormatBasicMetricsOptions {
   includeHeader?: boolean;
+  includeTimestamp?: boolean;
 }
 
 /**
@@ -46,7 +47,7 @@ export interface FormatBasicMetricsOptions {
  * Displays PR additions, files analyzed, excluded files, and timestamp
  */
 export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?: FormatBasicMetricsOptions): string {
-  const { includeHeader = true } = options || {};
+  const { includeHeader = true, includeTimestamp = true } = options || {};
   let output = '';
 
   // Header
@@ -72,7 +73,9 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
   }
 
   // Timestamp
-  output += `- ${t('summary', 'basicMetrics.analysisTime')}: ${new Date().toISOString()}\n`;
+  if (includeTimestamp) {
+    output += `- ${t('summary', 'basicMetrics.analysisTime')}: ${new Date().toISOString()}\n`;
+  }
   output += '\n';
 
   return output;

@@ -118,8 +118,20 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
   // Validate language field
   if (cfg.language !== undefined) {
-    if (cfg.language !== 'en' && cfg.language !== 'ja') {
-      return errAsync(createConfigurationError('language', cfg.language, "language must be either 'en' or 'ja'"));
+    if (typeof cfg.language !== 'string') {
+      return errAsync(createConfigurationError('language', cfg.language, 'language must be a string'));
+    }
+    const lang = String(cfg.language).toLowerCase();
+    const isEn = /^en(?:[-_].+)?$/.test(lang);
+    const isJa = /^ja(?:[-_].+)?$/.test(lang);
+    if (!isEn && !isJa) {
+      return errAsync(
+        createConfigurationError(
+          'language',
+          cfg.language,
+          "language must start with 'en' or 'ja' (e.g., 'en', 'en-US', 'ja', 'ja-JP')",
+        ),
+      );
     }
   }
 

@@ -9,7 +9,6 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 - Total Files Changed: **5**
 - Excluded Files: **0**
 - Binary files skipped: **0**
-- Analysis Time: 2025-10-18T15:30:00.000Z
 
 **All files are within size limits** ✅
 
@@ -59,7 +58,6 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 - Total Files Changed: **0**
 - Excluded Files: **1**
 - Binary files skipped: **1**
-- Analysis Time: 2025-10-18T15:30:00.000Z
 
 **All files are within size limits** ✅
 
@@ -100,7 +98,6 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 - Excluded Files: **0**
 - Binary files skipped: **0**
 - Files with errors: **2** ⚠️
-- Analysis Time: 2025-10-18T15:30:00.000Z
 
 **All files are within size limits** ✅
 
@@ -147,7 +144,6 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 - Total Files Changed: **2**
 - Excluded Files: **0**
 - Binary files skipped: **0**
-- Analysis Time: 2025-10-18T15:30:00.000Z
 
 ### 📊 Size Summary
 

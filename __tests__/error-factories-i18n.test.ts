@@ -245,9 +245,9 @@ describe('Error Factories - i18n Integration', () => {
     it('createViolationError - should work with translation', () => {
       const violations = {
         largeFiles: [],
-        excessiveLines: [],
-        excessiveAdditions: false,
-        tooManyFiles: false,
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
       };
       const error = createViolationError(violations);
       expect(error.type).toBe('ViolationError');

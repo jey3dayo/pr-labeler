@@ -67,11 +67,8 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
   }
 
   // Basic metrics section (using shared formatter, without timestamp for comments)
-  const metricsSection = formatBasicMetrics(metrics);
-  // Remove timestamp line from metrics section
-  const lines = metricsSection.split('\n');
-  const filteredLines = lines.filter(line => !line.includes('Executed at:'));
-  body += filteredLines.join('\n');
+  const metricsSection = formatBasicMetrics(metrics, { includeTimestamp: false });
+  body += metricsSection;
 
   // Violations section (using shared formatter)
   body += formatViolations(violations);
