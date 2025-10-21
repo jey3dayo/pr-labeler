@@ -194,18 +194,76 @@ PR Labelerの詳細なAPI仕様書です。
   comment_on_pr: "never"    # コメントなし
   ```
 
-#### `fail_on_violation`
+#### `fail_on_violation` ⚠️ 非推奨
 
 - **型**: `string` (boolean)
 - **必須**: ❌
 - **デフォルト**: `"false"`
 - **説明**: 違反検出時にワークフローを失敗させる（`core.setFailed`を呼び出す）
+- **⚠️ 非推奨**: `fail_on_large_files`、`fail_on_too_many_files`、`fail_on_pr_size`への移行を推奨
+- **互換性**: 新しいinputが指定されていない場合のみ動作し、以下にマッピングされます：
+  - `fail_on_violation: "true"` → `fail_on_large_files: "true"` + `fail_on_too_many_files: "true"` + `fail_on_pr_size: "large"`
 - **使用例**:
 
   ```yaml
-  fail_on_violation: "true"   # 違反時にCIを失敗させる
-  fail_on_violation: "false"  # 違反時も継続（ラベル・コメントのみ）
+  fail_on_violation: "true"   # 非推奨: 新しいinputを使用してください
+  fail_on_violation: "false"  # デフォルト
   ```
+
+#### 🆕 `fail_on_large_files`
+
+- **型**: `string` (`""` | `"true"` | `"false"`)
+- **必須**: ❌
+- **デフォルト**: `""`（無効）
+- **説明**: 大きなファイル（`auto:large-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
+- **判定条件**: ラベル（`auto:large-files`）または実際のファイルサイズ違反のいずれか
+- **使用例**:
+
+  ```yaml
+  fail_on_large_files: "true"   # 大きなファイル検出時に失敗
+  fail_on_large_files: ""       # 無効（デフォルト）
+  ```
+
+#### 🆕 `fail_on_too_many_files`
+
+- **型**: `string` (`""` | `"true"` | `"false"`)
+- **必須**: ❌
+- **デフォルト**: `""`（無効）
+- **説明**: ファイル数超過（`auto:too-many-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
+- **判定条件**: ラベル（`auto:too-many-files`）または実際のファイル数違反のいずれか
+- **使用例**:
+
+  ```yaml
+  fail_on_too_many_files: "true"  # ファイル数超過時に失敗
+  fail_on_too_many_files: ""      # 無効（デフォルト）
+  ```
+
+#### 🆕 `fail_on_pr_size`
+
+- **型**: `string` (`""` | `"small"` | `"medium"` | `"large"` | `"xlarge"` | `"xxlarge"`)
+- **必須**: ❌
+- **デフォルト**: `""`（無効）
+- **説明**: PRサイズが指定閾値以上の場合にワークフローを失敗させる
+- **判定条件**:
+  - 適用されたサイズラベル（`size/large`など）または
+  - 実際の追加行数から計算されたサイズカテゴリ
+- **依存関係**: `size_enabled: "true"`が必要（指定時に`size_enabled: false`ならConfigurationError）
+- **バリデーション**: 無効な値が指定された場合はConfigurationErrorを返す
+- **使用例**:
+
+  ```yaml
+  fail_on_pr_size: "large"      # PRサイズがlarge以上で失敗
+  fail_on_pr_size: "xlarge"     # PRサイズがxlarge以上で失敗
+  fail_on_pr_size: ""           # 無効（デフォルト）
+  ```
+
+- **サイズ順序**: `small < medium < large < xlarge < xxlarge`
+- **閾値例**（デフォルト設定）:
+  - `small`: < 200行
+  - `medium`: 200-499行
+  - `large`: 500-999行
+  - `xlarge`: 1000-2999行
+  - `xxlarge`: 3000行以上
 
 #### `enable_summary`
 
@@ -639,7 +697,8 @@ GitHub API呼び出しエラー
     file_size_limit: "100KB"
     file_lines_limit: "300"
     pr_additions_limit: "500"
-    fail_on_violation: "true"      # 違反時にCI失敗
+    fail_on_large_files: "true"    # 大きなファイル検出時に失敗
+    fail_on_too_many_files: "true" # ファイル数超過時に失敗
     comment_on_pr: "always"        # 常にコメント
 ```
 

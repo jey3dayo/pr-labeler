@@ -22,6 +22,9 @@ export interface ActionInputs {
     skip_draft_pr: string;
     comment_on_pr: string;
     fail_on_violation: string;
+    fail_on_large_files: string;
+    fail_on_too_many_files: string;
+    fail_on_pr_size: string;
     enable_summary: string;
     additional_exclude_patterns: string;
     enable_directory_labeling: string;

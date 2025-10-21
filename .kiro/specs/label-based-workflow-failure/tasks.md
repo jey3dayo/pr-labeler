@@ -35,54 +35,54 @@ Label-Based Workflow Failure Control機能の実装タスク。現在の`fail_on
   - 互換モード時の値マッピング（`fail_on_violation: true` → `failOnLargeFiles: true`, `failOnTooManyFiles: true`, `failOnPrSize: "large"`）
   - _Requirements: 1.5, 1.6, 2.1, 2.2, 2.3, 2.4, 2.6_
 
-- [ ] 3. ラベルベース失敗判定ロジックの実装
-- [ ] 3.1 ラベル一覧取得関数の実装
+- [x] 3. ラベルベース失敗判定ロジックの実装
+- [x] 3.1 ラベル一覧取得関数の実装
   - PRに適用されているラベル一覧を取得する`getCurrentPRLabels`関数を実装
   - GitHub REST API（`octokit.rest.issues.listLabelsOnIssue`）を使用
   - ラベル取得失敗時のGraceful Degradation（undefinedを返し、violationsで判定継続）
   - Railway-Oriented Programming（`Result<string[], GitHubAPIError>`）を採用
   - _Requirements: 3.1, 3.8_
 
-- [ ] 3.2 失敗条件評価関数の実装
+- [x] 3.2 失敗条件評価関数の実装
   - `evaluateFailureConditions`関数を新規作成
   - 入力: Config、appliedLabels（string[] | undefined）、violations、metrics、sizeThresholds
   - 各失敗条件の判定ロジック（large files、too many files、per-file行数、PR追加行数、PR size）を実装
   - ラベルとviolationsの両方をOR条件でチェック（いずれか一方でも該当すれば失敗）
-  - 重複検出用のfailureKeysセット（Set<string>）を使用し、**同じ失敗理由の重複のみを防ぐ**（異なる理由は両方とも追加）
+  - 重複検出用のfailureKeysセット（`Set<string>`）を使用し、**同じ失敗理由の重複のみを防ぐ**（異なる理由は両方とも追加）
   - i18n対応: キーで重複判定を行い、翻訳済み文字列の比較を避ける
   - 各違反理由（largeFiles、tooManyFiles、tooManyLines、excessiveChanges、prSize）は独立して追加される
   - サイズ比較のためのヘルパー関数`compareSizeThreshold`と`calculateSizeCategory`を実装
   - _Requirements: 3.2, 3.3, 3.4, 3.8_
 
-- [ ] 3.3 失敗メッセージ結合とワークフロー制御の統合
+- [x] 3.3 失敗メッセージ結合とワークフロー制御の統合
   - 失敗リストが空でない場合に`core.setFailed(failures.join(', '))`を呼び出すロジックを実装
   - 既存の`hasViolations && config.failOnViolation`判定を新しい`evaluateFailureConditions`ベースのロジックに置き換え
   - index.ts（run関数）のStep 10失敗判定セクションを更新
   - 互換モード時の挙動が既存ユーザーと一致することを保証
   - _Requirements: 3.5, 3.6, 3.7_
 
-- [ ] 4. サイズ比較ユーティリティの実装
-- [ ] 4.1 サイズ順序定義とcompareSizeThreshold関数
+- [x] 4. サイズ比較ユーティリティの実装
+- [x] 4.1 サイズ順序定義とcompareSizeThreshold関数
   - サイズ順序定数`SIZE_ORDER`を定義（small < medium < large < xlarge < xxlarge）
   - `compareSizeThreshold`関数を実装（actualSize >= threshold判定）
   - "size/"プレフィックスの除去ロジック
   - 無効なサイズ値の処理（false返却またはエラーログ）
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 4.2 サイズカテゴリ算出関数の実装
+- [x] 4.2 サイズカテゴリ算出関数の実装
   - `calculateSizeCategory`関数を実装（totalAdditions → "size/small" | "size/medium" | ...）
   - SizeThresholdsV2設定を用いた閾値比較
   - デフォルト閾値（small: 200, medium: 500, large: 1000, xlarge: 3000）を考慮
   - _Requirements: 4.1, 4.5_
 
-- [ ] 5. 多言語対応とエラーメッセージの整備
-- [ ] 5.1 i18nメッセージキーの追加
+- [x] 5. 多言語対応とエラーメッセージの整備
+- [x] 5.1 i18nメッセージキーの追加
   - `src/locales/en/logs.json`に新規メッセージキーを追加（failures: largeFiles, tooManyFiles, tooManyLines, excessiveChanges, prSize、deprecation: failOnViolation、errors: invalidFailOnPrSize, failOnPrSizeRequiresSizeEnabled）
   - `src/locales/ja/logs.json`に日本語翻訳を追加
   - 既存のi18n関数（`t`、`logWarningI18n`）を活用
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 5.2 非推奨警告の実装
+- [x] 5.2 非推奨警告の実装
   - `fail_on_violation`使用時に非推奨警告を出力する`logWarningI18n('deprecation.failOnViolation')`を実装
   - mapActionInputsToConfig関数内の互換モード判定時に警告を挿入
   - 警告メッセージに移行先input（`fail_on_large_files`、`fail_on_too_many_files`、`fail_on_pr_size`）を明記
@@ -143,15 +143,15 @@ Label-Based Workflow Failure Control機能の実装タスク。現在の`fail_on
   - 互換モードの説明と移行ステップへのリンクを記載
   - _Requirements: 7.4_
 
-- [ ] 8. 品質保証と最終確認
-- [ ] 8.1 lint・type-check・buildの実行
+- [x] 8. 品質保証と最終確認
+- [x] 8.1 lint・type-check・buildの実行
   - `pnpm lint`でESLintエラー0件を確認
   - `pnpm type-check`で型エラー0件を確認
   - `pnpm build`でビルド成功を確認
   - dist/index.jsが正しく生成されることを確認
   - _Requirements: すべての要件に対する技術的品質保証_
 
-- [ ] 8.2 全テストの実行とカバレッジ確認
+- [x] 8.2 全テストの実行とカバレッジ確認
   - `pnpm test:vitest`で全テスト成功を確認
   - `pnpm test:coverage`でカバレッジ90%以上を確認
   - 新規追加コードがテストでカバーされていることを確認

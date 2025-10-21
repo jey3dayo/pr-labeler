@@ -31,6 +31,10 @@ const getDefaultPRLabelerInputs = () => ({
   complexity_thresholds: '{"medium": 10, "high": 20}',
   category_enabled: 'true',
   risk_enabled: 'true',
+  // Label-Based Workflow Failure Control
+  fail_on_large_files: '',
+  fail_on_too_many_files: '',
+  fail_on_pr_size: '',
 });
 
 describe('InputMapper', () => {

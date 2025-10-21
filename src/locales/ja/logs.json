@@ -88,5 +88,19 @@
     "skippedDraft": "PR Labelerが完了しました（ドラフトPRをスキップ）",
     "failed": "アクションが失敗しました: {{message}}",
     "failedViolations": "PRに違反があり、fail_on_violationが有効です"
+  },
+  "failures": {
+    "largeFiles": "大きなファイルが検出されました",
+    "tooManyFiles": "PRのファイル数が多すぎます",
+    "tooManyLines": "行数が多すぎるファイルが検出されました",
+    "excessiveChanges": "PRの追加行数が制限を超えています",
+    "prSize": "PRサイズ（{{size}}）が閾値（{{threshold}}）を超えています"
+  },
+  "deprecation": {
+    "failOnViolation": "⚠️  'fail_on_violation'は非推奨です。'fail_on_large_files'、'fail_on_too_many_files'、または'fail_on_pr_size'を使用してください。"
+  },
+  "errors": {
+    "invalidFailOnPrSize": "fail_on_pr_sizeの値が無効です。有効な値: {{valid}}",
+    "failOnPrSizeRequiresSizeEnabled": "fail_on_pr_sizeはsize_enabled: trueが必要です"
   }
 }

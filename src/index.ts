@@ -32,11 +32,13 @@ import { loadDirectoryLabelerConfig } from './directory-labeler/config-loader.js
 import { decideLabelsForFiles, filterByMaxLabels } from './directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from './directory-labeler/label-applicator.js';
 import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors/index.js';
+import { evaluateFailureConditions } from './failure-evaluator.js';
 import { analyzeFiles } from './file-metrics';
 import { initializeI18n, t } from './i18n.js';
 import { mapActionInputsToConfig } from './input-mapper';
 import { applyLabels } from './label-applicator';
 import { decideLabels } from './label-decision-engine';
+import { getCurrentPRLabels } from './label-manager.js';
 import type { PRMetrics } from './labeler-types';
 import type { PRContext } from './types';
 
@@ -499,9 +501,25 @@ async function run(): Promise<void> {
       has_violations: hasViolations.toString(),
     });
 
-    // Step 10: Fail if violations and fail_on_violation is true
-    if (hasViolations && config.failOnViolation) {
-      const failMessage = t('logs', 'completion.failedViolations');
+    // Step 10: Evaluate failure conditions based on labels and violations
+    const appliedLabels = await getCurrentPRLabels(token, {
+      owner: prContext.owner,
+      repo: prContext.repo,
+      pullNumber: prContext.pullNumber,
+    });
+
+    const failures = evaluateFailureConditions({
+      config,
+      appliedLabels,
+      violations: analysis.violations,
+      metrics: {
+        totalAdditions: analysis.metrics.totalAdditions,
+      },
+      sizeThresholds: config.sizeThresholdsV2,
+    });
+
+    if (failures.length > 0) {
+      const failMessage = failures.join(', ');
       setFailed(`🚫 ${failMessage}`);
     } else {
       logInfoI18n('completion.success');

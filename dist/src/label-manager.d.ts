@@ -25,6 +25,7 @@ export declare function getDetailLabels(violations: Violations, customLabels?: {
     tooManyFiles?: string;
 }): string[];
 export declare function getCurrentLabels(token: string, context: PRContext): Promise<Result<string[], GitHubAPIError>>;
+export declare function getCurrentPRLabels(token: string, context: PRContext): Promise<string[] | undefined>;
 export declare function addLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function removeLabels(labels: string[], token: string, context: PRContext): Promise<Result<void, GitHubAPIError>>;
 export declare function updateLabels(analysisResult: AnalysisResult, config: LabelConfig, token: string, context: PRContext): Promise<Result<LabelUpdate, GitHubAPIError | ConfigurationError>>;

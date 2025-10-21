@@ -45,6 +45,10 @@ export interface ActionInputs {
   skip_draft_pr: string;
   comment_on_pr: string;
   fail_on_violation: string;
+  // Label-Based Workflow Failure Control
+  fail_on_large_files: string; // "" | "true" | "false"
+  fail_on_too_many_files: string; // "" | "true" | "false"
+  fail_on_pr_size: string; // "" | "small" | "medium" | "large" | "xlarge" | "xxlarge"
   enable_summary: string;
   additional_exclude_patterns: string;
   // Directory-Based Labeling
@@ -135,6 +139,10 @@ export function getActionInputs(): ActionInputs {
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
     comment_on_pr: core.getInput('comment_on_pr') || 'auto',
     fail_on_violation: core.getInput('fail_on_violation') || 'false',
+    // Label-Based Workflow Failure Control
+    fail_on_large_files: core.getInput('fail_on_large_files') || '',
+    fail_on_too_many_files: core.getInput('fail_on_too_many_files') || '',
+    fail_on_pr_size: core.getInput('fail_on_pr_size') || '',
     enable_summary: core.getInput('enable_summary') || 'true',
     additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
     // Directory-Based Labeling

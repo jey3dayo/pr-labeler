@@ -88,5 +88,19 @@
     "skippedDraft": "PR Labeler completed (skipped draft PR)",
     "failed": "Action failed: {{message}}",
     "failedViolations": "PR contains violations and fail_on_violation is enabled"
+  },
+  "failures": {
+    "largeFiles": "Large files detected",
+    "tooManyFiles": "Too many files in PR",
+    "tooManyLines": "Files with too many lines detected",
+    "excessiveChanges": "PR additions exceed limit",
+    "prSize": "PR size ({{size}}) exceeds threshold ({{threshold}})"
+  },
+  "deprecation": {
+    "failOnViolation": "⚠️  'fail_on_violation' is deprecated. Use 'fail_on_large_files', 'fail_on_too_many_files', or 'fail_on_pr_size' instead."
+  },
+  "errors": {
+    "invalidFailOnPrSize": "Invalid fail_on_pr_size value. Valid values: {{valid}}",
+    "failOnPrSizeRequiresSizeEnabled": "fail_on_pr_size requires size_enabled to be true"
   }
 }

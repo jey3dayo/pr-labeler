@@ -5,18 +5,29 @@
 import { err, ok, Result } from 'neverthrow';
 
 import type { ActionInputs } from './actions-io';
+import { logWarningI18n } from './actions-io';
 import type { ConfigurationError, ParseError } from './errors/index.js';
 import { createConfigurationError, createParseError } from './errors/index.js';
 import { parseSize } from './parsers/size-parser';
 
 /**
- * Size threshold configuration
+ * Size threshold configuration (v0.x format: S/M/L with additions + files)
  */
 export interface SizeThresholds {
   S: { additions: number; files: number };
   M: { additions: number; files: number };
   L: { additions: number; files: number };
   // XL is determined when L thresholds are exceeded
+}
+
+/**
+ * Size threshold configuration (v2 format: small/medium/large/xlarge with additions only)
+ */
+export interface SizeThresholdsV2 {
+  small: number;
+  medium: number;
+  large: number;
+  xlarge: number;
 }
 
 /**
@@ -41,6 +52,11 @@ export interface Config {
   skipDraftPr: boolean;
   commentOnPr: 'auto' | 'always' | 'never';
   failOnViolation: boolean;
+  // Label-Based Workflow Failure Control
+  failOnLargeFiles: boolean;
+  failOnTooManyFiles: boolean;
+  failOnPrSize: string; // "" | "small" | "medium" | "large" | "xlarge" | "xxlarge"
+  legacyFailOnViolation: boolean; // Internal flag for compatibility mode
   enableSummary: boolean;
   additionalExcludePatterns: string[];
   githubToken: string;
@@ -307,6 +323,57 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'));
   }
 
+  // Label-Based Workflow Failure Control: Determine explicit inputs
+  const hasExplicitLargeFiles = inputs.fail_on_large_files.trim() !== '';
+  const hasExplicitTooManyFiles = inputs.fail_on_too_many_files.trim() !== '';
+  const hasExplicitPrSize = inputs.fail_on_pr_size.trim() !== '';
+  const hasNewInputs = hasExplicitLargeFiles || hasExplicitTooManyFiles || hasExplicitPrSize;
+
+  // Compatibility mode detection
+  const useLegacyMode = parseBoolean(inputs.fail_on_violation) === true;
+
+  let failOnLargeFiles: boolean;
+  let failOnTooManyFiles: boolean;
+  let failOnPrSize: string;
+
+  if (hasNewInputs) {
+    // New inputs take precedence (explicit specification)
+    failOnLargeFiles = hasExplicitLargeFiles ? parseBoolean(inputs.fail_on_large_files) === true : false;
+    failOnTooManyFiles = hasExplicitTooManyFiles ? parseBoolean(inputs.fail_on_too_many_files) === true : false;
+    failOnPrSize = hasExplicitPrSize ? inputs.fail_on_pr_size.trim() : '';
+  } else if (useLegacyMode) {
+    // Compatibility mode (fail_on_violation: true with no new inputs)
+    failOnLargeFiles = true;
+    failOnTooManyFiles = true;
+    failOnPrSize = 'large';
+    // Log deprecation warning
+    logWarningI18n('deprecation.failOnViolation');
+  } else {
+    // Default values (nothing specified)
+    failOnLargeFiles = false;
+    failOnTooManyFiles = false;
+    failOnPrSize = '';
+  }
+
+  // Validate fail_on_pr_size
+  const validSizes = ['', 'small', 'medium', 'large', 'xlarge', 'xxlarge'];
+  if (!validSizes.includes(failOnPrSize)) {
+    return err(
+      createConfigurationError(
+        'fail_on_pr_size',
+        failOnPrSize,
+        `Invalid fail_on_pr_size value. Valid values: ${validSizes.join(', ')}`,
+      ),
+    );
+  }
+
+  // size_enabled dependency check
+  if (failOnPrSize !== '' && !sizeEnabledResult.value) {
+    return err(
+      createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'),
+    );
+  }
+
   // Construct config object
   const config: Config = {
     fileSizeLimit: fileSizeLimitResult.value,
@@ -327,6 +394,11 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     skipDraftPr: parseBoolean(inputs.skip_draft_pr),
     commentOnPr: parseCommentMode(inputs.comment_on_pr),
     failOnViolation: parseBoolean(inputs.fail_on_violation),
+    // Label-Based Workflow Failure Control
+    failOnLargeFiles,
+    failOnTooManyFiles,
+    failOnPrSize,
+    legacyFailOnViolation: useLegacyMode,
     enableSummary: parseBoolean(inputs.enable_summary),
     additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
     githubToken: inputs.github_token,

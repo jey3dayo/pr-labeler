@@ -40,7 +40,7 @@ Label-Based Workflow Failure Control機能は、PR Labelerアクションにお�
 4. WHEN PR Labelerがバージョンアップされる THEN `fail_on_violation` inputは**非推奨として維持**され、ユーザーに移行を促す警告を出力しなければならない
    - `action.yml`には`deprecated`記法または説明文で非推奨である旨を明記
    - 実行時に`fail_on_violation`が指定された場合、ログに移行ガイダンスを出力する（i18n対応）
-   - 挙動: `fail_on_violation: true` の場合は以下の互換モードを適用する  
+   - 挙動: `fail_on_violation: true` の場合は以下の互換モードを適用する
      - `fail_on_large_files`/`fail_on_too_many_files`/`fail_on_pr_size`を内部的に`true`/`"large"`として評価し、既存ユーザーの挙動が変わらないようにする
 
 5. WHEN `fail_on_violation` inputが指定される THEN 新しいラベルベース設定にマッピングされた値が、明示的な新規inputよりも優先度が低い（優先度: 新規input > 既存互換入力）ことを保証しなければならない
