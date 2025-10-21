@@ -94,6 +94,7 @@ describe('i18n Core Functions', () => {
     });
 
     it('should default to en when no language is specified', () => {
+      resetI18n(); // i18nをリセット
       delete process.env['LANGUAGE'];
       delete process.env['LANG'];
 
@@ -114,6 +115,9 @@ describe('i18n Core Functions', () => {
   describe('initializeI18n', () => {
     it('should initialize successfully with English', () => {
       resetI18n(); // 明示的にリセット
+      // CI環境の環境変数をクリア
+      delete process.env['LANGUAGE'];
+      delete process.env['LANG'];
 
       const config: Config = {
         language: 'en',
@@ -123,12 +127,14 @@ describe('i18n Core Functions', () => {
 
       expect(result.isOk()).toBe(true);
       expect(isInitialized()).toBe(true);
-      // Note: getCurrentLanguage()は他のテストの影響を受ける可能性があるため、
-      // ここではチェックしない（初期化が成功することが重要）
+      expect(getCurrentLanguage()).toBe('en');
     });
 
     it('should initialize successfully with Japanese', () => {
       resetI18n(); // 明示的にリセット
+      // CI環境の環境変数をクリア
+      delete process.env['LANGUAGE'];
+      delete process.env['LANG'];
 
       const config: Config = {
         language: 'ja',
