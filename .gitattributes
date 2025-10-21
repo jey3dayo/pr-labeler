@@ -1,3 +1,0 @@
-# Generated JavaScript bundles and source maps - treat as binary
-dist/*.js binary
-dist/*.map binary
