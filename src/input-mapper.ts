@@ -29,8 +29,13 @@ export interface Config {
   prFilesLimit: number; // number
   applyLabels: boolean;
   autoRemoveLabels: boolean;
-  applySizeLabels: boolean;
-  sizeThresholds: SizeThresholds;
+  // PR Labeler - Selective Label Enabling
+  sizeEnabled: boolean;
+  sizeThresholdsV2: { small: number; medium: number; large: number };
+  complexityEnabled: boolean;
+  complexityThresholdsV2: { medium: number; high: number };
+  categoryEnabled: boolean;
+  riskEnabled: boolean;
   largeFilesLabel: string;
   tooManyFilesLabel: string;
   skipDraftPr: boolean;
@@ -50,12 +55,38 @@ export interface Config {
 }
 
 /**
- * Parse boolean value
+ * Parse boolean value (lenient)
  * Accepts: true, 1, yes, on (case insensitive, with spaces)
+ * Unknown values default to false
  */
 export function parseBoolean(value: string): boolean {
   const normalized = value.trim().toLowerCase();
   return ['true', '1', 'yes', 'on'].includes(normalized);
+}
+
+/**
+ * Parse boolean value (strict)
+ * Accepts: true, 1, yes, on, false, 0, no, off (case insensitive, with spaces)
+ * Unknown values return ConfigurationError
+ */
+export function parseBooleanStrict(value: string): Result<boolean, ConfigurationError> {
+  const normalized = value.trim().toLowerCase();
+
+  if (['true', '1', 'yes', 'on'].includes(normalized)) {
+    return ok(true);
+  }
+
+  if (['false', '0', 'no', 'off'].includes(normalized)) {
+    return ok(false);
+  }
+
+  return err(
+    createConfigurationError(
+      'boolean',
+      value,
+      `Invalid boolean value: "${value}". Allowed values: true/false/1/0/yes/no/on/off`,
+    ),
+  );
 }
 
 /**
@@ -87,7 +118,7 @@ export function parseExcludePatterns(value: string): string[] {
 }
 
 /**
- * Parse size thresholds from JSON string
+ * Parse size thresholds from JSON string (旧形式: S/M/L with additions + files)
  */
 export function parseSizeThresholds(value: string): Result<SizeThresholds, ParseError> {
   try {
@@ -124,6 +155,78 @@ export function parseSizeThresholds(value: string): Result<SizeThresholds, Parse
 }
 
 /**
+ * Parse size thresholds from JSON string (V2: small/medium/large with additions only)
+ * Used by PR Labeler feature
+ */
+export function parseSizeThresholdsV2(
+  value: string,
+): Result<{ small: number; medium: number; large: number }, ParseError> {
+  try {
+    const parsed = JSON.parse(value);
+
+    // Validate required fields
+    if (typeof parsed.small !== 'number' || typeof parsed.medium !== 'number' || typeof parsed.large !== 'number') {
+      return err(createParseError(value, 'Missing or invalid required size thresholds (small, medium, large)'));
+    }
+
+    // Validate non-negative values
+    if (parsed.small < 0 || parsed.medium < 0 || parsed.large < 0) {
+      return err(createParseError(value, 'Size threshold values must be non-negative'));
+    }
+
+    // Validate monotonicity (small < medium < large)
+    if (parsed.small >= parsed.medium) {
+      return err(
+        createParseError(value, `size.thresholds.small (${parsed.small}) must be less than medium (${parsed.medium})`),
+      );
+    }
+    if (parsed.medium >= parsed.large) {
+      return err(
+        createParseError(value, `size.thresholds.medium (${parsed.medium}) must be less than large (${parsed.large})`),
+      );
+    }
+
+    return ok({ small: parsed.small, medium: parsed.medium, large: parsed.large });
+  } catch (_error) {
+    return err(createParseError(value, 'Invalid JSON for size thresholds'));
+  }
+}
+
+/**
+ * Parse complexity thresholds from JSON string (V2: medium/high)
+ * Used by PR Labeler feature
+ */
+export function parseComplexityThresholdsV2(value: string): Result<{ medium: number; high: number }, ParseError> {
+  try {
+    const parsed = JSON.parse(value);
+
+    // Validate required fields
+    if (typeof parsed.medium !== 'number' || typeof parsed.high !== 'number') {
+      return err(createParseError(value, 'Missing or invalid required complexity thresholds (medium, high)'));
+    }
+
+    // Validate non-negative values
+    if (parsed.medium < 0 || parsed.high < 0) {
+      return err(createParseError(value, 'Complexity threshold values must be non-negative'));
+    }
+
+    // Validate monotonicity (medium < high)
+    if (parsed.medium >= parsed.high) {
+      return err(
+        createParseError(
+          value,
+          `complexity.thresholds.medium (${parsed.medium}) must be less than high (${parsed.high})`,
+        ),
+      );
+    }
+
+    return ok({ medium: parsed.medium, high: parsed.high });
+  } catch (_error) {
+    return err(createParseError(value, 'Invalid JSON for complexity thresholds'));
+  }
+}
+
+/**
  * Map action inputs to internal config
  */
 export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, ConfigurationError | ParseError> {
@@ -153,10 +256,36 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     return err(createConfigurationError('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
   }
 
-  // Parse size thresholds
-  const sizeThresholdsResult = parseSizeThresholds(inputs.size_label_thresholds);
-  if (sizeThresholdsResult.isErr()) {
-    return err(sizeThresholdsResult.error);
+  // Parse PR Labeler enabled flags (strict validation)
+  const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
+  if (sizeEnabledResult.isErr()) {
+    return err(sizeEnabledResult.error);
+  }
+
+  const complexityEnabledResult = parseBooleanStrict(inputs.complexity_enabled);
+  if (complexityEnabledResult.isErr()) {
+    return err(complexityEnabledResult.error);
+  }
+
+  const categoryEnabledResult = parseBooleanStrict(inputs.category_enabled);
+  if (categoryEnabledResult.isErr()) {
+    return err(categoryEnabledResult.error);
+  }
+
+  const riskEnabledResult = parseBooleanStrict(inputs.risk_enabled);
+  if (riskEnabledResult.isErr()) {
+    return err(riskEnabledResult.error);
+  }
+
+  // Parse PR Labeler thresholds
+  const sizeThresholdsV2Result = parseSizeThresholdsV2(inputs.size_thresholds);
+  if (sizeThresholdsV2Result.isErr()) {
+    return err(sizeThresholdsV2Result.error);
+  }
+
+  const complexityThresholdsV2Result = parseComplexityThresholdsV2(inputs.complexity_thresholds);
+  if (complexityThresholdsV2Result.isErr()) {
+    return err(complexityThresholdsV2Result.error);
   }
 
   // Parse Directory-Based Labeler numeric inputs
@@ -174,8 +303,13 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     prFilesLimit,
     applyLabels: parseBoolean(inputs.apply_labels),
     autoRemoveLabels: parseBoolean(inputs.auto_remove_labels),
-    applySizeLabels: parseBoolean(inputs.apply_size_labels),
-    sizeThresholds: sizeThresholdsResult.value,
+    // PR Labeler - Selective Label Enabling
+    sizeEnabled: sizeEnabledResult.value,
+    sizeThresholdsV2: sizeThresholdsV2Result.value,
+    complexityEnabled: complexityEnabledResult.value,
+    complexityThresholdsV2: complexityThresholdsV2Result.value,
+    categoryEnabled: categoryEnabledResult.value,
+    riskEnabled: riskEnabledResult.value,
     largeFilesLabel: inputs.large_files_label,
     tooManyFilesLabel: inputs.too_many_files_label,
     skipDraftPr: parseBoolean(inputs.skip_draft_pr),

@@ -10,6 +10,7 @@ import { DEFAULT_CATEGORIES } from './categories.js';
  */
 export const DEFAULT_LABELER_CONFIG: LabelerConfig = {
   size: {
+    enabled: true, // サイズラベルはデフォルトで有効
     thresholds: {
       small: 100,
       medium: 500,
@@ -42,8 +43,12 @@ export const DEFAULT_LABELER_CONFIG: LabelerConfig = {
       '**/__generated__/**',
     ],
   },
+  categoryLabeling: {
+    enabled: true, // カテゴリラベルはデフォルトで有効
+  },
   categories: DEFAULT_CATEGORIES,
   risk: {
+    enabled: true, // リスクラベルはデフォルトで有効
     high_if_no_tests_for_core: true,
     core_paths: ['src/**'],
     config_files: ['.github/workflows/**', 'package.json', 'tsconfig.json'],

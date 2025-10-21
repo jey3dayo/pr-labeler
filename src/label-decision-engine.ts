@@ -27,16 +27,18 @@ export function decideLabels(
   const reasoning: LabelReasoning[] = [];
   const labelsToAdd: string[] = [];
 
-  // 1. Decide size label
-  const sizeLabel = decideSizeLabel(metrics.totalAdditions, config.size.thresholds);
-  labelsToAdd.push(sizeLabel);
-  reasoning.push({
-    label: sizeLabel,
-    reason: `additions (${metrics.totalAdditions}) falls in ${sizeLabel} range`,
-    category: 'size',
-  });
+  // 1. Decide size label (if enabled)
+  if (config.size.enabled) {
+    const sizeLabel = decideSizeLabel(metrics.totalAdditions, config.size.thresholds);
+    labelsToAdd.push(sizeLabel);
+    reasoning.push({
+      label: sizeLabel,
+      reason: `additions (${metrics.totalAdditions}) falls in ${sizeLabel} range`,
+      category: 'size',
+    });
+  }
 
-  // 2. Decide complexity label (if complexity metrics available)
+  // 2. Decide complexity label (if complexity metrics available and enabled)
   if (metrics.complexity && config.complexity.enabled) {
     const complexityLabel = decideComplexityLabel(metrics.complexity.maxComplexity, config.complexity.thresholds);
     if (complexityLabel) {
@@ -49,38 +51,42 @@ export function decideLabels(
     }
   }
 
-  // 3. Decide category labels
-  const categoryLabels = decideCategoryLabels(
-    metrics.files.map(f => f.path),
-    config.categories,
-  );
-  labelsToAdd.push(...categoryLabels);
-  for (const label of categoryLabels) {
-    reasoning.push({
-      label,
-      reason: `file patterns match ${label} category`,
-      category: 'category',
-    });
+  // 3. Decide category labels (if enabled)
+  if (config.categoryLabeling.enabled) {
+    const categoryLabels = decideCategoryLabels(
+      metrics.files.map(f => f.path),
+      config.categories,
+    );
+    labelsToAdd.push(...categoryLabels);
+    for (const label of categoryLabels) {
+      reasoning.push({
+        label,
+        reason: `file patterns match ${label} category`,
+        category: 'category',
+      });
+    }
   }
 
-  // 4. Decide risk label
-  const riskLabel = decideRiskLabel(
-    metrics.files.map(f => f.path),
-    config.risk,
-    prContext,
-  );
-  if (riskLabel) {
-    labelsToAdd.push(riskLabel);
-    reasoning.push({
-      label: riskLabel,
-      reason: getRiskReason(
-        metrics.files.map(f => f.path),
-        config.risk,
-        riskLabel,
-        prContext,
-      ),
-      category: 'risk',
-    });
+  // 4. Decide risk label (if enabled)
+  if (config.risk.enabled) {
+    const riskLabel = decideRiskLabel(
+      metrics.files.map(f => f.path),
+      config.risk,
+      prContext,
+    );
+    if (riskLabel) {
+      labelsToAdd.push(riskLabel);
+      reasoning.push({
+        label: riskLabel,
+        reason: getRiskReason(
+          metrics.files.map(f => f.path),
+          config.risk,
+          riskLabel,
+          prContext,
+        ),
+        category: 'risk',
+      });
+    }
   }
 
   // Determine labels to remove based on namespace policies

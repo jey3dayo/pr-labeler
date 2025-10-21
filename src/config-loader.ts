@@ -268,7 +268,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   }
 
   // Warn about unknown keys (future extension)
-  const knownKeys = ['size', 'complexity', 'categories', 'risk', 'exclude', 'labels', 'runtime'];
+  const knownKeys = ['size', 'complexity', 'categoryLabeling', 'categories', 'risk', 'exclude', 'labels', 'runtime'];
   const unknownKeys = Object.keys(config).filter(key => !knownKeys.includes(key));
   if (unknownKeys.length > 0) {
     core.warning(`Unknown configuration keys will be ignored: ${unknownKeys.join(', ')}`);
@@ -312,6 +312,7 @@ function isValidMinimatchPattern(pattern: string): boolean {
 export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerConfig {
   return {
     size: {
+      enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
       thresholds: {
         small: userConfig.size?.thresholds?.small ?? DEFAULT_LABELER_CONFIG.size.thresholds.small,
         medium: userConfig.size?.thresholds?.medium ?? DEFAULT_LABELER_CONFIG.size.thresholds.medium,
@@ -328,8 +329,12 @@ export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerCo
       extensions: userConfig.complexity?.extensions ?? DEFAULT_LABELER_CONFIG.complexity.extensions,
       exclude: userConfig.complexity?.exclude ?? DEFAULT_LABELER_CONFIG.complexity.exclude,
     },
+    categoryLabeling: {
+      enabled: userConfig.categoryLabeling?.enabled ?? DEFAULT_LABELER_CONFIG.categoryLabeling.enabled,
+    },
     categories: userConfig.categories ?? DEFAULT_LABELER_CONFIG.categories,
     risk: {
+      enabled: userConfig.risk?.enabled ?? DEFAULT_LABELER_CONFIG.risk.enabled,
       high_if_no_tests_for_core:
         userConfig.risk?.high_if_no_tests_for_core ?? DEFAULT_LABELER_CONFIG.risk.high_if_no_tests_for_core,
       core_paths: userConfig.risk?.core_paths ?? DEFAULT_LABELER_CONFIG.risk.core_paths,

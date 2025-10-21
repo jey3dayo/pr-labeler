@@ -161,6 +161,18 @@ async function run(): Promise<void> {
       logInfo('  - Loaded custom labeler configuration from .github/pr-labeler.yml');
     }
 
+    // Step 7.5: Merge action inputs with labeler config (inputs take priority)
+    logInfo('🔧 Merging action inputs with labeler configuration...');
+    labelerConfig.size.enabled = config.sizeEnabled;
+    labelerConfig.size.thresholds = config.sizeThresholdsV2;
+    labelerConfig.complexity.enabled = config.complexityEnabled;
+    labelerConfig.complexity.thresholds = config.complexityThresholdsV2;
+    labelerConfig.categoryLabeling.enabled = config.categoryEnabled;
+    labelerConfig.risk.enabled = config.riskEnabled;
+    logDebug(
+      `  - Enabled flags: size=${config.sizeEnabled}, complexity=${config.complexityEnabled}, category=${config.categoryEnabled}, risk=${config.riskEnabled}`,
+    );
+
     // Step 7.6: Analyze complexity (if enabled)
     let complexityMetrics = undefined;
     if (labelerConfig.complexity.enabled) {
@@ -408,6 +420,22 @@ async function run(): Promise<void> {
     // Step 8.5: Write GitHub Actions Summary (if enabled)
     if (config.enableSummary) {
       logInfo('📊 Writing GitHub Actions Summary...');
+
+      // Collect disabled label types
+      const disabledFeatures: string[] = [];
+      if (!labelerConfig.size.enabled) {
+        disabledFeatures.push('size');
+      }
+      if (!labelerConfig.complexity.enabled) {
+        disabledFeatures.push('complexity');
+      }
+      if (!labelerConfig.categoryLabeling.enabled) {
+        disabledFeatures.push('category');
+      }
+      if (!labelerConfig.risk.enabled) {
+        disabledFeatures.push('risk');
+      }
+
       const summaryResult = await writeSummaryWithAnalysis(
         analysis,
         {
@@ -424,6 +452,7 @@ async function run(): Promise<void> {
               },
             }
           : undefined,
+        { disabledFeatures },
       );
 
       if (summaryResult.isErr()) {

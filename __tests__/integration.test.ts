@@ -256,4 +256,156 @@ describe('Integration Tests', () => {
       expect(core.setFailed).not.toHaveBeenCalled();
     });
   });
+
+  describe('Selective Label Enabling Integration', () => {
+    beforeEach(() => {
+      // PR Labeler inputs を追加
+      vi.spyOn(core, 'getInput').mockImplementation((name: string) => {
+        const inputs: Record<string, string> = {
+          github_token: 'mock-token',
+          file_size_limit: '100KB',
+          file_lines_limit: '500',
+          pr_additions_limit: '5000',
+          pr_files_limit: '50',
+          apply_labels: 'true',
+          auto_remove_labels: 'true',
+          large_files_label: 'auto:large-files',
+          too_many_files_label: 'auto:too-many-files',
+          skip_draft_pr: 'true',
+          comment_on_pr: 'auto',
+          fail_on_violation: 'false',
+          additional_exclude_patterns: '',
+          enable_summary: 'true',
+          // Selective Label Enabling inputs
+          size_enabled: 'true',
+          size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+          complexity_enabled: 'true',
+          complexity_thresholds: '{"medium": 10, "high": 20}',
+          category_enabled: 'true',
+          risk_enabled: 'true',
+          // Directory Labeling inputs
+          enable_directory_labeling: 'false',
+          directory_labeler_config_path: '.github/directory-labeler.yml',
+          auto_create_labels: 'false',
+          label_color: 'cccccc',
+          label_description: '',
+          max_labels: '10',
+          use_default_excludes: 'true',
+        };
+        return inputs[name] || '';
+      });
+    });
+
+    it('should work with all label types enabled', async () => {
+      mockOctokit.rest.pulls.listFiles.mockResolvedValue({
+        data: [
+          {
+            filename: 'src/feature.ts',
+            additions: 150,
+            deletions: 50,
+            changes: 200,
+            status: 'modified',
+          },
+        ],
+      });
+
+      mockOctokit.rest.repos.getContent.mockResolvedValue({
+        data: {
+          size: 30000, // 30KB
+        },
+      });
+
+      mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.listComments.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
+
+      await run();
+
+      expect(core.setFailed).not.toHaveBeenCalled();
+      // apply_labels=true の場合はラベルが適用される可能性がある
+      // ただし、すべての条件を満たす必要があるため、呼び出されるかどうかは実装に依存
+    });
+
+    it('should skip size labels when size_enabled=false', async () => {
+      // サイズラベルを無効化
+      vi.spyOn(core, 'getInput').mockImplementation((name: string) => {
+        const inputs: Record<string, string> = {
+          github_token: 'mock-token',
+          file_size_limit: '100KB',
+          file_lines_limit: '500',
+          pr_additions_limit: '5000',
+          pr_files_limit: '50',
+          apply_labels: 'true',
+          auto_remove_labels: 'true',
+          large_files_label: 'auto:large-files',
+          too_many_files_label: 'auto:too-many-files',
+          skip_draft_pr: 'true',
+          comment_on_pr: 'auto',
+          fail_on_violation: 'false',
+          additional_exclude_patterns: '',
+          enable_summary: 'true',
+          size_enabled: 'false', // サイズラベルを無効化
+          size_thresholds: '{"small": 100, "medium": 500, "large": 1000}',
+          complexity_enabled: 'true',
+          complexity_thresholds: '{"medium": 10, "high": 20}',
+          category_enabled: 'true',
+          risk_enabled: 'true',
+          enable_directory_labeling: 'false',
+          directory_labeler_config_path: '.github/directory-labeler.yml',
+          auto_create_labels: 'false',
+          label_color: 'cccccc',
+          label_description: '',
+          max_labels: '10',
+          use_default_excludes: 'true',
+        };
+        return inputs[name] || '';
+      });
+
+      mockOctokit.rest.pulls.listFiles.mockResolvedValue({
+        data: [
+          {
+            filename: 'src/feature.ts',
+            additions: 150,
+            deletions: 50,
+            changes: 200,
+            status: 'modified',
+          },
+        ],
+      });
+
+      mockOctokit.rest.repos.getContent.mockResolvedValue({
+        data: {
+          size: 30000,
+        },
+      });
+
+      mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.listComments.mockResolvedValue({
+        data: [],
+      });
+
+      mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
+
+      await run();
+
+      expect(core.setFailed).not.toHaveBeenCalled();
+
+      // サイズラベルが付与されないことを確認
+      const calls = mockOctokit.rest.issues.addLabels.mock.calls;
+      if (calls.length > 0 && calls[0]?.[0]) {
+        const addedLabels = calls[0][0].labels as string[];
+        const sizeLabels = addedLabels.filter(label => label.startsWith('size/'));
+        expect(sizeLabels.length).toBe(0);
+      }
+    });
+  });
 });
