@@ -10,7 +10,7 @@ Intelligent PR labeling with automatic size checks, categorization, and risk ass
 
 ## 🚀 Key Features
 
-- **📏 Automatic PR Labeling**: Apply size labels (S/M/L/XL/XXL) based on PR additions
+- **📏 Automatic PR Labeling**: Apply size labels (small/medium/large/xlarge/xxlarge) based on PR additions
 - **🏷️ Flexible Categorization**: Automatically categorize PRs by type (tests, docs, CI/CD, dependencies, etc.)
 - **📁 Directory-Based Labeling**: Apply labels based on changed file paths using glob patterns
 - **⚠️ Risk Assessment**: Identify high-risk changes (core changes without tests)
@@ -49,6 +49,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+This will automatically apply labels based on PR size (e.g., `size/small`, `size/large`), category (e.g., `category/tests`, `category/docs`), and risk level (e.g., `risk/high`).
 
 ### ⚠️ Label Creation Required
 
