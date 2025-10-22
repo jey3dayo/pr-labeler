@@ -14,6 +14,7 @@ Intelligent PR labeling with automatic size checks, categorization, and risk ass
 - **🏷️ Flexible Categorization**: Automatically categorize PRs by type (tests, docs, CI/CD, dependencies, etc.)
 - **📁 Directory-Based Labeling**: Apply labels based on changed file paths using glob patterns
 - **⚠️ Risk Assessment**: Identify high-risk changes (core changes without tests)
+- **⚙️ Workflow Failure Control**: Optional failure triggers based on violations (large files, too many files, PR size)
 - **🌐 Multi-language Support**: English and Japanese output for summaries, comments, and logs
 
 ## 📋 Quick Start
