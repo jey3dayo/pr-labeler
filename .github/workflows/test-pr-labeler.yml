@@ -57,7 +57,7 @@ jobs:
           category_enabled: "false"
           risk_enabled: "false"
           enable_summary: "true"
-          language: "en"
+          language: "ja"
 
   test-failure-control:
     name: Test - Workflow Failure Control
