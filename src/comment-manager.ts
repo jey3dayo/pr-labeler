@@ -14,7 +14,7 @@ import { t } from './i18n';
 import {
   formatBasicMetrics,
   formatBestPractices,
-  formatFileDetails,
+  formatFileAnalysis,
   formatImprovementActions,
   formatViolations,
 } from './report-formatter';
@@ -70,14 +70,14 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
   const metricsSection = formatBasicMetrics(metrics, { includeTimestamp: false });
   body += metricsSection;
 
-  // Violations section (using shared formatter)
+  // Violations section (using shared formatter - summary only)
   body += formatViolations(violations);
   body += formatImprovementActions(violations);
   body += formatBestPractices();
 
-  // Top large files (using shared formatter, limit to 10)
+  // Unified file analysis table (combines violations and file details)
   if (metrics.filesAnalyzed.length > 0) {
-    body += formatFileDetails(metrics.filesAnalyzed, 10);
+    body += formatFileAnalysis(violations, metrics.filesAnalyzed, 10);
   }
 
   // Files with errors note (translated)

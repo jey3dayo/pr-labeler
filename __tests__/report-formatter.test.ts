@@ -11,6 +11,7 @@ import {
   formatBasicMetrics,
   formatBestPractices,
   formatBytes,
+  formatFileAnalysis,
   formatFileDetails,
   formatImprovementActions,
   formatNumber,
@@ -205,14 +206,9 @@ describe('ReportFormatter', () => {
 
       expect(result).toContain('### 📊 Size Summary');
       expect(result).toContain('2 file(s) exceed size limit');
-      expect(result).toContain('### 🚫 Large Files Detected');
-      expect(result).toContain('| File Name | Size | Limit | Status |');
-      expect(result).toContain('src/large.ts');
-      expect(result).toContain('1.9 MB');
-      expect(result).toContain('976.6 KB');
-      expect(result).toContain('🚫 Critical');
-      expect(result).toContain('src/big.ts');
-      expect(result).toContain('⚠️ Warning');
+      // Detailed table removed - now shown in formatFileAnalysis
+      expect(result).not.toContain('### 🚫 Large Files Detected');
+      expect(result).not.toContain('| File Name | Size | Limit | Status |');
     });
 
     it('should format file lines violations', () => {
@@ -235,11 +231,9 @@ describe('ReportFormatter', () => {
 
       expect(result).toContain('### 📊 Size Summary');
       expect(result).toContain('1 file(s) exceed line limit');
-      expect(result).toContain('### ⚠️ Files Exceed Line Limit');
-      expect(result).toContain('| File Name | Lines | Limit | Status |');
-      expect(result).toContain('src/long.ts');
-      expect(result).toContain('2,000');
-      expect(result).toContain('1,000');
+      // Detailed table removed - now shown in formatFileAnalysis
+      expect(result).not.toContain('### ⚠️ Files Exceed Line Limit');
+      expect(result).not.toContain('| File Name | Lines | Limit | Status |');
     });
 
     it('should format PR additions violation', () => {
@@ -301,8 +295,9 @@ describe('ReportFormatter', () => {
       expect(result).toContain('1 file(s) exceed line limit');
       expect(result).toContain('Total additions exceed limit');
       expect(result).toContain('File count exceeds limit');
-      expect(result).toContain('### 🚫 Large Files Detected');
-      expect(result).toContain('### ⚠️ Files Exceed Line Limit');
+      // Detailed tables removed - now shown in formatFileAnalysis
+      expect(result).not.toContain('### 🚫 Large Files Detected');
+      expect(result).not.toContain('### ⚠️ Files Exceed Line Limit');
     });
 
     it('should format without header when specified', () => {
@@ -994,6 +989,273 @@ describe('ReportFormatter', () => {
       // Should contain expected Japanese phrases
       expect(output1).toContain('総追加行数');
       expect(output1).not.toContain('Total Additions'); // Not English
+    });
+  });
+
+  describe('formatFileAnalysis', () => {
+    it('should return empty string when no files provided', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const result = formatFileAnalysis(violations, [], 10);
+      expect(result).toBe('');
+    });
+
+    it('should format unified table with OK status for files without violations', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const files: FileMetrics[] = [
+        {
+          path: 'src/index.ts',
+          size: 19400,
+          lines: 501,
+          additions: 85,
+          deletions: 87,
+        },
+        {
+          path: 'src/utils.ts',
+          size: 5000,
+          lines: 150,
+          additions: 20,
+          deletions: 10,
+        },
+      ];
+
+      const result = formatFileAnalysis(violations, files, 10);
+
+      expect(result).toContain('### 📊 File Analysis');
+      expect(result).toContain('src/index.ts');
+      expect(result).toContain('18.9 KB'); // 19400 bytes = 18.9 KB
+      expect(result).toContain('501');
+      expect(result).toContain('+85/-87');
+      expect(result).toContain('✅ OK');
+      expect(result).toContain('src/utils.ts');
+      expect(result).toContain('4.9 KB');
+      expect(result).toContain('150');
+      expect(result).toContain('+20/-10');
+    });
+
+    it('should show line exceed status for files violating line limits', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [
+          {
+            file: 'src/index.ts',
+            limit: 500,
+            actualValue: 501,
+            severity: 'warning',
+          },
+        ],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const files: FileMetrics[] = [
+        {
+          path: 'src/index.ts',
+          size: 19400,
+          lines: 501,
+          additions: 85,
+          deletions: 87,
+        },
+        {
+          path: 'src/utils.ts',
+          size: 5000,
+          lines: 150,
+          additions: 20,
+          deletions: 10,
+        },
+      ];
+
+      const result = formatFileAnalysis(violations, files, 10);
+
+      expect(result).toContain('src/index.ts');
+      expect(result).toContain('⚠️ Line Exceed (500)');
+      expect(result).toContain('src/utils.ts');
+      expect(result).toContain('✅ OK');
+    });
+
+    it('should show size exceed status for files violating size limits', () => {
+      const violations: Violations = {
+        largeFiles: [
+          {
+            file: 'src/large.ts',
+            limit: 10000,
+            actualValue: 50000,
+            severity: 'critical',
+          },
+        ],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const files: FileMetrics[] = [
+        {
+          path: 'src/large.ts',
+          size: 50000,
+          lines: 1000,
+          additions: 500,
+          deletions: 200,
+        },
+        {
+          path: 'src/small.ts',
+          size: 5000,
+          lines: 150,
+          additions: 20,
+          deletions: 10,
+        },
+      ];
+
+      const result = formatFileAnalysis(violations, files, 10);
+
+      expect(result).toContain('src/large.ts');
+      expect(result).toContain('🚫 Size Exceed (9.8 KB)');
+      expect(result).toContain('src/small.ts');
+      expect(result).toContain('✅ OK');
+    });
+
+    it('should prioritize line violations over size violations', () => {
+      const violations: Violations = {
+        largeFiles: [
+          {
+            file: 'src/both.ts',
+            limit: 10000,
+            actualValue: 50000,
+            severity: 'critical',
+          },
+        ],
+        exceedsFileLines: [
+          {
+            file: 'src/both.ts',
+            limit: 500,
+            actualValue: 1000,
+            severity: 'warning',
+          },
+        ],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const files: FileMetrics[] = [
+        {
+          path: 'src/both.ts',
+          size: 50000,
+          lines: 1000,
+          additions: 500,
+          deletions: 200,
+        },
+      ];
+
+      const result = formatFileAnalysis(violations, files, 10);
+
+      expect(result).toContain('⚠️ Line Exceed (500)');
+      expect(result).not.toContain('Size Exceed');
+    });
+
+    it('should sort files by size descending', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const files: FileMetrics[] = [
+        {
+          path: 'src/small.ts',
+          size: 5000,
+          lines: 150,
+          additions: 20,
+          deletions: 10,
+        },
+        {
+          path: 'src/large.ts',
+          size: 50000,
+          lines: 1000,
+          additions: 500,
+          deletions: 200,
+        },
+        {
+          path: 'src/medium.ts',
+          size: 25000,
+          lines: 500,
+          additions: 250,
+          deletions: 100,
+        },
+      ];
+
+      const result = formatFileAnalysis(violations, files, 10);
+
+      const largeIndex = result.indexOf('src/large.ts');
+      const mediumIndex = result.indexOf('src/medium.ts');
+      const smallIndex = result.indexOf('src/small.ts');
+
+      expect(largeIndex).toBeLessThan(mediumIndex);
+      expect(mediumIndex).toBeLessThan(smallIndex);
+    });
+
+    it('should limit results to specified limit', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const files: FileMetrics[] = Array.from({ length: 15 }, (_, i) => ({
+        path: `src/file${i}.ts`,
+        size: 10000 - i * 100,
+        lines: 200,
+        additions: 50,
+        deletions: 20,
+      }));
+
+      const result = formatFileAnalysis(violations, files, 5);
+
+      const fileMatches = result.match(/src\/file\d+\.ts/g);
+      expect(fileMatches).toHaveLength(5);
+      expect(result).toContain('src/file0.ts'); // Largest
+      expect(result).not.toContain('src/file10.ts'); // Outside limit
+    });
+
+    it('should handle Japanese language', () => {
+      changeLanguage('ja');
+
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [
+          {
+            file: 'src/index.ts',
+            limit: 500,
+            actualValue: 501,
+            severity: 'warning',
+          },
+        ],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+      const files: FileMetrics[] = [
+        {
+          path: 'src/index.ts',
+          size: 19400,
+          lines: 501,
+          additions: 85,
+          deletions: 87,
+        },
+      ];
+
+      const result = formatFileAnalysis(violations, files, 10);
+
+      expect(result).toContain('### 📊 ファイル分析結果');
+      expect(result).toContain('⚠️ 行数超過 (500)');
+      expect(result).not.toContain('File Analysis');
+      expect(result).not.toContain('Line Exceed');
+
+      // Reset to English for other tests
+      changeLanguage('en');
     });
   });
 });

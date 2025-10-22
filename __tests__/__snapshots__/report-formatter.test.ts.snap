@@ -96,12 +96,6 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 
 - **1 file(s) exceed size limit**
 
-### 🚫 Large Files Detected
-
-| File Name | Size | Limit | Status |
-|------|------|-------|--------|
-| src/example.ts | 50 KB | 9.8 KB | ⚠️ Warning |
-
 "
 `;
 
@@ -200,12 +194,6 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 "### 📊 サイズサマリ
 
 - **1個のファイルがサイズ制限を超過**
-
-### 🚫 大規模ファイルを検出
-
-| ファイル名 | サイズ | 制限値 | ステータス |
-|------|------|-------|--------|
-| src/example.ts | 50 KB | 9.8 KB | ⚠️ 警告 |
 
 "
 `;

@@ -121,7 +121,7 @@ export function formatViolations(violations: Violations, options?: FormatViolati
     output += `### 📊 ${t('summary', 'violations.sizeSummary')}\n\n`;
   }
 
-  // Summary list
+  // Summary list only (detailed tables removed - now shown in formatFileAnalysis)
   if (violations.largeFiles.length > 0) {
     output += `- **${t('summary', 'violations.filesExceedSize', { count: violations.largeFiles.length })}**\n`;
   }
@@ -135,38 +135,6 @@ export function formatViolations(violations: Violations, options?: FormatViolati
     output += `- **${t('summary', 'violations.fileCountExceed')}**\n`;
   }
   output += '\n';
-
-  // Large files detail table
-  if (violations.largeFiles.length > 0) {
-    output += `### 🚫 ${t('summary', 'violations.largeFilesDetected')}\n\n`;
-    output += `| ${t('summary', 'fileDetails.fileName')} | ${t('summary', 'fileDetails.size')} | ${t('summary', 'fileDetails.limit')} | ${t('summary', 'fileDetails.status')} |\n`;
-    output += '|------|------|-------|--------|\n';
-
-    for (const violation of violations.largeFiles) {
-      const statusText =
-        violation.severity === 'critical'
-          ? `🚫 ${t('summary', 'violations.statusCritical')}`
-          : `⚠️ ${t('summary', 'violations.statusWarning')}`;
-      output += `| ${escapeMarkdown(violation.file)} | ${formatBytes(violation.actualValue)} | ${formatBytes(violation.limit)} | ${statusText} |\n`;
-    }
-    output += '\n';
-  }
-
-  // Files exceed line limit detail table
-  if (violations.exceedsFileLines.length > 0) {
-    output += `### ⚠️ ${t('summary', 'violations.filesExceedLineLimit')}\n\n`;
-    output += `| ${t('summary', 'fileDetails.fileName')} | ${t('summary', 'fileDetails.lines')} | ${t('summary', 'fileDetails.limit')} | ${t('summary', 'fileDetails.status')} |\n`;
-    output += '|------|-------|-------|--------|\n';
-
-    for (const violation of violations.exceedsFileLines) {
-      const statusText =
-        violation.severity === 'critical'
-          ? `🚫 ${t('summary', 'violations.statusCritical')}`
-          : `⚠️ ${t('summary', 'violations.statusWarning')}`;
-      output += `| ${escapeMarkdown(violation.file)} | ${formatNumber(violation.actualValue)} | ${formatNumber(violation.limit)} | ${statusText} |\n`;
-    }
-    output += '\n';
-  }
 
   return output;
 }
@@ -192,6 +160,51 @@ export function formatFileDetails(files: FileMetrics[], limit?: number): string 
   for (const file of displayFiles) {
     const changes = `+${formatNumber(file.additions)}/-${formatNumber(file.deletions)}`;
     output += `| ${escapeMarkdown(file.path)} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} |\n`;
+  }
+  output += '\n';
+
+  return output;
+}
+
+/**
+ * Format unified file analysis table combining violations and large files
+ * Shows file size, lines, changes, and status in a single table
+ */
+export function formatFileAnalysis(violations: Violations, files: FileMetrics[], limit: number = 10): string {
+  if (files.length === 0) {
+    return '';
+  }
+
+  let output = '';
+  output += `### 📊 ${t('summary', 'fileAnalysis.title')}\n\n`;
+  output += `| ${t('summary', 'fileDetails.fileName')} | ${t('summary', 'fileDetails.size')} | ${t('summary', 'fileDetails.lines')} | ${t('summary', 'fileDetails.changes')} | ${t('summary', 'fileDetails.status')} |\n`;
+  output += '|------|------|-------|----------|----------|\n';
+
+  // Sort by size descending and limit
+  const sortedFiles = [...files].sort((a, b) => b.size - a.size);
+  const displayFiles = limit ? sortedFiles.slice(0, limit) : sortedFiles;
+
+  // Create violation lookup maps for efficient status checking
+  const lineViolationMap = new Map(violations.exceedsFileLines.map(v => [v.file, v]));
+  const sizeViolationMap = new Map(violations.largeFiles.map(v => [v.file, v]));
+
+  for (const file of displayFiles) {
+    const changes = `+${formatNumber(file.additions)}/-${formatNumber(file.deletions)}`;
+
+    // Determine status
+    let status = `✅ ${t('summary', 'fileAnalysis.status.ok')}`;
+    const lineViolation = lineViolationMap.get(file.path);
+    const sizeViolation = sizeViolationMap.get(file.path);
+
+    if (lineViolation) {
+      const icon = lineViolation.severity === 'critical' ? '🚫' : '⚠️';
+      status = `${icon} ${t('summary', 'fileAnalysis.status.lineExceed', { limit: formatNumber(lineViolation.limit) })}`;
+    } else if (sizeViolation) {
+      const icon = sizeViolation.severity === 'critical' ? '🚫' : '⚠️';
+      status = `${icon} ${t('summary', 'fileAnalysis.status.sizeExceed', { limit: formatBytes(sizeViolation.limit) })}`;
+    }
+
+    output += `| ${escapeMarkdown(file.path)} | ${formatBytes(file.size)} | ${formatNumber(file.lines)} | ${changes} | ${status} |\n`;
   }
   output += '\n';
 

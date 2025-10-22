@@ -451,18 +451,13 @@ describe('CommentManager', () => {
 
       expect(body).toContain('📊 PR Size Check - Large PR Detected');
       expect(body).toContain('### 📊 Size Summary');
-      expect(body).toContain('### 🚫 Large Files Detected'); // Updated to match actual heading format
-      expect(body).toContain('### ⚠️ Files Exceed Line Limit'); // Updated to match actual heading format
       expect(body).toContain('Total additions exceed limit');
-      expect(body).toContain('| File Name | Size | Limit | Status |');
-      expect(body).toContain('src/large.ts');
-      expect(body).toContain('1.9 MB'); // 2000000 bytes = 1.9 MB
-      expect(body).toContain('976.6 KB'); // 1000000 bytes = 976.6 KB
-      expect(body).toContain('🚫 Critical');
-      expect(body).toContain('| File Name | Lines | Limit | Status |');
-      expect(body).toContain('2,000');
-      expect(body).toContain('1,000');
-      expect(body).toContain('⚠️ Warning');
+      // Detailed violation tables removed - now shown in unified formatFileAnalysis
+      expect(body).not.toContain('### 🚫 Large Files Detected');
+      expect(body).not.toContain('### ⚠️ Files Exceed Line Limit');
+      // Check for unified file analysis table instead
+      expect(body).toContain('### 📊 File Analysis');
+      expect(body).toContain('| File Name | Size | Lines | Changes | Status |');
       expect(body).toContain(COMMENT_SIGNATURE);
     });
 
@@ -522,12 +517,14 @@ describe('CommentManager', () => {
 
       const body = generateCommentBody(analysisResult);
 
-      expect(body).toContain('### 📈 Top Large Files');
-      expect(body).toContain('| File Name | Size | Lines | Changes |');
+      // Updated: Now uses formatFileAnalysis which includes Status column
+      expect(body).toContain('### 📊 File Analysis');
+      expect(body).toContain('| File Name | Size | Lines | Changes | Status |');
       expect(body).toContain('src/file1.ts');
       expect(body).toContain('48.8 KB');
       expect(body).toContain('500');
       expect(body).toContain('+100/-20');
+      expect(body).toContain('✅ OK');
     });
 
     it('should format bytes correctly', () => {

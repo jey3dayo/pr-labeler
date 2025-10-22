@@ -104,6 +104,14 @@
     "status": "ステータス",
     "noFiles": "表示するファイルがありません"
   },
+  "fileAnalysis": {
+    "title": "ファイル分析結果",
+    "status": {
+      "lineExceed": "行数超過 ({{limit}})",
+      "sizeExceed": "サイズ超過 ({{limit}})",
+      "ok": "OK"
+    }
+  },
   "labels": {
     "applied": "適用されたラベル",
     "noLabels": "ラベルは適用されていません"
