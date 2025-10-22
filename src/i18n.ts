@@ -7,10 +7,9 @@
 import i18next, { type TFunction } from 'i18next';
 import { err, ok, type Result } from 'neverthrow';
 
-import { logWarning } from './actions-io.js';
+import { logDebug, logWarning } from './actions-io.js';
 import { createConfigurationError } from './errors/factories.js';
 import type { ConfigurationError } from './errors/types.js';
-import type { Config } from './input-mapper.js';
 import commonEn from './locales/en/common.json';
 import errorsEn from './locales/en/errors.json';
 import labelsEn from './locales/en/labels.json';
@@ -58,49 +57,15 @@ export function normalizeLanguageCode(lang: string): LanguageCode {
 }
 
 /**
- * 言語を決定 (優先順位: action input > LANGUAGE環境変数 > LANG環境変数 > デフォルト英語)
- *
- * @param config - アプリケーション設定
- * @returns 言語コード ('en' | 'ja')
- */
-export function determineLanguage(config: Config): LanguageCode {
-  // 優先順位1: action input (config.language)
-  if (config.language) {
-    return normalizeLanguageCode(config.language);
-  }
-
-  // 優先順位2: LANGUAGE環境変数
-  const languageEnv = process.env['LANGUAGE'];
-  if (languageEnv) {
-    return normalizeLanguageCode(languageEnv);
-  }
-
-  // 優先順位3: LANG環境変数
-  const langEnv = process.env['LANG'];
-  if (langEnv) {
-    return normalizeLanguageCode(langEnv);
-  }
-
-  // 優先順位4: デフォルト英語
-  return 'en';
-}
-
-/**
  * i18nextを初期化
  *
- * @param config - アプリケーション設定 (言語指定を含む)
+ * @param language - 言語コード ('en' | 'ja')
  * @returns 初期化結果 (成功/失敗)
  */
-export function initializeI18n(config: Config): Result<void, ConfigurationError> {
+export function initializeI18n(language: LanguageCode): Result<void, ConfigurationError> {
   try {
-    // デバッグログ: 言語決定に使用される値を出力
-    logDebug(`[i18n] Initializing with config.language="${config.language || 'undefined'}"`);
-    logDebug(`[i18n] Environment LANGUAGE="${process.env['LANGUAGE'] || 'undefined'}"`);
-    logDebug(`[i18n] Environment LANG="${process.env['LANG'] || 'undefined'}"`);
-
-    // 言語決定
-    const language = determineLanguage(config);
-    logDebug(`[i18n] Determined language: "${language}"`);
+    // デバッグログ: 受け取った言語コードを出力
+    logDebug(`[i18n] Initializing with language: "${language}"`);
 
     // 翻訳リソース定義 (静的import)
     const resources = {
@@ -175,9 +140,7 @@ export function initializeI18n(config: Config): Result<void, ConfigurationError>
     return ok(undefined);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return err(
-      createConfigurationError('language', config.language ?? 'unknown', `Failed to initialize i18n: ${errorMessage}`),
-    );
+    return err(createConfigurationError('language', language, `Failed to initialize i18n: ${errorMessage}`));
   }
 }
 

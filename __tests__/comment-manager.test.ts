@@ -19,7 +19,6 @@ import {
 } from '../src/comment-manager';
 import type { AnalysisResult } from '../src/file-metrics';
 import { changeLanguage, initializeI18n, resetI18n } from '../src/i18n';
-import type { Config } from '../src/input-mapper';
 
 describe('CommentManager', () => {
   let mockOctokit: any;
@@ -46,8 +45,7 @@ describe('CommentManager', () => {
 
     // Initialize i18n with English for consistent test results
     resetI18n();
-    const config: Config = { language: 'en' } as Config;
-    initializeI18n(config);
+    initializeI18n('en');
     changeLanguage('en'); // 明示的に英語に変更
 
     // Setup GitHub mock

@@ -144,7 +144,6 @@ inputs:
   language:
     description: "Language for output messages (en, ja, en-US, ja-JP)"
     required: false
-    default: "en"
 
   # 認証
   github_token:

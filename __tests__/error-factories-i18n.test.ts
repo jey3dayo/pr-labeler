@@ -41,7 +41,7 @@ describe('Error Factories - i18n Integration', () => {
 
   describe('English Error Messages', () => {
     beforeEach(() => {
-      initializeI18n({ language: 'en' } as any);
+      initializeI18n('en');
     });
 
     it('createConfigurationError - should return English message', () => {
@@ -93,7 +93,7 @@ describe('Error Factories - i18n Integration', () => {
 
   describe('Japanese Error Messages', () => {
     beforeEach(() => {
-      initializeI18n({ language: 'ja' } as any);
+      initializeI18n('ja');
     });
 
     it('createConfigurationError - should return Japanese message', () => {
@@ -145,7 +145,7 @@ describe('Error Factories - i18n Integration', () => {
 
   describe('Language Switching', () => {
     it('should use correct language when language is switched', () => {
-      initializeI18n({ language: 'en' } as any);
+      initializeI18n('en');
       const errorEn = createConfigurationError('field1', 'value1');
       expect(errorEn.message).toContain('Invalid configuration field');
 
@@ -157,7 +157,7 @@ describe('Error Factories - i18n Integration', () => {
 
   describe('Technical Details Preservation', () => {
     it('should preserve file paths in error messages', () => {
-      initializeI18n({ language: 'ja' } as any);
+      initializeI18n('ja');
       const error = createFileSystemError('/path/to/missing.ts', 'notFound');
 
       // パスが変更されずに保持されることを確認
@@ -166,7 +166,7 @@ describe('Error Factories - i18n Integration', () => {
     });
 
     it('should preserve error codes and technical identifiers', () => {
-      initializeI18n({ language: 'ja' } as any);
+      initializeI18n('ja');
       const error = createGitHubAPIError('認証に失敗しました', 401);
 
       // HTTPステータスコードが保持されることを確認
@@ -174,7 +174,7 @@ describe('Error Factories - i18n Integration', () => {
     });
 
     it('should preserve pattern strings in error messages', () => {
-      initializeI18n({ language: 'ja' } as any);
+      initializeI18n('ja');
       const error = createPatternError('**/*.test.ts');
 
       // パターン文字列が保持されることを確認
@@ -185,7 +185,7 @@ describe('Error Factories - i18n Integration', () => {
 
   describe('All Error Factory Functions', () => {
     beforeEach(() => {
-      initializeI18n({ language: 'en' } as any);
+      initializeI18n('en');
     });
 
     it('createDiffError - should work with translation', () => {

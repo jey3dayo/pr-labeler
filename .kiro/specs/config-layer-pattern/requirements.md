@@ -35,7 +35,7 @@ Configuration Layer Pattern は、PR Labelerの設定管理を統一し、保守
 
 1. WHEN PR Labelerが設定を構築する THEN PR Labeler System SHALL `buildCompleteConfig()` 関数で全ての設定ソースを統合する
 2. WHEN `buildCompleteConfig()` が呼び出される THEN PR Labeler System SHALL 以下の引数を受け取る
-   - `actionInputs: ActionInputs` (GitHub Actions input)
+   - `parsedInputs: ParsedInputs` (パース・バリデーション済みの型安全なデータ)
    - `labelerConfig: LabelerConfig` (pr-labeler.yml)
    - `envConfig: EnvironmentConfig` (環境変数)
 3. WHEN 設定値が複数ソースで提供される THEN PR Labeler System SHALL 以下の優先順位で値を決定する
@@ -45,6 +45,9 @@ Configuration Layer Pattern は、PR Labelerの設定管理を統一し、保守
    - 優先度4: デフォルト値
 4. WHEN `buildCompleteConfig()` が設定を統合する THEN PR Labeler System SHALL `CompleteConfig` 型のオブジェクトを返す
 5. WHERE デバッグログが有効 THE PR Labeler System SHALL 各設定値の由来（どのソースから取得したか）をログ出力する
+6. WHEN action inputs をパースする THEN PR Labeler System SHALL `parseActionInputs()` 関数で全ての文字列入力を型安全な値に変換し、バリデーションエラーを Result<T,E> で返す
+7. WHEN `buildCompleteConfig()` が parsedInputs を受け取る THEN PR Labeler System SHALL 既にパース済みの型安全なデータとして扱い、追加のパース処理を実施しない
+8. IF `parseActionInputs()` がエラーを返す THEN PR Labeler System SHALL エラーを伝播し、アクションを即座に失敗させる
 
 ### Requirement 3: 言語決定ロジックの明確化
 
@@ -64,6 +67,8 @@ Configuration Layer Pattern は、PR Labelerの設定管理を統一し、保守
    - 優先度4: デフォルト値 `'en'`
 4. WHEN 言語コードが不正な値（例: `'fr'`）である THEN PR Labeler System SHALL 警告ログを出力し、デフォルト値 `'en'` にフォールバックする
 5. WHEN 言語コードがロケール形式（例: `'ja-JP'`, `'en-US'`）である THEN PR Labeler System SHALL 先頭2文字を正規化して使用する
+6. WHEN 言語コードを正規化する THEN PR Labeler System SHALL 全てのソース（action input, labeler config, environment）に対して `normalizeLanguageCode()` を適用する
+7. WHEN `LabelerConfig.language` の型を定義する THEN PR Labeler System SHALL `string | undefined` 型を使用し、ロケール形式（'ja-JP', 'en-US'）を許容する
 
 ### Requirement 4: i18n初期化の疎結合化
 
@@ -118,17 +123,43 @@ Configuration Layer Pattern は、PR Labelerの設定管理を統一し、保守
 4. WHEN TypeScript strict modeでコンパイルする THEN PR Labeler System SHALL エラーなくコンパイルが完了する
 5. IF `any` 型または型アサーション（`as`）を使用する THEN PR Labeler System SHALL ESLintエラーを発生させる
 
-### Requirement 8: 後方互換性の維持
+### Requirement 8: デフォルト値とnullable値の区別
 
-**Objective:** ユーザーとして、既存のワークフローや設定ファイルが変更なしで動作し続けることを期待する
+**Objective:** 開発者として、設定の「未設定」と「デフォルト値」を明確に区別することで、優先順位が正しく機能するコードを実現したい
 
 #### Acceptance Criteria
 
-1. WHEN 既存のaction inputが提供される THEN PR Labeler System SHALL 現在と同じ動作を保証する
-2. WHEN 既存のpr-labeler.yml設定ファイルが存在する THEN PR Labeler System SHALL 正しく読み込んで適用する
-3. WHEN 環境変数が設定されている THEN PR Labeler System SHALL フォールバック値として使用する
-4. IF action.ymlのinput定義を変更する THEN PR Labeler System SHALL 既存のワークフローとの互換性を維持する
-5. WHEN PRコメントや GitHub Actions Summaryを出力する THEN PR Labeler System SHALL 既存と同じフォーマットを維持する
+1. WHEN ActionInputs型を定義する THEN PR Labeler System SHALL nullable型（string | undefined）を使用する
+2. WHEN getActionInputs()がinputを読み込む THEN PR Labeler System SHALL 空文字列の場合はundefinedを返す
+3. WHEN buildCompleteConfig()が設定をマージする THEN PR Labeler System SHALL undefined値を次の優先順位にスキップする
+4. WHERE デフォルト値の適用 THE PR Labeler System SHALL 全ての優先順位をチェックした後の最終ステップで適用する
+5. WHEN テストでデフォルト動作を検証する THEN PR Labeler System SHALL 環境変数が優先されることを確認する
+
+### Requirement 9: action.yml の変更
+
+**Objective:** 開発者として、action.yml の default 値を削除することで、優先順位チェーンが正しく機能するインターフェースを実現したい
+
+#### Acceptance Criteria
+
+1. WHEN action.yml を変更する THEN PR Labeler System SHALL `language` input の `default: "en"` を削除する
+2. WHEN `language` input が未設定である THEN GitHub Actions SHALL 空文字列を `core.getInput('language')` に返す
+3. WHEN `getActionInputs()` が空文字列を受け取る THEN PR Labeler System SHALL `undefined` に変換する
+4. WHEN `buildCompleteConfig()` が `actionInputs.language === undefined` を検出する THEN PR Labeler System SHALL 次の優先順位（pr-labeler.yml → 環境変数 → デフォルト値）にフォールバックする
+5. WHEN ユーザーが明示的に `language: en` を指定する THEN PR Labeler System SHALL action input を最優先で使用する
+
+### Requirement 10: Input Parser Layer の導入
+
+**Objective:** 開発者として、action input の変換・バリデーションが一箇所に集約されることで、既存の検証ロジックを保持しつつ、参考コード（action-cache）のパターンに整合した設計を実現したい
+
+#### Acceptance Criteria
+
+1. WHEN `parseActionInputs()` が呼び出される THEN PR Labeler System SHALL 全ての action input を型安全な `ParsedInputs` に変換する
+2. WHEN JSON パースが必要な input を処理する THEN PR Labeler System SHALL 単調性検証（small < medium < large）を実施する
+3. WHEN boolean input を処理する THEN PR Labeler System SHALL strict validation（"true" または "false" のみ許可）を実施する
+4. WHEN サイズ input ("100KB") を処理する THEN PR Labeler System SHALL 数値（102400）に変換する
+5. IF パース・バリデーションが失敗する THEN PR Labeler System SHALL `Result<ParsedInputs, ConfigurationError | ParseError>` でエラーを返す
+6. WHEN 既存の `mapActionInputsToConfig()` を移行する THEN PR Labeler System SHALL 全ての検証ロジック（約130行）を100%保持する
+7. WHEN `language` input が空文字列である THEN PR Labeler System SHALL `undefined` に変換し、優先順位チェーンを機能させる
 
 ## Out of Scope
 
@@ -137,7 +168,8 @@ Configuration Layer Pattern は、PR Labelerの設定管理を統一し、保守
 1. **新しい設定ソースの追加** - ファイルシステム設定ファイル、データベース等の追加は対象外
 2. **他モジュールのリファクタリング** - 設定管理以外のモジュール（label-manager, comment-manager等）の変更は対象外
 3. **パフォーマンス最適化** - 設定読み込みの高速化や キャッシュ機構の追加は対象外
-4. **ユーザーインターフェースの変更** - action.ymlのinput追加や削除は対象外
+4. **action input の追加や削除** - 既存の input を変更することは対象内だが、新しい input の追加は対象外
+5. **後方互換性の保証** - まだリリース前のため、既存ワークフローへの互換性を保証する必要はない
 
 ## Constraints
 

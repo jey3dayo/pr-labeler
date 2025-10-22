@@ -13,8 +13,7 @@ import type { Config } from '../src/input-mapper';
 describe('FailureEvaluator', () => {
   beforeEach(() => {
     // Initialize i18n with English for consistent test output
-    const config: Partial<Config> = { language: 'en' };
-    initializeI18n(config as Config);
+    initializeI18n('en');
     changeLanguage('en'); // Ensure English is active
   });
 
