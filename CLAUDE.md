@@ -26,6 +26,7 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 - `label-based-workflow-failure`: ラベルベースワークフロー失敗制御機能 - 適用されたラベルに基づいて個別にワークフロー失敗を制御
 - `simplify-label-inputs`: ラベル入力簡素化 - `apply_labels`削除、複雑度デフォルトOFF、閾値緩和
 - `always-auto-create-labels`: ラベル自動作成の常時有効化 - `auto_create_labels`/`label_color`/`label_description` inputs削除、常にラベル自動作成
+- `config-layer-pattern`: Configuration Layerパターン - Config/LabelerConfigの統合、優先順位の明確化、疎結合な設計への移行
 - Check `.kiro/specs/` for active specifications
 - Use `/kiro:spec-status [feature-name]` to check progress
 

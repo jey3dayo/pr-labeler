@@ -58,27 +58,27 @@ export function normalizeLanguageCode(lang: string): LanguageCode {
 }
 
 /**
- * 言語を決定 (優先順位: LANGUAGE環境変数 > LANG環境変数 > pr-labeler.yml設定 > デフォルト英語)
+ * 言語を決定 (優先順位: action input > LANGUAGE環境変数 > LANG環境変数 > デフォルト英語)
  *
  * @param config - アプリケーション設定
  * @returns 言語コード ('en' | 'ja')
  */
 export function determineLanguage(config: Config): LanguageCode {
-  // 優先順位1: LANGUAGE環境変数
+  // 優先順位1: action input (config.language)
+  if (config.language) {
+    return normalizeLanguageCode(config.language);
+  }
+
+  // 優先順位2: LANGUAGE環境変数
   const languageEnv = process.env['LANGUAGE'];
   if (languageEnv) {
     return normalizeLanguageCode(languageEnv);
   }
 
-  // 優先順位2: LANG環境変数
+  // 優先順位3: LANG環境変数
   const langEnv = process.env['LANG'];
   if (langEnv) {
     return normalizeLanguageCode(langEnv);
-  }
-
-  // 優先順位3: pr-labeler.yml設定
-  if (config.language) {
-    return normalizeLanguageCode(config.language);
   }
 
   // 優先順位4: デフォルト英語
@@ -93,8 +93,14 @@ export function determineLanguage(config: Config): LanguageCode {
  */
 export function initializeI18n(config: Config): Result<void, ConfigurationError> {
   try {
+    // デバッグログ: 言語決定に使用される値を出力
+    logDebug(`[i18n] Initializing with config.language="${config.language || 'undefined'}"`);
+    logDebug(`[i18n] Environment LANGUAGE="${process.env['LANGUAGE'] || 'undefined'}"`);
+    logDebug(`[i18n] Environment LANG="${process.env['LANG'] || 'undefined'}"`);
+
     // 言語決定
     const language = determineLanguage(config);
+    logDebug(`[i18n] Determined language: "${language}"`);
 
     // 翻訳リソース定義 (静的import)
     const resources = {
