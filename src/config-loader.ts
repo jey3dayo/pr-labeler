@@ -8,12 +8,7 @@ import * as github from '@actions/github';
 import * as yaml from 'js-yaml';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 
-import {
-  ConfigurationError,
-  createConfigurationError,
-  extractErrorMessage,
-  extractErrorStatus,
-} from './errors/index.js';
+import { ConfigurationError, createConfigurationError, ensureError, extractErrorStatus } from './errors/index.js';
 import type { LabelerConfig } from './labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from './labeler-types.js';
 
@@ -53,7 +48,7 @@ export function loadConfig(
       return createConfigurationError(
         CONFIG_FILE_PATH,
         error,
-        `Failed to fetch configuration file: ${extractErrorMessage(error)}`,
+        `Failed to fetch configuration file: ${ensureError(error).message}`,
       );
     },
   ).andThen(response => {

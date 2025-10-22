@@ -9,14 +9,7 @@ import fs from 'node:fs';
 import * as core from '@actions/core';
 import { load as yamlLoad } from 'js-yaml';
 
-import {
-  createConfigurationError,
-  createFileSystemError,
-  err,
-  extractErrorMessage,
-  ok,
-  type Result,
-} from '../errors/index.js';
+import { createConfigurationError, createFileSystemError, ensureError, err, ok, type Result } from '../errors/index.js';
 import {
   DEFAULT_NAMESPACES,
   DEFAULT_OPTIONS,
@@ -56,7 +49,7 @@ export function loadDirectoryLabelerConfig(
     // 安全モード: DEFAULT_SCHEMAでYAMLアンカー/エイリアス、マージキーをサポート、任意コード実行は防止
     rawConfig = yamlLoad(fileContent);
   } catch (error) {
-    const message = extractErrorMessage(error);
+    const message = ensureError(error).message;
     return err(createConfigurationError('yaml', fileContent, `YAML parse error: ${message}`));
   }
 

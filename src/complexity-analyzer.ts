@@ -13,7 +13,7 @@ import { ResultAsync } from 'neverthrow';
 import pLimit from 'p-limit';
 
 import { DEFAULT_ANALYSIS_OPTIONS } from './configs/default-config.js';
-import { type ComplexityAnalysisError, createComplexityAnalysisError, extractErrorMessage } from './errors/index.js';
+import { type ComplexityAnalysisError, createComplexityAnalysisError, ensureError } from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
 
 // Re-export for backward compatibility
@@ -160,7 +160,7 @@ export class ComplexityAnalyzer {
           }
           throw createComplexityAnalysisError('analysis_failed', {
             filename: filePath,
-            details: `Failed to stat file ${filePath}: ${extractErrorMessage(error)}`,
+            details: `Failed to stat file ${filePath}: ${ensureError(error).message}`,
           });
         }
 
@@ -226,7 +226,7 @@ export class ComplexityAnalyzer {
         // Convert unknown errors
         return createComplexityAnalysisError('analysis_failed', {
           filename: filePath,
-          details: `Failed to analyze ${filePath}: ${extractErrorMessage(error)}`,
+          details: `Failed to analyze ${filePath}: ${ensureError(error).message}`,
         });
       },
     );
@@ -324,7 +324,7 @@ export class ComplexityAnalyzer {
           return error as ComplexityAnalysisError;
         }
         return createComplexityAnalysisError('general', {
-          details: `Failed to analyze files: ${extractErrorMessage(error)}`,
+          details: `Failed to analyze files: ${ensureError(error).message}`,
         });
       },
     );

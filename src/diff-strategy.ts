@@ -10,7 +10,7 @@ import { err, ok, Result } from 'neverthrow';
 
 import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io';
 import type { DiffError } from './errors/index.js';
-import { createDiffError, extractErrorMessage } from './errors/index.js';
+import { createDiffError, ensureError } from './errors/index.js';
 
 // Create execAsync using promisify
 const execAsync = promisify(exec);
@@ -132,7 +132,7 @@ async function getLocalGitDiff(context: PullRequestContext): Promise<Result<Diff
     logInfo(`Successfully retrieved ${files.length} files using local git`);
     return ok(files);
   } catch (error) {
-    const message = extractErrorMessage(error);
+    const message = ensureError(error).message;
     logWarning(`Local git diff failed: ${message}`);
     return err(createDiffError('local-git', `Failed to get local git diff: ${message}`));
   }
@@ -211,7 +211,7 @@ async function getGitHubAPIDiff(context: PullRequestContext, token: string): Pro
     logInfo(`Successfully retrieved ${files.length} files using GitHub API`);
     return ok(files);
   } catch (error) {
-    const message = extractErrorMessage(error);
+    const message = ensureError(error).message;
     logWarning(`GitHub API diff failed: ${message}`);
     return err(createDiffError('github-api', `Failed to get GitHub API diff: ${message}`));
   }

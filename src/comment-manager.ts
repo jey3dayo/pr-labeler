@@ -8,7 +8,7 @@ import { err, ok, Result } from 'neverthrow';
 
 import { logDebug, logInfo } from './actions-io';
 import type { GitHubAPIError } from './errors/index.js';
-import { createGitHubAPIError, extractErrorMessage } from './errors/index.js';
+import { createGitHubAPIError, ensureError } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import { t } from './i18n';
 import {
@@ -132,8 +132,8 @@ export async function findExistingComment(
     logDebug('No existing comment found');
     return ok(null);
   } catch (error) {
-    const message = extractErrorMessage(error);
-    return err(createGitHubAPIError(`Failed to find existing comment: ${message}`));
+    const e = ensureError(error);
+    return err(createGitHubAPIError(`Failed to find existing comment: ${e.message}`));
   }
 }
 
@@ -159,8 +159,8 @@ export async function postComment(
     logInfo(`Comment posted successfully (ID: ${response.data.id})`);
     return ok(response.data.id);
   } catch (error) {
-    const message = extractErrorMessage(error);
-    return err(createGitHubAPIError(`Failed to post comment: ${message}`));
+    const e = ensureError(error);
+    return err(createGitHubAPIError(`Failed to post comment: ${e.message}`));
   }
 }
 
@@ -187,8 +187,8 @@ export async function updateComment(
     logInfo('Comment updated successfully');
     return ok(undefined);
   } catch (error) {
-    const message = extractErrorMessage(error);
-    return err(createGitHubAPIError(`Failed to update comment: ${message}`));
+    const e = ensureError(error);
+    return err(createGitHubAPIError(`Failed to update comment: ${e.message}`));
   }
 }
 
@@ -213,8 +213,8 @@ export async function deleteComment(
     logInfo('Comment deleted successfully');
     return ok(undefined);
   } catch (error) {
-    const message = extractErrorMessage(error);
-    return err(createGitHubAPIError(`Failed to delete comment: ${message}`));
+    const e = ensureError(error);
+    return err(createGitHubAPIError(`Failed to delete comment: ${e.message}`));
   }
 }
 

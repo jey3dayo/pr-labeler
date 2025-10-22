@@ -10,5 +10,4 @@ export declare function isErrorWithTypeAndMessage(obj: unknown): obj is {
     message: string;
 };
 export declare function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError;
-export declare function extractErrorMessage(error: unknown): string;
 export declare function extractErrorStatus(error: unknown): number | undefined;
