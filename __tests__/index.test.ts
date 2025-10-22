@@ -29,7 +29,6 @@ describe('PR Labeler', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         additional_exclude_patterns: '',
       };
       return defaults[name] || '';
@@ -144,15 +143,11 @@ describe('PR Labeler', () => {
         if (name === 'skip_draft_pr') {
           return 'false';
         }
-        if (name === 'fail_on_violation') {
-          return 'true';
-        }
         return '';
       });
 
       expect(core.getInput('apply_labels')).toBe('true');
       expect(core.getInput('skip_draft_pr')).toBe('false');
-      expect(core.getInput('fail_on_violation')).toBe('true');
     });
 
     it('should handle comment mode options', () => {

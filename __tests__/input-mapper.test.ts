@@ -31,6 +31,10 @@ const getDefaultPRLabelerInputs = () => ({
   complexity_thresholds: '{"medium": 10, "high": 20}',
   category_enabled: 'true',
   risk_enabled: 'true',
+  // Label-Based Workflow Failure Control
+  fail_on_large_files: '',
+  fail_on_too_many_files: '',
+  fail_on_pr_size: '',
 });
 
 describe('InputMapper', () => {
@@ -185,7 +189,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -218,7 +221,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -251,7 +253,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -286,7 +287,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -319,7 +319,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -352,7 +351,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -382,7 +380,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '*.test.ts,*.spec.ts',
         ...getDefaultDirectoryLabelingInputs(),
@@ -411,7 +408,6 @@ describe('InputMapper', () => {
         expect(config.tooManyFilesLabel).toBe('auto:too-many-files');
         expect(config.skipDraftPr).toBe(true);
         expect(config.commentOnPr).toBe('auto');
-        expect(config.failOnViolation).toBe(false);
         expect(config.additionalExcludePatterns).toEqual(['*.test.ts', '*.spec.ts']);
         expect(config.githubToken).toBe('test-token');
       }
@@ -431,7 +427,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -463,7 +458,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),
@@ -490,7 +484,6 @@ describe('InputMapper', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         enable_summary: 'true',
         additional_exclude_patterns: '',
         ...getDefaultDirectoryLabelingInputs(),

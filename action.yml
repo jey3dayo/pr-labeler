@@ -79,6 +79,16 @@ inputs:
     required: false
     default: "auto:too-many-files"
 
+  too_many_lines_label:
+    description: "Label for files exceeding line count limits"
+    required: false
+    default: "auto:too-many-lines"
+
+  excessive_changes_label:
+    description: "Label for PRs with excessive changes (total additions)"
+    required: false
+    default: "auto:excessive-changes"
+
   # 動作設定
   skip_draft_pr:
     description: "Skip check for draft PRs"
@@ -90,10 +100,21 @@ inputs:
     required: false
     default: "auto"
 
-  fail_on_violation:
-    description: "Fail workflow if limits exceeded (calls core.setFailed)"
+  # Label-Based Workflow Failure Control
+  fail_on_large_files:
+    description: "Fail workflow if large files are detected (labeled with large_files_label or too_many_lines_label)"
     required: false
-    default: "false"
+    default: ""
+
+  fail_on_too_many_files:
+    description: "Fail workflow if too many files are detected (labeled with too_many_files_label)"
+    required: false
+    default: ""
+
+  fail_on_pr_size:
+    description: "Fail workflow if PR size exceeds threshold (values: '', 'small', 'medium', 'large', 'xlarge', 'xxlarge'). Empty string to disable."
+    required: false
+    default: ""
 
   enable_summary:
     description: "Write PR metrics to GitHub Actions Summary"

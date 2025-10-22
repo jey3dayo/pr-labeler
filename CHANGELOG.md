@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### 🆕 ラベルベース・ワークフロー失敗制御機能（Label-Based Workflow Failure Control）
+
+ラベルまたは違反に基づいて、個別にワークフロー失敗を制御できる新機能を追加。
+
+**新規inputs**:
+
+- `fail_on_large_files` - 大きなファイル（`auto:large-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
+- `fail_on_too_many_files` - ファイル数超過（`auto:too-many-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
+- `fail_on_pr_size` - PRサイズが指定閾値以上の場合にワークフロー失敗（デフォルト: `""`）
+  - 有効値: `"small"` | `"medium"` | `"large"` | `"xlarge"` | `"xxlarge"`
+  - `size_enabled: "true"`が必要
+
+**主な特徴**:
+
+- ラベル（例: `auto:large-files`）または実際の違反のいずれかが該当すれば失敗
+- 各失敗条件を個別に有効/無効化可能
+- 多言語対応（日本語・英語）の失敗メッセージ
+
+**使用例**:
+
+```yaml
+# 大きなファイルのみ厳格にチェック
+fail_on_large_files: "true"
+
+# PRサイズがlarge以上で失敗
+fail_on_pr_size: "large"
+size_enabled: "true"
+
+# 組み合わせ
+fail_on_large_files: "true"
+fail_on_too_many_files: "true"
+fail_on_pr_size: "xlarge"
+```
+
 #### 🆕 選択的ラベル有効化機能
 
 各ラベル種別（size/complexity/category/risk）を個別にON/OFF可能にする統一インターフェースを追加 (#25)。
@@ -88,7 +122,7 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 ### Changed
 
 - `src/index.ts` - PR Labeler機能を既存フローに統合
-- `src/errors.ts` - ComplexityAnalysisError型を追加
+- `src/index.ts` - Step 10の失敗判定ロジックを`evaluateFailureConditions`ベースに置き換え
 
 ### Note
 
@@ -137,7 +171,6 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 
 - カスタマイズ可能な制限値（ファイルサイズ、行数、PR追加行数、ファイル数）
 - コメントモード設定（always/auto/never）
-- 違反時のCI失敗制御（`fail_on_violation`）
 - ラベル自動削除設定
 
 ### Technical Details

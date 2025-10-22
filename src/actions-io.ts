@@ -42,9 +42,14 @@ export interface ActionInputs {
   risk_enabled: string;
   large_files_label: string;
   too_many_files_label: string;
+  too_many_lines_label: string;
+  excessive_changes_label: string;
   skip_draft_pr: string;
   comment_on_pr: string;
-  fail_on_violation: string;
+  // Label-Based Workflow Failure Control
+  fail_on_large_files: string; // "" | "true" | "false"
+  fail_on_too_many_files: string; // "" | "true" | "false"
+  fail_on_pr_size: string; // "" | "small" | "medium" | "large" | "xlarge" | "xxlarge"
   enable_summary: string;
   additional_exclude_patterns: string;
   // Directory-Based Labeling
@@ -132,9 +137,14 @@ export function getActionInputs(): ActionInputs {
     risk_enabled: core.getInput('risk_enabled') || 'true',
     large_files_label: core.getInput('large_files_label') || 'auto:large-files',
     too_many_files_label: core.getInput('too_many_files_label') || 'auto:too-many-files',
+    too_many_lines_label: core.getInput('too_many_lines_label') || 'auto:too-many-lines',
+    excessive_changes_label: core.getInput('excessive_changes_label') || 'auto:excessive-changes',
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
     comment_on_pr: core.getInput('comment_on_pr') || 'auto',
-    fail_on_violation: core.getInput('fail_on_violation') || 'false',
+    // Label-Based Workflow Failure Control
+    fail_on_large_files: core.getInput('fail_on_large_files') || '',
+    fail_on_too_many_files: core.getInput('fail_on_too_many_files') || '',
+    fail_on_pr_size: core.getInput('fail_on_pr_size') || '',
     enable_summary: core.getInput('enable_summary') || 'true',
     additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
     // Directory-Based Labeling

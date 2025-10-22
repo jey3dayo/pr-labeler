@@ -15,6 +15,12 @@ export interface SizeThresholds {
         files: number;
     };
 }
+export interface SizeThresholdsV2 {
+    small: number;
+    medium: number;
+    large: number;
+    xlarge: number;
+}
 export interface Config {
     fileSizeLimit: number;
     fileLinesLimit: number;
@@ -38,9 +44,13 @@ export interface Config {
     riskEnabled: boolean;
     largeFilesLabel: string;
     tooManyFilesLabel: string;
+    tooManyLinesLabel: string;
+    excessiveChangesLabel: string;
     skipDraftPr: boolean;
     commentOnPr: 'auto' | 'always' | 'never';
-    failOnViolation: boolean;
+    failOnLargeFiles: boolean;
+    failOnTooManyFiles: boolean;
+    failOnPrSize: string;
     enableSummary: boolean;
     additionalExcludePatterns: string[];
     githubToken: string;

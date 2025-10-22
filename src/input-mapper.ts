@@ -10,13 +10,23 @@ import { createConfigurationError, createParseError } from './errors/index.js';
 import { parseSize } from './parsers/size-parser';
 
 /**
- * Size threshold configuration
+ * Size threshold configuration (v0.x format: S/M/L with additions + files)
  */
 export interface SizeThresholds {
   S: { additions: number; files: number };
   M: { additions: number; files: number };
   L: { additions: number; files: number };
   // XL is determined when L thresholds are exceeded
+}
+
+/**
+ * Size threshold configuration (v2 format: small/medium/large/xlarge with additions only)
+ */
+export interface SizeThresholdsV2 {
+  small: number;
+  medium: number;
+  large: number;
+  xlarge: number;
 }
 
 /**
@@ -38,9 +48,14 @@ export interface Config {
   riskEnabled: boolean;
   largeFilesLabel: string;
   tooManyFilesLabel: string;
+  tooManyLinesLabel: string;
+  excessiveChangesLabel: string;
   skipDraftPr: boolean;
   commentOnPr: 'auto' | 'always' | 'never';
-  failOnViolation: boolean;
+  // Label-Based Workflow Failure Control
+  failOnLargeFiles: boolean;
+  failOnTooManyFiles: boolean;
+  failOnPrSize: string; // "" | "small" | "medium" | "large" | "xlarge" | "xxlarge"
   enableSummary: boolean;
   additionalExcludePatterns: string[];
   githubToken: string;
@@ -307,6 +322,34 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'));
   }
 
+  // Label-Based Workflow Failure Control
+  const hasExplicitLargeFiles = inputs.fail_on_large_files.trim() !== '';
+  const hasExplicitTooManyFiles = inputs.fail_on_too_many_files.trim() !== '';
+  const hasExplicitPrSize = inputs.fail_on_pr_size.trim() !== '';
+
+  const failOnLargeFiles = hasExplicitLargeFiles ? parseBoolean(inputs.fail_on_large_files) === true : false;
+  const failOnTooManyFiles = hasExplicitTooManyFiles ? parseBoolean(inputs.fail_on_too_many_files) === true : false;
+  const failOnPrSize = hasExplicitPrSize ? inputs.fail_on_pr_size.trim() : '';
+
+  // Validate fail_on_pr_size
+  const validSizes = ['', 'small', 'medium', 'large', 'xlarge', 'xxlarge'];
+  if (!validSizes.includes(failOnPrSize)) {
+    return err(
+      createConfigurationError(
+        'fail_on_pr_size',
+        failOnPrSize,
+        `Invalid fail_on_pr_size value. Valid values: ${validSizes.join(', ')}`,
+      ),
+    );
+  }
+
+  // size_enabled dependency check
+  if (failOnPrSize !== '' && !sizeEnabledResult.value) {
+    return err(
+      createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'),
+    );
+  }
+
   // Construct config object
   const config: Config = {
     fileSizeLimit: fileSizeLimitResult.value,
@@ -324,9 +367,14 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     riskEnabled: riskEnabledResult.value,
     largeFilesLabel: inputs.large_files_label,
     tooManyFilesLabel: inputs.too_many_files_label,
+    tooManyLinesLabel: inputs.too_many_lines_label,
+    excessiveChangesLabel: inputs.excessive_changes_label,
     skipDraftPr: parseBoolean(inputs.skip_draft_pr),
     commentOnPr: parseCommentMode(inputs.comment_on_pr),
-    failOnViolation: parseBoolean(inputs.fail_on_violation),
+    // Label-Based Workflow Failure Control
+    failOnLargeFiles,
+    failOnTooManyFiles,
+    failOnPrSize,
     enableSummary: parseBoolean(inputs.enable_summary),
     additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
     githubToken: inputs.github_token,

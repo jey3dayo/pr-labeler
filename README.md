@@ -24,8 +24,8 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能。複
 
 **サイズベースラベル**（自動置換）:
 
-- `size/small` - 追加行数 < 200行
-- `size/medium` - 追加行数 200-499行
+- `size/small` - 追加行数 < 100行
+- `size/medium` - 追加行数 100-499行
 - `size/large` - 追加行数 500-999行
 - `size/xlarge` - 追加行数 1000-2999行
 - `size/xxlarge` - 追加行数 >= 3000行
@@ -166,7 +166,11 @@ jobs:
           comment_on_pr: "auto"         # 違反時のみコメント (always/auto/never)
           apply_labels: "true"          # サイズラベル自動適用 (size/S, size/M など)
           enable_summary: "true"        # GitHub Actions Summary に出力
-          fail_on_violation: "false"    # 違反時もCIは失敗させない（警告のみ）
+
+          # ワークフロー失敗制御（個別に制御可能）
+          fail_on_large_files: "true"   # 大きなファイルが検出された場合に失敗
+          fail_on_too_many_files: "true" # ファイル数超過時に失敗
+          fail_on_pr_size: "large"      # PRサイズがlarge以上で失敗
 
           # 以下のファイルは自動的に除外されます（additional_exclude_patterns不要）:
           # - ロックファイル: package-lock.json, yarn.lock, pnpm-lock.yaml など
@@ -194,7 +198,8 @@ jobs:
     pr_additions_limit: "1000"         # PR全体の追加行数上限
     pr_files_limit: "50"               # 最大ファイル数
     comment_on_pr: "auto"              # 違反時のみコメント
-    fail_on_violation: "true"          # 違反時にCIを失敗させる
+    fail_on_large_files: "true"        # 大きなファイルが検出された場合に失敗
+    fail_on_too_many_files: "true"     # ファイル数超過時に失敗
     apply_labels: "true"               # ラベル自動適用
     skip_draft_pr: "true"              # Draft PRをスキップ
     enable_summary: "true"             # GitHub Actions Summaryに出力
@@ -294,12 +299,54 @@ categories:
 
 ### 動作設定
 
-| パラメータ          | 必須 | デフォルト | 説明                                |
-| ------------------- | ---- | ---------- | ----------------------------------- |
-| `skip_draft_pr`     | ❌   | `true`     | Draft PRをスキップ                  |
-| `comment_on_pr`     | ❌   | `auto`     | コメントモード（always/auto/never） |
-| `fail_on_violation` | ❌   | `false`    | 違反時にアクションを失敗させる      |
-| `enable_summary`    | ❌   | `true`     | GitHub Actions Summaryに出力        |
+| パラメータ       | 必須 | デフォルト | 説明                                |
+| ---------------- | ---- | ---------- | ----------------------------------- |
+| `skip_draft_pr`  | ❌   | `true`     | Draft PRをスキップ                  |
+| `comment_on_pr`  | ❌   | `auto`     | コメントモード（always/auto/never） |
+| `enable_summary` | ❌   | `true`     | GitHub Actions Summaryに出力        |
+
+### 🆕 ワークフロー失敗制御（Label-Based Workflow Failure Control）
+
+ラベルまたは違反に基づいて、個別にワークフロー失敗を制御できます。
+
+| パラメータ               | 必須 | デフォルト | 説明                                                                                                                    |
+| ------------------------ | ---- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `fail_on_large_files`    | ❌   | `""`       | 大きなファイルが検出された場合にワークフロー失敗（`true`/`false`、空文字列で無効）                                      |
+| `fail_on_too_many_files` | ❌   | `""`       | ファイル数超過が検出された場合にワークフロー失敗（`true`/`false`、空文字列で無効）                                      |
+| `fail_on_pr_size`        | ❌   | `""`       | PRサイズが指定閾値以上の場合にワークフロー失敗（`"small"`/`"medium"`/`"large"`/`"xlarge"`/`"xxlarge"`、空文字列で無効） |
+
+**使用例:**
+
+```yaml
+# パターン1: 大きなファイルのみ厳格にチェック
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    fail_on_large_files: "true"
+
+# パターン2: ファイル数超過のみ厳格にチェック
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    fail_on_too_many_files: "true"
+
+# パターン3: PRサイズが"large"以上で失敗
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    fail_on_pr_size: "large"
+    size_enabled: "true"  # fail_on_pr_sizeにはsize_enabledが必要
+
+# パターン4: 組み合わせ
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    fail_on_large_files: "true"
+    fail_on_too_many_files: "true"
+    fail_on_pr_size: "xlarge"
+    size_enabled: "true"
+```
+
+**注意:**
+
+- `fail_on_pr_size`を使用する場合、`size_enabled: "true"`が必要です
+- ラベル（`auto:large-files`など）または実際の違反のいずれかが該当すれば失敗します
 
 ### 除外設定
 
@@ -333,8 +380,8 @@ categories:
 
 ラベル適用ルール:
 
-- `size/small`: additions < 200
-- `size/medium`: 200 ≤ additions < 500
+- `size/small`: additions < 100
+- `size/medium`: 100 ≤ additions < 500
 - `size/large`: 500 ≤ additions < 1000
 - `size/xlarge`: 1000 ≤ additions < 3000
 - `size/xxlarge`: additions ≥ 3000
@@ -404,8 +451,8 @@ GitHub Actions job summaryには以下の制限があります：
 
 **サイズラベル**（置換ポリシー）:
 
-- `size/small` - 追加行数 < 200行
-- `size/medium` - 追加行数 200-499行
+- `size/small` - 追加行数 < 100行
+- `size/medium` - 追加行数 100-499行
 - `size/large` - 追加行数 500-999行
 - `size/xlarge` - 追加行数 1000-2999行
 - `size/xxlarge` - 追加行数 >= 3000行
@@ -500,7 +547,8 @@ jobs:
     file_size_limit: "100KB"
     file_lines_limit: "300"
     pr_additions_limit: "500"
-    fail_on_violation: "true"
+    fail_on_large_files: "true"
+    fail_on_too_many_files: "true"
     comment_on_pr: "always"
 ```
 

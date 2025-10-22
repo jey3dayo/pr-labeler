@@ -124,7 +124,6 @@ describe('GitHub Actions I/O', () => {
           too_many_files_label: '',
           skip_draft_pr: '',
           comment_on_pr: '',
-          fail_on_violation: '',
           additional_exclude_patterns: '',
         };
         return inputs[name] || '';
@@ -150,7 +149,6 @@ describe('GitHub Actions I/O', () => {
       expect(inputs.too_many_files_label).toBe('auto:too-many-files');
       expect(inputs.skip_draft_pr).toBe('true');
       expect(inputs.comment_on_pr).toBe('auto');
-      expect(inputs.fail_on_violation).toBe('false');
       expect(inputs.additional_exclude_patterns).toBe('');
     });
 
@@ -170,7 +168,6 @@ describe('GitHub Actions I/O', () => {
           too_many_files_label: 'custom:many-files',
           skip_draft_pr: 'false',
           comment_on_pr: 'never',
-          fail_on_violation: 'true',
           additional_exclude_patterns: '*.test.ts,*.spec.ts',
         };
         return inputs[name] || '';
@@ -193,7 +190,6 @@ describe('GitHub Actions I/O', () => {
       expect(inputs.too_many_files_label).toBe('custom:many-files');
       expect(inputs.skip_draft_pr).toBe('false');
       expect(inputs.comment_on_pr).toBe('never');
-      expect(inputs.fail_on_violation).toBe('true');
       expect(inputs.additional_exclude_patterns).toBe('*.test.ts,*.spec.ts');
     });
   });

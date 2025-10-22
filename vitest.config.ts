@@ -6,6 +6,9 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['__tests__/vitest.setup.ts'],
     hidePassedTests: true,
+    // CI環境での出力抑制
+    silent: process.env.CI ? 'passed-only' : false,
+    reporters: process.env.CI ? ['dot'] : ['default'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

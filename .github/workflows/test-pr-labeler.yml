@@ -1,0 +1,139 @@
+name: Test PR Labeler
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - "feat/**"
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  test-basic:
+    name: Test - Basic Features
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run PR Labeler (Basic)
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Use @test tag for testing unreleased features
+          # This allows testing without affecting production users
+          file_size_limit: "100KB"
+          file_lines_limit: "500"
+          pr_additions_limit: "5000"
+          pr_files_limit: "50"
+          apply_labels: "true"
+          auto_remove_labels: "true"
+          enable_summary: "true"
+          language: "ja"
+
+  test-size-labels:
+    name: Test - Size Labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run PR Labeler (Size Labels)
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          size_enabled: "true"
+          size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 3000}'
+          complexity_enabled: "false"
+          category_enabled: "false"
+          risk_enabled: "false"
+          enable_summary: "true"
+          language: "en"
+
+  test-failure-control:
+    name: Test - Workflow Failure Control
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run PR Labeler (Failure Control)
+        uses: ./
+        continue-on-error: true
+        id: pr-labeler
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Test new workflow failure control inputs
+          fail_on_large_files: "true"
+          fail_on_too_many_files: "true"
+          fail_on_pr_size: "xlarge"
+          size_enabled: "true"
+          enable_summary: "true"
+          language: "ja"
+
+      - name: Check Failure Control
+        if: always()
+        run: |
+          echo "PR Labeler exit code: ${{ steps.pr-labeler.outcome }}"
+          if [ "${{ steps.pr-labeler.outcome }}" == "failure" ]; then
+            echo "✅ Workflow failure control is working as expected"
+          else
+            echo "ℹ️ No failure conditions were met"
+          fi
+
+  test-all-features:
+    name: Test - All Features
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run PR Labeler (All Features)
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Basic limits
+          file_size_limit: "100KB"
+          file_lines_limit: "500"
+          pr_additions_limit: "5000"
+          pr_files_limit: "50"
+          # Label settings
+          apply_labels: "true"
+          auto_remove_labels: "true"
+          large_files_label: "auto:large-files"
+          too_many_files_label: "auto:too-many-files"
+          # Selective label enabling
+          size_enabled: "true"
+          size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}'
+          complexity_enabled: "true"
+          complexity_thresholds: '{"medium": 10, "high": 20}'
+          category_enabled: "true"
+          risk_enabled: "true"
+          # Workflow failure control (disabled for comprehensive test)
+          fail_on_large_files: ""
+          fail_on_too_many_files: ""
+          fail_on_pr_size: ""
+          # Other settings
+          skip_draft_pr: "true"
+          comment_on_pr: "auto"
+          enable_summary: "true"
+          language: "ja"
+
+  test-minimal:
+    name: Test - Minimal Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run PR Labeler (Minimal)
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Only required parameter - all others use defaults
+          enable_summary: "true"

@@ -133,7 +133,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.18.3
+          version: 10.19.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -156,7 +156,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tsbuildinfo
-          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json', 'src/**/*.ts') }}
+          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json') }}
           restore-keys: |
             tsbuildinfo-${{ runner.os }}-
 
@@ -250,7 +250,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.18.3
+          version: 10.19.0
 
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -265,7 +265,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tsbuildinfo
-          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json', 'src/**/*.ts') }}
+          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json') }}
           restore-keys: |
             tsbuildinfo-${{ runner.os }}-
 
@@ -339,7 +339,10 @@ jobs:
           comment_on_pr: "auto"
           apply_labels: "true"
           enable_summary: "true"
-          fail_on_violation: "false"
+          # Workflow failure control (disabled for self-check)
+          fail_on_large_files: ""
+          fail_on_too_many_files: ""
+          fail_on_pr_size: ""
           additional_exclude_patterns: |
             src/index.ts
 
