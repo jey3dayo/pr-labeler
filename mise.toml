@@ -27,6 +27,7 @@ run = "pnpm lint"
 [tasks.test]
 description = "テスト実行"
 run = "pnpm test"
+env = { CI = "1", VITE_CJS_IGNORE_WARNING = "true" }
 
 [tasks.build]
 description = "ビルド実行"

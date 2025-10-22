@@ -18,7 +18,7 @@
     "generate:i18n-types": "tsx scripts/generate-i18n-types.ts",
     "postinstall": "pnpm generate:i18n-types",
     "dev": "tsx watch src/index.ts",
-    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt --quiet",
     "test": "run-p lint test:vitest",
     "test:vitest": "vitest run",
     "test:watch": "vitest",

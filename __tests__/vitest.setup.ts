@@ -11,8 +11,9 @@ vi.mock('@actions/core', async () => {
   const actual = await vi.importActual<typeof core>('@actions/core');
   return {
     ...actual,
-    // Suppress debug logs in test output
+    // Suppress debug logs and secret masking in test output
     debug: vi.fn(),
+    setSecret: vi.fn(),
     // Keep other functions for tests to spy on
     info: vi.fn(),
     warning: vi.fn(),
