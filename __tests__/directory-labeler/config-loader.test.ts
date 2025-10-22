@@ -27,7 +27,7 @@ describe('Directory-Based Labeler: Config Loader', () => {
     delete process.env['LANGUAGE'];
 
     resetI18n();
-    initializeI18n({ language: 'en' } as any);
+    initializeI18n('en');
 
     // Restore original environment variables
     if (originalLang) {

@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Violations } from '../src/errors';
 import type { AnalysisResult, FileMetrics } from '../src/file-metrics';
 import { changeLanguage, initializeI18n, resetI18n } from '../src/i18n';
-import type { Config } from '../src/input-mapper';
 import type { ComplexityConfig, ComplexityMetrics } from '../src/labeler-types';
 import type { SummaryContext } from '../src/report-formatter';
 import {
@@ -26,8 +25,7 @@ describe('ReportFormatter', () => {
 
     // Initialize i18n with English for consistent test results
     resetI18n();
-    const config: Config = { language: 'en' } as Config;
-    initializeI18n(config);
+    initializeI18n('en');
     changeLanguage('en'); // 明示的に英語に変更
   });
 
@@ -813,7 +811,6 @@ describe('ReportFormatter', () => {
 
   describe('Summary Output Snapshots (Multilingual)', () => {
     interface TestContext {
-      config: Config;
       analysisResult: AnalysisResult;
       hasViolations: boolean;
       prContext: { owner: string; repo: string; pullNumber: number };
@@ -894,7 +891,6 @@ describe('ReportFormatter', () => {
       };
 
       return {
-        config: {} as Config,
         analysisResult,
         hasViolations: true,
         prContext: { owner: 'test', repo: 'repo', pullNumber: 123 },
@@ -910,8 +906,7 @@ describe('ReportFormatter', () => {
     });
 
     it('should match English snapshot', () => {
-      const config: Config = { language: 'en' } as Config;
-      initializeI18n(config);
+      initializeI18n('en');
       changeLanguage('en');
 
       const context = createTestContext();
@@ -935,8 +930,7 @@ describe('ReportFormatter', () => {
     });
 
     it('should match Japanese snapshot', () => {
-      const config: Config = { language: 'ja' } as Config;
-      initializeI18n(config);
+      initializeI18n('ja');
       changeLanguage('ja');
 
       const context = createTestContext();
@@ -960,8 +954,7 @@ describe('ReportFormatter', () => {
     });
 
     it('should detect regression in English output', () => {
-      const config: Config = { language: 'en' } as Config;
-      initializeI18n(config);
+      initializeI18n('en');
       changeLanguage('en');
 
       const context = createTestContext();
@@ -976,8 +969,7 @@ describe('ReportFormatter', () => {
     });
 
     it('should detect regression in Japanese output', () => {
-      const config: Config = { language: 'ja' } as Config;
-      initializeI18n(config);
+      initializeI18n('ja');
       changeLanguage('ja');
 
       const context = createTestContext();

@@ -8,8 +8,6 @@ import * as path from 'node:path';
 import * as github from '@actions/github';
 
 import {
-  getActionInputs,
-  getGitHubToken,
   getPullRequestContext,
   logDebug,
   logDebugI18n,
@@ -26,16 +24,18 @@ import {
 import { getCIStatus } from './ci-status.js';
 import { manageComment } from './comment-manager';
 import { createComplexityAnalyzer } from './complexity-analyzer';
+import { buildCompleteConfig } from './config-builder.js';
 import { getDefaultLabelerConfig, loadConfig } from './config-loader';
 import { getDiffFiles } from './diff-strategy';
 import { loadDirectoryLabelerConfig } from './directory-labeler/config-loader.js';
 import { decideLabelsForFiles, filterByMaxLabels } from './directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from './directory-labeler/label-applicator.js';
+import { loadEnvironmentConfig } from './environment-loader.js';
 import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors/index.js';
 import { evaluateFailureConditions } from './failure-evaluator.js';
 import { analyzeFiles } from './file-metrics';
 import { initializeI18n, t } from './i18n.js';
-import { mapActionInputsToConfig } from './input-mapper';
+import { parseActionInputs } from './input-parser.js';
 import { applyLabels } from './label-applicator';
 import { decideLabels } from './label-decision-engine';
 import { getCurrentPRLabels } from './label-manager.js';
@@ -47,16 +47,16 @@ import type { PRContext } from './types';
  */
 async function run(): Promise<void> {
   try {
-    // Step 1: Get and validate inputs
+    // Step 1: Parse action inputs (Result<T,E>)
     logInfoI18n('initialization.gettingInputs');
-    const inputs = getActionInputs();
-
-    // Step 2: Get GitHub token
-    const tokenResult = getGitHubToken();
-    if (tokenResult.isErr()) {
-      throw tokenResult.error;
+    const parsedInputsResult = parseActionInputs();
+    if (parsedInputsResult.isErr()) {
+      throw parsedInputsResult.error; // パースエラー → 即座に失敗
     }
-    const token = tokenResult.value;
+    const parsedInputs = parsedInputsResult.value;
+
+    // Step 2: Get GitHub token (ParsedInputs から取得)
+    const token = parsedInputs.githubToken;
 
     // Step 3: Get PR context
     const prContext = getPullRequestContext();
@@ -67,15 +67,19 @@ async function run(): Promise<void> {
       repo: prContext.repo,
     });
 
-    // Step 4: Map inputs to configuration
-    const configResult = mapActionInputsToConfig(inputs);
-    if (configResult.isErr()) {
-      throw configResult.error;
-    }
-    const config = configResult.value;
+    // Step 4: Load environment config
+    const envConfig = loadEnvironmentConfig();
 
-    // Step 4.1: Initialize i18n system
-    const i18nResult = initializeI18n(config);
+    // Step 5: Load labeler config (pr-labeler.yml)
+    logInfoI18n('labels.loading');
+    const labelerConfigResult = await loadConfig(token, prContext.owner, prContext.repo, prContext.headSha);
+    const labelerConfig = labelerConfigResult.unwrapOr(getDefaultLabelerConfig());
+
+    // Step 6: Build complete config (優先順位解決)
+    const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
+
+    // Step 7: Initialize i18n (言語コードのみ)
+    const i18nResult = initializeI18n(config.language);
     if (i18nResult.isErr()) {
       logWarningI18n('initialization.i18nFailed', { message: i18nResult.error.message });
       // Continue execution with English fallback
@@ -169,17 +173,8 @@ async function run(): Promise<void> {
       logInfo(`✅ ${t('logs', 'violations.allChecksPassed')}`);
     }
 
-    // Step 7: Load PR Labeler configuration (always load for complexity analysis)
-    logInfoI18n('labels.loading');
-    const labelerConfigResult = await loadConfig(token, prContext.owner, prContext.repo, prContext.headSha);
-    const labelerConfig = labelerConfigResult.unwrapOr(getDefaultLabelerConfig());
-    if (labelerConfigResult.isErr()) {
-      logInfoI18n('initialization.usingDefaultConfig');
-    } else {
-      logInfoI18n('labels.loadedCustom');
-    }
-
     // Step 7.5: Merge action inputs with labeler config (inputs take priority)
+    // Note: labelerConfig was already loaded in Step 5
     logInfoI18n('labels.merging');
     labelerConfig.size.enabled = config.sizeEnabled;
     labelerConfig.size.thresholds = config.sizeThresholdsV2;

@@ -18,7 +18,7 @@ export interface CategoryLabelingConfig {
  * Complete labeler configuration
  */
 export interface LabelerConfig {
-  language?: 'en' | 'ja'; // 言語選択（デフォルト: 英語）
+  language?: string; // 言語選択（ロケール形式 'ja-JP', 'en-US' も許容、正規化フローで LanguageCode に収束）
   size: SizeConfig;
   complexity: ComplexityConfig;
   categoryLabeling: CategoryLabelingConfig;

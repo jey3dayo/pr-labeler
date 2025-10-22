@@ -2,7 +2,7 @@ export interface CategoryLabelingConfig {
     enabled: boolean;
 }
 export interface LabelerConfig {
-    language?: 'en' | 'ja';
+    language?: string;
     size: SizeConfig;
     complexity: ComplexityConfig;
     categoryLabeling: CategoryLabelingConfig;

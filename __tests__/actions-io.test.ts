@@ -19,7 +19,6 @@ import {
 } from '../src/actions-io';
 import type { AnalysisResult } from '../src/file-metrics';
 import { changeLanguage, initializeI18n, resetI18n } from '../src/i18n';
-import type { Config } from '../src/input-mapper';
 
 // Mock @actions/core
 vi.mock('@actions/core');
@@ -33,8 +32,7 @@ describe('GitHub Actions I/O', () => {
 
     // Initialize i18n with English for consistent test results
     resetI18n();
-    const config: Config = { language: 'en' } as Config;
-    initializeI18n(config);
+    initializeI18n('en');
     changeLanguage('en'); // 明示的に英語に変更
   });
 
@@ -427,8 +425,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('logInfoI18n', () => {
       it('should translate log message in English', () => {
-        const config: Config = { language: 'en' } as Config;
-        initializeI18n(config);
+        initializeI18n('en');
         changeLanguage('en');
         const spy = vi.mocked(core.info);
 
@@ -438,8 +435,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate log message in Japanese', () => {
-        const config: Config = { language: 'ja' } as Config;
-        initializeI18n(config);
+        initializeI18n('ja');
         changeLanguage('ja');
         const spy = vi.mocked(core.info);
 
@@ -449,8 +445,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should interpolate variables in English', () => {
-        const config: Config = { language: 'en' } as Config;
-        initializeI18n(config);
+        initializeI18n('en');
         changeLanguage('en');
         const spy = vi.mocked(core.info);
 
@@ -460,8 +455,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should interpolate variables in Japanese', () => {
-        const config: Config = { language: 'ja' } as Config;
-        initializeI18n(config);
+        initializeI18n('ja');
         changeLanguage('ja');
         const spy = vi.mocked(core.info);
 
@@ -482,8 +476,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('logWarningI18n', () => {
       it('should translate warning message in English', () => {
-        const config: Config = { language: 'en' } as Config;
-        initializeI18n(config);
+        initializeI18n('en');
         changeLanguage('en');
         const spy = vi.mocked(core.warning);
 
@@ -494,8 +487,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate warning message in Japanese', () => {
-        const config: Config = { language: 'ja' } as Config;
-        initializeI18n(config);
+        initializeI18n('ja');
         changeLanguage('ja');
         const spy = vi.mocked(core.warning);
 
@@ -516,8 +508,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('logErrorI18n', () => {
       it('should translate error message in English', () => {
-        const config: Config = { language: 'en' } as Config;
-        initializeI18n(config);
+        initializeI18n('en');
         changeLanguage('en');
         const spy = vi.mocked(core.error);
 
@@ -528,8 +519,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate error message in Japanese', () => {
-        const config: Config = { language: 'ja' } as Config;
-        initializeI18n(config);
+        initializeI18n('ja');
         changeLanguage('ja');
         const spy = vi.mocked(core.error);
 
@@ -550,8 +540,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('logDebugI18n', () => {
       it('should translate debug message in English', () => {
-        const config: Config = { language: 'en' } as Config;
-        initializeI18n(config);
+        initializeI18n('en');
         changeLanguage('en');
         const spy = vi.mocked(core.debug);
 
@@ -561,8 +550,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate debug message in Japanese', () => {
-        const config: Config = { language: 'ja' } as Config;
-        initializeI18n(config);
+        initializeI18n('ja');
         changeLanguage('ja');
         const spy = vi.mocked(core.debug);
 
@@ -582,8 +570,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('Technical Details Preservation', () => {
       it('should preserve filename in translated messages', () => {
-        const config: Config = { language: 'ja' } as Config;
-        initializeI18n(config);
+        initializeI18n('ja');
         changeLanguage('ja');
 
         // i18n初期化ログをクリア
@@ -598,8 +585,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should preserve error messages in original form', () => {
-        const config: Config = { language: 'ja' } as Config;
-        initializeI18n(config);
+        initializeI18n('ja');
         changeLanguage('ja');
 
         // i18n初期化ログをクリア

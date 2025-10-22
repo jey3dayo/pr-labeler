@@ -6,7 +6,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import {
   changeLanguage,
-  determineLanguage,
   getCurrentLanguage,
   getLabelDisplayName,
   initializeI18n,
@@ -15,7 +14,6 @@ import {
   resetI18n,
   t,
 } from '../src/i18n';
-import type { Config } from '../src/input-mapper';
 import type { CategoryConfig } from '../src/labeler-types';
 
 describe('i18n Core Functions', () => {
@@ -59,71 +57,13 @@ describe('i18n Core Functions', () => {
     });
   });
 
-  describe('determineLanguage', () => {
-    it('should prioritize LANGUAGE environment variable', () => {
-      process.env['LANGUAGE'] = 'ja-JP';
-      process.env['LANG'] = 'en-US';
-
-      const config: Partial<Config> = {
-        language: 'en',
-      };
-
-      expect(determineLanguage(config as Config)).toBe('ja');
-    });
-
-    it('should use LANG when LANGUAGE is not set', () => {
-      delete process.env['LANGUAGE'];
-      process.env['LANG'] = 'ja-JP';
-
-      const config: Config = {
-        language: 'en',
-      } as Config;
-
-      expect(determineLanguage(config)).toBe('ja');
-    });
-
-    it('should use config when environment variables are not set', () => {
-      delete process.env['LANGUAGE'];
-      delete process.env['LANG'];
-
-      const config: Config = {
-        language: 'ja',
-      } as Config;
-
-      expect(determineLanguage(config)).toBe('ja');
-    });
-
-    it('should default to en when no language is specified', () => {
-      resetI18n(); // i18nをリセット
-      delete process.env['LANGUAGE'];
-      delete process.env['LANG'];
-
-      const config: Config = {} as Config;
-
-      expect(determineLanguage(config)).toBe('en');
-    });
-
-    it('should normalize language codes from all sources', () => {
-      process.env['LANGUAGE'] = 'JA-JP';
-
-      const config: Config = {} as Config;
-
-      expect(determineLanguage(config)).toBe('ja');
-    });
-  });
+  // determineLanguage() は削除されたため、テストも削除
 
   describe('initializeI18n', () => {
     it('should initialize successfully with English', () => {
       resetI18n(); // 明示的にリセット
-      // CI環境の環境変数をクリア
-      delete process.env['LANGUAGE'];
-      delete process.env['LANG'];
 
-      const config: Config = {
-        language: 'en',
-      } as Config;
-
-      const result = initializeI18n(config);
+      const result = initializeI18n('en');
 
       expect(result.isOk()).toBe(true);
       expect(isInitialized()).toBe(true);
@@ -132,53 +72,41 @@ describe('i18n Core Functions', () => {
 
     it('should initialize successfully with Japanese', () => {
       resetI18n(); // 明示的にリセット
-      // CI環境の環境変数をクリア
-      delete process.env['LANGUAGE'];
-      delete process.env['LANG'];
 
-      const config: Config = {
-        language: 'ja',
-      } as Config;
-
-      const result = initializeI18n(config);
+      const result = initializeI18n('ja');
 
       expect(result.isOk()).toBe(true);
       expect(isInitialized()).toBe(true);
       expect(getCurrentLanguage()).toBe('ja');
     });
 
-    it('should use environment variable for language selection', () => {
-      process.env['LANGUAGE'] = 'ja';
-
-      const config: Config = {
-        language: 'en',
-      } as Config;
-
-      const result = initializeI18n(config);
-
-      expect(result.isOk()).toBe(true);
-      expect(getCurrentLanguage()).toBe('ja');
-    });
-
     it('should be idempotent (multiple calls are safe)', () => {
-      const config: Config = {
-        language: 'en',
-      } as Config;
-
-      const result1 = initializeI18n(config);
-      const result2 = initializeI18n(config);
+      const result1 = initializeI18n('en');
+      const result2 = initializeI18n('ja');
 
       expect(result1.isOk()).toBe(true);
       expect(result2.isOk()).toBe(true);
+      // 2回目の呼び出しで言語が変更される
+      expect(getCurrentLanguage()).toBe('ja');
+    });
+
+    it('should handle language switching correctly', () => {
+      resetI18n();
+
+      const result1 = initializeI18n('en');
+      expect(result1.isOk()).toBe(true);
+      expect(getCurrentLanguage()).toBe('en');
+
+      // 言語を切り替え
+      const result2 = initializeI18n('ja');
+      expect(result2.isOk()).toBe(true);
+      expect(getCurrentLanguage()).toBe('ja');
     });
   });
 
   describe('t (translation function)', () => {
     beforeEach(() => {
-      const config: Config = {
-        language: 'en',
-      } as Config;
-      initializeI18n(config);
+      initializeI18n('en');
       // 明示的に英語に変更
       changeLanguage('en');
     });
@@ -217,28 +145,7 @@ describe('i18n Core Functions', () => {
   describe('getLabelDisplayName', () => {
     beforeEach(() => {
       // 英語で初期化
-      const config: Config = {
-        language: 'en',
-        github_token: 'dummy',
-        repository: 'owner/repo',
-        pr_number: 1,
-        skip_draft_pr: false,
-        comment_on_pr: 'auto',
-        enable_summary: true,
-        file_size_limit: 1000,
-        file_lines_limit: 500,
-        pr_additions_limit: 1000,
-        pr_files_limit: 50,
-        additional_exclude_patterns: [],
-        size_label_thresholds: null,
-        size_enabled: true,
-        complexity_enabled: false,
-        complexity_thresholds: null,
-        category_enabled: true,
-        risk_enabled: false,
-        risk_thresholds: null,
-      };
-      initializeI18n(config);
+      initializeI18n('en');
     });
 
     it('should return custom display_name from category config (English)', () => {
