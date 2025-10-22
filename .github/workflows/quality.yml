@@ -343,6 +343,7 @@ jobs:
           category_enabled: "true"
           risk_enabled: "true"
           enable_summary: "true"
+          language: "ja"
           # Workflow failure control (disabled for self-check)
           fail_on_large_files: ""
           fail_on_too_many_files: ""
