@@ -55,7 +55,7 @@
 - [ ] 3.2 主要機能とクイックスタートの作成
   - 主要機能を3-5個の箇条書きで簡潔に記載する（Automatic PR Labeling, GitHub Actions Integration, Flexible Configuration, Directory-Based Labeling, Multi-language Support）
   - 最小構成のworkflow例（10-15行）を作成し、コピー＆ペースト可能な完全なサンプルとする
-  - ラベル適用の注意事項を記載する（リポジトリに事前にラベルを作成する必要がある、またはpr-labeler.ymlのauto_create_labelsでラベル自動作成を有効化できることを案内）
+  - ラベル適用の注意事項を記載する（リポジトリに事前にラベルを作成する必要がある、またはDirectory-Based Labelingでラベル自動作成を利用できることを案内）
   - 必要な権限設定（contents: read, pull-requests: write）をworkflow例に含める
   - Next Stepsとして、Configuration GuideとAdvanced Usageへのリンクを配置する
   - _要件: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.1, 7.2_

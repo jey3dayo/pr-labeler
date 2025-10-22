@@ -169,9 +169,6 @@ These parameters control workflow failures based on applied labels or actual vio
 | ------------------------------- | -------- | ------------------------------- | --------------------------------------------------- |
 | `enable_directory_labeling`     | ❌       | `false`                         | Enable Directory-Based Labeling feature             |
 | `directory_labeler_config_path` | ❌       | `.github/directory-labeler.yml` | Path to directory labeler configuration file        |
-| `auto_create_labels`            | ❌       | `false`                         | Automatically create labels if they don't exist     |
-| `label_color`                   | ❌       | `cccccc`                        | Color for auto-created labels (hex code without #)  |
-| `label_description`             | ❌       | `""`                            | Description for auto-created labels                 |
 | `max_labels`                    | ❌       | `10`                            | Maximum number of labels to apply (0 for unlimited) |
 
 **Example:**
@@ -182,8 +179,6 @@ These parameters control workflow failures based on applied labels or actual vio
     github_token: ${{ secrets.GITHUB_TOKEN }}
     enable_directory_labeling: true
     directory_labeler_config_path: ".github/directory-labeler.yml"
-    auto_create_labels: true
-    label_color: "0366d6"
     max_labels: 5
 ```
 

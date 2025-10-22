@@ -61,7 +61,7 @@ PR Labeler（旧: PR Metrics Action）は、GitHubのPull Requestのサイズと
   - additive（加法的）: scope:\* など、複数適用可能
 - **安全設計**:
   - デフォルトで無効、明示的な有効化が必要（`enable_directory_labeling: true`）
-  - ラベル自動作成オプション（`auto_create_labels`）
+  - ラベルは自動作成される（固定値: color=cccccc, description=""）
 - **設定ファイル**: `.github/directory-labeler.yml`でルール定義
 
 ### 💬 コメント投稿

@@ -131,18 +131,6 @@ inputs:
     description: "Path to directory labeler configuration file"
     required: false
     default: ".github/directory-labeler.yml"
-  auto_create_labels:
-    description: "Automatically create labels if they don't exist"
-    required: false
-    default: "false"
-  label_color:
-    description: "Color for auto-created labels (hex code without #)"
-    required: false
-    default: "cccccc"
-  label_description:
-    description: "Description for auto-created labels"
-    required: false
-    default: ""
   max_labels:
     description: "Maximum number of labels to apply (0 for unlimited)"
     required: false

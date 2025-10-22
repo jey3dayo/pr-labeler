@@ -165,16 +165,13 @@ labels:
 
 #### Option 3: Auto-Create Labels with Directory-Based Labeling
 
-For Directory-Based Labeling, use the `auto_create_labels` input:
+Directory-Based Labeling automatically creates missing labels (no configuration needed):
 
 ```yaml
 - uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
-    enable_directory_labeling: true
-    auto_create_labels: true       # Auto-create missing labels
-    label_color: "0366d6"          # Custom color (hex without #)
-    label_description: "Auto-created by PR Labeler"
+    enable_directory_labeling: true  # Labels are auto-created with default color (cccccc)
 ```
 
 ### Verification
@@ -487,7 +484,7 @@ Verify repository settings:
 ### Common Issues Checklist
 
 - [ ] Required permissions are granted (`pull-requests: write`, `issues: write`, `contents: read`)
-- [ ] Labels exist in the repository or `auto_create_labels` is enabled
+- [ ] Labels exist in the repository (automatically created with Directory-Based Labeling)
 - [ ] `skip_draft_pr` setting matches your intent
 - [ ] Default exclude patterns are understood
 - [ ] Workflow syntax is valid

@@ -459,7 +459,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           enable_directory_labeling: true  # Enable feature
-          auto_create_labels: true         # Auto-create missing labels
 ```
 
 ### Configuration File

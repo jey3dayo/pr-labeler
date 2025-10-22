@@ -149,7 +149,6 @@ namespaces:
           context,
           decisionsResult.value,
           configResult.value.namespaces || DEFAULT_NAMESPACES,
-          { autoCreate: false },
         );
 
         expect(applyResult.isOk()).toBe(true);
@@ -241,7 +240,6 @@ rules:
           context,
           decisionsResult.value,
           DEFAULT_NAMESPACES,
-          { autoCreate: false },
         );
 
         expect(applyResult.isOk()).toBe(true);
@@ -373,7 +371,6 @@ namespaces:
           context,
           decisions,
           configResult.value.namespaces || DEFAULT_NAMESPACES,
-          { autoCreate: false },
         );
 
         expect(applyResult.isOk()).toBe(true);

@@ -61,9 +61,6 @@ export interface Config {
   // Directory-Based Labeling
   enableDirectoryLabeling: boolean;
   directoryLabelerConfigPath: string;
-  autoCreateLabels: boolean;
-  labelColor: string;
-  labelDescription: string;
   maxLabels: number;
   useDefaultExcludes: boolean;
   // i18n Support
@@ -379,9 +376,6 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     // Directory-Based Labeling
     enableDirectoryLabeling: parseBoolean(inputs.enable_directory_labeling),
     directoryLabelerConfigPath: inputs.directory_labeler_config_path,
-    autoCreateLabels: parseBoolean(inputs.auto_create_labels),
-    labelColor: inputs.label_color,
-    labelDescription: inputs.label_description,
     maxLabels,
     useDefaultExcludes: parseBoolean(inputs.use_default_excludes),
     // i18n Support

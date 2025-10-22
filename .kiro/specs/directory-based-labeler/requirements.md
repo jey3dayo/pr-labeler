@@ -97,15 +97,13 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
 1. WHEN Directory-Based Labelerが`action.yml`から呼び出される THEN Directory-Based Labeler SHALL 以下の入力パラメータを受け付ける:
    - `enable_directory_labeling` (boolean, デフォルト: `false`): 機能の有効/無効
    - `directory_labeler_config_path` (string, デフォルト: `.github/directory-labeler.yml`): 設定ファイルパス
-   - `auto_create_labels` (boolean, デフォルト: `false`): ラベル未存在時の自動作成
-   - `label_color` (string, デフォルト: `#cccccc`): 自動作成ラベルの色
-   - `label_description` (string, デフォルト: `""`): 自動作成ラベルの説明
    - `max_labels` (number, デフォルト: `10`): 適用ラベル数の上限
    - `use_default_excludes` (boolean, デフォルト: `true`): デフォルト除外パターンの使用
+   - ラベルは常に自動作成される（固定値: color=cccccc, description=""）
 2. IF `enable_directory_labeling`がfalse THEN Directory-Based Labeler SHALL ラベリング処理をスキップして正常終了する
 3. WHERE `directory_labeler_config_path`が指定されている THE Directory-Based Labeler SHALL 指定されたパスから設定ファイルを読み込む
 4. WHEN 決定されたラベル数が`max_labels`を超過する THEN Directory-Based Labeler SHALL 優先度順（priority → 最長マッチ → 定義順）で上位N件のみ適用し、非採用ラベルと理由（上限超過）をSummary/ログに出力する
-5. WHEN `auto_create_labels`が`true` AND ラベルが未存在 THEN Directory-Based Labeler SHALL 新規ラベルを作成し、`label_color`と`label_description`を適用する
+5. WHEN ラベルが未存在 THEN Directory-Based Labeler SHALL 新規ラベルを自動作成する（固定値: color=cccccc, description=""）
 6. IF ラベル作成に失敗する（権限不足/レート制限） THEN Directory-Based Labeler SHALL 部分失敗として記録し、Summary/ログに失敗理由を出力する
 7. WHEN ラベル適用にGitHub APIを使用する THEN Directory-Based Labeler SHALL `issues: write`権限を必要とし、権限が不足している場合は`PermissionError`を返す
 8. IF `issues: write`権限が不足している THEN Directory-Based Labeler SHALL READMEと`action.yml`で必要権限を明記し、エラーメッセージで設定方法を案内する
@@ -244,16 +242,16 @@ Directory-Based Labelerは、Pull Request内の変更ファイルのディレク
 - **設定**: `max_labels: 10`
 - **期待結果**: 優先度順（priority → 最長マッチ → 定義順）で上位10個のみ適用され、非採用5個の理由（上限超過）がSummary/ログに記録される
 
-### シナリオ12: auto_create_labels機能の動作
+### シナリオ12: ラベル自動作成の動作
 
 - **入力**: `src/new-module/index.ts`が変更、`area:new-module`ラベルが未存在
-- **設定**: `auto_create_labels: true`, `label_color: #ff0000`, `label_description: "New module"`
-- **期待結果**: `area:new-module`ラベルが自動作成され（色: #ff0000、説明: "New module"）、PRに適用される
+- **設定**: `enable_directory_labeling: true`
+- **期待結果**: `area:new-module`ラベルが自動作成され（固定値: color=cccccc, description=""）、PRに適用される
 
-### シナリオ13: auto_create_labels作成失敗
+### シナリオ13: ラベル作成失敗
 
 - **入力**: `src/feature/A.ts`が変更、`area:feature`ラベルが未存在、権限不足
-- **設定**: `auto_create_labels: true`
+- **設定**: `enable_directory_labeling: true`
 - **期待結果**: ラベル作成が失敗し、部分失敗として記録され、Summary/ログに失敗理由（権限不足）が出力される
 
 ### シナリオ14: 既定除外のみ変更

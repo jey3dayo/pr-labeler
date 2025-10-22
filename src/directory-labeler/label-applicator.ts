@@ -7,6 +7,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+import { DEFAULT_LABEL_COLOR, DEFAULT_LABEL_DESCRIPTION } from '../configs/directory-labeler-defaults.js';
 import {
   createGitHubAPIError,
   createPermissionError,
@@ -50,18 +51,6 @@ export interface ApplyResult {
 }
 
 /**
- * ラベル適用オプション
- */
-export interface ApplyOptions {
-  /** ラベル自動作成 */
-  autoCreate: boolean;
-  /** デフォルトラベル色 */
-  labelColor?: string;
-  /** デフォルトラベル説明 */
-  labelDescription?: string;
-}
-
-/**
  * ラベル名から名前空間を抽出
  *
  * @param label - ラベル名
@@ -78,11 +67,12 @@ function extractNamespace(label: string): string | undefined {
 /**
  * Directory-Based Labelerのラベルを適用
  *
+ * Labels are always auto-created if they don't exist (using fixed defaults: color=cccccc, description="")
+ *
  * @param octokit - GitHub APIクライアント
  * @param context - PRコンテキスト
  * @param decisions - ラベル決定結果
  * @param namespaces - 名前空間ポリシー
- * @param options - ラベル適用オプション
  * @returns 適用結果またはエラー
  */
 export async function applyDirectoryLabels(
@@ -90,7 +80,6 @@ export async function applyDirectoryLabels(
   context: PullRequestContext,
   decisions: LabelDecision[],
   namespaces: Required<NamespacePolicy>,
-  options: ApplyOptions,
 ): Promise<
   Result<
     ApplyResult,
@@ -210,10 +199,10 @@ export async function applyDirectoryLabels(
       const message = extractErrorMessage(error);
       const status = extractErrorStatus(error);
 
-      // ラベル未存在エラー（422）の場合、auto_create_labelsが有効なら作成
-      if (status === 422 && options.autoCreate) {
+      // ラベル未存在エラー（422）の場合、常にラベルを作成
+      if (status === 422) {
         core.info('Some labels do not exist. Attempting to create them...');
-        await createMissingLabels(octokit, context, labelsToAdd, options, result);
+        await createMissingLabels(octokit, context, labelsToAdd, result);
       } else {
         // その他のエラーは失敗として記録
         for (const label of labelsToAdd) {
@@ -232,12 +221,13 @@ export async function applyDirectoryLabels(
 
 /**
  * 未存在のラベルを作成して追加
+ *
+ * Labels are created with fixed defaults: color=cccccc, description=""
  */
 async function createMissingLabels(
   octokit: Octokit,
   context: PullRequestContext,
   labels: string[],
-  options: ApplyOptions,
   result: ApplyResult,
 ): Promise<void> {
   for (const label of labels) {
@@ -270,8 +260,8 @@ async function createMissingLabels(
         owner: context.repo.owner,
         repo: context.repo.repo,
         name: label,
-        color: options.labelColor || 'cccccc',
-        description: options.labelDescription || '',
+        color: DEFAULT_LABEL_COLOR,
+        description: DEFAULT_LABEL_DESCRIPTION,
       });
       core.info(`Created label: ${label}`);
     } catch (error) {
