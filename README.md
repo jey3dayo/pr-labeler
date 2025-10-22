@@ -4,131 +4,45 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 ![Test Coverage](https://img.shields.io/badge/Coverage-93%25-green.svg)
 
-PRのサイズと品質を自動的にチェックし、ラベル付けとコメント投稿を行うGitHub Actionです。
+Intelligent PR labeling with automatic size checks, categorization, and risk assessment for GitHub Actions.
 
-## 🚀 機能
+🇬🇧 [English](README.md) | 🇯🇵 [日本語](README.ja.md)
 
-### コア機能
+---
 
-- **📏 ファイルサイズチェック**: 個別ファイルのサイズ制限を監視
-- **📝 行数制限チェック**: ファイルごと・PR全体の行数を制限
-- **🏷️ 自動ラベル付け**: PRサイズに応じたラベル（S/M/L/XL/XXL）を自動適用
-- **💬 コメント投稿**: 違反内容を詳細レポートとして自動コメント
-- **📊 GitHub Actions Summary出力**: ワークフローサマリーページにメトリクスを表示
-- **🎯 柔軟な除外パターン**: minimatchによる高度なファイル除外設定
-- **🔄 冪等性**: 何度実行しても同じ結果を保証
+## 📢 Documentation Restructuring Notice
 
-### 🆕 PR Labeler - インテリジェント自動ラベル付け
+Our documentation has been simplified and reorganized for better usability:
 
-PRメトリクス分析に基づいた高度な自動ラベル付け機能。複数のディメンションでPRを自動分類します。
+- **README.md**: Quick start guide (you are here)
+- **Detailed Documentation**: Moved to [`docs/`](docs/) directory
+  - [Configuration Guide](docs/configuration.md) - All input parameters
+  - [Advanced Usage](docs/advanced-usage.md) - Real-world examples
+  - [Troubleshooting](docs/troubleshooting.md) - Common issues
 
-**サイズベースラベル**（自動置換）:
+📦 **Previous README archived**: Use [pre-simplification-readme](https://github.com/jey3dayo/pr-labeler/tree/pre-simplification-readme) tag to view the complete original documentation.
 
-- `size/small` - 追加行数 < 100行
-- `size/medium` - 追加行数 100-499行
-- `size/large` - 追加行数 500-999行
-- `size/xlarge` - 追加行数 1000-2999行
-- `size/xxlarge` - 追加行数 >= 3000行
+---
 
-**カテゴリベースラベル**（加法的）:
+## 🚀 Key Features
 
-- `category/tests` - テストファイルの変更
-- `category/ci-cd` - CI/CD設定の変更
-- `category/documentation` - ドキュメント変更
-- `category/config` - 設定ファイルの変更（tsconfig.json, eslint.config.js等）
-- `category/spec` - 仕様書・計画ドキュメントの変更（.kiro/, spec/等）
-- `category/dependencies` - 依存関係ファイルの変更（多言語対応: Node.js, Go, Python, Rust, Ruby）
-- カスタムカテゴリをYAML設定で追加可能
+- **📏 Automatic PR Labeling**: Apply size labels (S/M/L/XL/XXL) based on PR additions
+- **🏷️ Flexible Categorization**: Automatically categorize PRs by type (tests, docs, CI/CD, dependencies, etc.)
+- **📁 Directory-Based Labeling**: Apply labels based on changed file paths using glob patterns
+- **⚠️ Risk Assessment**: Identify high-risk changes (core changes without tests)
+- **🌐 Multi-language Support**: English and Japanese output for summaries, comments, and logs
 
-**リスクベースラベル**:
+## 📋 Quick Start
 
-- `risk/high` - テストなしでコア機能変更
-- `risk/medium` - 設定ファイル変更
+<a id="使用方法"></a>
+<a id="-使用方法"></a>
+<a id="usage"></a>
 
-**特徴**:
+### Minimal Configuration
 
-- ✅ ゼロ設定で即利用可能（デフォルト設定内蔵）
-- ✅ `.github/pr-labeler.yml`でカスタマイズ可能
-- ✅ 冪等性保証（同じPR状態で再実行しても同じラベル）
-- ✅ 権限不足時の適切な処理（フォークPR対応）
-- ✅ **🆕 選択的有効化**: 各ラベル種別（size/complexity/category/risk）を個別にON/OFF可能
-- ✅ **🆕 統一されたinput命名**: `*_enabled` と `*_thresholds` の一貫した命名規則
-
-### 🆕 Directory-Based Labeler - ディレクトリパスベースの自動ラベル付け
-
-変更ファイルのディレクトリパスに基づいて、自動的にGitHubラベルを付与する機能です。
-
-**主要機能**:
-
-- **📁 パスベースマッピング**: ディレクトリパターン（glob）からラベルを自動決定
-- **🎯 優先順位制御**: priority、最長マッチ、定義順で柔軟な制御
-- **🔄 名前空間ポリシー**: exclusive（置換）/additive（追加）で競合解決
-- **🛡️ 安全設計**: デフォルトで無効、明示的な有効化が必要
-- **✨ ラベル自動作成**: 未存在ラベルの自動作成オプション
-
-**設定例**（`.github/directory-labeler.yml`）:
+Add this workflow to `.github/workflows/pr-check.yml`:
 
 ```yaml
-version: 1
-rules:
-  - label: 'area:frontend'
-    include:
-      - 'src/components/**'
-      - 'src/pages/**'
-    exclude:
-      - '**/__tests__/**'
-    priority: 20
-
-  - label: 'area:backend'
-    include:
-      - 'src/api/**'
-      - 'src/services/**'
-    priority: 20
-
-namespaces:
-  exclusive: ['area']  # area:*ラベルは1つのみ
-  additive: ['scope']  # scope:*ラベルは複数可
-```
-
-**有効化**:
-
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    enable_directory_labeling: true  # 機能を有効化
-```
-
-詳細は[`.github/directory-labeler.yml.example`](.github/directory-labeler.yml.example)を参照してください。
-
-## 📋 使用方法
-
-### 基本的な使用例
-
-```yaml
-name: PR Size Check
-
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: jey3dayo/pr-labeler@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-```
-
-### 実践例（このリポジトリで使用中）
-
-このリポジトリでは以下の設定で実際に動作しています。このファイルをコピーして `.github/workflows/` に配置すればすぐに使えます：
-
-```yaml
-# .github/workflows/pr-check.yml
 name: PR Size Check
 
 on:
@@ -136,594 +50,157 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  pr-metrics:
-    name: PR Metrics Check
+  check:
     runs-on: ubuntu-latest
 
-    # 必要な権限を設定
     permissions:
-      pull-requests: write  # ラベル管理用
-      issues: write         # コメント投稿用
-      contents: read        # ファイル読み取り用
+      contents: read        # Read files
+      pull-requests: write  # Manage labels
+      issues: write         # Post comments
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          # PR全体の差分を取得するため fetch-depth: 0 が必要
-          fetch-depth: 0
 
       - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-          # ファイルサイズ・行数制限
-          file_size_limit: "100KB"      # 個別ファイルの最大サイズ
-          file_lines_limit: "500"       # 個別ファイルの最大行数
-          pr_additions_limit: "5000"    # PR全体の追加行数上限
-          pr_files_limit: "50"          # 変更ファイル数の上限
-
-          # 動作設定
-          comment_on_pr: "auto"         # 違反時のみコメント (always/auto/never)
-          enable_summary: "true"        # GitHub Actions Summary に出力
-
-          # ラベル種別の個別制御（デフォルトで有効）
-          size_enabled: "true"          # サイズラベル (size/small, size/medium など)
-          complexity_enabled: "false"   # 複雑度ラベル (complexity/medium, complexity/high) ※デフォルトOFF
-          category_enabled: "true"      # カテゴリラベル (category/tests, category/docs など)
-          risk_enabled: "true"          # リスクラベル (risk/high, risk/medium)
-
-          # ワークフロー失敗制御（個別に制御可能）
-          fail_on_large_files: "true"   # 大きなファイルが検出された場合に失敗
-          fail_on_too_many_files: "true" # ファイル数超過時に失敗
-          fail_on_pr_size: "large"      # PRサイズがlarge以上で失敗
-
-          # 以下のファイルは自動的に除外されます（additional_exclude_patterns不要）:
-          # - ロックファイル: package-lock.json, yarn.lock, pnpm-lock.yaml など
-          # - 依存関係: node_modules/**, vendor/** など
-          # - ビルド成果物: dist/**, build/**, .next/** など
-          # - 最小化ファイル: *.min.js, *.min.css
-          # - バイナリファイル: 画像、動画、実行ファイル
-          # 完全なリストは pattern-matcher.ts を参照
-
-          # 追加で除外したい場合は以下のように設定:
-          # additional_exclude_patterns: |
-          #   **/*.generated.ts
-          #   **/*.gen.go
-          #   coverage/**
 ```
 
-### カスタム設定例
+### ⚠️ Label Creation Required
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    file_size_limit: "500KB"           # ファイルサイズ上限
-    file_lines_limit: "500"            # ファイル行数上限
-    pr_additions_limit: "1000"         # PR全体の追加行数上限
-    pr_files_limit: "50"               # 最大ファイル数
-    comment_on_pr: "auto"              # 違反時のみコメント
-    fail_on_large_files: "true"        # 大きなファイルが検出された場合に失敗
-    fail_on_too_many_files: "true"     # ファイル数超過時に失敗
-    skip_draft_pr: "true"              # Draft PRをスキップ
-    enable_summary: "true"             # GitHub Actions Summaryに出力
+**Before first use**, ensure labels exist in your repository:
 
-    # ラベル種別の個別制御
-    size_enabled: "true"               # サイズラベルを有効化
-    complexity_enabled: "true"         # 複雑度ラベルを有効化（デフォルトはfalse）
-    category_enabled: "true"           # カテゴリラベルを有効化
-    risk_enabled: "true"               # リスクラベルを有効化
-```
+- **Option 1**: Manually create labels in **Issues** → **Labels** (see [Troubleshooting](docs/troubleshooting.md#labels-not-applied) for label list)
+- **Option 2**: Enable automatic label creation in `.github/pr-labeler.yml`:
 
-### 🌐 多言語設定
+  ```yaml
+  # .github/pr-labeler.yml
+  labels:
+    create_missing: true  # Auto-create missing labels
+  ```
 
-PR Labelerは英語と日本語の出力に対応しています。GitHub Actions Summary、エラーメッセージ、ログ、PRコメントが選択した言語で表示されます。
+### Next Steps
 
-#### 環境変数で言語を指定
+- 📖 **Configure parameters**: See [Configuration Guide](docs/configuration.md) for all input options
+- 🚀 **Advanced scenarios**: See [Advanced Usage](docs/advanced-usage.md) for fork PRs, conditional execution, and more
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-  env:
-    LANGUAGE: ja  # または 'en' (デフォルト: 'en')
-```
+## 🔒 Required Permissions
 
-#### 設定ファイルで言語を指定
+<a id="必要な権限"></a>
+<a id="-必要な権限"></a>
+<a id="permissions"></a>
 
-`.github/pr-labeler.yml`:
-
-```yaml
-# 言語設定（オプション）
-language: ja  # 'en' または 'ja' (デフォルト: 'en')
-
-# カテゴリラベルの多言語表示名（オプション）
-categories:
-  - label: 'category/tests'
-    patterns:
-      - '__tests__/**'
-      - '**/*.test.ts'
-    display_name:
-      en: 'Test Files'
-      ja: 'テストファイル'
-
-  - label: 'category/documentation'
-    patterns:
-      - 'docs/**'
-      - '**/*.md'
-    display_name:
-      en: 'Documentation'
-      ja: 'ドキュメント'
-```
-
-#### 言語決定の優先順位
-
-1. `LANGUAGE` 環境変数
-2. `LANG` 環境変数
-3. `pr-labeler.yml` の `language` フィールド
-4. デフォルト: 英語（`en`）
-
-#### 多言語表示名の優先順位
-
-ラベルの表示名は以下の優先順位で決定されます：
-
-1. `.github/pr-labeler.yml` の `display_name`（カスタム翻訳）
-2. 組み込みの翻訳リソース（`labels` 名前空間）
-3. ラベル名そのまま
-
-**注意**: GitHub API呼び出しでは常に英語のラベル名（`label` フィールド）が使用されます。`display_name` は表示のみに使用されます。
-
-## 🔧 入力パラメータ
-
-### 基本制限
-
-| パラメータ           | 必須 | デフォルト | 説明                                           |
-| -------------------- | ---- | ---------- | ---------------------------------------------- |
-| `github_token`       | ✅   | -          | GitHubトークン (`${{ secrets.GITHUB_TOKEN }}`) |
-| `file_size_limit`    | ❌   | `100KB`    | 個別ファイルのサイズ上限（例: 100KB, 1.5MB）   |
-| `file_lines_limit`   | ❌   | `500`      | 個別ファイルの行数上限                         |
-| `pr_additions_limit` | ❌   | `5000`     | PR全体の追加行数上限（diff-based）             |
-| `pr_files_limit`     | ❌   | `50`       | 最大ファイル数                                 |
-
-### ラベル設定
-
-| パラメータ             | 必須 | デフォルト            | 説明                           |
-| ---------------------- | ---- | --------------------- | ------------------------------ |
-| `auto_remove_labels`   | ❌   | `true`                | 制限クリア時にラベルを自動削除 |
-| `large_files_label`    | ❌   | `auto:large-files`    | ファイルサイズ/行数違反ラベル  |
-| `too_many_files_label` | ❌   | `auto:too-many-files` | ファイル数超過ラベル           |
-
-### 🆕 PR Labeler - 選択的ラベル有効化
-
-各ラベル種別を個別に制御できます（統一された命名規則: `*_enabled` と `*_thresholds`）
-
-| パラメータ              | 必須 | デフォルト                           | 説明                                      |
-| ----------------------- | ---- | ------------------------------------ | ----------------------------------------- |
-| `size_enabled`          | ❌   | `true`                               | サイズラベルの有効/無効                   |
-| `size_thresholds`       | ❌   | `{"small": 100, "medium": 500, ...}` | サイズラベル閾値（JSON、additions-based） |
-| `complexity_enabled`    | ❌   | `true`                               | 複雑度ラベルの有効/無効                   |
-| `complexity_thresholds` | ❌   | `{"medium": 10, "high": 20}`         | 複雑度ラベル閾値（JSON）                  |
-| `category_enabled`      | ❌   | `true`                               | カテゴリラベルの有効/無効                 |
-| `risk_enabled`          | ❌   | `true`                               | リスクラベルの有効/無効                   |
-
-### 動作設定
-
-| パラメータ       | 必須 | デフォルト | 説明                                |
-| ---------------- | ---- | ---------- | ----------------------------------- |
-| `skip_draft_pr`  | ❌   | `true`     | Draft PRをスキップ                  |
-| `comment_on_pr`  | ❌   | `auto`     | コメントモード（always/auto/never） |
-| `enable_summary` | ❌   | `true`     | GitHub Actions Summaryに出力        |
-
-### 🆕 ワークフロー失敗制御（Label-Based Workflow Failure Control）
-
-ラベルまたは違反に基づいて、個別にワークフロー失敗を制御できます。
-
-| パラメータ               | 必須 | デフォルト | 説明                                                                                                                    |
-| ------------------------ | ---- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `fail_on_large_files`    | ❌   | `""`       | 大きなファイルが検出された場合にワークフロー失敗（`true`/`false`、空文字列で無効）                                      |
-| `fail_on_too_many_files` | ❌   | `""`       | ファイル数超過が検出された場合にワークフロー失敗（`true`/`false`、空文字列で無効）                                      |
-| `fail_on_pr_size`        | ❌   | `""`       | PRサイズが指定閾値以上の場合にワークフロー失敗（`"small"`/`"medium"`/`"large"`/`"xlarge"`/`"xxlarge"`、空文字列で無効） |
-
-**使用例:**
-
-```yaml
-# パターン1: 大きなファイルのみ厳格にチェック
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    fail_on_large_files: "true"
-
-# パターン2: ファイル数超過のみ厳格にチェック
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    fail_on_too_many_files: "true"
-
-# パターン3: PRサイズが"large"以上で失敗
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    fail_on_pr_size: "large"
-    size_enabled: "true"  # fail_on_pr_sizeにはsize_enabledが必要
-
-# パターン4: 組み合わせ
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    fail_on_large_files: "true"
-    fail_on_too_many_files: "true"
-    fail_on_pr_size: "xlarge"
-    size_enabled: "true"
-```
-
-**注意:**
-
-- `fail_on_pr_size`を使用する場合、`size_enabled: "true"`が必要です
-- ラベル（`auto:large-files`など）または実際の違反のいずれかが該当すれば失敗します
-
-### 除外設定
-
-| パラメータ                    | 必須 | デフォルト | 説明                                       |
-| ----------------------------- | ---- | ---------- | ------------------------------------------ |
-| `additional_exclude_patterns` | ❌   | -          | 追加除外パターン（カンマまたは改行区切り） |
-
-### 🆕 Directory-Based Labeling
-
-| パラメータ                      | 必須 | デフォルト                      | 説明                                           |
-| ------------------------------- | ---- | ------------------------------- | ---------------------------------------------- |
-| `enable_directory_labeling`     | ❌   | `false`                         | Directory-Based Labeling機能の有効/無効        |
-| `directory_labeler_config_path` | ❌   | `.github/directory-labeler.yml` | 設定ファイルパス                               |
-| `auto_create_labels`            | ❌   | `false`                         | ラベル未存在時の自動作成                       |
-| `label_color`                   | ❌   | `cccccc`                        | 自動作成ラベルの色（hexカラーコード、#なし）   |
-| `label_description`             | ❌   | `""`                            | 自動作成ラベルの説明                           |
-| `max_labels`                    | ❌   | `10`                            | 適用ラベル数の上限（0で無制限）                |
-| `use_default_excludes`          | ❌   | `true`                          | デフォルト除外パターンの使用（node_modules等） |
-
-### PR Labelerラベル閾値のデフォルト
-
-**サイズラベル** (`size_thresholds`):
-
-```json
-{
-  "small": 100,
-  "medium": 500,
-  "large": 1000
-}
-```
-
-ラベル適用ルール:
-
-- `size/small`: additions < 100
-- `size/medium`: 100 ≤ additions < 500
-- `size/large`: 500 ≤ additions < 1000
-- `size/xlarge`: 1000 ≤ additions < 3000
-- `size/xxlarge`: additions ≥ 3000
-
-**複雑度ラベル** (`complexity_thresholds`):
-
-```json
-{
-  "medium": 10,
-  "high": 20
-}
-```
-
-ラベル適用ルール:
-
-- `complexity/medium`: 10 ≤ 最大循環的複雑度 < 20
-- `complexity/high`: 最大循環的複雑度 ≥ 20
-
-## 📊 GitHub Actions Summary出力
-
-このアクションは、分析結果をGitHub ActionsのワークフローサマリーページにMarkdown形式で表示します。
-
-**表示内容**:
-
-- 📊 **基本メトリクス**: 総追加行数、ファイル数、除外ファイル数、実行時刻
-- ⚠️ **違反情報**: ファイルサイズ/行数超過の詳細テーブル
-- 📈 **大規模ファイル一覧**: 上位100ファイル（サイズ降順）
-- 🕐 **実行時刻**: ISO 8601形式（UTC）
-
-**サイズ制限と動作**:
-
-GitHub Actions job summaryには以下の制限があります：
-
-- **最大サイズ**: 1 MiB（1,048,576バイト）/ ステップ
-- **オーバーフロー時**: サマリーアップロードが失敗し、エラーアノテーションが作成されます（ステップ/ジョブのステータスには影響しません）
-- **表示制限**: 1ジョブあたり最大20個のステップサマリーが表示されます
-
-大規模なPR（数千行、数百ファイル）の場合、サマリー出力を無効化するか、出力内容を制限することを推奨します：
-
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    enable_summary: "false"  # Summary出力を無効化
-```
-
-## 📤 出力変数
-
-| 変数名               | 型     | 説明                              | 例                                                    |
-| -------------------- | ------ | --------------------------------- | ----------------------------------------------------- |
-| `large_files`        | string | サイズ/行数超過ファイルのJSON配列 | `[{"file":"src/large.ts","actualValue":2000000,...}]` |
-| `pr_additions`       | string | 総追加行数（diff-based）          | `"150"`                                               |
-| `pr_files`           | string | 総ファイル数（削除除く）          | `"10"`                                                |
-| `exceeds_file_size`  | string | ファイルサイズ超過の有無          | `"true"` / `"false"`                                  |
-| `exceeds_file_lines` | string | ファイル行数超過の有無            | `"true"` / `"false"`                                  |
-| `exceeds_additions`  | string | PR追加行数超過の有無              | `"true"` / `"false"`                                  |
-| `exceeds_file_count` | string | ファイル数超過の有無              | `"true"` / `"false"`                                  |
-| `has_violations`     | string | いずれかの違反が存在するか        | `"true"` / `"false"`                                  |
-
-## 🏷️ 自動適用ラベル
-
-### 違反ラベル
-
-- `auto:large-files` - ファイルサイズまたは行数制限違反
-- `auto:too-many-files` - ファイル数制限違反
-
-### 🆕 PR Labelerラベル（新機能）
-
-**サイズラベル**（置換ポリシー）:
-
-- `size/small` - 追加行数 < 100行
-- `size/medium` - 追加行数 100-499行
-- `size/large` - 追加行数 500-999行
-- `size/xlarge` - 追加行数 1000-2999行
-- `size/xxlarge` - 追加行数 >= 3000行
-
-**カテゴリラベル**（加法ポリシー - 複数付与可能）:
-
-- `category/tests` - テストファイルの変更
-- `category/ci-cd` - CI/CD設定の変更
-- `category/documentation` - ドキュメント変更
-- `category/config` - 設定ファイルの変更（tsconfig.json, eslint.config.js等）
-- `category/spec` - 仕様書・計画ドキュメントの変更（.kiro/, spec/等）
-- `category/dependencies` - 依存関係ファイルの変更（多言語対応: Node.js, Go, Python, Rust, Ruby）
-- カスタムカテゴリ追加可能（YAML設定）
-
-**リスクラベル**（置換ポリシー）:
-
-- `risk/high` - テストなしでコア機能変更（src/\*\*）
-- `risk/medium` - 設定ファイル変更
-
-**カスタマイズ**: `.github/pr-labeler.yml`で閾値、パターン、ラベル名を変更可能（上記の設定例参照）
-
-## 🔒 必要な権限
-
-このアクションには以下の権限が必要です：
+This action requires the following permissions:
 
 ```yaml
 permissions:
-  pull-requests: write  # ラベル管理用
-  issues: write         # コメント投稿用
-  contents: read        # ファイル読み取り用
+  pull-requests: write  # Label management
+  issues: write         # Comment posting
+  contents: read        # File reading
 ```
 
-## 📝 高度な使用例
+**Note**: For fork PRs, use the `pull_request_target` event. See [Advanced Usage - Fork PR Handling](docs/advanced-usage.md#fork-pr-handling) for details.
 
-### フォークからのPR対応
+## 🏷️ Automatic Labels
 
-フォークからのPRでは権限が制限されるため、`pull_request_target`イベントを使用：
+<a id="自動適用ラベル"></a>
+<a id="-自動適用ラベル"></a>
+<a id="labels"></a>
 
-```yaml
-on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+### Size Labels (Exclusive)
 
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      issues: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+Applied based on total PR additions:
 
-      - uses: jey3dayo/pr-labeler@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-```
+- `size/small` - < 200 lines
+- `size/medium` - 200-499 lines
+- `size/large` - 500-999 lines
+- `size/xlarge` - 1000-2999 lines
+- `size/xxlarge` - ≥ 3000 lines
 
-### 条件付き実行
+### Category Labels (Additive)
 
-特定のパスの変更時のみ実行：
+Applied based on changed file patterns:
 
-```yaml
-on:
-  pull_request:
-    paths:
-      - 'src/**'
-      - '!src/**/*.test.ts'
+- `category/tests` - Test file changes
+- `category/ci-cd` - CI/CD configuration
+- `category/documentation` - Documentation changes
+- `category/config` - Configuration files
+- `category/spec` - Specification documents
+- `category/dependencies` - Dependency files (Node.js, Go, Python, Rust, Ruby)
 
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: jey3dayo/pr-labeler@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          additional_exclude_patterns: |
-            **/*.generated.ts
-            **/*.min.js
-```
+### Risk Labels (Exclusive)
 
-### 厳格モード
+Applied based on change risk:
 
-違反を許可しない厳格なチェック：
+- `risk/high` - Core changes without tests
+- `risk/medium` - Configuration file changes
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    file_size_limit: "100KB"
-    file_lines_limit: "300"
-    pr_additions_limit: "500"
-    fail_on_large_files: "true"
-    fail_on_too_many_files: "true"
-    comment_on_pr: "always"
-```
+### Violation Labels
 
-### Summary出力のみ（ラベル・コメントなし）
+Applied when limits are exceeded:
 
-GitHub Actions Summaryのみを使用：
+- `auto:large-files` - Files exceed size/line limits
+- `auto:too-many-files` - PR has too many files
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    # すべてのラベルを無効化
-    size_enabled: "false"
-    complexity_enabled: "false"
-    category_enabled: "false"
-    risk_enabled: "false"
-    comment_on_pr: "never"
-    enable_summary: "true"  # Summaryのみ出力
-```
+**Customization**: Adjust thresholds and labels in [Configuration Guide](docs/configuration.md#label-thresholds-defaults).
 
-### 🆕 選択的ラベル有効化
+## 🔧 Input Parameters
 
-各ラベル種別（size/complexity/category/risk）を個別にON/OFFできます。
+<a id="入力パラメータ"></a>
+<a id="-入力パラメータ"></a>
+<a id="input-parameters"></a>
 
-#### デフォルト（すべて有効）
+For detailed parameter documentation, see **[Configuration Guide](docs/configuration.md)**.
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    # すべてのラベル種別がデフォルトで有効
-```
+**Quick Reference**:
 
-#### 複雑度ラベルのみ無効化
+- **Basic Limits**: `file_size_limit`, `file_lines_limit`, `pr_additions_limit`, `pr_files_limit`
+- **Label Control**: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
+- **Workflow Failure**: `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`
+- **Directory Labeling**: `enable_directory_labeling`, `auto_create_labels`
+- **Multi-language**: `language` (en/ja)
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    complexity_enabled: "false"  # 複雑度ラベルを無効化
-    # size, category, riskラベルは有効
-```
+## 📝 Advanced Usage
 
-#### カスタム閾値 + 一部無効化
+<a id="高度な使用例"></a>
+<a id="-高度な使用例"></a>
+<a id="advanced-usage"></a>
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    # サイズラベル: カスタム閾値で有効
-    size_enabled: "true"
-    size_thresholds: '{"small": 50, "medium": 200, "large": 500}'
-    # 複雑度ラベル: カスタム閾値で有効
-    complexity_enabled: "true"
-    complexity_thresholds: '{"medium": 15, "high": 30}'
-    # カテゴリラベル: 無効化
-    category_enabled: "false"
-    # リスクラベル: 有効（デフォルト）
-```
+For real-world examples and advanced configurations, see **[Advanced Usage Guide](docs/advanced-usage.md)**.
 
-#### サイズとリスクラベルのみ使用
+**Common Scenarios**:
 
-```yaml
-- uses: jey3dayo/pr-labeler@v1
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    size_enabled: "true"
-    complexity_enabled: "false"
-    category_enabled: "false"
-    risk_enabled: "true"
-```
+- [Fork PR Handling](docs/advanced-usage.md#fork-pr-handling) - `pull_request_target` configuration
+- [Conditional Execution](docs/advanced-usage.md#conditional-execution) - Skip by label/branch/path
+- [Strict Mode](docs/advanced-usage.md#strict-mode) - Fail workflow on violations
+- [Selective Label Enabling](docs/advanced-usage.md#selective-label-enabling) - Enable/disable label types individually
+- [Directory-Based Labeling](docs/advanced-usage.md#directory-based-labeling) - Label by file path patterns
+- [Multi-language Support](docs/advanced-usage.md#multi-language-support) - Japanese/English output
 
-**統一された命名規則**:
+## 📚 Documentation
 
-- `*_enabled`: 各ラベル種別の有効/無効を制御（デフォルト: `"true"`）
-- `*_thresholds`: 各ラベル種別の閾値をJSON形式で指定
+- **[Configuration Guide](docs/configuration.md)** - Complete input parameters, output variables, and defaults
+- **[Advanced Usage Guide](docs/advanced-usage.md)** - Real-world examples and advanced scenarios
+- **[Troubleshooting Guide](docs/troubleshooting.md)** - Common issues and solutions
+- **[API Documentation](docs/API.md)** - Internal API reference
+- **[Release Process](docs/release-process.md)** - How to release new versions
 
-### 🆕 PR Labeler設定のカスタマイズ
+## 🤝 Contributing
 
-`.github/pr-labeler.yml`を作成してPR Labelerの動作をカスタマイズできます：
+Contributions are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
-```yaml
-# .github/pr-labeler.yml
-# サイズラベル設定
-size:
-  thresholds:
-    small: 50      # 小規模PRの閾値（デフォルト: 100）
-    medium: 200    # 中規模PRの閾値（デフォルト: 500）
-    large: 500     # 大規模PRの閾値（デフォルト: 1000）
+Please ensure tests pass and follow the existing code style.
 
-# カテゴリラベル設定
-categories:
-  - label: "category/tests"
-    patterns:
-      - "__tests__/**"
-      - "**/*.test.ts"
-      - "**/*.test.tsx"
-
-  - label: "category/ci-cd"
-    patterns:
-      - ".github/workflows/**"
-
-  - label: "category/documentation"
-    patterns:
-      - "docs/**"
-      - "**/*.md"
-
-  - label: "category/backend"  # カスタムカテゴリ
-    patterns:
-      - "src/api/**"
-      - "src/services/**"
-
-# リスク判定設定
-risk:
-  high_if_no_tests_for_core: true
-  core_paths:
-    - "src/**"
-  config_files:
-    - ".github/workflows/**"
-    - "package.json"
-    - "tsconfig.json"
-
-# ラベル操作設定
-labels:
-  create_missing: true  # 存在しないラベルを自動作成
-  namespace_policies:
-    "size/*": replace      # サイズラベルは置換（一意性保証）
-    "category/*": additive # カテゴリラベルは加法的（複数付与可能）
-    "risk/*": replace      # リスクラベルは置換
-
-# ランタイム設定
-runtime:
-  fail_on_error: false  # エラー時もワークフローを継続
-```
-
-**設定ファイルなしでも動作**: デフォルト設定で即座に利用可能です。
-
-## 🎯 デフォルト除外パターン
-
-以下のファイルは自動的に除外されます：
-
-- ロックファイル（`package-lock.json`, `yarn.lock` など）
-- 依存関係（`node_modules/**`, `vendor/**` など）
-- ビルド成果物（`dist/**`, `build/**` など）
-- 最小化ファイル（`*.min.js`, `*.min.css` など）
-- ソースマップ（`*.map`）
-- バイナリファイル（画像、動画、実行ファイル など）
-- キャッシュ（`.cache/**`, `.turbo/**` など）
-- 生成ファイル（`*.generated.*`, `*.gen.ts` など）
-
-完全なリストは[pattern-matcher.ts](src/pattern-matcher.ts)を参照してください。
-
-## 🤝 コントリビューション
-
-プルリクエストを歓迎します！ 大きな変更の場合は、まずissueを開いて変更内容を議論してください。
-
-## 📄 ライセンス
+## 📄 License
 
 MIT
 
-## 🙏 謝辞
+## 🙏 Acknowledgments
 
-このプロジェクトは以下のライブラリを使用しています：
+This project uses the following libraries:
 
 - [neverthrow](https://github.com/supermacro/neverthrow) - Railway-Oriented Programming
-- [minimatch](https://github.com/isaacs/minimatch) - パターンマッチング
-- [bytes](https://github.com/visionmedia/bytes.js) - サイズ解析
-- [@actions/core](https://github.com/actions/toolkit) - GitHub Actions統合
+- [minimatch](https://github.com/isaacs/minimatch) - Pattern matching
+- [bytes](https://github.com/visionmedia/bytes.js) - Size parsing
+- [@actions/core](https://github.com/actions/toolkit) - GitHub Actions integration
 - [@actions/github](https://github.com/actions/toolkit) - GitHub API
