@@ -28,11 +28,6 @@ inputs:
     default: "50"
 
   # ラベル設定
-  apply_labels:
-    description: "Apply labels to PR (auto: prefixed labels)"
-    required: false
-    default: "true"
-
   auto_remove_labels:
     description: "Remove labels when limits are no longer exceeded"
     required: false
@@ -52,12 +47,12 @@ inputs:
   complexity_enabled:
     description: "Enable complexity labels (complexity/medium, complexity/high)"
     required: false
-    default: "true"
+    default: "false"
 
   complexity_thresholds:
     description: "JSON string for complexity label thresholds"
     required: false
-    default: '{"medium": 10, "high": 20}'
+    default: '{"medium": 15, "high": 30}'
 
   category_enabled:
     description: "Enable category labels (category/tests, category/docs, etc.)"

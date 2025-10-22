@@ -24,6 +24,7 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 - `selective-label-enabling`: ラベル種別の選択的有効化機能 - size/complexity/category/riskを個別にON/OFF可能にし、input設計を統一
 - `i18n-support`: 多言語対応機能 - 出力メッセージ、エラーメッセージ、設定ファイルの英語・日本語対応
 - `label-based-workflow-failure`: ラベルベースワークフロー失敗制御機能 - 適用されたラベルに基づいて個別にワークフロー失敗を制御
+- `simplify-label-inputs`: ラベル入力簡素化 - `apply_labels`削除、複雑度デフォルトOFF、閾値緩和
 - Check `.kiro/specs/` for active specifications
 - Use `/kiro:spec-status [feature-name]` to check progress
 

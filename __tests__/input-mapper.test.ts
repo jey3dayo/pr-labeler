@@ -27,8 +27,8 @@ const getDefaultDirectoryLabelingInputs = () => ({
 const getDefaultPRLabelerInputs = () => ({
   size_enabled: 'true',
   size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
-  complexity_enabled: 'true',
-  complexity_thresholds: '{"medium": 10, "high": 20}',
+  complexity_enabled: 'false',
+  complexity_thresholds: '{"medium": 15, "high": 30}',
   category_enabled: 'true',
   risk_enabled: 'true',
   // Label-Based Workflow Failure Control
@@ -177,7 +177,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: 'invalid-json', // Invalid JSON
@@ -209,7 +208,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": -100, "medium": 500, "large": 1000, "xlarge": 3000}', // Negative value
@@ -241,7 +239,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 1000, "medium": 500, "large": 100, "xlarge": 3000}', // Incorrect order
@@ -275,7 +272,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
@@ -307,7 +303,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
@@ -339,7 +334,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
@@ -373,7 +367,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto:large-files',
@@ -393,7 +386,6 @@ describe('InputMapper', () => {
         expect(config.fileLinesLimit).toBe(500);
         expect(config.prAdditionsLimit).toBe(5000);
         expect(config.prFilesLimit).toBe(50);
-        expect(config.applyLabels).toBe(true);
         expect(config.autoRemoveLabels).toBe(true);
         // PR Labeler - Selective Label Enabling
         expect(config.sizeEnabled).toBe(true);
@@ -401,7 +393,7 @@ describe('InputMapper', () => {
         expect(config.sizeThresholdsV2.medium).toBe(500);
         expect(config.sizeThresholdsV2.large).toBe(1000);
         expect(config.sizeThresholdsV2.xlarge).toBe(3000);
-        expect(config.complexityEnabled).toBe(true);
+        expect(config.complexityEnabled).toBe(false);
         expect(config.categoryEnabled).toBe(true);
         expect(config.riskEnabled).toBe(true);
         expect(config.largeFilesLabel).toBe('auto:large-files');
@@ -420,7 +412,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto:large-files',
@@ -446,7 +437,6 @@ describe('InputMapper', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: 'invalid json', // Invalid JSON for testing
@@ -477,7 +467,6 @@ describe('InputMapper', () => {
         file_lines_limit: 'not-a-number',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto:large-files',
@@ -496,6 +485,76 @@ describe('InputMapper', () => {
         if (result.error.type === 'ConfigurationError') {
           expect(result.error.field).toBe('file_lines_limit');
         }
+      }
+    });
+  });
+
+  describe('complexity default values', () => {
+    it('should use false as default for complexity_enabled', () => {
+      const inputs: ActionInputs = {
+        github_token: 'test-token',
+        file_size_limit: '100KB',
+        file_lines_limit: '500',
+        pr_additions_limit: '5000',
+        pr_files_limit: '50',
+        auto_remove_labels: 'true',
+        size_enabled: 'true',
+        size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
+        complexity_enabled: 'false', // デフォルト値
+        complexity_thresholds: '{"medium": 15, "high": 30}',
+        category_enabled: 'true',
+        risk_enabled: 'true',
+        large_files_label: 'auto:large-files',
+        too_many_files_label: 'auto:too-many-files',
+        too_many_lines_label: 'auto:too-many-lines',
+        excessive_changes_label: 'auto:excessive-changes',
+        skip_draft_pr: 'true',
+        comment_on_pr: 'auto',
+        enable_summary: 'true',
+        additional_exclude_patterns: '',
+        ...getDefaultDirectoryLabelingInputs(),
+        ...getDefaultPRLabelerInputs(),
+        language: 'en',
+      };
+
+      const result = mapActionInputsToConfig(inputs);
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.complexityEnabled).toBe(false);
+      }
+    });
+
+    it('should use {medium: 15, high: 30} as default thresholds', () => {
+      const inputs: ActionInputs = {
+        github_token: 'test-token',
+        file_size_limit: '100KB',
+        file_lines_limit: '500',
+        pr_additions_limit: '5000',
+        pr_files_limit: '50',
+        auto_remove_labels: 'true',
+        size_enabled: 'true',
+        size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
+        complexity_enabled: 'false',
+        complexity_thresholds: '{"medium": 15, "high": 30}', // デフォルト値
+        category_enabled: 'true',
+        risk_enabled: 'true',
+        large_files_label: 'auto:large-files',
+        too_many_files_label: 'auto:too-many-files',
+        too_many_lines_label: 'auto:too-many-lines',
+        excessive_changes_label: 'auto:excessive-changes',
+        skip_draft_pr: 'true',
+        comment_on_pr: 'auto',
+        enable_summary: 'true',
+        additional_exclude_patterns: '',
+        ...getDefaultDirectoryLabelingInputs(),
+        ...getDefaultPRLabelerInputs(),
+        language: 'en',
+      };
+
+      const result = mapActionInputsToConfig(inputs);
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.complexityThresholdsV2).toEqual({ medium: 15, high: 30 });
       }
     });
   });

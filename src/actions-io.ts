@@ -31,7 +31,6 @@ export interface ActionInputs {
   file_lines_limit: string;
   pr_additions_limit: string;
   pr_files_limit: string;
-  apply_labels: string;
   auto_remove_labels: string;
   // PR Labeler - Selective Label Enabling
   size_enabled: string;
@@ -126,13 +125,12 @@ export function getActionInputs(): ActionInputs {
     file_lines_limit: core.getInput('file_lines_limit') || '500',
     pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
     pr_files_limit: core.getInput('pr_files_limit') || '50',
-    apply_labels: core.getInput('apply_labels') || 'true',
     auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
     // PR Labeler - Selective Label Enabling
     size_enabled: core.getInput('size_enabled') || 'true',
     size_thresholds: core.getInput('size_thresholds') || '{"small": 100, "medium": 500, "large": 1000}',
-    complexity_enabled: core.getInput('complexity_enabled') || 'true',
-    complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 10, "high": 20}',
+    complexity_enabled: core.getInput('complexity_enabled') || 'false',
+    complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 15, "high": 30}',
     category_enabled: core.getInput('category_enabled') || 'true',
     risk_enabled: core.getInput('risk_enabled') || 'true',
     large_files_label: core.getInput('large_files_label') || 'auto:large-files',

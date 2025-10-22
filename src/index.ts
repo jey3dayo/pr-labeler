@@ -225,102 +225,100 @@ async function run(): Promise<void> {
       }
     }
 
-    // Step 7.7: Apply labels (if enabled)
-    if (config.applyLabels) {
-      // Step 7.7.1: Decide labels with PR Labeler
-      logInfoI18n('labels.decidingLabels');
-      const prMetrics: PRMetrics = {
-        totalAdditions: analysis.metrics.totalAdditions,
-        files: analysis.metrics.filesAnalyzed,
-        ...(complexityMetrics && { complexity: complexityMetrics }),
-      };
+    // Step 7.7: Apply labels
+    // Step 7.7.1: Decide labels with PR Labeler
+    logInfoI18n('labels.decidingLabels');
+    const prMetrics: PRMetrics = {
+      totalAdditions: analysis.metrics.totalAdditions,
+      files: analysis.metrics.filesAnalyzed,
+      ...(complexityMetrics && { complexity: complexityMetrics }),
+    };
 
-      // Build extended PR context for risk evaluation
-      const octokit = github.getOctokit(token);
-      const extendedPRContext: PRContext = {
-        owner: prContext.owner,
-        repo: prContext.repo,
-        pullNumber: prContext.pullNumber,
-      };
+    // Build extended PR context for risk evaluation
+    const octokit = github.getOctokit(token);
+    const extendedPRContext: PRContext = {
+      owner: prContext.owner,
+      repo: prContext.repo,
+      pullNumber: prContext.pullNumber,
+    };
 
-      // Fetch CI status if enabled (default true when undefined)
-      const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
-      if (useCiStatus) {
-        logInfoI18n('ciStatus.fetching');
-        const ciStatus = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
-        if (ciStatus) {
-          extendedPRContext.ciStatus = ciStatus;
-          logInfoI18n('ciStatus.status', {
-            tests: ciStatus.tests,
-            typeCheck: ciStatus.typeCheck,
-            build: ciStatus.build,
-            lint: ciStatus.lint,
-          });
-        } else {
-          logInfoI18n('ciStatus.notAvailable');
-        }
-
-        // Fetch commit messages with pagination (subject line only)
-        try {
-          const commits = await octokit.paginate(octokit.rest.pulls.listCommits, {
-            owner: prContext.owner,
-            repo: prContext.repo,
-            pull_number: prContext.pullNumber,
-            per_page: 100,
-          });
-          const messages: string[] = [];
-          for (const commit of commits) {
-            const msg = commit.commit.message;
-            if (msg !== null && msg !== undefined) {
-              const subject = msg.split('\n')[0];
-              if (subject) {
-                messages.push(subject);
-              }
-            }
-          }
-          extendedPRContext.commitMessages = messages;
-          logInfoI18n('ciStatus.fetchedCommits', { count: messages.length });
-        } catch (_error) {
-          logInfoI18n('ciStatus.fetchCommitsFailed');
-        }
+    // Fetch CI status if enabled (default true when undefined)
+    const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
+    if (useCiStatus) {
+      logInfoI18n('ciStatus.fetching');
+      const ciStatus = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
+      if (ciStatus) {
+        extendedPRContext.ciStatus = ciStatus;
+        logInfoI18n('ciStatus.status', {
+          tests: ciStatus.tests,
+          typeCheck: ciStatus.typeCheck,
+          build: ciStatus.build,
+          lint: ciStatus.lint,
+        });
+      } else {
+        logInfoI18n('ciStatus.notAvailable');
       }
 
-      const labelerDecisions = decideLabels(prMetrics, labelerConfig, extendedPRContext);
-      if (labelerDecisions.isOk()) {
-        const decisions = labelerDecisions.value;
-        logInfoI18n('labels.labelsToAdd', { labels: decisions.labelsToAdd.join(', ') || 'none' });
-        logInfoI18n('labels.labelsToRemove', { labels: decisions.labelsToRemove.join(', ') || 'none' });
-
-        // Step 7.7.2: Apply labels with PR Labeler (skip in dry_run mode)
-        if (labelerConfig.runtime.dry_run) {
-          logInfoI18n('labels.dryRun');
-        } else {
-          logInfoI18n('labels.applying');
-          const applyResult = await applyLabels(
-            token,
-            {
-              owner: prContext.owner,
-              repo: prContext.repo,
-              pullNumber: prContext.pullNumber,
-            },
-            decisions,
-            labelerConfig.labels,
-          );
-
-          if (applyResult.isErr()) {
-            if (applyResult.error.status === 403) {
-              logWarningI18n('labels.skipped');
-            } else if (labelerConfig.runtime.fail_on_error) {
-              logErrorI18n('labels.applyFailed', { message: applyResult.error.message });
-              setFailed(t('logs', 'completion.failed', { message: 'Failed to apply labels' }));
-            } else {
-              logWarningI18n('labels.applyFailed', { message: applyResult.error.message });
+      // Fetch commit messages with pagination (subject line only)
+      try {
+        const commits = await octokit.paginate(octokit.rest.pulls.listCommits, {
+          owner: prContext.owner,
+          repo: prContext.repo,
+          pull_number: prContext.pullNumber,
+          per_page: 100,
+        });
+        const messages: string[] = [];
+        for (const commit of commits) {
+          const msg = commit.commit.message;
+          if (msg !== null && msg !== undefined) {
+            const subject = msg.split('\n')[0];
+            if (subject) {
+              messages.push(subject);
             }
-          } else {
-            const update = applyResult.value;
-            logInfoI18n('labels.applied', { added: update.added.length, removed: update.removed.length });
-            logInfoI18n('labels.apiCalls', { count: update.apiCalls });
           }
+        }
+        extendedPRContext.commitMessages = messages;
+        logInfoI18n('ciStatus.fetchedCommits', { count: messages.length });
+      } catch (_error) {
+        logInfoI18n('ciStatus.fetchCommitsFailed');
+      }
+    }
+
+    const labelerDecisions = decideLabels(prMetrics, labelerConfig, extendedPRContext);
+    if (labelerDecisions.isOk()) {
+      const decisions = labelerDecisions.value;
+      logInfoI18n('labels.labelsToAdd', { labels: decisions.labelsToAdd.join(', ') || 'none' });
+      logInfoI18n('labels.labelsToRemove', { labels: decisions.labelsToRemove.join(', ') || 'none' });
+
+      // Step 7.7.2: Apply labels with PR Labeler (skip in dry_run mode)
+      if (labelerConfig.runtime.dry_run) {
+        logInfoI18n('labels.dryRun');
+      } else {
+        logInfoI18n('labels.applying');
+        const applyResult = await applyLabels(
+          token,
+          {
+            owner: prContext.owner,
+            repo: prContext.repo,
+            pullNumber: prContext.pullNumber,
+          },
+          decisions,
+          labelerConfig.labels,
+        );
+
+        if (applyResult.isErr()) {
+          if (applyResult.error.status === 403) {
+            logWarningI18n('labels.skipped');
+          } else if (labelerConfig.runtime.fail_on_error) {
+            logErrorI18n('labels.applyFailed', { message: applyResult.error.message });
+            setFailed(t('logs', 'completion.failed', { message: 'Failed to apply labels' }));
+          } else {
+            logWarningI18n('labels.applyFailed', { message: applyResult.error.message });
+          }
+        } else {
+          const update = applyResult.value;
+          logInfoI18n('labels.applied', { added: update.added.length, removed: update.removed.length });
+          logInfoI18n('labels.apiCalls', { count: update.apiCalls });
         }
       }
     }

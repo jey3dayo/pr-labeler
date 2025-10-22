@@ -223,7 +223,6 @@ describe('i18n Core Functions', () => {
         repository: 'owner/repo',
         pr_number: 1,
         skip_draft_pr: false,
-        apply_labels: true,
         comment_on_pr: 'auto',
         enable_summary: true,
         file_size_limit: 1000,

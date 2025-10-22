@@ -21,7 +21,6 @@ describe('PR Labeler', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         apply_size_labels: 'true',
         size_label_thresholds: '',
@@ -137,16 +136,12 @@ describe('PR Labeler', () => {
 
     it('should parse boolean flags correctly', () => {
       vi.mocked(core.getInput).mockImplementation((name: string) => {
-        if (name === 'apply_labels') {
-          return 'true';
-        }
         if (name === 'skip_draft_pr') {
           return 'false';
         }
         return '';
       });
 
-      expect(core.getInput('apply_labels')).toBe('true');
       expect(core.getInput('skip_draft_pr')).toBe('false');
     });
 

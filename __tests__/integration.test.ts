@@ -65,7 +65,6 @@ describe('Integration Tests', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        apply_labels: 'true',
         auto_remove_labels: 'true',
         apply_size_labels: 'true',
         size_label_thresholds:
@@ -282,7 +281,6 @@ describe('Integration Tests', () => {
           file_lines_limit: '500',
           pr_additions_limit: '5000',
           pr_files_limit: '50',
-          apply_labels: 'true',
           auto_remove_labels: 'true',
           large_files_label: 'auto:large-files',
           too_many_files_label: 'auto:too-many-files',
@@ -342,7 +340,7 @@ describe('Integration Tests', () => {
       await run();
 
       expect(core.setFailed).not.toHaveBeenCalled();
-      // apply_labels=true の場合はラベルが適用される可能性がある
+      // 個別*_enabledフラグ の場合はラベルが適用される可能性がある
       // ただし、すべての条件を満たす必要があるため、呼び出されるかどうかは実装に依存
     });
 
@@ -355,7 +353,6 @@ describe('Integration Tests', () => {
           file_lines_limit: '500',
           pr_additions_limit: '5000',
           pr_files_limit: '50',
-          apply_labels: 'true',
           auto_remove_labels: 'true',
           large_files_label: 'auto:large-files',
           too_many_files_label: 'auto:too-many-files',

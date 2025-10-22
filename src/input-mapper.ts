@@ -37,7 +37,6 @@ export interface Config {
   fileLinesLimit: number; // number
   prAdditionsLimit: number; // number
   prFilesLimit: number; // number
-  applyLabels: boolean;
   autoRemoveLabels: boolean;
   // PR Labeler - Selective Label Enabling
   sizeEnabled: boolean;
@@ -356,7 +355,6 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     fileLinesLimit,
     prAdditionsLimit,
     prFilesLimit,
-    applyLabels: parseBoolean(inputs.apply_labels),
     autoRemoveLabels: parseBoolean(inputs.auto_remove_labels),
     // PR Labeler - Selective Label Enabling
     sizeEnabled: sizeEnabledResult.value,

@@ -31,7 +31,11 @@ jobs:
           file_lines_limit: "500"
           pr_additions_limit: "5000"
           pr_files_limit: "50"
-          apply_labels: "true"
+          # Selective label enabling (all enabled by default)
+          size_enabled: "true"
+          complexity_enabled: "false"
+          category_enabled: "true"
+          risk_enabled: "true"
           auto_remove_labels: "true"
           enable_summary: "true"
           language: "ja"
@@ -103,7 +107,6 @@ jobs:
           pr_additions_limit: "5000"
           pr_files_limit: "50"
           # Label settings
-          apply_labels: "true"
           auto_remove_labels: "true"
           large_files_label: "auto:large-files"
           too_many_files_label: "auto:too-many-files"

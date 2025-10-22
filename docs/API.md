@@ -73,20 +73,6 @@ PR Labelerの詳細なAPI仕様書です。
 
 ### ラベル設定パラメータ
 
-#### `apply_labels`
-
-- **型**: `string` (boolean)
-- **必須**: ❌
-- **デフォルト**: `"true"`
-- **説明**: 自動ラベル適用の有効/無効
-- **受け入れ値**: `"true"`, `"false"`, `"1"`, `"0"`, `"yes"`, `"no"`, `"on"`, `"off"` (大文字小文字を区別しない)
-- **使用例**:
-
-  ```yaml
-  apply_labels: "true"   # ラベル自動適用を有効化
-  apply_labels: "false"  # ラベル自動適用を無効化
-  ```
-
 #### `auto_remove_labels`
 
 - **型**: `string` (boolean)
@@ -692,7 +678,11 @@ GitHub API呼び出しエラー
 - uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
-    apply_labels: "false"
+    # すべてのラベルを無効化
+    size_enabled: "false"
+    complexity_enabled: "false"
+    category_enabled: "false"
+    risk_enabled: "false"
     comment_on_pr: "never"
     enable_summary: "true"         # Summaryのみ
 ```
