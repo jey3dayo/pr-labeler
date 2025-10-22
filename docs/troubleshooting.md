@@ -146,8 +146,8 @@ Create labels manually in your repository:
 
 **Violation Labels:**
 
-- `auto:large-files`
-- `auto:too-many-files`
+- `auto/large-files`
+- `auto/too-many-files`
 
 #### Option 2: Auto-Create Labels with Configuration
 

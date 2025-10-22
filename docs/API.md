@@ -123,12 +123,12 @@ PR Labelerの詳細なAPI仕様書です。
 
 - **型**: `string`
 - **必須**: ❌
-- **デフォルト**: `"auto:large-files"`
+- **デフォルト**: `"auto/large-files"`
 - **説明**: ファイルサイズまたは行数制限違反時に適用されるラベル
 - **使用例**:
 
   ```yaml
-  large_files_label: "auto:large-files"
+  large_files_label: "auto/large-files"
   large_files_label: "needs-splitting"
   ```
 
@@ -136,12 +136,12 @@ PR Labelerの詳細なAPI仕様書です。
 
 - **型**: `string`
 - **必須**: ❌
-- **デフォルト**: `"auto:too-many-files"`
+- **デフォルト**: `"auto/too-many-files"`
 - **説明**: ファイル数制限違反時に適用されるラベル
 - **使用例**:
 
   ```yaml
-  too_many_files_label: "auto:too-many-files"
+  too_many_files_label: "auto/too-many-files"
   too_many_files_label: "too-large-pr"
   ```
 
@@ -185,8 +185,8 @@ PR Labelerの詳細なAPI仕様書です。
 - **型**: `string` (`""` | `"true"` | `"false"`)
 - **必須**: ❌
 - **デフォルト**: `""`（無効）
-- **説明**: 大きなファイル（`auto:large-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
-- **判定条件**: ラベル（`auto:large-files`）または実際のファイルサイズ違反のいずれか
+- **説明**: 大きなファイル（`auto/large-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
+- **判定条件**: ラベル（`auto/large-files`）または実際のファイルサイズ違反のいずれか
 - **使用例**:
 
   ```yaml
@@ -199,8 +199,8 @@ PR Labelerの詳細なAPI仕様書です。
 - **型**: `string` (`""` | `"true"` | `"false"`)
 - **必須**: ❌
 - **デフォルト**: `""`（無効）
-- **説明**: ファイル数超過（`auto:too-many-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
-- **判定条件**: ラベル（`auto:too-many-files`）または実際のファイル数違反のいずれか
+- **説明**: ファイル数超過（`auto/too-many-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
+- **判定条件**: ラベル（`auto/too-many-files`）または実際のファイル数違反のいずれか
 - **使用例**:
 
   ```yaml

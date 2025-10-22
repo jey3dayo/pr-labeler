@@ -83,15 +83,15 @@ complexity_thresholds: '{"medium": 10, "high": 20}'
 
 **新規inputs**:
 
-- `fail_on_large_files` - 大きなファイル（`auto:large-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
-- `fail_on_too_many_files` - ファイル数超過（`auto:too-many-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
+- `fail_on_large_files` - 大きなファイル（`auto/large-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
+- `fail_on_too_many_files` - ファイル数超過（`auto/too-many-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
 - `fail_on_pr_size` - PRサイズが指定閾値以上の場合にワークフロー失敗（デフォルト: `""`）
   - 有効値: `"small"` | `"medium"` | `"large"` | `"xlarge"` | `"xxlarge"`
   - `size_enabled: "true"`が必要
 
 **主な特徴**:
 
-- ラベル（例: `auto:large-files`）または実際の違反のいずれかが該当すれば失敗
+- ラベル（例: `auto/large-files`）または実際の違反のいずれかが該当すれば失敗
 - 各失敗条件を個別に有効/無効化可能
 - 多言語対応（日本語・英語）の失敗メッセージ
 

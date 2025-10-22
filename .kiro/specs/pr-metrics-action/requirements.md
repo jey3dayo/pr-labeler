@@ -87,12 +87,12 @@ inputs:
   large_files_label:
     description: 'Label for files exceeding size or line limits'
     required: false
-    default: 'auto:large-files'
+    default: 'auto/large-files'
 
   too_many_files_label:
     description: 'Label for PRs with too many files'
     required: false
-    default: 'auto:too-many-files'
+    default: 'auto/too-many-files'
 
   # 動作設定
   skip_draft_pr:
@@ -227,7 +227,7 @@ parseSize('2GB')     // 2147483648
 - apply_size_labels: trueの場合、PRサイズラベル（size/S, size/M, size/L, size/XL）を自動付与
 - auto_remove_labels: trueの場合、limit以下になったらラベル削除
 - GitHub APIでラベルの追加/削除
-- 詳細ラベル: auto:large-files, auto:too-many-files
+- 詳細ラベル: auto/large-files, auto/too-many-files
 - サイズラベル: size/S, size/M, size/L, size/XL（総合判定）
 
 #### 5. コメント投稿
@@ -260,8 +260,8 @@ parseSize('2GB')     // 2147483648
 
 ### Labels Applied
 - `size/XL` (PR size)
-- `auto:large-files`
-- `auto:too-many-files`
+- `auto/large-files`
+- `auto/too-many-files`
 ```
 
 #### 修正後（auto_remove_labels有効時）
@@ -272,8 +272,8 @@ parseSize('2GB')     // 2147483648
 All files are within limits now.
 
 ### Labels Removed
-- Removed `auto:large-files`
-- Removed `auto:too-many-files`
+- Removed `auto/large-files`
+- Removed `auto/too-many-files`
 - Updated size label to `size/M`
 ```
 
@@ -394,7 +394,7 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 ### 主要機能
 
 - **ファイル数制限機能**: PRに含まれるファイル数の制限チェック機能
-- **ラベルプレフィックス**: すべての自動付与ラベルに`auto:`プレフィックスを使用（例：`auto:large-files`）
+- **ラベルプレフィックス**: すべての自動付与ラベルに`auto:`プレフィックスを使用（例：`auto/large-files`）
 - **除外パターン**: デフォルトで40種類以上のパターンを自動除外（lockファイル、minifiedファイル、ビルド成果物、node_modules、IDEファイル等）
 - **文書化**: README.mdに包括的な使用方法とカスタマイズ例を提供
 
@@ -458,8 +458,8 @@ PR Metrics ActionはGitHub Actionsで動作する自動品質チェックツー�
 
 #### 受け入れ基準
 
-1. IF `apply_labels`がtrueに設定されている AND ファイルサイズまたは行数が制限を超えている THEN PR Metrics Action SHALL `large_files_label`（デフォルト: auto:large-files）を追加する
-2. IF `apply_labels`がtrueに設定されている AND PRのファイル数が制限を超えている THEN PR Metrics Action SHALL `too_many_files_label`（デフォルト: auto:too-many-files）を追加する
+1. IF `apply_labels`がtrueに設定されている AND ファイルサイズまたは行数が制限を超えている THEN PR Metrics Action SHALL `large_files_label`（デフォルト: auto/large-files）を追加する
+2. IF `apply_labels`がtrueに設定されている AND PRのファイル数が制限を超えている THEN PR Metrics Action SHALL `too_many_files_label`（デフォルト: auto/too-many-files）を追加する
 3. IF `apply_size_labels`がtrueに設定されている THEN PR Metrics Action SHALL PR全体のサイズに基づいて適切なサイズラベル（size/S, size/M, size/L, size/XL）を追加する
 4. IF `auto_remove_labels`がtrueに設定されている AND 制限超過が解消された THEN PR Metrics Action SHALL 対応するラベルを削除する
 5. WHEN ラベル操作を実行する THEN PR Metrics Action SHALL GitHub APIを使用してラベルの追加・削除を行う

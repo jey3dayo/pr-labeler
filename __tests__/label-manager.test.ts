@@ -137,7 +137,7 @@ describe('LabelManager', () => {
       expect(getDetailLabels(violations)).toEqual([]);
     });
 
-    it('should return auto:large-files for large file violations', () => {
+    it('should return auto/large-files for large file violations', () => {
       const violations: Violations = {
         largeFiles: [
           {
@@ -153,10 +153,10 @@ describe('LabelManager', () => {
         exceedsFileCount: false,
       };
 
-      expect(getDetailLabels(violations)).toContain('auto:large-files');
+      expect(getDetailLabels(violations)).toContain('auto/large-files');
     });
 
-    it('should return auto:too-many-lines for line count violations', () => {
+    it('should return auto/too-many-lines for line count violations', () => {
       const violations: Violations = {
         largeFiles: [],
         exceedsFileLines: [
@@ -172,10 +172,10 @@ describe('LabelManager', () => {
         exceedsFileCount: false,
       };
 
-      expect(getDetailLabels(violations)).toContain('auto:too-many-lines');
+      expect(getDetailLabels(violations)).toContain('auto/too-many-lines');
     });
 
-    it('should return auto:excessive-changes for addition violations', () => {
+    it('should return auto/excessive-changes for addition violations', () => {
       const violations: Violations = {
         largeFiles: [],
         exceedsFileLines: [],
@@ -183,10 +183,10 @@ describe('LabelManager', () => {
         exceedsFileCount: false,
       };
 
-      expect(getDetailLabels(violations)).toContain('auto:excessive-changes');
+      expect(getDetailLabels(violations)).toContain('auto/excessive-changes');
     });
 
-    it('should return auto:too-many-files for file count violations', () => {
+    it('should return auto/too-many-files for file count violations', () => {
       const violations: Violations = {
         largeFiles: [],
         exceedsFileLines: [],
@@ -194,7 +194,7 @@ describe('LabelManager', () => {
         exceedsFileCount: true,
       };
 
-      expect(getDetailLabels(violations)).toContain('auto:too-many-files');
+      expect(getDetailLabels(violations)).toContain('auto/too-many-files');
     });
 
     it('should return multiple labels for multiple violations', () => {
@@ -222,10 +222,10 @@ describe('LabelManager', () => {
       };
 
       const labels = getDetailLabels(violations);
-      expect(labels).toContain('auto:large-files');
-      expect(labels).toContain('auto:too-many-lines');
-      expect(labels).toContain('auto:excessive-changes');
-      expect(labels).toContain('auto:too-many-files');
+      expect(labels).toContain('auto/large-files');
+      expect(labels).toContain('auto/too-many-lines');
+      expect(labels).toContain('auto/excessive-changes');
+      expect(labels).toContain('auto/too-many-files');
       expect(labels).toHaveLength(4);
     });
 
@@ -253,7 +253,7 @@ describe('LabelManager', () => {
       };
 
       const labels = getDetailLabels(violations);
-      expect(labels).toContain('auto:large-files');
+      expect(labels).toContain('auto/large-files');
       expect(labels).toHaveLength(1);
     });
 
@@ -276,7 +276,7 @@ describe('LabelManager', () => {
       const customLabels = { tooManyLines: 'custom:long-files' };
       const labels = getDetailLabels(violations, customLabels);
       expect(labels).toContain('custom:long-files');
-      expect(labels).not.toContain('auto:too-many-lines');
+      expect(labels).not.toContain('auto/too-many-lines');
     });
   });
 
@@ -339,10 +339,10 @@ describe('LabelManager', () => {
   describe('addLabels', () => {
     it('should add new labels to PR', async () => {
       mockAddLabels.mockResolvedValue({
-        data: [{ name: 'size:L' }, { name: 'auto:large-files' }],
+        data: [{ name: 'size:L' }, { name: 'auto/large-files' }],
       });
 
-      const result = await addLabels(['size:L', 'auto:large-files'], 'token', {
+      const result = await addLabels(['size:L', 'auto/large-files'], 'token', {
         owner: 'owner',
         repo: 'repo',
         pullNumber: 123,
@@ -353,7 +353,7 @@ describe('LabelManager', () => {
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
-        labels: ['size:L', 'auto:large-files'],
+        labels: ['size:L', 'auto/large-files'],
       });
     });
 
@@ -389,7 +389,7 @@ describe('LabelManager', () => {
     it('should remove labels from PR', async () => {
       mockRemoveLabel.mockResolvedValue({});
 
-      const result = await removeLabels(['size:S', 'auto:old'], 'token', {
+      const result = await removeLabels(['size:S', 'auto/old'], 'token', {
         owner: 'owner',
         repo: 'repo',
         pullNumber: 123,
@@ -407,7 +407,7 @@ describe('LabelManager', () => {
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
-        name: 'auto:old',
+        name: 'auto/old',
       });
     });
 
@@ -466,7 +466,7 @@ describe('LabelManager', () => {
 
       // Current labels on PR
       mockListLabels.mockResolvedValue({
-        data: [{ name: 'bug' }, { name: 'size:S' }, { name: 'auto:old-violation' }],
+        data: [{ name: 'bug' }, { name: 'size:S' }, { name: 'auto/old-violation' }],
       });
 
       // Adding new labels
@@ -487,7 +487,7 @@ describe('LabelManager', () => {
       if (result.isOk()) {
         expect(result.value.added).toContain('size:L'); // 150 additions = Large
         expect(result.value.removed).toContain('size:S'); // Old size label
-        expect(result.value.removed).toContain('auto:old-violation'); // Old auto label
+        expect(result.value.removed).toContain('auto/old-violation'); // Old auto label
         expect(result.value.current).toContain('bug'); // Preserved
         expect(result.value.current).toContain('size:L'); // New size
       }
@@ -545,8 +545,8 @@ describe('LabelManager', () => {
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         expect(result.value.added).toContain('size:M'); // 50 additions
-        expect(result.value.added).toContain('auto:large-files');
-        expect(result.value.added).toContain('auto:excessive-changes');
+        expect(result.value.added).toContain('auto/large-files');
+        expect(result.value.added).toContain('auto/excessive-changes');
       }
     });
 
@@ -628,8 +628,8 @@ describe('LabelManager', () => {
       mockListLabels.mockResolvedValue({
         data: [
           { name: 'size:L' },
-          { name: 'auto:large-files' },
-          { name: 'auto:excessive-changes' },
+          { name: 'auto/large-files' },
+          { name: 'auto/excessive-changes' },
           { name: 'feature' },
         ],
       });
@@ -647,10 +647,10 @@ describe('LabelManager', () => {
       if (result.isOk()) {
         expect(result.value.added).toContain('size:S'); // 5 additions = Small
         expect(result.value.removed).toContain('size:L');
-        expect(result.value.removed).toContain('auto:large-files');
-        expect(result.value.removed).toContain('auto:excessive-changes');
+        expect(result.value.removed).toContain('auto/large-files');
+        expect(result.value.removed).toContain('auto/excessive-changes');
         expect(result.value.current).toContain('feature'); // Preserved
-        expect(result.value.current).not.toContain('auto:large-files');
+        expect(result.value.current).not.toContain('auto/large-files');
       }
     });
 

@@ -143,8 +143,8 @@ describe('GitHub Actions I/O', () => {
       expect(inputs.complexity_thresholds).toBe('{"medium": 15, "high": 30}');
       expect(inputs.category_enabled).toBe('true');
       expect(inputs.risk_enabled).toBe('true');
-      expect(inputs.large_files_label).toBe('auto:large-files');
-      expect(inputs.too_many_files_label).toBe('auto:too-many-files');
+      expect(inputs.large_files_label).toBe('auto/large-files');
+      expect(inputs.too_many_files_label).toBe('auto/too-many-files');
       expect(inputs.skip_draft_pr).toBe('true');
       expect(inputs.comment_on_pr).toBe('auto');
       expect(inputs.additional_exclude_patterns).toBe('');

@@ -67,12 +67,12 @@ inputs:
   large_files_label:
     description: "Label for files exceeding size or line limits"
     required: false
-    default: "auto:large-files"
+    default: "auto/large-files"
 
   too_many_files_label:
     description: "Label for PRs with too many files"
     required: false
-    default: "auto:too-many-files"
+    default: "auto/too-many-files"
 
   too_many_lines_label:
     description: "Label for files exceeding line count limits"

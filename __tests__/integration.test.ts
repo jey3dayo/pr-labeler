@@ -84,8 +84,8 @@ describe('Integration Tests', () => {
         label_description: '',
         max_labels: '10',
         use_default_excludes: 'true',
-        large_files_label: 'auto:large-files',
-        too_many_files_label: 'auto:too-many-files',
+        large_files_label: 'auto/large-files',
+        too_many_files_label: 'auto/too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
         additional_exclude_patterns: '',
@@ -214,7 +214,7 @@ describe('Integration Tests', () => {
 
       // 既にラベルが存在
       mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
-        data: [{ name: 'size:S' }, { name: 'auto:excessive-changes' }],
+        data: [{ name: 'size:S' }, { name: 'auto/excessive-changes' }],
       });
 
       mockOctokit.rest.issues.listComments.mockResolvedValue({
@@ -282,8 +282,8 @@ describe('Integration Tests', () => {
           pr_additions_limit: '5000',
           pr_files_limit: '50',
           auto_remove_labels: 'true',
-          large_files_label: 'auto:large-files',
-          too_many_files_label: 'auto:too-many-files',
+          large_files_label: 'auto/large-files',
+          too_many_files_label: 'auto/too-many-files',
           skip_draft_pr: 'true',
           comment_on_pr: 'auto',
           additional_exclude_patterns: '',
@@ -354,8 +354,8 @@ describe('Integration Tests', () => {
           pr_additions_limit: '5000',
           pr_files_limit: '50',
           auto_remove_labels: 'true',
-          large_files_label: 'auto:large-files',
-          too_many_files_label: 'auto:too-many-files',
+          large_files_label: 'auto/large-files',
+          too_many_files_label: 'auto/too-many-files',
           skip_draft_pr: 'true',
           comment_on_pr: 'auto',
           additional_exclude_patterns: '',

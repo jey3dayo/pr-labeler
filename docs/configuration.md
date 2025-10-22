@@ -47,8 +47,8 @@ Complete reference for all input parameters, output variables, and configuration
 | Parameter                 | Required | Default                  | Description                                            |
 | ------------------------- | -------- | ------------------------ | ------------------------------------------------------ |
 | `auto_remove_labels`      | ❌       | `true`                   | Remove labels when limits are no longer exceeded       |
-| `large_files_label`       | ❌       | `auto:large-files`       | Label for files exceeding size or line limits          |
-| `too_many_files_label`    | ❌       | `auto:too-many-files`    | Label for PRs with too many files                      |
+| `large_files_label`       | ❌       | `auto/large-files`       | Label for files exceeding size or line limits          |
+| `too_many_files_label`    | ❌       | `auto/too-many-files`    | Label for PRs with too many files                      |
 | `too_many_lines_label`    | ❌       | `auto:too-many-lines`    | Label for files exceeding line count limits            |
 | `excessive_changes_label` | ❌       | `auto:excessive-changes` | Label for PRs with excessive changes (total additions) |
 
