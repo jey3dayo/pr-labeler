@@ -5,6 +5,12 @@
     // デフォルトルールを有効化
     "default": true,
 
+    // MD001: 見出しレベルの増分
+    // siblings_only: 兄弟要素間のみチェック（h2 → h4を許容）
+    "MD001": {
+      "siblings_only": true
+    },
+
     // MD003: 見出しスタイルの一貫性
     "MD003": {
       "style": "consistent"
@@ -30,8 +36,10 @@
 
     // MD033: インラインHTML要素を許可
     // Claudeコマンドファイルで使用されるカスタムタグ
+    // README.md/README.ja.mdのアンカータグ（後方互換性）
     "MD033": {
       "allowed_elements": [
+        "a",
         "details",
         "summary",
         "antml:thinking",
