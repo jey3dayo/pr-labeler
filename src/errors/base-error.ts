@@ -14,7 +14,6 @@ export type ErrorLevel = 'warning' | 'info';
  * Base Error class with errorLevel support
  * All application errors that need custom error levels should extend this class
  */
-// eslint-disable-next-line no-restricted-syntax
 export abstract class BaseError extends Error {
   readonly errorLevel: ErrorLevel;
 

@@ -17,7 +17,6 @@ vi.mock('../src/actions-io.js', () => ({
 /**
  * Test implementation of BaseError
  */
-// eslint-disable-next-line no-restricted-syntax
 class TestBaseError extends BaseError {
   constructor(message: string, errorLevel: 'warning' | 'info' = 'warning') {
     super(message, errorLevel);
@@ -70,7 +69,6 @@ describe('ensureError', () => {
   });
 
   describe('Custom Error class conversion', () => {
-    // eslint-disable-next-line no-restricted-syntax
     class CustomError extends Error {
       code: string;
       constructor(message: string) {
@@ -228,7 +226,6 @@ describe('processError', () => {
   it('should format custom Error names correctly', () => {
     const logWarningSpy = vi.mocked(actionsIo.logWarning);
 
-    // eslint-disable-next-line no-restricted-syntax
     class CustomError extends Error {
       constructor(message: string) {
         super(message);

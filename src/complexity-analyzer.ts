@@ -3,10 +3,11 @@
  * Uses ESLint standard complexity rule
  */
 
-import { promises as fs } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
 import * as core from '@actions/core';
+import parser from '@typescript-eslint/parser';
 import type { Linter } from 'eslint';
 import { ESLint } from 'eslint';
 import { ResultAsync } from 'neverthrow';
@@ -38,8 +39,7 @@ export interface AnalysisOptions {
 function hasTsconfigJson(): boolean {
   try {
     const tsconfigPath = path.join(process.cwd(), 'tsconfig.json');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('fs').existsSync(tsconfigPath);
+    return existsSync(tsconfigPath);
   } catch {
     return false;
   }
@@ -51,15 +51,12 @@ function hasTsconfigJson(): boolean {
  * @returns Configured ESLint instance
  */
 function createESLintInstance(hasTsconfig: boolean): ESLint {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const typescriptParser = require('@typescript-eslint/parser');
-
   return new ESLint({
     overrideConfigFile: true,
     baseConfig: {
       files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
       languageOptions: {
-        parser: typescriptParser,
+        parser,
         parserOptions: {
           ecmaVersion: 'latest',
           sourceType: 'module',
@@ -126,7 +123,6 @@ function hasSyntaxError(messages: Linter.LintMessage[]): boolean {
  * Note: This uses class syntax for better organization of related methods.
  * Class syntax is restricted elsewhere in the codebase, but allowed here for this specific use case.
  */
-// eslint-disable-next-line no-restricted-syntax
 export class ComplexityAnalyzer {
   /**
    * Analyze a single file for complexity

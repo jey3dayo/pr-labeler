@@ -9,7 +9,6 @@ import { BaseError, type ErrorLevel } from '../src/errors/base-error.js';
 /**
  * Test implementation of BaseError for testing purposes
  */
-// eslint-disable-next-line no-restricted-syntax
 class TestError extends BaseError {
   constructor(message: string, errorLevel: ErrorLevel = 'warning') {
     super(message, errorLevel);
@@ -88,7 +87,6 @@ describe('BaseError', () => {
 
   describe('inheritance', () => {
     it('should support custom error classes', () => {
-      // eslint-disable-next-line no-restricted-syntax
       class CustomAppError extends BaseError {
         readonly code: string;
 

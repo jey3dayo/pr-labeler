@@ -50,6 +50,12 @@ export interface ApplyResult {
   failed: Array<{ label: string; reason: string }>;
 }
 
+interface OctokitErrorResponse {
+  response?: {
+    headers?: Record<string, unknown>;
+  };
+}
+
 /**
  * ラベル名から名前空間を抽出
  *
@@ -121,10 +127,9 @@ export async function applyDirectoryLabels(
 
     if (status === 429) {
       // Extract Retry-After header if available
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const errorWithResponse = error as any;
-      const retryAfterHeader =
-        errorWithResponse?.response?.headers?.['retry-after'] ?? errorWithResponse?.response?.headers?.['Retry-After'];
+      const errorWithResponse = error as OctokitErrorResponse;
+      const headers = errorWithResponse.response?.headers ?? {};
+      const retryAfterHeader = headers['retry-after'] ?? headers['Retry-After'];
       const retryAfter =
         typeof retryAfterHeader === 'string'
           ? Number.parseInt(retryAfterHeader, 10)
