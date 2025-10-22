@@ -8,22 +8,6 @@ Intelligent PR labeling with automatic size checks, categorization, and risk ass
 
 🇬🇧 [English](README.md) | 🇯🇵 [日本語](README.ja.md)
 
----
-
-## 📢 Documentation Restructuring Notice
-
-Our documentation has been simplified and reorganized for better usability:
-
-- **README.md**: Quick start guide (you are here)
-- **Detailed Documentation**: Moved to [`docs/`](docs/) directory
-  - [Configuration Guide](docs/configuration.md) - All input parameters
-  - [Advanced Usage](docs/advanced-usage.md) - Real-world examples
-  - [Troubleshooting](docs/troubleshooting.md) - Common issues
-
-📦 **Previous README archived**: Use [pre-simplification-readme](https://github.com/jey3dayo/pr-labeler/tree/pre-simplification-readme) tag to view the complete original documentation.
-
----
-
 ## 🚀 Key Features
 
 - **📏 Automatic PR Labeling**: Apply size labels (S/M/L/XL/XXL) based on PR additions

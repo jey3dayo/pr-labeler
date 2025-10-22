@@ -8,22 +8,6 @@ PRのサイズ、カテゴリ、リスクを自動的に判定してラベル付
 
 🇯🇵 [日本語](README.ja.md) | 🇬🇧 [English](README.md)
 
----
-
-## 📢 ドキュメント再構成のお知らせ
-
-ドキュメントを使いやすくするため、簡素化と再構成を行いました：
-
-- **README.md**: クイックスタートガイド（このページ）
-- **詳細ドキュメント**: [`docs/`](docs/) ディレクトリに移動
-  - [設定ガイド](docs/configuration.md) - 全入力パラメータ
-  - [高度な使用例](docs/advanced-usage.md) - 実践的な例
-  - [トラブルシューティング](docs/troubleshooting.md) - よくある問題
-
-📦 **以前のREADMEはアーカイブ済み**: [pre-simplification-readme](https://github.com/jey3dayo/pr-labeler/tree/pre-simplification-readme) タグで完全な元のドキュメントを参照できます。
-
----
-
 ## 🚀 主要機能
 
 - **📏 自動PRラベル付け**: PR追加行数に基づいてサイズラベル（S/M/L/XL/XXL）を自動適用
