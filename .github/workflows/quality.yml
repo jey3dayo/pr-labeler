@@ -156,7 +156,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tsbuildinfo
-          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json', 'src/**/*.ts') }}
+          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json') }}
           restore-keys: |
             tsbuildinfo-${{ runner.os }}-
 
@@ -265,7 +265,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tsbuildinfo
-          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json', 'src/**/*.ts') }}
+          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('tsconfig.json') }}
           restore-keys: |
             tsbuildinfo-${{ runner.os }}-
 

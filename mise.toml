@@ -15,7 +15,7 @@ fd = 'latest'
 # === 統合タスク ===
 format.run = ["mise fmt", "pnpm format", "markdownlint-cli2 --fix '**/*.md'"]
 
-lint.run = ["pnpm lint", "pnpm type-check", "markdownlint-cli2 '**/*.md'"]
+lint.run = ["pnpm lint", "markdownlint-cli2 '**/*.md'"]
 
 test.run = ["pnpm test"]
 
@@ -117,6 +117,7 @@ run = [
   'rm -rf .vitest',
   'rm -f .eslintcache',
   'rm -f .prettiercache',
+  'rm -f .tsbuildinfo',
 ]
 
 [tasks."clean:full"]
