@@ -50,18 +50,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### ⚠️ ラベル作成が必要
-
-**初回使用前に**、リポジトリにラベルが存在することを確認してください：
-
-- **オプション1**: **Issues** → **Labels** で手動作成（ラベル一覧は[トラブルシューティング](docs/troubleshooting.md#labels-not-applied)を参照）
-- **オプション2**: `.github/pr-labeler.yml` で自動作成を有効化：
-
-  ```yaml
-  # .github/pr-labeler.yml
-  labels:
-    create_missing: true  # ラベル自動作成を有効化
-  ```
+これにより、PRサイズ（例: `size/small`, `size/large`）、カテゴリ（例: `category/tests`, `category/docs`）、リスクレベル（例: `risk/high`）に基づいてラベルが自動的に適用されます。
 
 ### 次のステップ
 
@@ -91,7 +80,7 @@ permissions:
 <a id="-自動適用ラベル"></a>
 <a id="labels"></a>
 
-### サイズラベル（排他的）
+### サイズラベル
 
 PR全体の追加行数に基づいて適用：
 
@@ -101,7 +90,7 @@ PR全体の追加行数に基づいて適用：
 - `size/xlarge` - 1000-2999行
 - `size/xxlarge` - 3000行以上
 
-### カテゴリラベル（加法的）
+### カテゴリラベル
 
 変更ファイルパターンに基づいて適用：
 
@@ -112,7 +101,7 @@ PR全体の追加行数に基づいて適用：
 - `category/spec` - 仕様書ドキュメント
 - `category/dependencies` - 依存関係ファイル（Node.js、Go、Python、Rust、Ruby）
 
-### リスクラベル（排他的）
+### リスクラベル
 
 変更リスクに基づいて適用：
 
@@ -141,7 +130,7 @@ PR全体の追加行数に基づいて適用：
 - **基本制限**: `file_size_limit`, `file_lines_limit`, `pr_additions_limit`, `pr_files_limit`
 - **ラベル制御**: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
 - **ワークフロー失敗**: `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`
-- **ディレクトリラベル**: `enable_directory_labeling`, `auto_create_labels`
+- **ディレクトリラベル**: `enable_directory_labeling`
 - **多言語**: `language` (en/ja)
 
 ## 📝 高度な使用例

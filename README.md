@@ -52,19 +52,6 @@ jobs:
 
 This will automatically apply labels based on PR size (e.g., `size/small`, `size/large`), category (e.g., `category/tests`, `category/docs`), and risk level (e.g., `risk/high`).
 
-### ⚠️ Label Creation Required
-
-**Before first use**, ensure labels exist in your repository:
-
-- **Option 1**: Manually create labels in **Issues** → **Labels** (see [Troubleshooting](docs/troubleshooting.md#labels-not-applied) for label list)
-- **Option 2**: Enable automatic label creation in `.github/pr-labeler.yml`:
-
-  ```yaml
-  # .github/pr-labeler.yml
-  labels:
-    create_missing: true  # Auto-create missing labels
-  ```
-
 ### Next Steps
 
 - 📖 **Configure parameters**: See [Configuration Guide](docs/configuration.md) for all input options
@@ -93,7 +80,7 @@ permissions:
 <a id="-自動適用ラベル"></a>
 <a id="labels"></a>
 
-### Size Labels (Exclusive)
+### Size Labels
 
 Applied based on total PR additions:
 
@@ -103,7 +90,7 @@ Applied based on total PR additions:
 - `size/xlarge` - 1000-2999 lines
 - `size/xxlarge` - ≥ 3000 lines
 
-### Category Labels (Additive)
+### Category Labels
 
 Applied based on changed file patterns:
 
@@ -114,7 +101,7 @@ Applied based on changed file patterns:
 - `category/spec` - Specification documents
 - `category/dependencies` - Dependency files (Node.js, Go, Python, Rust, Ruby)
 
-### Risk Labels (Exclusive)
+### Risk Labels
 
 Applied based on change risk:
 
@@ -143,7 +130,7 @@ For detailed parameter documentation, see **[Configuration Guide](docs/configura
 - **Basic Limits**: `file_size_limit`, `file_lines_limit`, `pr_additions_limit`, `pr_files_limit`
 - **Label Control**: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
 - **Workflow Failure**: `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`
-- **Directory Labeling**: `enable_directory_labeling`, `auto_create_labels`
+- **Directory Labeling**: `enable_directory_labeling`
 - **Multi-language**: `language` (en/ja)
 
 ## 📝 Advanced Usage
