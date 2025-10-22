@@ -45,6 +45,7 @@ export interface Config {
     largeFilesLabel: string;
     tooManyFilesLabel: string;
     tooManyLinesLabel: string;
+    excessiveChangesLabel: string;
     skipDraftPr: boolean;
     commentOnPr: 'auto' | 'always' | 'never';
     failOnLargeFiles: boolean;

@@ -74,9 +74,9 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
     }
   }
 
-  // Additional check: fail_on_pr_size also covers PR additions limit (auto:excessive-changes)
+  // Additional check: fail_on_pr_size also covers PR additions limit (excessive changes label)
   if (config.failOnPrSize !== '') {
-    const hasExcessiveChangesLabel = appliedLabels?.includes('auto:excessive-changes') ?? false;
+    const hasExcessiveChangesLabel = appliedLabels?.includes(config.excessiveChangesLabel) ?? false;
     const hasExcessiveChangesViolation = violations.exceedsAdditions;
     if (hasExcessiveChangesLabel || hasExcessiveChangesViolation) {
       if (!failureKeys.has('excessiveChanges')) {

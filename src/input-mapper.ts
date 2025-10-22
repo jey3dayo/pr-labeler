@@ -49,6 +49,7 @@ export interface Config {
   largeFilesLabel: string;
   tooManyFilesLabel: string;
   tooManyLinesLabel: string;
+  excessiveChangesLabel: string;
   skipDraftPr: boolean;
   commentOnPr: 'auto' | 'always' | 'never';
   // Label-Based Workflow Failure Control
@@ -367,6 +368,7 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     largeFilesLabel: inputs.large_files_label,
     tooManyFilesLabel: inputs.too_many_files_label,
     tooManyLinesLabel: inputs.too_many_lines_label,
+    excessiveChangesLabel: inputs.excessive_changes_label,
     skipDraftPr: parseBoolean(inputs.skip_draft_pr),
     commentOnPr: parseCommentMode(inputs.comment_on_pr),
     // Label-Based Workflow Failure Control

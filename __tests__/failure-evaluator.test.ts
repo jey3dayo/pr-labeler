@@ -34,6 +34,7 @@ describe('FailureEvaluator', () => {
     largeFilesLabel: 'auto:large-files',
     tooManyFilesLabel: 'auto:too-many-files',
     tooManyLinesLabel: 'auto:too-many-lines',
+    excessiveChangesLabel: 'auto:excessive-changes',
     skipDraftPr: true,
     commentOnPr: 'auto',
     failOnLargeFiles: false,

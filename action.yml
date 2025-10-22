@@ -84,6 +84,11 @@ inputs:
     required: false
     default: "auto:too-many-lines"
 
+  excessive_changes_label:
+    description: "Label for PRs with excessive changes (total additions)"
+    required: false
+    default: "auto:excessive-changes"
+
   # 動作設定
   skip_draft_pr:
     description: "Skip check for draft PRs"
@@ -102,7 +107,7 @@ inputs:
     default: ""
 
   fail_on_too_many_files:
-    description: "Fail workflow if too many files are detected (labeled with auto:too-many-files)"
+    description: "Fail workflow if too many files are detected (labeled with too_many_files_label)"
     required: false
     default: ""
 
