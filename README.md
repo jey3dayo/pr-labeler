@@ -164,8 +164,13 @@ jobs:
 
           # 動作設定
           comment_on_pr: "auto"         # 違反時のみコメント (always/auto/never)
-          apply_labels: "true"          # サイズラベル自動適用 (size/S, size/M など)
           enable_summary: "true"        # GitHub Actions Summary に出力
+
+          # ラベル種別の個別制御（デフォルトで有効）
+          size_enabled: "true"          # サイズラベル (size/small, size/medium など)
+          complexity_enabled: "false"   # 複雑度ラベル (complexity/medium, complexity/high) ※デフォルトOFF
+          category_enabled: "true"      # カテゴリラベル (category/tests, category/docs など)
+          risk_enabled: "true"          # リスクラベル (risk/high, risk/medium)
 
           # ワークフロー失敗制御（個別に制御可能）
           fail_on_large_files: "true"   # 大きなファイルが検出された場合に失敗
@@ -200,9 +205,14 @@ jobs:
     comment_on_pr: "auto"              # 違反時のみコメント
     fail_on_large_files: "true"        # 大きなファイルが検出された場合に失敗
     fail_on_too_many_files: "true"     # ファイル数超過時に失敗
-    apply_labels: "true"               # ラベル自動適用
     skip_draft_pr: "true"              # Draft PRをスキップ
     enable_summary: "true"             # GitHub Actions Summaryに出力
+
+    # ラベル種別の個別制御
+    size_enabled: "true"               # サイズラベルを有効化
+    complexity_enabled: "true"         # 複雑度ラベルを有効化（デフォルトはfalse）
+    category_enabled: "true"           # カテゴリラベルを有効化
+    risk_enabled: "true"               # リスクラベルを有効化
 ```
 
 ### 🌐 多言語設定
@@ -279,7 +289,6 @@ categories:
 
 | パラメータ             | 必須 | デフォルト            | 説明                           |
 | ---------------------- | ---- | --------------------- | ------------------------------ |
-| `apply_labels`         | ❌   | `true`                | 自動ラベル適用の有効/無効      |
 | `auto_remove_labels`   | ❌   | `true`                | 制限クリア時にラベルを自動削除 |
 | `large_files_label`    | ❌   | `auto:large-files`    | ファイルサイズ/行数違反ラベル  |
 | `too_many_files_label` | ❌   | `auto:too-many-files` | ファイル数超過ラベル           |
@@ -560,7 +569,11 @@ GitHub Actions Summaryのみを使用：
 - uses: jey3dayo/pr-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
-    apply_labels: "false"
+    # すべてのラベルを無効化
+    size_enabled: "false"
+    complexity_enabled: "false"
+    category_enabled: "false"
+    risk_enabled: "false"
     comment_on_pr: "never"
     enable_summary: "true"  # Summaryのみ出力
 ```

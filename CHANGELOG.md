@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - TBD
 
+### BREAKING CHANGES
+
+#### 🔧 入力パラメータ簡素化 (Simplify Label Inputs)
+
+冗長な`apply_labels`パラメータを削除し、複雑度分析機能をデフォルトOFFに変更しました。
+
+**削除されたinputs**:
+
+- `apply_labels` - 個別の`*_enabled`パラメータで代替
+
+**変更されたデフォルト値**:
+
+- `complexity_enabled`: `"true"` → `"false"` (オプトイン機能に変更)
+- `complexity_thresholds`: `'{"medium": 10, "high": 20}'` → `'{"medium": 15, "high": 30}'` (より実用的な閾値に緩和)
+
+**移行ガイド**:
+
+既存ユーザーが`apply_labels: "false"`を使用していた場合:
+
+```yaml
+# 旧設定
+apply_labels: "false"
+
+# 新設定（すべてのラベルを無効化）
+size_enabled: "false"
+complexity_enabled: "false"
+category_enabled: "false"
+risk_enabled: "false"
+```
+
+複雑度分析を継続利用する場合:
+
+```yaml
+# 明示的に有効化が必要
+complexity_enabled: "true"
+```
+
+複雑度閾値をカスタマイズしていた場合:
+
+```yaml
+# 旧デフォルト値を維持する場合
+complexity_thresholds: '{"medium": 10, "high": 20}'
+```
+
 ### Added
 
 #### 🆕 ラベルベース・ワークフロー失敗制御機能（Label-Based Workflow Failure Control）

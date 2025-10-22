@@ -243,8 +243,11 @@ GitHub Actionsランタイムから自動的に提供される環境変数を使
 `action.yml`で定義されたすべての入力パラメータ（`input-mapper.ts`でパース）：
 
 - 制限値: `file_size_limit`, `file_lines_limit`, `pr_additions_limit`, `pr_files_limit`
-- ラベル設定: `apply_labels`, `size_label_thresholds`, etc.
-- 動作設定: `skip_draft_pr`, `comment_on_pr`, `fail_on_violation`, `enable_summary`
+- ラベル設定:
+  - 選択的有効化: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
+  - 閾値設定: `size_thresholds`, `complexity_thresholds`
+  - その他: `auto_remove_labels`, `large_files_label`, `too_many_files_label`
+- 動作設定: `skip_draft_pr`, `comment_on_pr`, `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`, `enable_summary`
 - 除外設定: `additional_exclude_patterns`
 
 ## Port Configuration

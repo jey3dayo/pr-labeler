@@ -337,8 +337,13 @@ jobs:
           pr_additions_limit: "5000"
           pr_files_limit: "50"
           comment_on_pr: "auto"
-          apply_labels: "true"
+          # Selective label enabling (all enabled by default)
+          size_enabled: "true"
+          complexity_enabled: "false"
+          category_enabled: "true"
+          risk_enabled: "true"
           enable_summary: "true"
+          language: "ja"
           # Workflow failure control (disabled for self-check)
           fail_on_large_files: ""
           fail_on_too_many_files: ""

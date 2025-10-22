@@ -104,6 +104,14 @@
     "status": "Status",
     "noFiles": "No files to display"
   },
+  "fileAnalysis": {
+    "title": "File Analysis",
+    "status": {
+      "lineExceed": "Line Exceed ({{limit}})",
+      "sizeExceed": "Size Exceed ({{limit}})",
+      "ok": "OK"
+    }
+  },
   "labels": {
     "applied": "Applied Labels",
     "noLabels": "No labels applied"

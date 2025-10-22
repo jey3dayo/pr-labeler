@@ -18,6 +18,7 @@ export interface FormatViolationsOptions {
 }
 export declare function formatViolations(violations: Violations, options?: FormatViolationsOptions): string;
 export declare function formatFileDetails(files: FileMetrics[], limit?: number): string;
+export declare function formatFileAnalysis(violations: Violations, files: FileMetrics[], limit?: number): string;
 export declare function escapeMarkdown(text: string): string;
 export declare function generateComplexitySummary(metrics: ComplexityMetrics, config: ComplexityConfig, context: SummaryContext): string;
 export declare function formatImprovementActions(violations: Violations): string;

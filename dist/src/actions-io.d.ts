@@ -9,7 +9,6 @@ export interface ActionInputs {
     file_lines_limit: string;
     pr_additions_limit: string;
     pr_files_limit: string;
-    apply_labels: string;
     auto_remove_labels: string;
     size_enabled: string;
     size_thresholds: string;

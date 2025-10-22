@@ -26,7 +26,6 @@ export interface Config {
     fileLinesLimit: number;
     prAdditionsLimit: number;
     prFilesLimit: number;
-    applyLabels: boolean;
     autoRemoveLabels: boolean;
     sizeEnabled: boolean;
     sizeThresholdsV2: {
