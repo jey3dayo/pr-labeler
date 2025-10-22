@@ -113,8 +113,8 @@ Applied based on change risk:
 
 Applied when limits are exceeded:
 
-- `auto:large-files` - Files exceed size/line limits
-- `auto:too-many-files` - PR has too many files
+- `auto/large-files` - Files exceed size/line limits
+- `auto/too-many-files` - PR has too many files
 
 **Customization**: Adjust thresholds and labels in [Configuration Guide](docs/configuration.md#label-thresholds-defaults).
 

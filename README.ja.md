@@ -113,8 +113,8 @@ PR全体の追加行数に基づいて適用：
 
 制限超過時に適用：
 
-- `auto:large-files` - ファイルサイズ/行数制限違反
-- `auto:too-many-files` - ファイル数超過
+- `auto/large-files` - ファイルサイズ/行数制限違反
+- `auto/too-many-files` - ファイル数超過
 
 **カスタマイズ**: 閾値とラベルの調整は [設定ガイド](docs/configuration.md#label-thresholds-defaults) を参照。
 
