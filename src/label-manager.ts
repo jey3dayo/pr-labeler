@@ -27,6 +27,7 @@ export interface LabelConfig {
   autoRemoveLabels?: boolean; // If false, don't remove old labels
   largeFilesLabel?: string; // Custom label for large files
   tooManyFilesLabel?: string; // Custom label for too many files
+  tooManyLinesLabel?: string; // Custom label for too many lines
 }
 
 /**
@@ -92,7 +93,7 @@ export function getSizeLabel(totalAdditions: number, thresholds: LabelConfig['si
  */
 export function getDetailLabels(
   violations: Violations,
-  customLabels?: { largeFiles?: string; tooManyFiles?: string },
+  customLabels?: { largeFiles?: string; tooManyFiles?: string; tooManyLines?: string },
 ): string[] {
   const labels: string[] = [];
 
@@ -101,7 +102,7 @@ export function getDetailLabels(
   }
 
   if (violations.exceedsFileLines.length > 0) {
-    labels.push(VIOLATION_LABELS.tooManyLines);
+    labels.push(customLabels?.tooManyLines || VIOLATION_LABELS.tooManyLines);
   }
 
   if (violations.exceedsAdditions) {
@@ -289,12 +290,15 @@ export async function updateLabels(
     : null;
 
   // Determine new violation labels with custom names
-  const customLabels: { largeFiles?: string; tooManyFiles?: string } = {};
+  const customLabels: { largeFiles?: string; tooManyFiles?: string; tooManyLines?: string } = {};
   if (config.largeFilesLabel) {
     customLabels.largeFiles = config.largeFilesLabel;
   }
   if (config.tooManyFilesLabel) {
     customLabels.tooManyFiles = config.tooManyFilesLabel;
+  }
+  if (config.tooManyLinesLabel) {
+    customLabels.tooManyLines = config.tooManyLinesLabel;
   }
   const newViolationLabels = getDetailLabels(analysisResult.violations, customLabels);
 

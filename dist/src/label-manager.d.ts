@@ -13,6 +13,7 @@ export interface LabelConfig {
     autoRemoveLabels?: boolean;
     largeFilesLabel?: string;
     tooManyFilesLabel?: string;
+    tooManyLinesLabel?: string;
 }
 export interface LabelUpdate {
     added: string[];
@@ -23,6 +24,7 @@ export declare function getSizeLabel(totalAdditions: number, thresholds: LabelCo
 export declare function getDetailLabels(violations: Violations, customLabels?: {
     largeFiles?: string;
     tooManyFiles?: string;
+    tooManyLines?: string;
 }): string[];
 export declare function getCurrentLabels(token: string, context: PRContext): Promise<Result<string[], GitHubAPIError>>;
 export declare function getCurrentPRLabels(token: string, context: PRContext): Promise<string[] | undefined>;

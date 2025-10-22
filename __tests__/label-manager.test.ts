@@ -256,6 +256,28 @@ describe('LabelManager', () => {
       expect(labels).toContain('auto:large-files');
       expect(labels).toHaveLength(1);
     });
+
+    it('should use custom tooManyLines label when provided', () => {
+      const violations: Violations = {
+        largeFiles: [],
+        exceedsFileLines: [
+          {
+            file: 'test.ts',
+            actualValue: 2000,
+            limit: 1000,
+            violationType: 'lines',
+            severity: 'high',
+          },
+        ],
+        exceedsAdditions: false,
+        exceedsFileCount: false,
+      };
+
+      const customLabels = { tooManyLines: 'custom:long-files' };
+      const labels = getDetailLabels(violations, customLabels);
+      expect(labels).toContain('custom:long-files');
+      expect(labels).not.toContain('auto:too-many-lines');
+    });
   });
 
   describe('getCurrentLabels', () => {
