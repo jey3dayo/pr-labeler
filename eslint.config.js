@@ -185,8 +185,10 @@ module.exports = tseslint.config(
       '*.config.cjs',
       '.ncurc.cjs',
       '.eslintrc.js',
+      '.dependency-cruiser.js', // dependency-cruiser config (CommonJS)
       'eslint.config.js',
       'scripts/**/*', // Build scripts
+      'src/types/i18n.d.ts', // Auto-generated i18n types
       '__tests__/fixtures/**/*', // Test fixtures with intentional syntax errors
       '__tests__/__tests__/**/*', // Duplicate test fixtures directory
     ],
