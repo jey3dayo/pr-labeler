@@ -89,7 +89,6 @@ describe('Integration Tests', () => {
         too_many_files_label: 'auto:too-many-files',
         skip_draft_pr: 'true',
         comment_on_pr: 'auto',
-        fail_on_violation: 'false',
         additional_exclude_patterns: '',
         enable_summary: 'true',
       };
@@ -195,7 +194,7 @@ describe('Integration Tests', () => {
 
       await run();
 
-      // fail_on_violation=falseなので成功で終了
+      // No failure conditions set, so should complete successfully
       expect(core.setFailed).not.toHaveBeenCalled();
     });
   });
@@ -289,7 +288,6 @@ describe('Integration Tests', () => {
           too_many_files_label: 'auto:too-many-files',
           skip_draft_pr: 'true',
           comment_on_pr: 'auto',
-          fail_on_violation: 'false',
           additional_exclude_patterns: '',
           enable_summary: 'true',
           // Selective Label Enabling inputs
@@ -363,7 +361,6 @@ describe('Integration Tests', () => {
           too_many_files_label: 'auto:too-many-files',
           skip_draft_pr: 'true',
           comment_on_pr: 'auto',
-          fail_on_violation: 'false',
           additional_exclude_patterns: '',
           enable_summary: 'true',
           size_enabled: 'false', // サイズラベルを無効化

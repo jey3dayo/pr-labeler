@@ -21,7 +21,6 @@ export interface ActionInputs {
     too_many_files_label: string;
     skip_draft_pr: string;
     comment_on_pr: string;
-    fail_on_violation: string;
     fail_on_large_files: string;
     fail_on_too_many_files: string;
     fail_on_pr_size: string;

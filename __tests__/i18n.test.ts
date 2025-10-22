@@ -226,7 +226,6 @@ describe('i18n Core Functions', () => {
         apply_labels: true,
         comment_on_pr: 'auto',
         enable_summary: true,
-        fail_on_violation: false,
         file_size_limit: 1000,
         file_lines_limit: 500,
         pr_additions_limit: 1000,

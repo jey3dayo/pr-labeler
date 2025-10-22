@@ -5,7 +5,6 @@
 import { err, ok, Result } from 'neverthrow';
 
 import type { ActionInputs } from './actions-io';
-import { logWarningI18n } from './actions-io';
 import type { ConfigurationError, ParseError } from './errors/index.js';
 import { createConfigurationError, createParseError } from './errors/index.js';
 import { parseSize } from './parsers/size-parser';
@@ -51,12 +50,10 @@ export interface Config {
   tooManyFilesLabel: string;
   skipDraftPr: boolean;
   commentOnPr: 'auto' | 'always' | 'never';
-  failOnViolation: boolean;
   // Label-Based Workflow Failure Control
   failOnLargeFiles: boolean;
   failOnTooManyFiles: boolean;
   failOnPrSize: string; // "" | "small" | "medium" | "large" | "xlarge" | "xxlarge"
-  legacyFailOnViolation: boolean; // Internal flag for compatibility mode
   enableSummary: boolean;
   additionalExcludePatterns: string[];
   githubToken: string;
@@ -323,37 +320,14 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'));
   }
 
-  // Label-Based Workflow Failure Control: Determine explicit inputs
+  // Label-Based Workflow Failure Control
   const hasExplicitLargeFiles = inputs.fail_on_large_files.trim() !== '';
   const hasExplicitTooManyFiles = inputs.fail_on_too_many_files.trim() !== '';
   const hasExplicitPrSize = inputs.fail_on_pr_size.trim() !== '';
-  const hasNewInputs = hasExplicitLargeFiles || hasExplicitTooManyFiles || hasExplicitPrSize;
 
-  // Compatibility mode detection
-  const useLegacyMode = parseBoolean(inputs.fail_on_violation) === true;
-
-  let failOnLargeFiles: boolean;
-  let failOnTooManyFiles: boolean;
-  let failOnPrSize: string;
-
-  if (hasNewInputs) {
-    // New inputs take precedence (explicit specification)
-    failOnLargeFiles = hasExplicitLargeFiles ? parseBoolean(inputs.fail_on_large_files) === true : false;
-    failOnTooManyFiles = hasExplicitTooManyFiles ? parseBoolean(inputs.fail_on_too_many_files) === true : false;
-    failOnPrSize = hasExplicitPrSize ? inputs.fail_on_pr_size.trim() : '';
-  } else if (useLegacyMode) {
-    // Compatibility mode (fail_on_violation: true with no new inputs)
-    failOnLargeFiles = true;
-    failOnTooManyFiles = true;
-    failOnPrSize = 'large';
-    // Log deprecation warning
-    logWarningI18n('deprecation.failOnViolation');
-  } else {
-    // Default values (nothing specified)
-    failOnLargeFiles = false;
-    failOnTooManyFiles = false;
-    failOnPrSize = '';
-  }
+  const failOnLargeFiles = hasExplicitLargeFiles ? parseBoolean(inputs.fail_on_large_files) === true : false;
+  const failOnTooManyFiles = hasExplicitTooManyFiles ? parseBoolean(inputs.fail_on_too_many_files) === true : false;
+  const failOnPrSize = hasExplicitPrSize ? inputs.fail_on_pr_size.trim() : '';
 
   // Validate fail_on_pr_size
   const validSizes = ['', 'small', 'medium', 'large', 'xlarge', 'xxlarge'];
@@ -393,12 +367,10 @@ export function mapActionInputsToConfig(inputs: ActionInputs): Result<Config, Co
     tooManyFilesLabel: inputs.too_many_files_label,
     skipDraftPr: parseBoolean(inputs.skip_draft_pr),
     commentOnPr: parseCommentMode(inputs.comment_on_pr),
-    failOnViolation: parseBoolean(inputs.fail_on_violation),
     // Label-Based Workflow Failure Control
     failOnLargeFiles,
     failOnTooManyFiles,
     failOnPrSize,
-    legacyFailOnViolation: useLegacyMode,
     enableSummary: parseBoolean(inputs.enable_summary),
     additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
     githubToken: inputs.github_token,

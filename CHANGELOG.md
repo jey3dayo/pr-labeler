@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### 🆕 ラベルベース・ワークフロー失敗制御機能（Label-Based Workflow Failure Control）
 
-ラベルまたは違反に基づいて、個別にワークフロー失敗を制御できる新機能を追加。従来の`fail_on_violation`よりも柔軟で細かい制御が可能になりました。
+ラベルまたは違反に基づいて、個別にワークフロー失敗を制御できる新機能を追加。
 
 **新規inputs**:
 
@@ -25,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ラベル（例: `auto:large-files`）または実際の違反のいずれかが該当すれば失敗
 - 各失敗条件を個別に有効/無効化可能
-- 新しいinputは`fail_on_violation`より優先
 - 多言語対応（日本語・英語）の失敗メッセージ
 
 **使用例**:
@@ -125,35 +124,6 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 - `src/index.ts` - PR Labeler機能を既存フローに統合
 - `src/index.ts` - Step 10の失敗判定ロジックを`evaluateFailureConditions`ベースに置き換え
 
-### Deprecated
-
-#### ⚠️ `fail_on_violation`の非推奨化
-
-`fail_on_violation` inputは非推奨となりました。代わりに、より柔軟な新しいinputを使用してください：
-
-- `fail_on_large_files` - 大きなファイルのチェック
-- `fail_on_too_many_files` - ファイル数超過のチェック
-- `fail_on_pr_size` - PRサイズベースのチェック
-
-**互換性**:
-
-- `fail_on_violation: "true"`は、新しいinputが指定されていない場合のみ動作します
-- 動作は以下と同等です：
-  ```yaml
-  fail_on_large_files: "true"
-  fail_on_too_many_files: "true"
-  fail_on_pr_size: "large"
-  ```
-- 非推奨警告がログに出力されます
-
-**移行ステップ**:
-
-1. 現在の設定を確認
-2. 新しいinputに置き換え
-3. `fail_on_violation`を削除
-
-詳細は[README.md](README.md#-ワークフロー失敗制御label-based-workflow-failure-control)を参照してください。
-
 ### Note
 
 **複雑度ベースラベル（complexity/medium, complexity/high）は将来拡張として v1.2.0 で実装予定**
@@ -201,7 +171,6 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 
 - カスタマイズ可能な制限値（ファイルサイズ、行数、PR追加行数、ファイル数）
 - コメントモード設定（always/auto/never）
-- 違反時のCI失敗制御（`fail_on_violation`）
 - ラベル自動削除設定
 
 ### Technical Details

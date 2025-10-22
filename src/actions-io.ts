@@ -44,7 +44,6 @@ export interface ActionInputs {
   too_many_files_label: string;
   skip_draft_pr: string;
   comment_on_pr: string;
-  fail_on_violation: string;
   // Label-Based Workflow Failure Control
   fail_on_large_files: string; // "" | "true" | "false"
   fail_on_too_many_files: string; // "" | "true" | "false"
@@ -138,7 +137,6 @@ export function getActionInputs(): ActionInputs {
     too_many_files_label: core.getInput('too_many_files_label') || 'auto:too-many-files',
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
     comment_on_pr: core.getInput('comment_on_pr') || 'auto',
-    fail_on_violation: core.getInput('fail_on_violation') || 'false',
     // Label-Based Workflow Failure Control
     fail_on_large_files: core.getInput('fail_on_large_files') || '',
     fail_on_too_many_files: core.getInput('fail_on_too_many_files') || '',

@@ -339,7 +339,10 @@ jobs:
           comment_on_pr: "auto"
           apply_labels: "true"
           enable_summary: "true"
-          fail_on_violation: "false"
+          # Workflow failure control (disabled for self-check)
+          fail_on_large_files: ""
+          fail_on_too_many_files: ""
+          fail_on_pr_size: ""
           additional_exclude_patterns: |
             src/index.ts
 

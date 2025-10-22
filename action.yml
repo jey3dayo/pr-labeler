@@ -90,11 +90,6 @@ inputs:
     required: false
     default: "auto"
 
-  fail_on_violation:
-    description: "(Deprecated) Use 'fail_on_large_files', 'fail_on_too_many_files', or 'fail_on_pr_size' instead. Fail workflow if limits exceeded (calls core.setFailed)"
-    required: false
-    default: "false"
-
   # Label-Based Workflow Failure Control
   fail_on_large_files:
     description: "Fail workflow if large files are detected (labeled with auto:large-files or auto:too-many-lines)"

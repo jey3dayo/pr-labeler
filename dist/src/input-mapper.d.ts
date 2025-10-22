@@ -46,11 +46,9 @@ export interface Config {
     tooManyFilesLabel: string;
     skipDraftPr: boolean;
     commentOnPr: 'auto' | 'always' | 'never';
-    failOnViolation: boolean;
     failOnLargeFiles: boolean;
     failOnTooManyFiles: boolean;
     failOnPrSize: string;
-    legacyFailOnViolation: boolean;
     enableSummary: boolean;
     additionalExcludePatterns: string[];
     githubToken: string;
