@@ -23,7 +23,7 @@ PR Labeler（旧: PR Metrics Action）は、GitHubのPull Requestのサイズと
 **基本ラベリング機能**:
 
 - PRサイズに応じた5段階ラベル（S/M/L/XL/XXL）を自動適用
-- 制限違反時の警告ラベル（auto:large-files, auto:too-many-files）
+- 制限違反時の警告ラベル（auto/large-files, auto/too-many-files）
 - カスタマイズ可能な閾値設定（JSON形式）
 - ラベルの自動削除機能（制限クリア時）
 
@@ -61,7 +61,7 @@ PR Labeler（旧: PR Metrics Action）は、GitHubのPull Requestのサイズと
   - additive（加法的）: scope:\* など、複数適用可能
 - **安全設計**:
   - デフォルトで無効、明示的な有効化が必要（`enable_directory_labeling: true`）
-  - ラベル自動作成オプション（`auto_create_labels`）
+  - ラベルは自動作成される（固定値: color=cccccc, description=""）
 - **設定ファイル**: `.github/directory-labeler.yml`でルール定義
 
 ### 💬 コメント投稿

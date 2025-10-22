@@ -29,9 +29,6 @@ export interface ActionInputs {
     additional_exclude_patterns: string;
     enable_directory_labeling: string;
     directory_labeler_config_path: string;
-    auto_create_labels: string;
-    label_color: string;
-    label_description: string;
     max_labels: string;
     use_default_excludes: string;
     language: string;

@@ -55,9 +55,6 @@ export interface Config {
     githubToken: string;
     enableDirectoryLabeling: boolean;
     directoryLabelerConfigPath: string;
-    autoCreateLabels: boolean;
-    labelColor: string;
-    labelDescription: string;
     maxLabels: number;
     useDefaultExcludes: boolean;
     language?: string;

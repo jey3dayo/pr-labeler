@@ -38,7 +38,7 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
   // Track failure keys to prevent duplicates of the same failure type
   const failureKeys = new Set<string>();
 
-  // fail_on_large_files: Check for large files (auto:large-files label or violation)
+  // fail_on_large_files: Check for large files (auto/large-files label or violation)
   if (config.failOnLargeFiles) {
     const hasLargeFilesLabel = appliedLabels?.includes(config.largeFilesLabel) ?? false;
     const hasLargeFilesViolation = violations.largeFiles.length > 0;
@@ -50,7 +50,7 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
     }
   }
 
-  // fail_on_too_many_files: Check for too many files (auto:too-many-files label or violation)
+  // fail_on_too_many_files: Check for too many files (auto/too-many-files label or violation)
   if (config.failOnTooManyFiles) {
     const hasTooManyFilesLabel = appliedLabels?.includes(config.tooManyFilesLabel) ?? false;
     const hasTooManyFilesViolation = violations.exceedsFileCount;

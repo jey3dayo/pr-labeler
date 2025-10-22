@@ -30,10 +30,10 @@ describe('FailureEvaluator', () => {
     complexityThresholdsV2: { medium: 15, high: 30 },
     categoryEnabled: true,
     riskEnabled: true,
-    largeFilesLabel: 'auto:large-files',
-    tooManyFilesLabel: 'auto:too-many-files',
-    tooManyLinesLabel: 'auto:too-many-lines',
-    excessiveChangesLabel: 'auto:excessive-changes',
+    largeFilesLabel: 'auto/large-files',
+    tooManyFilesLabel: 'auto/too-many-files',
+    tooManyLinesLabel: 'auto/too-many-lines',
+    excessiveChangesLabel: 'auto/excessive-changes',
     skipDraftPr: true,
     commentOnPr: 'auto',
     failOnLargeFiles: false,
@@ -44,9 +44,6 @@ describe('FailureEvaluator', () => {
     githubToken: 'test-token',
     enableDirectoryLabeling: false,
     directoryLabelerConfigPath: '.github/directory-labeler.yml',
-    autoCreateLabels: false,
-    labelColor: 'cccccc',
-    labelDescription: '',
     maxLabels: 10,
     useDefaultExcludes: true,
     language: 'en',
@@ -60,7 +57,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:large-files'],
+          appliedLabels: ['auto/large-files'],
           violations: {
             largeFiles: [],
             exceedsFileLines: [],
@@ -113,7 +110,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:too-many-lines'],
+          appliedLabels: ['auto/too-many-lines'],
           violations: {
             largeFiles: [],
             exceedsFileLines: [],
@@ -166,7 +163,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:large-files', 'auto:too-many-lines'],
+          appliedLabels: ['auto/large-files', 'auto/too-many-lines'],
           violations: {
             largeFiles: [
               {
@@ -208,7 +205,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:large-files'],
+          appliedLabels: ['auto/large-files'],
           violations: {
             largeFiles: [
               {
@@ -240,7 +237,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:too-many-files'],
+          appliedLabels: ['auto/too-many-files'],
           violations: {
             largeFiles: [],
             exceedsFileLines: [],
@@ -284,7 +281,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:too-many-files'],
+          appliedLabels: ['auto/too-many-files'],
           violations: {
             largeFiles: [],
             exceedsFileLines: [],
@@ -354,7 +351,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:excessive-changes'],
+          appliedLabels: ['auto/excessive-changes'],
           violations: {
             largeFiles: [],
             exceedsFileLines: [],
@@ -447,7 +444,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:large-files', 'auto:too-many-files', 'size/large'],
+          appliedLabels: ['auto/large-files', 'auto/too-many-files', 'size/large'],
           violations: {
             largeFiles: [
               {
@@ -483,7 +480,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:large-files', 'auto:too-many-files', 'auto:too-many-lines'],
+          appliedLabels: ['auto/large-files', 'auto/too-many-files', 'auto/too-many-lines'],
           violations: {
             largeFiles: [
               {
@@ -528,7 +525,7 @@ describe('FailureEvaluator', () => {
 
         const input: FailureEvaluationInput = {
           config,
-          appliedLabels: ['auto:large-files', 'auto:too-many-files', 'size/xxlarge'],
+          appliedLabels: ['auto/large-files', 'auto/too-many-files', 'size/xxlarge'],
           violations: {
             largeFiles: [
               {

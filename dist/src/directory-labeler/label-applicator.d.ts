@@ -21,10 +21,5 @@ export interface ApplyResult {
         reason: string;
     }>;
 }
-export interface ApplyOptions {
-    autoCreate: boolean;
-    labelColor?: string;
-    labelDescription?: string;
-}
-export declare function applyDirectoryLabels(octokit: Octokit, context: PullRequestContext, decisions: LabelDecision[], namespaces: Required<NamespacePolicy>, options: ApplyOptions): Promise<Result<ApplyResult, ReturnType<typeof createGitHubAPIError> | ReturnType<typeof createPermissionError> | ReturnType<typeof createRateLimitError>>>;
+export declare function applyDirectoryLabels(octokit: Octokit, context: PullRequestContext, decisions: LabelDecision[], namespaces: Required<NamespacePolicy>): Promise<Result<ApplyResult, ReturnType<typeof createGitHubAPIError> | ReturnType<typeof createPermissionError> | ReturnType<typeof createRateLimitError>>>;
 export {};

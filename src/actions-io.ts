@@ -54,9 +54,6 @@ export interface ActionInputs {
   // Directory-Based Labeling
   enable_directory_labeling: string;
   directory_labeler_config_path: string;
-  auto_create_labels: string;
-  label_color: string;
-  label_description: string;
   max_labels: string;
   use_default_excludes: string;
   // i18n Support
@@ -133,10 +130,10 @@ export function getActionInputs(): ActionInputs {
     complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 15, "high": 30}',
     category_enabled: core.getInput('category_enabled') || 'true',
     risk_enabled: core.getInput('risk_enabled') || 'true',
-    large_files_label: core.getInput('large_files_label') || 'auto:large-files',
-    too_many_files_label: core.getInput('too_many_files_label') || 'auto:too-many-files',
-    too_many_lines_label: core.getInput('too_many_lines_label') || 'auto:too-many-lines',
-    excessive_changes_label: core.getInput('excessive_changes_label') || 'auto:excessive-changes',
+    large_files_label: core.getInput('large_files_label') || 'auto/large-files',
+    too_many_files_label: core.getInput('too_many_files_label') || 'auto/too-many-files',
+    too_many_lines_label: core.getInput('too_many_lines_label') || 'auto/too-many-lines',
+    excessive_changes_label: core.getInput('excessive_changes_label') || 'auto/excessive-changes',
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
     comment_on_pr: core.getInput('comment_on_pr') || 'auto',
     // Label-Based Workflow Failure Control
@@ -148,9 +145,6 @@ export function getActionInputs(): ActionInputs {
     // Directory-Based Labeling
     enable_directory_labeling: core.getInput('enable_directory_labeling') || 'false',
     directory_labeler_config_path: core.getInput('directory_labeler_config_path') || '.github/directory-labeler.yml',
-    auto_create_labels: core.getInput('auto_create_labels') || 'false',
-    label_color: core.getInput('label_color') || 'cccccc',
-    label_description: core.getInput('label_description') || '',
     max_labels: core.getInput('max_labels') || '10',
     use_default_excludes: core.getInput('use_default_excludes') || 'true',
     // i18n Support

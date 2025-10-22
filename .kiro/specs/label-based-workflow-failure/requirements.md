@@ -24,12 +24,12 @@ Label-Based Workflow Failure Control機能は、PR Labelerアクションにお�
 1. WHEN PR Labelerが起動される THEN PR Labelerは`fail_on_large_files` inputを受け付けなければならない
    - 型: boolean (文字列 "true" または "false")
    - デフォルト値: "false"
-   - 説明: "Fail workflow when 'auto:large-files' label is applied"
+   - 説明: "Fail workflow when 'auto/large-files' label is applied"
 
 2. WHEN PR Labelerが起動される THEN PR Labelerは`fail_on_too_many_files` inputを受け付けなければならない
    - 型: boolean (文字列 "true" または "false")
    - デフォルト値: "false"
-   - 説明: "Fail workflow when 'auto:too-many-files' label is applied"
+   - 説明: "Fail workflow when 'auto/too-many-files' label is applied"
 
 3. WHEN PR Labelerが起動される THEN PR Labelerは`fail_on_pr_size` inputを受け付けなければならない
    - 型: string (空文字列 or サイズ閾値)
@@ -82,9 +82,9 @@ Label-Based Workflow Failure Control機能は、PR Labelerアクションにお�
    - ラベル適用後の状態を正確に反映
    - `apply_labels: false` や権限不足でラベルが付与されない場合でも、分析結果を用いて失敗判定が行えること
 
-2. IF `fail_on_large_files`が`true` AND (`auto:large-files`ラベルが適用されている OR 分析結果の`violations.largeFiles`が存在する) THEN PR Labelerは失敗リストに"Large files detected"を追加しなければならない
+2. IF `fail_on_large_files`が`true` AND (`auto/large-files`ラベルが適用されている OR 分析結果の`violations.largeFiles`が存在する) THEN PR Labelerは失敗リストに"Large files detected"を追加しなければならない
 
-3. IF `fail_on_too_many_files`が`true` AND (`auto:too-many-files`ラベルが適用されている OR `violations.exceedsFileCount`が`true`) THEN PR Labelerは失敗リストに"Too many files in PR"を追加しなければならない
+3. IF `fail_on_too_many_files`が`true` AND (`auto/too-many-files`ラベルが適用されている OR `violations.exceedsFileCount`が`true`) THEN PR Labelerは失敗リストに"Too many files in PR"を追加しなければならない
 
 4. IF `fail_on_pr_size`が指定されている AND (適用されたサイズラベルが閾値以上 OR 分析結果から算出したサイズカテゴリが閾値以上である) THEN PR Labelerは失敗リストに"PR size ({適用サイズ}) exceeds threshold ({閾値})"を追加しなければならない
    - ラベルが存在しない場合は `analysis.metrics.totalAdditions` と `size_thresholds` を用いてサイズカテゴリを算出し、比較に利用する

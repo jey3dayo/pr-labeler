@@ -46,3 +46,15 @@ export const DEFAULT_EXCLUDES: readonly string[] = [
   '**/.DS_Store',
   '**/Thumbs.db',
 ] as const;
+
+/**
+ * Default label color for auto-created labels
+ * Fixed value (cannot be customized)
+ */
+export const DEFAULT_LABEL_COLOR = 'cccccc' as const;
+
+/**
+ * Default label description for auto-created labels
+ * Fixed value (cannot be customized)
+ */
+export const DEFAULT_LABEL_DESCRIPTION = '' as const;

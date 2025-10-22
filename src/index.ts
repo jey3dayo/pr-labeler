@@ -384,11 +384,6 @@ async function run(): Promise<void> {
               },
               selected,
               dirConfig.namespaces || { exclusive: ['size', 'area', 'type'], additive: ['scope', 'meta'] },
-              {
-                autoCreate: config.autoCreateLabels,
-                labelColor: config.labelColor,
-                labelDescription: config.labelDescription,
-              },
             );
 
             if (applyResult.isErr()) {

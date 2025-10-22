@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - TBD
 
+### Documentation
+
+#### 📚 README簡素化 (README Simplification)
+
+README.mdを717行から206行に簡素化し、詳細情報を`docs/`ディレクトリに分離しました。
+
+**変更内容**:
+
+- **README.md簡素化**: 730行 → 206行（目標200-300行達成）
+- **README.ja.md追加**: 日本語版READMEを同時リリース
+- **詳細ドキュメント作成**:
+  - `docs/configuration.md`: 全入力パラメータ、出力変数、デフォルト値（440行）
+  - `docs/advanced-usage.md`: 実践的な使用例と高度な設定（670行）
+  - `docs/troubleshooting.md`: よくある問題と解決策（527行）
+- **アンカー互換性維持**: 既存のアンカーリンク（日本語・英語・GitHubスラッグ対応）を保持
+- **移行通知**: README冒頭に移行通知とアーカイブリンク追加
+- **ドキュメント同期ガイドライン**: `docs/documentation-guidelines.md`に多言語同期手順を追加
+
+**アーカイブ**:
+
+以前のREADME（730行）は[pre-simplification-readme](https://github.com/jey3dayo/pr-labeler/tree/pre-simplification-readme)タグで参照可能です。
+
+**関連Issue**: #35
+
 ### BREAKING CHANGES
 
 #### 🔧 入力パラメータ簡素化 (Simplify Label Inputs)
@@ -59,15 +83,15 @@ complexity_thresholds: '{"medium": 10, "high": 20}'
 
 **新規inputs**:
 
-- `fail_on_large_files` - 大きなファイル（`auto:large-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
-- `fail_on_too_many_files` - ファイル数超過（`auto:too-many-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
+- `fail_on_large_files` - 大きなファイル（`auto/large-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
+- `fail_on_too_many_files` - ファイル数超過（`auto/too-many-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
 - `fail_on_pr_size` - PRサイズが指定閾値以上の場合にワークフロー失敗（デフォルト: `""`）
   - 有効値: `"small"` | `"medium"` | `"large"` | `"xlarge"` | `"xxlarge"`
   - `size_enabled: "true"`が必要
 
 **主な特徴**:
 
-- ラベル（例: `auto:large-files`）または実際の違反のいずれかが該当すれば失敗
+- ラベル（例: `auto/large-files`）または実際の違反のいずれかが該当すれば失敗
 - 各失敗条件を個別に有効/無効化可能
 - 多言語対応（日本語・英語）の失敗メッセージ
 

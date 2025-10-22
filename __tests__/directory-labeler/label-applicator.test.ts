@@ -62,10 +62,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       });
       mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
 
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES, {
-        autoCreate: false,
-      });
-
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const applyResult: ApplyResult = result.value;
@@ -96,11 +93,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
         data: [{ name: 'area:components' }],
       });
-
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES, {
-        autoCreate: false,
-      });
-
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const applyResult: ApplyResult = result.value;
@@ -134,10 +127,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       mockOctokit.rest.issues.removeLabel.mockResolvedValue({ data: {} });
       mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
 
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, namespaces, {
-        autoCreate: false,
-      });
-
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, namespaces);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const applyResult: ApplyResult = result.value;
@@ -151,7 +141,6 @@ describe('Directory-Based Labeler: Label Applicator', () => {
         issue_number: 123,
         name: 'area:components',
       });
-
       expect(mockOctokit.rest.issues.addLabels).toHaveBeenCalledWith({
         owner: 'test-owner',
         repo: 'test-repo',
@@ -181,10 +170,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       });
       mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
 
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, namespaces, {
-        autoCreate: false,
-      });
-
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, namespaces);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const applyResult: ApplyResult = result.value;
@@ -217,10 +203,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       });
       mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
 
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES, {
-        autoCreate: false,
-      });
-
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const applyResult: ApplyResult = result.value;
@@ -231,7 +214,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       expect(mockOctokit.rest.issues.removeLabel).not.toHaveBeenCalled();
     });
 
-    test('auto_create_labels: ラベルが未存在の場合に作成', async () => {
+    test('ラベルが未存在の場合に自動作成（固定値: color=cccccc, description=""）', async () => {
       const decisions: LabelDecision[] = [
         {
           label: 'area:new-module',
@@ -245,32 +228,24 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
         data: [],
       });
-
       // 1回目のaddLabels呼び出し（バッチ処理）で422エラー
       mockOctokit.rest.issues.addLabels.mockRejectedValueOnce({
         status: 422,
         message: 'Validation Failed',
       });
-
       // 2回目のaddLabels呼び出し（createMissingLabels内の個別処理）でも422エラー
       mockOctokit.rest.issues.addLabels.mockRejectedValueOnce({
         status: 422,
         message: 'Validation Failed',
       });
-
       // ラベル作成
       mockOctokit.rest.issues.createLabel.mockResolvedValue({
         data: { name: 'area:new-module', color: 'cccccc', description: '' },
       });
-
       // 3回目のaddLabels呼び出し（ラベル作成後の適用）で成功
       mockOctokit.rest.issues.addLabels.mockResolvedValue({ data: [] });
 
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES, {
-        autoCreate: true,
-        labelColor: 'ff0000',
-        labelDescription: 'Auto-created label',
-      });
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -282,8 +257,8 @@ describe('Directory-Based Labeler: Label Applicator', () => {
         owner: 'test-owner',
         repo: 'test-repo',
         name: 'area:new-module',
-        color: 'ff0000',
-        description: 'Auto-created label',
+        color: 'cccccc',
+        description: '',
       });
     });
 
@@ -301,21 +276,15 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
         data: [],
       });
-
       mockOctokit.rest.issues.addLabels.mockRejectedValue({
         status: 422,
         message: 'Validation Failed',
       });
-
       mockOctokit.rest.issues.createLabel.mockRejectedValue({
         status: 403,
         message: 'Permission denied',
       });
-
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES, {
-        autoCreate: true,
-      });
-
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const applyResult: ApplyResult = result.value;
@@ -331,11 +300,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
       mockOctokit.rest.issues.listLabelsOnIssue.mockResolvedValue({
         data: [],
       });
-
-      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES, {
-        autoCreate: false,
-      });
-
+      const result = await applyDirectoryLabels(mockOctokit as never, context, decisions, DEFAULT_NAMESPACES);
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const applyResult: ApplyResult = result.value;

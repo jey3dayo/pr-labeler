@@ -67,12 +67,12 @@ inputs:
   large_files_label:
     description: "Label for files exceeding size or line limits"
     required: false
-    default: "auto:large-files"
+    default: "auto/large-files"
 
   too_many_files_label:
     description: "Label for PRs with too many files"
     required: false
-    default: "auto:too-many-files"
+    default: "auto/too-many-files"
 
   too_many_lines_label:
     description: "Label for files exceeding line count limits"
@@ -131,18 +131,6 @@ inputs:
     description: "Path to directory labeler configuration file"
     required: false
     default: ".github/directory-labeler.yml"
-  auto_create_labels:
-    description: "Automatically create labels if they don't exist"
-    required: false
-    default: "false"
-  label_color:
-    description: "Color for auto-created labels (hex code without #)"
-    required: false
-    default: "cccccc"
-  label_description:
-    description: "Description for auto-created labels"
-    required: false
-    default: ""
   max_labels:
     description: "Maximum number of labels to apply (0 for unlimited)"
     required: false

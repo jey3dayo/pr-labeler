@@ -1,6 +1,6 @@
 # 📚 ドキュメント管理ガイドライン
 
-**最終更新**: 2025-10-15
+**最終更新**: 2025-10-22
 **対象**: 開発者・コントリビューター
 **タグ**: `category/documentation`, `audience/developer`
 
@@ -139,6 +139,103 @@ pr-labeler/
 - 本文書のタグ体系セクションを更新
 - 既存ドキュメントへの影響を確認
 
+## 🌐 多言語ドキュメント管理
+
+### README同期手順
+
+**README.md（英語）を更新した場合**:
+
+1. README.ja.md（日本語）を同じ構造で更新する
+2. セクション順序を完全に一致させる
+3. アンカーIDを同期させる：
+   - 日本語: `<a id="使用方法"></a>`
+   - ハイフン付き: `<a id="-使用方法"></a>` （GitHubの絵文字付き見出し自動スラッグ対応）
+   - 英語: `<a id="usage"></a>`
+4. 言語選択リンクを確認する
+5. 両ファイルの行数が大きく乖離していないことを確認する（±10%以内推奨）
+
+**README.ja.md（日本語）を更新した場合**:
+
+- 上記の逆順で README.md（英語）を更新する
+
+### action.yml同期手順
+
+**action.yml の inputs セクションを更新した場合**:
+
+1. `docs/configuration.md` の Input Parameters セクションを更新する
+2. 以下の内容を同期させる：
+   - パラメータ名
+   - 必須/任意の区分
+   - デフォルト値
+   - 説明文
+3. 新規パラメータの場合：
+   - 適切なカテゴリ（Basic Limits, Label Settings, etc.）に追加
+   - 使用例を記載
+   - Advanced Usage に詳細な使用例を追加（必要な場合）
+
+**action.yml の outputs セクションを更新した場合**:
+
+1. `docs/configuration.md` の Output Variables セクションを更新する
+2. 変数名、型、説明、例を同期させる
+
+### 新機能追加時のドキュメント更新要件
+
+新機能を追加する際は、以下のドキュメントを更新する必要があります：
+
+**必須**:
+
+1. **README.md / README.ja.md**: 新機能の概要を Key Features に追加
+2. **docs/configuration.md**: 新規入力パラメータ/出力変数を追加
+3. **CHANGELOG.md**: 変更内容を記録
+
+**推奨**:
+
+1. **docs/advanced-usage.md**: 実践的な使用例を追加
+2. **docs/troubleshooting.md**: 想定される問題と解決策を追加
+3. **action.yml**: description を更新（機能変更の場合）
+
+**チェックリスト**:
+
+- [ ] README.md と README.ja.md を同期更新
+- [ ] action.yml と docs/configuration.md を同期更新
+- [ ] 新機能の使用例を docs/advanced-usage.md に追加
+- [ ] トラブルシューティング情報を追加（該当する場合）
+- [ ] CHANGELOG.md に変更を記録
+- [ ] 全ドキュメント内のリンクが正しく動作することを確認
+
+### docs/ の多言語化（将来計画）
+
+現在、`docs/` ディレクトリは英語のみですが、将来的に日本語版を追加する場合は以下の構造を使用します：
+
+```
+pr-labeler/
+├── README.md            # 英語（エントリーポイント）
+├── README.ja.md         # 日本語（エントリーポイント）
+├── docs/
+│   ├── en/              # 英語ドキュメント
+│   │   ├── configuration.md
+│   │   ├── advanced-usage.md
+│   │   ├── troubleshooting.md
+│   │   ├── API.md
+│   │   └── release-process.md
+│   └── ja/              # 日本語ドキュメント
+│       ├── configuration.md
+│       ├── advanced-usage.md
+│       ├── troubleshooting.md
+│       ├── API.md
+│       └── release-process.md
+```
+
+**移行手順**:
+
+1. `docs/` 配下に `en/` と `ja/` サブディレクトリを作成
+2. 既存の英語ドキュメントを `docs/en/` に移動
+3. 日本語版を `docs/ja/` に作成
+4. README.md と README.ja.md のリンクを更新
+5. 相互リンク（言語切り替えリンク）を各ドキュメントに追加
+
+**注意**: 現在は英語のみのため、`docs/` 直下にドキュメントを配置しています。
+
 ## 📏 ドキュメントサイズ管理
 
 ### 推奨サイズ
@@ -229,6 +326,11 @@ const example = "code";
 
 ## 🔄 更新履歴
 
+- **2025-10-22**: README簡素化に伴う多言語ドキュメント管理セクション追加
+  - README同期手順追加
+  - action.yml同期手順追加
+  - 新機能追加時のドキュメント更新要件追加
+  - docs/の多言語化計画追加
 - **2025-10-15**: 初版作成、基本的なガイドライン策定
 
 ---

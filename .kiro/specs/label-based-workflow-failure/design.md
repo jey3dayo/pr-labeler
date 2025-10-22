@@ -171,11 +171,11 @@ flowchart LR
     G --> H
 
     H --> I{fail_on_large_files?}
-    I -->|Yes| J{auto:large-files<br/>OR<br/>violations.largeFiles?}
+    I -->|Yes| J{auto/large-files<br/>OR<br/>violations.largeFiles?}
     J -->|Yes| K[failures配列に追加]
 
     H --> L{fail_on_too_many_files?}
-    L -->|Yes| M{auto:too-many-files<br/>OR<br/>violations.exceedsFileCount?}
+    L -->|Yes| M{auto/too-many-files<br/>OR<br/>violations.exceedsFileCount?}
     M -->|Yes| K
 
     H --> N{fail_on_pr_size?}
@@ -300,12 +300,12 @@ inputs:
 
   # 🔧 新規追加: デフォルト値を空文字列("")に設定
   fail_on_large_files:
-    description: "Fail workflow if large files are detected (labeled with auto:large-files or auto:too-many-lines)"
+    description: "Fail workflow if large files are detected (labeled with auto/large-files or auto:too-many-lines)"
     required: false
     default: ""  # 空文字列 = 未指定
 
   fail_on_too_many_files:
-    description: "Fail workflow if too many files are detected (labeled with auto:too-many-files)"
+    description: "Fail workflow if too many files are detected (labeled with auto/too-many-files)"
     required: false
     default: ""  # 空文字列 = 未指定
 
