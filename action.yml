@@ -79,6 +79,11 @@ inputs:
     required: false
     default: "auto:too-many-files"
 
+  too_many_lines_label:
+    description: "Label for files exceeding line count limits"
+    required: false
+    default: "auto:too-many-lines"
+
   # 動作設定
   skip_draft_pr:
     description: "Skip check for draft PRs"
@@ -92,7 +97,7 @@ inputs:
 
   # Label-Based Workflow Failure Control
   fail_on_large_files:
-    description: "Fail workflow if large files are detected (labeled with auto:large-files or auto:too-many-lines)"
+    description: "Fail workflow if large files are detected (labeled with large_files_label or too_many_lines_label)"
     required: false
     default: ""
 

@@ -42,6 +42,7 @@ export interface ActionInputs {
   risk_enabled: string;
   large_files_label: string;
   too_many_files_label: string;
+  too_many_lines_label: string;
   skip_draft_pr: string;
   comment_on_pr: string;
   // Label-Based Workflow Failure Control
@@ -135,6 +136,7 @@ export function getActionInputs(): ActionInputs {
     risk_enabled: core.getInput('risk_enabled') || 'true',
     large_files_label: core.getInput('large_files_label') || 'auto:large-files',
     too_many_files_label: core.getInput('too_many_files_label') || 'auto:too-many-files',
+    too_many_lines_label: core.getInput('too_many_lines_label') || 'auto:too-many-lines',
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
     comment_on_pr: core.getInput('comment_on_pr') || 'auto',
     // Label-Based Workflow Failure Control

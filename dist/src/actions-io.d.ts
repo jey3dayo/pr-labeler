@@ -19,6 +19,7 @@ export interface ActionInputs {
     risk_enabled: string;
     large_files_label: string;
     too_many_files_label: string;
+    too_many_lines_label: string;
     skip_draft_pr: string;
     comment_on_pr: string;
     fail_on_large_files: string;

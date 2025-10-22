@@ -44,6 +44,7 @@ export interface Config {
     riskEnabled: boolean;
     largeFilesLabel: string;
     tooManyFilesLabel: string;
+    tooManyLinesLabel: string;
     skipDraftPr: boolean;
     commentOnPr: 'auto' | 'always' | 'never';
     failOnLargeFiles: boolean;

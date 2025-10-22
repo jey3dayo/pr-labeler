@@ -33,6 +33,7 @@ describe('FailureEvaluator', () => {
     riskEnabled: true,
     largeFilesLabel: 'auto:large-files',
     tooManyFilesLabel: 'auto:too-many-files',
+    tooManyLinesLabel: 'auto:too-many-lines',
     skipDraftPr: true,
     commentOnPr: 'auto',
     failOnLargeFiles: false,
@@ -319,7 +320,8 @@ describe('FailureEvaluator', () => {
 
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(1);
-        expect(failures[0]).toContain('size/large');
+        // Size label is normalized from "size/large" to "large"
+        expect(failures[0]).toContain('large');
         expect(failures[0]).toContain('medium');
       });
 
@@ -342,7 +344,8 @@ describe('FailureEvaluator', () => {
 
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(1);
-        expect(failures[0]).toContain('size/large'); // 600 is in large range
+        // Size is calculated as "large", not "size/large"
+        expect(failures[0]).toContain('large'); // 600 is in large range
       });
 
       it('should detect excessive changes from label', () => {
@@ -388,7 +391,8 @@ describe('FailureEvaluator', () => {
         // Should have 2 failures: excessive changes + prSize (xxlarge >= large)
         expect(failures).toHaveLength(2);
         expect(failures.some(f => f.includes('PR additions exceed limit'))).toBe(true);
-        expect(failures.some(f => f.includes('size/xxlarge'))).toBe(true);
+        // Size is calculated as "xxlarge", not "size/xxlarge"
+        expect(failures.some(f => f.includes('xxlarge'))).toBe(true);
       });
 
       it('should not fail when threshold not met', () => {
@@ -468,7 +472,8 @@ describe('FailureEvaluator', () => {
         expect(failures).toHaveLength(3);
         expect(failures.some(f => f.includes('Large files detected'))).toBe(true);
         expect(failures.some(f => f.includes('Too many files in PR'))).toBe(true);
-        expect(failures.some(f => f.includes('size/large'))).toBe(true);
+        // Size label is normalized from "size/large" to "large"
+        expect(failures.some(f => f.includes('large'))).toBe(true);
       });
 
       it('should handle largeFiles and tooManyFiles simultaneously without duplication', () => {

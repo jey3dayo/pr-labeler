@@ -62,9 +62,9 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
     }
   }
 
-  // Additional check: fail_on_large_files also covers per-file line count violations (auto:too-many-lines)
+  // Additional check: fail_on_large_files also covers per-file line count violations
   if (config.failOnLargeFiles) {
-    const hasTooManyLinesLabel = appliedLabels?.includes('auto:too-many-lines') ?? false;
+    const hasTooManyLinesLabel = appliedLabels?.includes(config.tooManyLinesLabel) ?? false;
     const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
     if (hasTooManyLinesLabel || hasTooManyLinesViolation) {
       if (!failureKeys.has('tooManyLines')) {
@@ -92,7 +92,8 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
     let actualSize: string;
 
     if (sizeLabel) {
-      actualSize = sizeLabel; // "size/large"
+      // Normalize "size/large" -> "large"
+      actualSize = sizeLabel.replace(/^size\//, '');
     } else {
       // Calculate size category from totalAdditions if no label applied
       actualSize = calculateSizeCategory(metrics.totalAdditions, sizeThresholds);

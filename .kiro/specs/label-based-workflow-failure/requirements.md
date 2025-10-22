@@ -156,8 +156,12 @@ Label-Based Workflow Failure Control機能は、PR Labelerアクションにお�
    ```
 
 4. WHEN `fail_on_pr_size`バリデーションエラーが発生する THEN エラーメッセージは使用言語で出力されなければならない
-   - 英語: "Invalid fail_on_pr_size value. Valid values: '', 'small', 'medium', 'large', 'xlarge', 'xxlarge'"
-   - 日本語: "fail_on_pr_sizeの値が無効です。有効な値: '', 'small', 'medium', 'large', 'xlarge', 'xxlarge'"
+   - 無効な値エラー:
+     - 英語: "Invalid fail_on_pr_size value. Valid values: '', 'small', 'medium', 'large', 'xlarge', 'xxlarge'"
+     - 日本語: "fail_on_pr_sizeの値が無効です。有効な値: '', 'small', 'medium', 'large', 'xlarge', 'xxlarge'"
+   - 設定制約エラー:
+     - 英語: "fail_on_pr_size requires size_enabled to be true"
+     - 日本語: "fail_on_pr_sizeはsize_enabledがtrueである必要があります"
 
 ### Requirement 6: テスト要件
 
@@ -190,7 +194,7 @@ Label-Based Workflow Failure Control機能は、PR Labelerアクションにお�
    - 複数パターン（パターン1〜4）のテスト
 
 6. WHEN すべてのテストが完了する THEN 既存の`fail_on_violation`に関連するテストケースは互換モードに合わせて更新され、非推奨警告や新しいマッピングの挙動を検証しなければならない
-   - 約19箇所のテストファイルを洗い出し、必要に応じて互換テストへ置き換える
+   - 5箇所のテストファイル（`__tests__/input-mapper.test.ts`, `__tests__/integration.test.ts`, `__tests__/index.test.ts`, `__tests__/i18n.test.ts`, `__tests__/actions-io.test.ts`）を洗い出し、必要に応じて互換テストへ置き換える
 
 ### Requirement 7: ドキュメント更新
 
