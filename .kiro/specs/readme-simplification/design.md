@@ -386,7 +386,7 @@ jobs:
       - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-````
+```
 
 **Next Steps**: [Configuration Guide](docs/configuration.md) | [Advanced Usage](docs/advanced-usage.md)
 
@@ -395,9 +395,6 @@ jobs:
 [Brief permissions section with workflow example]
 
 <!-- Legacy anchor compatibility -->
-
-<a id="必要な権限"></a>
-<a id="permissions"></a>
 
 ## 🔧 Input Parameters
 
@@ -411,9 +408,6 @@ For comprehensive input parameter documentation, see [Configuration Guide](docs/
 
 <!-- Legacy anchor compatibility -->
 
-<a id="入力パラメータ"></a>
-<a id="input-parameters"></a>
-
 ## 📝 Advanced Usage
 
 For real-world examples and advanced scenarios, see [Advanced Usage Guide](docs/advanced-usage.md).
@@ -425,9 +419,6 @@ For real-world examples and advanced scenarios, see [Advanced Usage Guide](docs/
 - [Custom Configuration](docs/advanced-usage.md#custom-configuration)
 
 <!-- Legacy anchor compatibility -->
-
-<a id="高度な使用例"></a>
-<a id="advanced-usage"></a>
 
 ## 📚 Documentation
 
@@ -452,6 +443,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ````
 
 **Line Count Breakdown**:
+
 - Header + badges + description: ~15 lines
 - Features: ~10 lines
 - Quick Start: ~30 lines
@@ -521,7 +513,7 @@ Brief introduction to configuration system
 ## Default Values
 - Complete list of defaults
 - Rationale for default choices
-````
+```
 
 **Preconditions**: Must match action.yml input definitions exactly
 **Postconditions**: Users can understand and configure all parameters

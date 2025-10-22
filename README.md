@@ -19,10 +19,6 @@ Intelligent PR labeling with automatic size checks, categorization, and risk ass
 
 ## 📋 Quick Start
 
-<a id="使用方法"></a>
-<a id="-使用方法"></a>
-<a id="usage"></a>
-
 ### Minimal Configuration
 
 Add this workflow to `.github/workflows/pr-check.yml`:
@@ -60,10 +56,6 @@ This will automatically apply labels based on PR size (e.g., `size/small`, `size
 
 ## 🔒 Required Permissions
 
-<a id="必要な権限"></a>
-<a id="-必要な権限"></a>
-<a id="permissions"></a>
-
 This action requires the following permissions:
 
 ```yaml
@@ -76,10 +68,6 @@ permissions:
 **Note**: For fork PRs, use the `pull_request_target` event. See [Advanced Usage - Fork PR Handling](docs/advanced-usage.md#fork-pr-handling) for details.
 
 ## 🏷️ Automatic Labels
-
-<a id="自動適用ラベル"></a>
-<a id="-自動適用ラベル"></a>
-<a id="labels"></a>
 
 ### Size Labels
 
@@ -120,10 +108,6 @@ Applied when limits are exceeded:
 
 ## 🔧 Input Parameters
 
-<a id="入力パラメータ"></a>
-<a id="-入力パラメータ"></a>
-<a id="input-parameters"></a>
-
 For detailed parameter documentation, see **[Configuration Guide](docs/configuration.md)**.
 
 **Quick Reference**:
@@ -135,10 +119,6 @@ For detailed parameter documentation, see **[Configuration Guide](docs/configura
 - **Multi-language**: `language` (en/ja)
 
 ## 📝 Advanced Usage
-
-<a id="高度な使用例"></a>
-<a id="-高度な使用例"></a>
-<a id="advanced-usage"></a>
 
 For real-world examples and advanced configurations, see **[Advanced Usage Guide](docs/advanced-usage.md)**.
 
