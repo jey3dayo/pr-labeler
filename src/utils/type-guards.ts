@@ -24,10 +24,10 @@ export function isString(value: unknown): value is string {
 }
 
 /**
- * Checks whether a value is a number
+ * Checks whether a value is a number (finite)
  */
 export function isNumber(value: unknown): value is number {
-  return typeof value === 'number';
+  return typeof value === 'number' && Number.isFinite(value);
 }
 
 /**

@@ -1,7 +1,6 @@
 import { hasProperty, isNumber, isObject, isString } from '../utils/type-guards.js';
 export { hasProperty, isBoolean, isNumber, isObject, isRecord, isString } from '../utils/type-guards.js';
 import type { ComplexityAnalysisError } from './types.js';
-
 /**
  * Type guard functions for runtime type checking
  */

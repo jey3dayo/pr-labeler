@@ -73,7 +73,8 @@
   },
   "draft": {
     "skipping": "Skipping draft PR as skip_draft_pr is enabled",
-    "summaryWritten": "Summary written for draft PR"
+    "summaryWritten": "Summary written for draft PR",
+    "summaryWriteFailed": "Failed to write draft PR summary: {{message}}"
   },
   "violations": {
     "detected": "Violations detected:",
