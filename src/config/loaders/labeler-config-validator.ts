@@ -33,6 +33,17 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
     }
   }
 
+  if (cfg.summary !== undefined) {
+    if (typeof cfg.summary !== 'object' || cfg.summary === null) {
+      return errAsync(createConfigurationError('summary', cfg.summary, 'summary must be an object'));
+    }
+
+    const summary = cfg.summary as { title?: unknown };
+    if (summary.title !== undefined && typeof summary.title !== 'string') {
+      return errAsync(createConfigurationError('summary.title', summary.title, 'summary.title must be a string'));
+    }
+  }
+
   if (cfg.size?.thresholds) {
     const { small, medium, large, xlarge } = cfg.size.thresholds;
 
@@ -231,6 +242,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
   const knownKeys = [
     'language',
+    'summary',
     'size',
     'complexity',
     'categoryLabeling',
@@ -251,6 +263,13 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerConfig {
   return {
     ...(userConfig.language !== undefined && { language: userConfig.language }),
+    ...(userConfig.summary?.title
+      ? {
+          summary: {
+            title: userConfig.summary.title,
+          },
+        }
+      : {}),
     size: {
       enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
       thresholds: {

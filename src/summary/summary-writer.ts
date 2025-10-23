@@ -8,6 +8,7 @@ import { errAsync, okAsync, Result, ResultAsync } from 'neverthrow';
 
 import { logDebug, logInfo, logWarning } from '../actions-io';
 import { ensureError } from '../errors/index.js';
+import { t } from '../i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from '../labeler-types';
 import {
   formatBasicMetrics,
@@ -38,18 +39,26 @@ export interface SummaryWriteResult {
   bytesWritten?: number;
 }
 
+export interface SummaryWriteOptions {
+  disabledFeatures?: string[];
+  title?: string;
+}
+
 /**
  * Build markdown body for GitHub Actions Summary output.
  */
 function buildSummaryMarkdown(
   analysis: AnalysisResult,
   complexity?: { metrics: ComplexityMetrics; config: ComplexityConfig; context: SummaryContext },
-  options?: { disabledFeatures?: string[] },
+  options?: SummaryWriteOptions,
 ): Result<string, Error> {
   return Result.fromThrowable(
     () => {
+      const trimmedTitle = options?.title?.trim();
+      const summaryTitle = trimmedTitle && trimmedTitle.length > 0 ? trimmedTitle : t('summary', 'overview.title');
+
       let markdown = '';
-      markdown += '# 📊 PR Labeler\n\n';
+      markdown += `# 📊 ${summaryTitle}\n\n`;
       markdown += formatBasicMetrics(analysis.metrics);
       markdown += formatViolations(analysis.violations);
 
@@ -106,7 +115,7 @@ export function writeSummaryWithAnalysis(
   analysis: AnalysisResult,
   config: { enableSummary: boolean },
   complexity?: { metrics: ComplexityMetrics; config: ComplexityConfig; context: SummaryContext },
-  options?: { disabledFeatures?: string[] },
+  options?: SummaryWriteOptions,
 ): ResultAsync<SummaryWriteResult, Error> {
   if (!config.enableSummary) {
     logDebug('Summary output skipped (enable_summary=false)');

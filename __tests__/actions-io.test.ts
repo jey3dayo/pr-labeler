@@ -346,7 +346,7 @@ describe('GitHub Actions I/O', () => {
 
       // Verify markdown content includes expected sections
       const markdown = mockSummary.addRaw.mock.calls[0][0];
-      expect(markdown).toContain('# 📊 PR Labeler');
+      expect(markdown).toContain('# 📊 PR Metrics Overview');
       expect(markdown).toContain('### 📈 Basic Metrics');
       expect(markdown).toContain('Total Additions:');
     });
@@ -377,6 +377,43 @@ describe('GitHub Actions I/O', () => {
       if (result.isErr()) {
         expect(result.error.message).toContain('Failed to write GitHub Actions Summary');
       }
+    });
+
+    it('should respect custom summary title when provided', async () => {
+      const analysis: AnalysisResult = {
+        metrics: {
+          totalFiles: 1,
+          totalAdditions: 42,
+          filesAnalyzed: [
+            {
+              path: 'src/custom.ts',
+              size: 1024,
+              lines: 80,
+              additions: 40,
+              deletions: 5,
+            },
+          ],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [],
+          exceedsFileLines: [],
+          exceedsAdditions: false,
+          exceedsFileCount: false,
+        },
+      };
+
+      mockSummary.addRaw.mockClear();
+
+      const result = await writeSummaryWithAnalysis(analysis, { enableSummary: true }, undefined, {
+        title: 'Custom Summary Title',
+      });
+
+      expect(result.isOk()).toBe(true);
+      const markdown = mockSummary.addRaw.mock.calls[0][0];
+      expect(markdown).toContain('# 📊 Custom Summary Title');
     });
 
     it('should include violations in summary', async () => {
