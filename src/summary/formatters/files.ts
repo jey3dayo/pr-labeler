@@ -1,7 +1,7 @@
 import type { Violations } from '../../errors/index.js';
 import { t } from '../../i18n.js';
 import type { FileMetrics } from '../../types/analysis.js';
-import { formatBytes, formatNumber, escapeMarkdown } from './common.js';
+import { escapeMarkdown, formatBytes, formatNumber } from './common.js';
 
 export function formatFileDetails(files: FileMetrics[], limit?: number): string {
   if (files.length === 0) {

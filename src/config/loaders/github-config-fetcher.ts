@@ -2,7 +2,12 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 
-import { createConfigurationError, ensureError, extractErrorStatus, type ConfigurationError } from '../../errors/index.js';
+import {
+  type ConfigurationError,
+  createConfigurationError,
+  ensureError,
+  extractErrorStatus,
+} from '../../errors/index.js';
 
 export const CONFIG_FILE_PATH = '.github/pr-labeler.yml';
 export const MAX_CONFIG_SIZE = 1024 * 1024; // 1MB
@@ -17,9 +22,7 @@ export interface FetchRepositoryConfigParams {
 /**
  * Fetch configuration file content from GitHub repository
  */
-export function fetchRepositoryConfig(
-  params: FetchRepositoryConfigParams,
-): ResultAsync<string, ConfigurationError> {
+export function fetchRepositoryConfig(params: FetchRepositoryConfigParams): ResultAsync<string, ConfigurationError> {
   const { token, owner, repo, ref } = params;
   const octokit = github.getOctokit(token);
 

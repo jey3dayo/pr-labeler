@@ -1,17 +1,15 @@
 import { ResultAsync } from 'neverthrow';
 
-import type { ConfigurationError } from './errors/index.js';
-import type { LabelerConfig } from './labeler-types.js';
 import {
   CONFIG_FILE_PATH,
   fetchRepositoryConfig,
   type FetchRepositoryConfigParams,
 } from './config/loaders/github-config-fetcher.js';
+import { mergeWithDefaults, validateLabelerConfig } from './config/loaders/labeler-config-validator.js';
 import { parseYamlContent } from './config/loaders/yaml-config-parser.js';
-import {
-  mergeWithDefaults,
-  validateLabelerConfig,
-} from './config/loaders/labeler-config-validator.js';
+import type { ConfigurationError } from './errors/index.js';
+import type { LabelerConfig } from './labeler-types.js';
+import { DEFAULT_LABELER_CONFIG } from './labeler-types.js';
 
 export { CONFIG_FILE_PATH, mergeWithDefaults, validateLabelerConfig };
 

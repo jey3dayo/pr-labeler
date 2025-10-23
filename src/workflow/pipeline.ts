@@ -29,24 +29,21 @@ import { getDefaultLabelerConfig, loadConfig } from '../config-loader';
 import type { DiffFile } from '../diff-strategy';
 import { getDiffFiles } from '../diff-strategy';
 import { loadDirectoryLabelerConfig } from '../directory-labeler/config-loader.js';
-import {
-  decideLabelsForFiles,
-  filterByMaxLabels,
-} from '../directory-labeler/decision-engine.js';
+import { decideLabelsForFiles, filterByMaxLabels } from '../directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from '../directory-labeler/label-applicator.js';
 import { loadEnvironmentConfig } from '../environment-loader.js';
-import { PRFailureEvaluator } from './policy/pr-failure-evaluator';
 import { analyzeFiles } from '../file-metrics';
-import type { ComplexityMetrics, LabelerConfig, PRMetrics } from '../labeler-types';
+import { initializeI18n, t } from '../i18n.js';
+import { parseActionInputs } from '../input-parser.js';
 import { applyLabels } from '../label-applicator';
 import { decideLabels } from '../label-decision-engine';
 import { getCurrentPRLabels } from '../label-manager.js';
-import { initializeI18n, t } from '../i18n.js';
-import { parseActionInputs } from '../input-parser.js';
-import type { AnalysisResult } from '../types/analysis.js';
-import type { PRContext } from '../types';
+import type { ComplexityMetrics, LabelerConfig, PRMetrics } from '../labeler-types';
 import type { SummaryWriteResult } from '../summary/summary-writer';
 import { writeSummaryWithAnalysis } from '../summary/summary-writer';
+import type { PRContext } from '../types';
+import type { AnalysisResult } from '../types/analysis.js';
+import { evaluatePRFailures } from './policy/pr-failure-evaluator';
 
 /**
  * Pull Request execution context
@@ -116,9 +113,7 @@ export async function initializeAction(): Promise<InitializationArtifacts> {
 /**
  * Analyze diff files and optional complexity metrics
  */
-export async function analyzePullRequest(
-  context: InitializationArtifacts,
-): Promise<AnalysisArtifacts> {
+export async function analyzePullRequest(context: InitializationArtifacts): Promise<AnalysisArtifacts> {
   const { token, prContext, config, labelerConfig } = context;
 
   logInfoI18n('analysis.gettingDiff');
@@ -236,21 +231,20 @@ export async function analyzePullRequest(
     }
   }
 
-  return {
+  const artifacts: AnalysisArtifacts = {
     files,
     analysis,
     hasViolations,
-    complexityMetrics,
+    ...(complexityMetrics ? { complexityMetrics } : {}),
   };
+
+  return artifacts;
 }
 
 /**
  * Apply PR labels including directory-based labeling
  */
-export async function applyLabelsStage(
-  context: InitializationArtifacts,
-  artifacts: AnalysisArtifacts,
-): Promise<void> {
+export async function applyLabelsStage(context: InitializationArtifacts, artifacts: AnalysisArtifacts): Promise<void> {
   const { token, prContext, config, labelerConfig } = context;
   const { analysis, files, complexityMetrics } = artifacts;
 
@@ -434,10 +428,7 @@ export async function applyLabelsStage(
 /**
  * Finalize action by posting comments, summaries, and outputs
  */
-export async function finalizeAction(
-  context: InitializationArtifacts,
-  artifacts: AnalysisArtifacts,
-): Promise<void> {
+export async function finalizeAction(context: InitializationArtifacts, artifacts: AnalysisArtifacts): Promise<void> {
   const { token, prContext, config, labelerConfig } = context;
   const { analysis, hasViolations, complexityMetrics } = artifacts;
 
@@ -523,8 +514,7 @@ export async function finalizeAction(
     pullNumber: prContext.pullNumber,
   });
 
-  const failureEvaluator = new PRFailureEvaluator();
-  const failures = failureEvaluator.evaluate({
+  const failures = evaluatePRFailures({
     config,
     appliedLabels,
     violations: analysis.violations,

@@ -1,8 +1,5 @@
 import { Result } from 'neverthrow';
 import type { ConfigurationError } from './errors/index.js';
-import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
-import { type SummaryContext } from './report-formatter';
-import type { AnalysisResult } from './types/analysis.js';
 export interface ActionInputs {
     github_token: string;
     file_size_limit: string;
@@ -52,20 +49,6 @@ export declare function logDebug(message: string): void;
 export declare function logWarning(message: string): void;
 export declare function logError(message: string): void;
 export declare function setFailed(message: string): void;
-export declare function writeSummary(content: string): Promise<void>;
-export interface SummaryWriteResult {
-    action: 'written' | 'skipped';
-    bytesWritten?: number;
-}
-export declare function writeSummaryWithAnalysis(analysis: AnalysisResult, config: {
-    enableSummary: boolean;
-}, complexity?: {
-    metrics: ComplexityMetrics;
-    config: ComplexityConfig;
-    context: SummaryContext;
-}, options?: {
-    disabledFeatures?: string[];
-}): Promise<Result<SummaryWriteResult, Error>>;
 export declare function getPullRequestContext(): {
     owner: string;
     repo: string;

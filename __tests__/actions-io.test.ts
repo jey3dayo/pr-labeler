@@ -15,10 +15,10 @@ import {
   logWarningI18n,
   setActionOutputs,
   setFailed,
-  writeSummaryWithAnalysis,
 } from '../src/actions-io';
 import type { AnalysisResult } from '../src/file-metrics';
 import { resetI18n } from '../src/i18n';
+import { writeSummaryWithAnalysis } from '../src/summary/summary-writer';
 import { clearGitHubTokens, setupI18nTestEnglish, setupI18nTestJapanese } from './__fixtures__/index.js';
 
 // Mock @actions/core

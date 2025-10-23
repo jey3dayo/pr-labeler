@@ -1,10 +1,7 @@
 import * as core from '@actions/core';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 
-import {
-  createConfigurationError,
-  type ConfigurationError,
-} from '../../errors/index.js';
+import { type ConfigurationError, createConfigurationError } from '../../errors/index.js';
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
 
@@ -160,7 +157,9 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
       const cat = category as { label?: unknown; patterns?: unknown; display_name?: unknown };
 
       if (typeof cat.label !== 'string') {
-        return errAsync(createConfigurationError(`categories[${i}].label`, cat.label, 'Category label must be a string'));
+        return errAsync(
+          createConfigurationError(`categories[${i}].label`, cat.label, 'Category label must be a string'),
+        );
       }
 
       if (!Array.isArray(cat.patterns)) {
@@ -184,13 +183,21 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
         if (typeof displayName.en !== 'string') {
           return errAsync(
-            createConfigurationError(`categories[${i}].display_name.en`, displayName.en, 'display_name.en must be a string'),
+            createConfigurationError(
+              `categories[${i}].display_name.en`,
+              displayName.en,
+              'display_name.en must be a string',
+            ),
           );
         }
 
         if (typeof displayName.ja !== 'string') {
           return errAsync(
-            createConfigurationError(`categories[${i}].display_name.ja`, displayName.ja, 'display_name.ja must be a string'),
+            createConfigurationError(
+              `categories[${i}].display_name.ja`,
+              displayName.ja,
+              'display_name.ja must be a string',
+            ),
           );
         }
       }

@@ -7,12 +7,7 @@ import { logErrorI18n, logInfoI18n, setFailed } from './actions-io';
 import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors/index.js';
 import { t } from './i18n.js';
 import { writeSummary } from './summary/summary-writer';
-import {
-  analyzePullRequest,
-  applyLabelsStage,
-  finalizeAction,
-  initializeAction,
-} from './workflow/pipeline';
+import { analyzePullRequest, applyLabelsStage, finalizeAction, initializeAction } from './workflow/pipeline';
 
 /**
  * Main action function orchestrating the workflow pipeline

@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import * as yaml from 'js-yaml';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 
-import { createConfigurationError, ensureError, type ConfigurationError } from '../../errors/index.js';
+import { type ConfigurationError, createConfigurationError, ensureError } from '../../errors/index.js';
 import { CONFIG_FILE_PATH } from './github-config-fetcher.js';
 
 /**

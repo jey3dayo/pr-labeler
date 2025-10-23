@@ -1,17 +1,12 @@
 /**
- * PR failure evaluation policy wrapper
+ * PR failure evaluation policy helper
  */
 
 import type { FailureEvaluationInput } from '../../failure-evaluator.js';
 import { evaluateFailureConditions } from '../../failure-evaluator.js';
 
-/**
- * Thin wrapper to encapsulate failure evaluation rules
- */
-export class PRFailureEvaluator {
-  public evaluate(input: FailureEvaluationInput): string[] {
-    return evaluateFailureConditions(input);
-  }
+export function evaluatePRFailures(input: FailureEvaluationInput): string[] {
+  return evaluateFailureConditions(input);
 }
 
 export type { FailureEvaluationInput };
