@@ -1,8 +1,8 @@
 import { Result } from 'neverthrow';
 import type { DiffFile } from './diff-strategy';
 import type { FileAnalysisError } from './errors/index.js';
-import type { AnalysisResult, FileMetrics } from './types/analysis.js';
-export type { AnalysisResult, FileMetrics };
+import type { AnalysisResult, FileMetrics, Metrics } from './types/analysis.js';
+export type { AnalysisResult, FileMetrics, Metrics };
 interface RepoContext {
     owner: string;
     repo: string;

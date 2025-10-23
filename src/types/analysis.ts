@@ -18,14 +18,19 @@ export interface FileMetrics {
 /**
  * Analysis result with metrics and violations
  */
+export interface Metrics {
+  totalFiles: number;
+  totalAdditions: number;
+  filesAnalyzed: FileMetrics[];
+  filesExcluded: string[];
+  filesSkippedBinary: string[];
+  filesWithErrors: string[];
+}
+
+/**
+ * Analysis result with metrics and violations
+ */
 export interface AnalysisResult {
-  metrics: {
-    totalFiles: number;
-    totalAdditions: number;
-    filesAnalyzed: FileMetrics[];
-    filesExcluded: string[];
-    filesSkippedBinary: string[];
-    filesWithErrors: string[];
-  };
+  metrics: Metrics;
   violations: Violations;
 }

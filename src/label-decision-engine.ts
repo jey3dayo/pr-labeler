@@ -9,6 +9,7 @@ import { ok, Result } from 'neverthrow';
 import { allCIPassed, anyCIFailed } from './ci-status.js';
 import type { LabelDecisions, LabelerConfig, LabelReasoning, PRMetrics } from './labeler-types.js';
 import type { ChangeType, PRContext } from './types.js';
+import { extractNamespace, matchesNamespacePattern } from './utils/namespace-utils.js';
 import { calculateSizeLabel } from './utils/size-label-utils.js';
 
 /**
@@ -395,31 +396,4 @@ function determineLabelsToRemove(labelsToAdd: string[], policies: Record<string,
   // Return list of namespace patterns to remove
   // The actual removal will be done by comparing with current labels in the applicator
   return Array.from(namespacesToReplace);
-}
-
-/**
- * Extract namespace from label (e.g., "size/small" -> "size")
- *
- * @param label - Full label name
- * @returns Namespace or null if no slash found
- */
-function extractNamespace(label: string): string | null {
-  const slashIndex = label.indexOf('/');
-  if (slashIndex === -1) {
-    return null;
-  }
-  return label.substring(0, slashIndex);
-}
-
-/**
- * Check if namespace matches a pattern (supports wildcard)
- *
- * @param namespace - Namespace string (e.g., "size")
- * @param pattern - Pattern string (e.g., "size/*" or "size")
- * @returns True if namespace matches pattern
- */
-function matchesNamespacePattern(namespace: string, pattern: string): boolean {
-  // Remove trailing /* if present
-  const normalizedPattern = pattern.endsWith('/*') ? pattern.slice(0, -2) : pattern;
-  return namespace === normalizedPattern;
 }

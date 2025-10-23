@@ -13,27 +13,13 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > best-practices-en 1`] = `
-"### 📚 Best Practices
-
-#### Recommended PR Size
-- ✅ **Recommended: Under 400 lines**
-  - Review time: 15-30 minutes
-  - Bug detection rate: High
-- ⚠️ **Acceptable: 400-1000 lines**
-  - Review time: 1-2 hours
-  - Incremental review recommended
-- 🚫 **Avoid: Over 1000 lines**
-  - Review efficiency significantly decreases
-  - Higher risk of missing bugs
+"<details>
+<summary>📚 Best Practices (Click to expand)</summary>
 
 #### File Size Guidelines
 - Aim for under 500 lines per file
 - For complex files, under 300 lines is ideal
-
-#### Review Efficiency Tips
-- Smaller PRs merge faster and reduce CI/CD load
-- Large PRs tend to require multiple review rounds
-- Group related changes together to minimize context switching
+</details>
 
 "
 `;
@@ -112,27 +98,13 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > best-practices-ja 1`] = `
-"### 📚 ベストプラクティス
-
-#### 推奨PRサイズ
-- ✅ **推奨: 400行未満**
-  - レビュー時間: 15-30分
-  - バグ検出率: 高
-- ⚠️ **許容範囲: 400-1000行**
-  - レビュー時間: 1-2時間
-  - 段階的なレビューを推奨
-- 🚫 **避けるべき: 1000行超**
-  - レビュー効率が大幅に低下
-  - バグ見逃しのリスクが高まる
+"<details>
+<summary>📚 ベストプラクティス (クリックして展開)</summary>
 
 #### ファイルサイズガイドライン
 - 1ファイルあたり500行未満を目指す
 - 複雑なファイルの場合、300行未満が理想的
-
-#### レビュー効率向上のヒント
-- 小さなPRはマージが早く、CI/CD負荷も軽減
-- 大きなPRは複数回のレビューが必要になりがち
-- 関連する変更をまとめてコンテキスト切り替えを最小化
+</details>
 
 "
 `;

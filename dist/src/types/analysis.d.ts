@@ -6,14 +6,15 @@ export interface FileMetrics {
     additions: number;
     deletions: number;
 }
+export interface Metrics {
+    totalFiles: number;
+    totalAdditions: number;
+    filesAnalyzed: FileMetrics[];
+    filesExcluded: string[];
+    filesSkippedBinary: string[];
+    filesWithErrors: string[];
+}
 export interface AnalysisResult {
-    metrics: {
-        totalFiles: number;
-        totalAdditions: number;
-        filesAnalyzed: FileMetrics[];
-        filesExcluded: string[];
-        filesSkippedBinary: string[];
-        filesWithErrors: string[];
-    };
+    metrics: Metrics;
     violations: Violations;
 }

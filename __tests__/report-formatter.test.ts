@@ -762,50 +762,105 @@ describe('ReportFormatter', () => {
   });
 
   describe('formatBestPractices', () => {
-    it('should return best practices content', () => {
-      const result = formatBestPractices();
-
-      expect(result).toContain('### 📚 Best Practices');
-      expect(result).not.toBe('');
+    const createViolations = (overrides: Partial<Violations> = {}): Violations => ({
+      largeFiles: [],
+      exceedsFileLines: [],
+      exceedsAdditions: false,
+      exceedsFileCount: false,
+      ...overrides,
     });
 
-    it('should include recommended PR size guidelines', () => {
-      const result = formatBestPractices();
+    it('should return an empty string when no violations are present', () => {
+      const result = formatBestPractices(createViolations());
+
+      expect(result).toBe('');
+    });
+
+    it('should include only PR size guidelines when total additions exceed limit', () => {
+      const result = formatBestPractices(createViolations({ exceedsAdditions: true }));
 
       expect(result).toContain('#### Recommended PR Size');
       expect(result).toContain('✅ **Recommended: Under 400 lines**');
-      expect(result).toContain('Review time: 15-30 minutes');
-      expect(result).toContain('Bug detection rate: High');
-      expect(result).toContain('⚠️ **Acceptable: 400-1000 lines**');
-      expect(result).toContain('Review time: 1-2 hours');
-      expect(result).toContain('Incremental review recommended');
-      expect(result).toContain('🚫 **Avoid: Over 1000 lines**');
-      expect(result).toContain('Review efficiency significantly decreases');
-      expect(result).toContain('Higher risk of missing bugs');
+      expect(result).not.toContain('#### File Size Guidelines');
+      expect(result).not.toContain('#### Review Efficiency Tips');
     });
 
-    it('should include file size guidelines', () => {
-      const result = formatBestPractices();
+    it('should include only file size guidelines when large files are detected', () => {
+      const result = formatBestPractices(
+        createViolations({
+          largeFiles: [
+            {
+              file: 'big-file.ts',
+              actualValue: 15000,
+              limit: 10000,
+              violationType: 'size',
+              severity: 'warning',
+            },
+          ],
+        }),
+      );
 
       expect(result).toContain('#### File Size Guidelines');
-      expect(result).toContain('Aim for under 500 lines per file');
-      expect(result).toContain('For complex files, under 300 lines is ideal');
+      expect(result).not.toContain('#### Recommended PR Size');
+      expect(result).not.toContain('#### Review Efficiency Tips');
     });
 
-    it('should include review efficiency tips', () => {
-      const result = formatBestPractices();
+    it('should include file size guidelines when line count violations occur', () => {
+      const result = formatBestPractices(
+        createViolations({
+          exceedsFileLines: [
+            {
+              file: 'long-file.ts',
+              actualValue: 1200,
+              limit: 500,
+              violationType: 'lines',
+              severity: 'warning',
+            },
+          ],
+        }),
+      );
+
+      expect(result).toContain('#### File Size Guidelines');
+      expect(result).not.toContain('#### Recommended PR Size');
+      expect(result).not.toContain('#### Review Efficiency Tips');
+    });
+
+    it('should include review efficiency tips when file count exceeds limit', () => {
+      const result = formatBestPractices(createViolations({ exceedsFileCount: true }));
 
       expect(result).toContain('#### Review Efficiency Tips');
-      expect(result).toContain('Smaller PRs merge faster and reduce CI/CD load');
-      expect(result).toContain('Large PRs tend to require multiple review rounds');
-      expect(result).toContain('Group related changes together to minimize context switching');
+      expect(result).not.toContain('#### Recommended PR Size');
+      expect(result).not.toContain('#### File Size Guidelines');
     });
 
-    it('should always return the same content (idempotent)', () => {
-      const result1 = formatBestPractices();
-      const result2 = formatBestPractices();
+    it('should include all relevant sections when multiple violations exist', () => {
+      const result = formatBestPractices(
+        createViolations({
+          exceedsAdditions: true,
+          exceedsFileCount: true,
+          largeFiles: [
+            {
+              file: 'big-file.ts',
+              actualValue: 15000,
+              limit: 10000,
+              violationType: 'size',
+              severity: 'warning',
+            },
+          ],
+        }),
+      );
 
-      expect(result1).toBe(result2);
+      expect(result).toContain('#### Recommended PR Size');
+      expect(result).toContain('#### File Size Guidelines');
+      expect(result).toContain('#### Review Efficiency Tips');
+    });
+
+    it('should render content inside a collapsible details block', () => {
+      const result = formatBestPractices(createViolations({ exceedsAdditions: true }));
+
+      expect(result.startsWith('<details>')).toBe(true);
+      expect(result).toContain('<summary>📚 Best Practices (Click to expand)</summary>');
+      expect(result.trim().endsWith('</details>')).toBe(true);
     });
   });
 
@@ -919,7 +974,7 @@ describe('ReportFormatter', () => {
       );
       const fileDetails = formatFileDetails(context.analysisResult.metrics.filesAnalyzed, 10);
       const improvementActions = formatImprovementActions(context.analysisResult.violations);
-      const bestPractices = formatBestPractices();
+      const bestPractices = formatBestPractices(context.analysisResult.violations, context.analysisResult.metrics);
 
       expect(basicMetrics).toMatchSnapshot('basic-metrics-en');
       expect(violations).toMatchSnapshot('violations-en');
@@ -943,7 +998,7 @@ describe('ReportFormatter', () => {
       );
       const fileDetails = formatFileDetails(context.analysisResult.metrics.filesAnalyzed, 10);
       const improvementActions = formatImprovementActions(context.analysisResult.violations);
-      const bestPractices = formatBestPractices();
+      const bestPractices = formatBestPractices(context.analysisResult.violations, context.analysisResult.metrics);
 
       expect(basicMetrics).toMatchSnapshot('basic-metrics-ja');
       expect(violations).toMatchSnapshot('violations-ja');

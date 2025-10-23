@@ -6,7 +6,7 @@
 import type { Violations } from './errors/index.js';
 import { t } from './i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
-import type { AnalysisResult, FileMetrics } from './types/analysis.js';
+import type { AnalysisResult, FileMetrics, Metrics } from './types/analysis.js';
 import { formatFileSize, formatNumber as formatNumberWithLocale } from './utils/formatting.js';
 
 /**
@@ -368,35 +368,67 @@ export function formatImprovementActions(violations: Violations): string {
 
 /**
  * Format best practices section
- * Always displays PR size guidelines and best practices
+ * Displays relevant best practices in a collapsible block when violations exist
  * @returns Markdown formatted best practices
  */
-export function formatBestPractices(): string {
-  let output = '';
-  output += `### 📚 ${t('summary', 'bestPractices.title')}\n\n`;
+export function formatBestPractices(violations: Violations, metrics?: Metrics): string {
+  if (!hasViolations(violations)) {
+    return '';
+  }
 
-  // Recommended PR size
-  output += `#### ${t('summary', 'bestPractices.prSize.title')}\n`;
-  output += `- ✅ **${t('summary', 'bestPractices.prSize.recommended')}**\n`;
-  output += `  - ${t('summary', 'bestPractices.prSize.recommendedTime')}\n`;
-  output += `  - ${t('summary', 'bestPractices.prSize.recommendedBugRate')}\n`;
-  output += `- ⚠️ **${t('summary', 'bestPractices.prSize.acceptable')}**\n`;
-  output += `  - ${t('summary', 'bestPractices.prSize.acceptableTime')}\n`;
-  output += `  - ${t('summary', 'bestPractices.prSize.acceptableAdvice')}\n`;
-  output += `- 🚫 **${t('summary', 'bestPractices.prSize.avoid')}**\n`;
-  output += `  - ${t('summary', 'bestPractices.prSize.avoidEfficiency')}\n`;
-  output += `  - ${t('summary', 'bestPractices.prSize.avoidRisk')}\n\n`;
+  void metrics;
 
-  // File size guidelines
-  output += `#### ${t('summary', 'bestPractices.fileSize.title')}\n`;
-  output += `- ${t('summary', 'bestPractices.fileSize.under500')}\n`;
-  output += `- ${t('summary', 'bestPractices.fileSize.under300')}\n\n`;
+  const sections: string[] = [];
 
-  // Review efficiency tips
-  output += `#### ${t('summary', 'bestPractices.reviewTips.title')}\n`;
-  output += `- ${t('summary', 'bestPractices.reviewTips.smallerFaster')}\n`;
-  output += `- ${t('summary', 'bestPractices.reviewTips.largeMultiple')}\n`;
-  output += `- ${t('summary', 'bestPractices.reviewTips.groupRelated')}\n\n`;
+  if (violations.exceedsAdditions) {
+    const prSizeGuidelines = [
+      `#### ${t('summary', 'bestPractices.prSize.title')}`,
+      `- ✅ **${t('summary', 'bestPractices.prSize.recommended')}**`,
+      `  - ${t('summary', 'bestPractices.prSize.recommendedTime')}`,
+      `  - ${t('summary', 'bestPractices.prSize.recommendedBugRate')}`,
+      `- ⚠️ **${t('summary', 'bestPractices.prSize.acceptable')}**`,
+      `  - ${t('summary', 'bestPractices.prSize.acceptableTime')}`,
+      `  - ${t('summary', 'bestPractices.prSize.acceptableAdvice')}`,
+      `- 🚫 **${t('summary', 'bestPractices.prSize.avoid')}**`,
+      `  - ${t('summary', 'bestPractices.prSize.avoidEfficiency')}`,
+      `  - ${t('summary', 'bestPractices.prSize.avoidRisk')}`,
+      '',
+    ].join('\n');
+    sections.push(prSizeGuidelines);
+  }
+
+  if (violations.largeFiles.length > 0 || violations.exceedsFileLines.length > 0) {
+    const fileSizeGuidelines = [
+      `#### ${t('summary', 'bestPractices.fileSize.title')}`,
+      `- ${t('summary', 'bestPractices.fileSize.under500')}`,
+      `- ${t('summary', 'bestPractices.fileSize.under300')}`,
+      '',
+    ].join('\n');
+    sections.push(fileSizeGuidelines);
+  }
+
+  if (violations.exceedsFileCount) {
+    const reviewTips = [
+      `#### ${t('summary', 'bestPractices.reviewTips.title')}`,
+      `- ${t('summary', 'bestPractices.reviewTips.smallerFaster')}`,
+      `- ${t('summary', 'bestPractices.reviewTips.largeMultiple')}`,
+      `- ${t('summary', 'bestPractices.reviewTips.groupRelated')}`,
+      '',
+    ].join('\n');
+    sections.push(reviewTips);
+  }
+
+  if (sections.length === 0) {
+    return '';
+  }
+
+  const title = t('summary', 'bestPractices.title');
+  const expandHint = title === 'Best Practices' ? 'Click to expand' : 'クリックして展開';
+
+  let output = '<details>\n';
+  output += `<summary>📚 ${title} (${expandHint})</summary>\n\n`;
+  output += sections.join('\n');
+  output += '</details>\n\n';
 
   return output;
 }

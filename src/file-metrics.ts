@@ -17,13 +17,13 @@ import type { DiffFile } from './diff-strategy';
 import type { FileAnalysisError, ViolationDetail } from './errors/index.js';
 import { createFileAnalysisError, ensureError } from './errors/index.js';
 import { getDefaultExcludePatterns, isExcluded } from './pattern-matcher';
-import type { AnalysisResult, FileMetrics } from './types/analysis.js';
+import type { AnalysisResult, FileMetrics, Metrics } from './types/analysis.js';
 
 // Create execFileAsync using promisify
 const execFileAsync = promisify(execFile);
 
 // Re-export types from types/analysis.ts for backward compatibility
-export type { AnalysisResult, FileMetrics };
+export type { AnalysisResult, FileMetrics, Metrics };
 
 /**
  * Repository context for API calls
