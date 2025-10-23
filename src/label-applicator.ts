@@ -82,6 +82,8 @@ export function getCurrentLabels(
   ).map(response => response.data.map(label => label.name));
 }
 
+type LabelDiff = { toAdd: string[]; toRemove: string[] };
+
 /**
  * Calculate label diff based on decisions and current labels
  *
@@ -94,7 +96,7 @@ function calculateLabelDiff(
   decisions: LabelDecisions,
   currentLabels: string[],
   policies: Record<string, 'replace' | 'additive'>,
-): { toAdd: string[]; toRemove: string[] } {
+): LabelDiff {
   const toAdd: string[] = [];
   const toRemove: string[] = [];
 
@@ -139,7 +141,7 @@ function calculateLabelDiff(
 function applyLabelChanges(
   octokit: ReturnType<typeof github.getOctokit>,
   context: PRContext,
-  diff: { toAdd: string[]; toRemove: string[] },
+  diff: LabelDiff,
   _createMissing: boolean, // Future extension: auto-create missing labels
 ): ResultAsync<{ added: string[]; removed: string[]; skipped: string[]; apiCalls: number }, GitHubAPIError> {
   let apiCalls = 0;
