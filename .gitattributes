@@ -1,6 +1,9 @@
 # Generated JavaScript bundles and source maps - treat as binary
-dist/**.js binary
-dist/**.map binary
+dist/**/*.js binary
+dist/**/*.map binary
 
 # Generated type definitions
-dist/**.d.ts linguist-generated
+dist/**/*.d.ts linguist-generated
+
+# Generated license summary
+dist/licenses.txt binary
