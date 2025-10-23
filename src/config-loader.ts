@@ -91,7 +91,7 @@ export function parseYamlConfig(content: string): ResultAsync<LabelerConfig, Con
     // Validate and sanitize configuration
     return validateLabelerConfig(parsed);
   } catch (error) {
-    const err = error as Error;
+    const err = ensureError(error);
     core.warning(`Failed to parse YAML configuration: ${err.message}, using defaults`);
     return errAsync(createConfigurationError(CONFIG_FILE_PATH, content, `YAML parse error: ${err.message}`));
   }

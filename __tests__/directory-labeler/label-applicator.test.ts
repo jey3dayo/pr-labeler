@@ -290,7 +290,7 @@ describe('Directory-Based Labeler: Label Applicator', () => {
         const applyResult: ApplyResult = result.value;
         expect(applyResult.failed).toHaveLength(1);
         expect(applyResult.failed[0]?.label).toBe('area:new-module');
-        expect(applyResult.failed[0]?.reason).toContain('Unknown error occurred');
+        expect(applyResult.failed[0]?.reason).toContain('Permission denied');
       }
     });
 

@@ -40,7 +40,7 @@ export type LanguageCode = 'en' | 'ja';
  */
 declare module 'i18next' {
   interface CustomTypeOptions {
-    defaultNS: 'common';
+    defaultNS: 'summary';
     resources: TranslationResources;
   }
 }

@@ -58,7 +58,6 @@ module.exports = {
           '^(node-inspect/lib/_inspect)$',
           '^(node-inspect/lib/internal/inspect_client)$',
           '^(node-inspect/lib/internal/inspect_repl)$',
-          '^(async_hooks)$',
           '^(punycode)$',
           '^(domain)$',
           '^(constants)$',
@@ -335,7 +334,7 @@ module.exports = {
          this if you're not sure, but still use TypeScript. In a future version
          of dependency-cruiser this will likely become the default.
        */
-      mainFields: ['main', 'types'],
+      mainFields: ['module', 'main', 'types'],
     },
     reporterOptions: {
       dot: {

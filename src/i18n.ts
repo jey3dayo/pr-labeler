@@ -9,6 +9,7 @@ import { err, ok, type Result } from 'neverthrow';
 
 import { logDebug, logWarning } from './actions-io.js';
 import { createConfigurationError } from './errors/factories.js';
+import { ensureError } from './errors/helpers.js';
 import type { ConfigurationError } from './errors/types.js';
 import commonEn from './locales/en/common.json';
 import errorsEn from './locales/en/errors.json';
@@ -138,7 +139,7 @@ export function initializeI18n(language: LanguageCode): Result<void, Configurati
 
     return ok(undefined);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = ensureError(error).message;
     return err(createConfigurationError('language', language, `Failed to initialize i18n: ${errorMessage}`));
   }
 }

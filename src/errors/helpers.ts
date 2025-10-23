@@ -5,6 +5,7 @@
 
 import { logInfo, logWarning } from '../actions-io.js';
 import { BaseError, type ErrorLevel } from './base-error.js';
+import { isError, isErrorWithMessage } from './guards.js';
 
 type ErrorConstructor<T extends Error = Error> = new (message: string) => T;
 type ErrorHandler = (error: Error) => void;
@@ -47,7 +48,13 @@ export function ensureError<T extends Error>(
   if (error instanceof ErrorClass) {
     return error;
   }
-  const message = error instanceof Error ? error.message : typeof error === 'string' ? error : defaultMessage;
+  const message = isError(error)
+    ? error.message
+    : typeof error === 'string'
+      ? error
+      : isErrorWithMessage(error)
+        ? error.message
+        : defaultMessage;
   return new ErrorClass(message);
 }
 
