@@ -9,7 +9,6 @@ import { err, ok, Result } from 'neverthrow';
 
 import type { ConfigurationError } from './errors/index.js';
 import { createConfigurationError, ensureError } from './errors/index.js';
-import type { AnalysisResult } from './file-metrics';
 import { isInitialized, t } from './i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 import {
@@ -21,6 +20,7 @@ import {
   generateComplexitySummary,
   type SummaryContext,
 } from './report-formatter';
+import type { AnalysisResult } from './types/analysis.js';
 
 /**
  * Action input parameters (snake_case from action.yml)

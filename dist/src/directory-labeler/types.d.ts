@@ -1,19 +1,12 @@
 import { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS } from '../configs/directory-labeler-defaults.js';
+import type { MinimatchOptions, NamespacePolicy } from '../types/directory-labeler.js';
 export { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS };
-export interface MinimatchOptions {
-    dot?: boolean;
-    nocase?: boolean;
-    matchBase?: boolean;
-}
+export type { MinimatchOptions, NamespacePolicy };
 export interface LabelRule {
     label: string;
     include: string[];
     exclude?: string[];
     priority?: number;
-}
-export interface NamespacePolicy {
-    exclusive: string[];
-    additive: string[];
 }
 export interface DirectoryLabelerConfig {
     version: 1;

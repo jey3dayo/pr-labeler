@@ -16,21 +16,11 @@ import pLimit from 'p-limit';
 import { DEFAULT_ANALYSIS_OPTIONS } from './configs/default-config.js';
 import { type ComplexityAnalysisError, createComplexityAnalysisError, ensureError } from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
+import type { AnalysisOptions } from './types/config.js';
 
 // Re-export for backward compatibility
 export { DEFAULT_ANALYSIS_OPTIONS };
-
-/**
- * Analysis options for complexity calculation
- */
-export interface AnalysisOptions {
-  concurrency?: number; // 並列度（デフォルト: 8、最大: 8）
-  timeout?: number; // 全体タイムアウト（秒、デフォルト: 60）
-  fileTimeout?: number; // 個別ファイルタイムアウト（秒、デフォルト: 5）
-  maxFileSize?: number; // 最大ファイルサイズ（バイト、デフォルト: 1MB）
-  extensions?: string[]; // 対象拡張子（デフォルト: ['.ts', '.tsx', '.js', '.jsx']）
-  exclude?: string[]; // 除外パターン
-}
+export type { AnalysisOptions };
 
 /**
  * Check if tsconfig.json exists in the project root

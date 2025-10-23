@@ -6,8 +6,8 @@
 
 import { minimatch } from 'minimatch';
 
+import { normalizePath as normalizePathUtil } from '../utils/path-utils.js';
 import type { MinimatchOptions } from './types.js';
-import { INTERNAL_PATH_SEPARATOR } from './types.js';
 
 /**
  * コンパイル済みパターンの型定義
@@ -36,26 +36,6 @@ export interface MatchResult {
 }
 
 /**
- * ファイルパスを正規化する
- *
- * OS差異を吸収し、POSIXスタイル（`/`区切り）に統一する
- *
- * @param path - 正規化するパス
- * @returns 正規化されたパス
- */
-export function normalizePath(path: string): string {
-  // バックスラッシュをスラッシュに変換（Windows対応）
-  let normalized = path.replace(/\\/g, INTERNAL_PATH_SEPARATOR);
-
-  // 先頭の "./" を削除
-  if (normalized.startsWith('./')) {
-    normalized = normalized.slice(2);
-  }
-
-  return normalized;
-}
-
-/**
  * globパターンをコンパイルして再利用可能なマッチャーを生成
  *
  * @param patterns - globパターンの配列
@@ -73,12 +53,12 @@ export function compilePatterns(patterns: string[], options: MinimatchOptions, p
   };
 
   return patterns.map(pattern => {
-    const normalizedPattern = normalizePath(pattern);
+    const normalizedPattern = normalizePathUtil(pattern);
 
     const compiled: CompiledPattern = {
       pattern: normalizedPattern,
       matcher: (path: string) => {
-        const normalizedPath = normalizePath(path);
+        const normalizedPath = normalizePathUtil(path);
         return minimatch(normalizedPath, normalizedPattern, minimatchOptions);
       },
     };
@@ -112,7 +92,7 @@ export function matchIncludePatterns(
   includePatterns: CompiledPattern[],
   excludePatterns: CompiledPattern[],
 ): MatchResult {
-  const normalizedPath = normalizePath(filePath);
+  const normalizedPath = normalizePathUtil(filePath);
 
   // ステップ1: 除外パターン短絡評価
   for (const excludePattern of excludePatterns) {

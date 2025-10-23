@@ -4,9 +4,9 @@
  */
 
 import type { Violations } from './errors/index.js';
-import type { AnalysisResult, FileMetrics } from './file-metrics';
 import { t } from './i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
+import type { AnalysisResult, FileMetrics } from './types/analysis.js';
 import { formatFileSize, formatNumber as formatNumberWithLocale } from './utils/formatting.js';
 
 /**

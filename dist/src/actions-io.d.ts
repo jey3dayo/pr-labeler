@@ -1,8 +1,8 @@
 import { Result } from 'neverthrow';
 import type { ConfigurationError } from './errors/index.js';
-import type { AnalysisResult } from './file-metrics';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
 import { type SummaryContext } from './report-formatter';
+import type { AnalysisResult } from './types/analysis.js';
 export interface ActionInputs {
     github_token: string;
     file_size_limit: string;

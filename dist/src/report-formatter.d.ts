@@ -1,6 +1,6 @@
 import type { Violations } from './errors/index.js';
-import type { AnalysisResult, FileMetrics } from './file-metrics';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
+import type { AnalysisResult, FileMetrics } from './types/analysis.js';
 export interface SummaryContext {
     owner: string;
     repo: string;

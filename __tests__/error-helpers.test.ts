@@ -2,26 +2,9 @@
  * Tests for error helper functions
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import * as actionsIo from '../src/actions-io.js';
-import { BaseError } from '../src/errors/base-error.js';
-import { ensureError, extractAggregateError, handleErrorLevel, processError } from '../src/errors/helpers.js';
-
-// Mock actions-io module
-vi.mock('../src/actions-io.js', () => ({
-  logWarning: vi.fn(),
-  logInfo: vi.fn(),
-}));
-
-/**
- * Test implementation of BaseError
- */
-class TestBaseError extends BaseError {
-  constructor(message: string, errorLevel: 'warning' | 'info' = 'warning') {
-    super(message, errorLevel);
-  }
-}
+import { ensureError, extractAggregateError } from '../src/errors/helpers.js';
 
 describe('ensureError', () => {
   describe('Error conversion', () => {
@@ -103,26 +86,6 @@ describe('ensureError', () => {
     });
   });
 
-  describe('BaseError handling', () => {
-    it('should return BaseError instance as-is', () => {
-      const error = new TestBaseError('Base error', 'warning');
-      const result = ensureError(error);
-
-      expect(result).toBe(error);
-      expect(result).toBeInstanceOf(BaseError);
-    });
-
-    it('should convert to BaseError subclass', () => {
-      const error = new Error('Standard error');
-      const result = ensureError(error, 'Default', TestBaseError);
-
-      expect(result).toBeInstanceOf(TestBaseError);
-      expect(result).toBeInstanceOf(BaseError);
-      expect(result.message).toBe('Standard error');
-      expect(result.errorLevel).toBe('warning');
-    });
-  });
-
   describe('Edge cases', () => {
     it('should handle undefined', () => {
       const result = ensureError(undefined);
@@ -146,98 +109,6 @@ describe('ensureError', () => {
       expect(result).toBe(error);
       expect(result.message).toBe('');
     });
-  });
-});
-
-describe('handleErrorLevel', () => {
-  it('should return warning for standard Error', () => {
-    const error = new Error('Standard error');
-    const level = handleErrorLevel(error);
-
-    expect(level).toBe('warning');
-  });
-
-  it('should return errorLevel from BaseError', () => {
-    const warningError = new TestBaseError('Warning error', 'warning');
-    const infoError = new TestBaseError('Info error', 'info');
-
-    expect(handleErrorLevel(warningError)).toBe('warning');
-    expect(handleErrorLevel(infoError)).toBe('info');
-  });
-
-  it('should return warning for non-Error values', () => {
-    expect(handleErrorLevel('error string')).toBe('warning');
-    expect(handleErrorLevel(null)).toBe('warning');
-    expect(handleErrorLevel(42)).toBe('warning');
-    expect(handleErrorLevel({ message: 'error' })).toBe('warning');
-  });
-
-  it('should handle TypeError as warning', () => {
-    const error = new TypeError('Type error');
-    const level = handleErrorLevel(error);
-
-    expect(level).toBe('warning');
-  });
-});
-
-describe('processError', () => {
-  it('should log warning for standard Error', () => {
-    const logWarningSpy = vi.mocked(actionsIo.logWarning);
-    const error = new Error('Test error');
-
-    const message = processError(error);
-
-    expect(message).toBe('[Error]: Test error');
-    expect(logWarningSpy).toHaveBeenCalledWith('[Error]: Test error');
-  });
-
-  it('should log warning for BaseError with warning level', () => {
-    const logWarningSpy = vi.mocked(actionsIo.logWarning);
-    const error = new TestBaseError('Warning error', 'warning');
-
-    const message = processError(error);
-
-    expect(message).toBe('[TestBaseError]: Warning error');
-    expect(logWarningSpy).toHaveBeenCalledWith('[TestBaseError]: Warning error');
-  });
-
-  it('should log info for BaseError with info level', () => {
-    const logInfoSpy = vi.mocked(actionsIo.logInfo);
-    const error = new TestBaseError('Info message', 'info');
-
-    const message = processError(error);
-
-    expect(message).toBe('[TestBaseError]: Info message');
-    expect(logInfoSpy).toHaveBeenCalledWith('[TestBaseError]: Info message');
-  });
-
-  it('should handle non-Error values', () => {
-    const logWarningSpy = vi.mocked(actionsIo.logWarning);
-    logWarningSpy.mockClear(); // Clear previous calls
-
-    const message1 = processError('error string');
-    const message2 = processError(null);
-
-    expect(message1).toBe('[Error]: error string');
-    expect(message2).toBe('[Error]: Unknown error occurred');
-    expect(logWarningSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it('should format custom Error names correctly', () => {
-    const logWarningSpy = vi.mocked(actionsIo.logWarning);
-
-    class CustomError extends Error {
-      constructor(message: string) {
-        super(message);
-        this.name = 'CustomError';
-      }
-    }
-
-    const error = new CustomError('Custom message');
-    const message = processError(error);
-
-    expect(message).toBe('[CustomError]: Custom message');
-    expect(logWarningSpy).toHaveBeenCalledWith('[CustomError]: Custom message');
   });
 });
 

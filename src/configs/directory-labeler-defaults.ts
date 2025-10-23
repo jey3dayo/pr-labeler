@@ -3,7 +3,7 @@
  * Contains default options, namespace policies, and exclusion patterns
  */
 
-import type { MinimatchOptions, NamespacePolicy } from '../directory-labeler/types.js';
+import type { MinimatchOptions, NamespacePolicy } from '../types/directory-labeler.js';
 
 /**
  * Default minimatch options

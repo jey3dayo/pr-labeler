@@ -12,40 +12,18 @@ import { promisify } from 'node:util';
 import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
-import { logDebug, logInfo, logWarning } from './actions-io';
+import { logDebug, logInfo, logWarning } from './actions-io.js';
 import type { DiffFile } from './diff-strategy';
-import type { FileAnalysisError, ViolationDetail, Violations } from './errors/index.js';
+import type { FileAnalysisError, ViolationDetail } from './errors/index.js';
 import { createFileAnalysisError, ensureError } from './errors/index.js';
 import { getDefaultExcludePatterns, isExcluded } from './pattern-matcher';
+import type { AnalysisResult, FileMetrics } from './types/analysis.js';
 
 // Create execFileAsync using promisify
 const execFileAsync = promisify(execFile);
 
-/**
- * File metrics data
- */
-export interface FileMetrics {
-  path: string;
-  size: number;
-  lines: number;
-  additions: number;
-  deletions: number;
-}
-
-/**
- * Analysis result with metrics and violations
- */
-export interface AnalysisResult {
-  metrics: {
-    totalFiles: number;
-    totalAdditions: number;
-    filesAnalyzed: FileMetrics[];
-    filesExcluded: string[];
-    filesSkippedBinary: string[];
-    filesWithErrors: string[];
-  };
-  violations: Violations;
-}
+// Re-export types from types/analysis.ts for backward compatibility
+export type { AnalysisResult, FileMetrics };
 
 /**
  * Repository context for API calls

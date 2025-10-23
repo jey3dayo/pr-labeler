@@ -2,8 +2,7 @@
  * Default configuration for PR Labeler
  */
 
-import type { AnalysisOptions } from '../complexity-analyzer.js';
-import type { LabelerConfig } from '../labeler-types.js';
+import type { AnalysisOptions, LabelerConfig } from '../types/config.js';
 import { DEFAULT_CATEGORIES } from './categories.js';
 import { DEFAULT_EXCLUDE_PATTERNS } from './default-excludes.js';
 

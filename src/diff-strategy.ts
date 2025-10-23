@@ -8,7 +8,7 @@ import { promisify } from 'node:util';
 import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
-import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io';
+import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io.js';
 import type { DiffError } from './errors/index.js';
 import { createDiffError, ensureError } from './errors/index.js';
 
