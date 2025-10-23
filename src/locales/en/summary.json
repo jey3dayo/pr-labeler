@@ -140,6 +140,7 @@
   },
   "bestPractices": {
     "title": "Best Practices",
+    "expandHint": "Click to expand",
     "keepSmall": "Keep PRs small and focused",
     "splitLogical": "Split large changes into logical commits",
     "documentChanges": "Document significant changes in commit messages",

@@ -423,7 +423,7 @@ export function formatBestPractices(violations: Violations, metrics?: Metrics): 
   }
 
   const title = t('summary', 'bestPractices.title');
-  const expandHint = title === 'Best Practices' ? 'Click to expand' : 'クリックして展開';
+  const expandHint = t('summary', 'bestPractices.expandHint');
 
   let output = '<details>\n';
   output += `<summary>📚 ${title} (${expandHint})</summary>\n\n`;

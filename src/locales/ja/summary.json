@@ -140,6 +140,7 @@
   },
   "bestPractices": {
     "title": "ベストプラクティス",
+    "expandHint": "クリックして展開",
     "keepSmall": "PRは小さく、焦点を絞った内容に保つ",
     "splitLogical": "大きな変更を論理的なコミットに分割する",
     "documentChanges": "重要な変更をコミットメッセージに記録する",

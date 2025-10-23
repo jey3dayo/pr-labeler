@@ -6,28 +6,28 @@
  */
 
 // 翻訳リソースの型定義をimport
-import type commonEn from '../locales/en/common.json';
-import type errorsEn from '../locales/en/errors.json';
-import type labelsEn from '../locales/en/labels.json';
-import type logsEn from '../locales/en/logs.json';
 import type summaryEn from '../locales/en/summary.json';
+import type errorsEn from '../locales/en/errors.json';
+import type logsEn from '../locales/en/logs.json';
+import type labelsEn from '../locales/en/labels.json';
+import type commonEn from '../locales/en/common.json';
 
 /**
  * 翻訳リソースの型定義
  * Phase 1: resources形状型のみ (DotPath型は将来実装)
  */
 export type TranslationResources = {
-  common: typeof commonEn;
-  errors: typeof errorsEn;
-  labels: typeof labelsEn;
-  logs: typeof logsEn;
   summary: typeof summaryEn;
+  errors: typeof errorsEn;
+  logs: typeof logsEn;
+  labels: typeof labelsEn;
+  common: typeof commonEn;
 };
 
 /**
  * 名前空間の型定義
  */
-export type Namespace = 'common' | 'errors' | 'labels' | 'logs' | 'summary';
+export type Namespace = 'summary' | 'errors' | 'logs' | 'labels' | 'common';
 
 /**
  * 言語コードの型定義
