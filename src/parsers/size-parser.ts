@@ -84,23 +84,3 @@ export function parseSize(input: string): Result<number, ParseError> {
   // Return parsed bytes value
   return ok(Math.round(parsed));
 }
-
-/**
- * Parse multiple size strings
- *
- * @param inputs - Array of size strings
- * @returns Result with array of bytes values or first ParseError
- */
-export function parseSizes(inputs: string[]): Result<number[], ParseError> {
-  const results: number[] = [];
-
-  for (const input of inputs) {
-    const result = parseSize(input);
-    if (result.isErr()) {
-      return err(result.error);
-    }
-    results.push(result.value);
-  }
-
-  return ok(results);
-}
