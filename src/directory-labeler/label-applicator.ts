@@ -18,6 +18,7 @@ import {
   ok,
   type Result,
 } from '../errors/index.js';
+import { extractNamespace } from '../utils/namespace-utils.js';
 import type { LabelDecision } from './decision-engine.js';
 import type { NamespacePolicy } from './types.js';
 
@@ -54,20 +55,6 @@ interface OctokitErrorResponse {
   response?: {
     headers?: Record<string, unknown>;
   };
-}
-
-/**
- * ラベル名から名前空間を抽出
- *
- * @param label - ラベル名
- * @returns 名前空間（コロンがない場合はundefined）
- */
-function extractNamespace(label: string): string | undefined {
-  const colonIndex = label.indexOf(':');
-  if (colonIndex === -1) {
-    return undefined;
-  }
-  return label.slice(0, colonIndex);
 }
 
 /**
@@ -147,12 +134,12 @@ export async function applyDirectoryLabels(
   const newLabels = decisions.map(d => d.label);
 
   for (const newLabel of newLabels) {
-    const namespace = extractNamespace(newLabel);
+    const namespace = extractNamespace(newLabel, ':');
 
     // exclusive名前空間の場合、同一名前空間の既存ラベルを削除
     if (namespace && namespaces.exclusive.includes(namespace)) {
       for (const existingLabel of existingLabels) {
-        const existingNamespace = extractNamespace(existingLabel);
+        const existingNamespace = extractNamespace(existingLabel, ':');
         if (existingNamespace === namespace && existingLabel !== newLabel) {
           labelsToRemove.add(existingLabel);
         }

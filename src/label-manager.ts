@@ -12,6 +12,7 @@ import type { ConfigurationError, GitHubAPIError, Violations } from './errors/in
 import { createConfigurationError, createGitHubAPIError, ensureError } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
+import { getCurrentLabels as fetchCurrentLabels, getCurrentLabelsGraceful } from './utils/github-label-utils.js';
 
 /**
  * Label configuration
@@ -120,24 +121,15 @@ export function getDetailLabels(
  * Get current labels on the PR
  */
 export async function getCurrentLabels(token: string, context: PRContext): Promise<Result<string[], GitHubAPIError>> {
-  try {
-    logDebug(`Getting current labels for PR #${context.pullNumber}`);
+  logDebug(`Getting current labels for PR #${context.pullNumber}`);
 
-    const octokit = github.getOctokit(token);
-    const response = await octokit.rest.issues.listLabelsOnIssue({
-      owner: context.owner,
-      repo: context.repo,
-      issue_number: context.pullNumber,
-    });
+  const result = await fetchCurrentLabels(token, context);
 
-    const labels = response.data.map(label => label.name);
-    logDebug(`Found ${labels.length} labels: ${labels.join(', ')}`);
-
-    return ok(labels);
-  } catch (error) {
-    const message = ensureError(error).message;
-    return err(createGitHubAPIError(`Failed to get labels: ${message}`));
+  if (result.isOk()) {
+    logDebug(`Found ${result.value.length} labels: ${result.value.join(', ')}`);
   }
+
+  return result;
 }
 
 /**
@@ -146,25 +138,17 @@ export async function getCurrentLabels(token: string, context: PRContext): Promi
  * to be evaluated based on violations only.
  */
 export async function getCurrentPRLabels(token: string, context: PRContext): Promise<string[] | undefined> {
-  try {
-    logDebug(`Getting current labels for PR #${context.pullNumber}`);
+  logDebug(`Getting current labels for PR #${context.pullNumber}`);
 
-    const octokit = github.getOctokit(token);
-    const response = await octokit.rest.issues.listLabelsOnIssue({
-      owner: context.owner,
-      repo: context.repo,
-      issue_number: context.pullNumber,
-    });
+  const labels = await getCurrentLabelsGraceful(token, context);
 
-    const labels = response.data.map(label => label.name);
+  if (labels.length > 0) {
     logDebug(`Found ${labels.length} labels: ${labels.join(', ')}`);
-
-    return labels;
-  } catch (error) {
-    const message = ensureError(error).message;
-    logWarning(`Failed to get labels (will use violations only): ${message}`);
-    return undefined;
+  } else {
+    logWarning('Failed to get labels (will use violations only)');
   }
+
+  return labels.length > 0 ? labels : undefined;
 }
 
 /**
