@@ -556,7 +556,7 @@ describe('Type Guards', () => {
     it('should return true for objects', () => {
       expect(isObject({})).toBe(true);
       expect(isObject({ key: 'value' })).toBe(true);
-      expect(isObject([])).toBe(true);
+      expect(isObject([])).toBe(false);
       expect(isObject(new Date())).toBe(true);
     });
 

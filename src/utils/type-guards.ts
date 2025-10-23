@@ -3,7 +3,7 @@
  */
 
 export function isObject(value: unknown): value is Record<PropertyKey, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 export function isString(value: unknown): value is string {
@@ -11,7 +11,7 @@ export function isString(value: unknown): value is string {
 }
 
 export function isNumber(value: unknown): value is number {
-  return typeof value === 'number' && !Number.isNaN(value);
+  return Number.isFinite(value as number);
 }
 
 export function isBoolean(value: unknown): value is boolean {
