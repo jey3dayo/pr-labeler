@@ -322,11 +322,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
  * @param prContext - Optional PR context with CI status and commit messages
  * @returns Risk label or null
  */
-export function decideRiskLabel(
-  files: string[],
-  config: RiskEvaluationConfig,
-  prContext?: PRContext,
-): string | null {
+export function decideRiskLabel(files: string[], config: RiskEvaluationConfig, prContext?: PRContext): string | null {
   return evaluateRisk(files, config, prContext).label;
 }
 
@@ -338,12 +334,7 @@ export function decideRiskLabel(
  * @param label - Risk label (for validation)
  * @returns Reason string
  */
-function getRiskReason(
-  files: string[],
-  config: RiskEvaluationConfig,
-  label: string,
-  prContext?: PRContext,
-): string {
+function getRiskReason(files: string[], config: RiskEvaluationConfig, label: string, prContext?: PRContext): string {
   const evaluation = evaluateRisk(files, config, prContext);
 
   // Validate that the provided label matches the evaluated label
