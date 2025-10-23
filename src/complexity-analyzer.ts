@@ -14,10 +14,14 @@ import { ResultAsync } from 'neverthrow';
 import pLimit from 'p-limit';
 
 import { DEFAULT_ANALYSIS_OPTIONS } from './configs/default-config.js';
-import { type ComplexityAnalysisError, createComplexityAnalysisError, ensureError } from './errors/index.js';
+import {
+  type ComplexityAnalysisError,
+  createComplexityAnalysisError,
+  ensureError,
+  isComplexityAnalysisError,
+} from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
 import type { AnalysisOptions } from './types/config.js';
-import { hasProperty } from './utils/type-guards.js';
 
 // Re-export for backward compatibility
 export { DEFAULT_ANALYSIS_OPTIONS };
@@ -141,7 +145,7 @@ export class ComplexityAnalyzer {
             });
           }
         } catch (error) {
-          if (hasProperty(error, 'reason')) {
+          if (isComplexityAnalysisError(error)) {
             // Re-throw ComplexityAnalysisError
             throw error;
           }
@@ -206,8 +210,8 @@ export class ComplexityAnalyzer {
       })(),
       (error): ComplexityAnalysisError => {
         // Error is already a ComplexityAnalysisError
-        if (hasProperty(error, 'reason')) {
-          return error as ComplexityAnalysisError;
+        if (isComplexityAnalysisError(error)) {
+          return error;
         }
 
         // Convert unknown errors
@@ -308,8 +312,8 @@ export class ComplexityAnalyzer {
         return completeMetrics;
       })(),
       (error): ComplexityAnalysisError => {
-        if (hasProperty(error, 'reason')) {
-          return error as ComplexityAnalysisError;
+        if (isComplexityAnalysisError(error)) {
+          return error;
         }
         return createComplexityAnalysisError('general', {
           details: `Failed to analyze files: ${ensureError(error).message}`,

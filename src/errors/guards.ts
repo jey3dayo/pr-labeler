@@ -1,5 +1,6 @@
 import { hasProperty, isNumber, isObject, isString } from '../utils/type-guards.js';
 export { hasProperty, isBoolean, isNumber, isObject, isRecord, isString } from '../utils/type-guards.js';
+import type { ComplexityAnalysisError } from './types.js';
 
 /**
  * Type guard functions for runtime type checking
@@ -56,4 +57,21 @@ export function extractErrorStatus(error: unknown): number | undefined {
     return error.status;
   }
   return undefined;
+}
+
+/**
+ * Checks if value is a ComplexityAnalysisError
+ * @param error - Value to check
+ * @returns True if the value matches ComplexityAnalysisError structure
+ */
+export function isComplexityAnalysisError(error: unknown): error is ComplexityAnalysisError {
+  return (
+    isObject(error) &&
+    hasProperty(error, 'type') &&
+    error.type === 'ComplexityAnalysisError' &&
+    hasProperty(error, 'reason') &&
+    isString(error.reason) &&
+    hasProperty(error, 'message') &&
+    isString(error.message)
+  );
 }
