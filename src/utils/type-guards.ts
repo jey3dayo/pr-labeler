@@ -38,6 +38,20 @@ export function isBoolean(value: unknown): value is boolean {
 }
 
 /**
+ * Checks whether a value is an array of strings
+ */
+export function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isString);
+}
+
+/**
+ * Checks whether a value is a non-empty array of strings
+ */
+export function isNonEmptyStringArray(value: unknown): value is [string, ...string[]] {
+  return isStringArray(value) && value.length > 0;
+}
+
+/**
  * Checks whether an object has the provided property key
  */
 export function hasProperty<TKey extends PropertyKey>(
