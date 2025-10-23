@@ -35,7 +35,7 @@ import {
 } from '../directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from '../directory-labeler/label-applicator.js';
 import { loadEnvironmentConfig } from '../environment-loader.js';
-import { evaluateFailureConditions } from '../failure-evaluator.js';
+import { PRFailureEvaluator } from './policy/pr-failure-evaluator';
 import { analyzeFiles } from '../file-metrics';
 import type { ComplexityMetrics, LabelerConfig, PRMetrics } from '../labeler-types';
 import { applyLabels } from '../label-applicator';
@@ -523,7 +523,8 @@ export async function finalizeAction(
     pullNumber: prContext.pullNumber,
   });
 
-  const failures = evaluateFailureConditions({
+  const failureEvaluator = new PRFailureEvaluator();
+  const failures = failureEvaluator.evaluate({
     config,
     appliedLabels,
     violations: analysis.violations,
