@@ -95,7 +95,7 @@ describe('ReportFormatter', () => {
       expect(result).toContain('### 📈 Basic Metrics');
       expect(result).toContain('Total Additions: **500**');
       expect(result).toContain('Total Files Changed: **3**');
-      expect(result).toContain('2025-10-18T15:30:00.000Z');
+      expect(result).toContain('2025-10-18 15:30:00 (UTC)');
     });
 
     it('should format basic metrics without header', () => {
