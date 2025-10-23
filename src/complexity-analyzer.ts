@@ -247,7 +247,8 @@ export class ComplexityAnalyzer {
         const skippedFiles: SkippedFile[] = [];
 
         // p-limitで並列度制御
-        const concurrency = Math.min(opts.concurrency, 8);
+        const raw = Number.isFinite(opts.concurrency as number) ? (opts.concurrency as number) : 8;
+        const concurrency = Math.max(1, Math.min(raw, 8));
         const limit = pLimit(concurrency);
 
         core.info(`Analyzing ${filePaths.length} files with concurrency ${concurrency}`);

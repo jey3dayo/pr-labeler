@@ -135,7 +135,7 @@ describe('ensureError', () => {
       const result = ensureError('');
 
       expect(result).toBeInstanceOf(Error);
-      // Empty string is truthy, so it's used as-is
+      // Empty string is falsy, but ensureError treats string inputs verbatim
       expect(result.message).toBe('');
     });
 

@@ -17,14 +17,15 @@ export type ErrorLevel = 'warning' | 'info';
 export abstract class BaseError extends Error {
   readonly errorLevel: ErrorLevel;
 
-  constructor(message: string, errorLevel: ErrorLevel = 'warning') {
-    super(message);
-    this.name = this.constructor.name;
+  constructor(message: string, errorLevel: ErrorLevel = 'warning', options?: { cause?: unknown }) {
+    // Preserve native cause when available (ES2022 ErrorOptions)
+    super(message, options);
+    // Ensure instanceof works reliably across targets/bundlers
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.name = new.target.name;
     this.errorLevel = errorLevel;
-
-    // Maintain proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
+      Error.captureStackTrace(this, new.target);
     }
   }
 }

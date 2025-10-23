@@ -155,7 +155,7 @@ export function initializeI18n(language: LanguageCode): Result<void, Configurati
  * t('summary', 'overview.title') // => "PR Metrics Overview" (en) / "PRメトリクス概要" (ja)
  * t('summary', 'basicMetrics.totalAdditions', { count: 100 }) // => "Total Additions: 100"
  */
-export function t(namespace: Namespace, key: string, options?: Record<string, unknown>): string {
+export function t(namespace: Namespace, key: string, options?: TOptions): string {
   if (!isI18nInitialized || !cachedTFunction) {
     logWarning(`i18n not initialized, returning key as fallback: ${namespace}:${key}`);
     return key;
@@ -168,7 +168,7 @@ export function t(namespace: Namespace, key: string, options?: Record<string, un
       return cachedTFunction(translationKey);
     }
 
-    return cachedTFunction(translationKey, options as TOptions);
+    return cachedTFunction(translationKey, options);
   } catch (error) {
     logWarning(`Translation failed for key "${namespace}:${key}", returning key as fallback: ${error}`);
     return key;
