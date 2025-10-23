@@ -298,10 +298,10 @@ export async function writeSummaryWithAnalysis(
     if (enabledTypes.length > 0 || disabledTypes.length > 0) {
       markdown += '\n---\n\n';
       if (enabledTypes.length > 0) {
-        markdown += `> **ℹ️ Enabled label types:** ${enabledTypes.join(', ')}\n`;
+        markdown += `> **🏷️ Enabled label types:** ${enabledTypes.join(', ')}\n`;
       }
       if (disabledTypes.length > 0) {
-        markdown += `> **ℹ️ Disabled label types:** ${disabledTypes.join(', ')}\n`;
+        markdown += `> **🏷️ Disabled label types:** ${disabledTypes.join(', ')}\n`;
       }
     }
 
