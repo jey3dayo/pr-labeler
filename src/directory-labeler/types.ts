@@ -40,11 +40,3 @@ export interface DirectoryLabelerConfig {
   /** デフォルト除外パターンを使用するか（省略可、デフォルト: true） */
   useDefaultExcludes?: boolean;
 }
-
-/**
- * 内部実装定数: パス区切り文字
- *
- * すべてのパスはPOSIXスタイル（`/`区切り）に正規化されます。
- * この定数はユーザー設定不可で、内部実装でのみ使用されます。
- */
-export const INTERNAL_PATH_SEPARATOR = '/' as const;

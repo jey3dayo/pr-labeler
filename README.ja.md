@@ -56,7 +56,7 @@ jobs:
 
 - **サイズラベル**: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
 - **カテゴリラベル**: `category/tests`, `category/docs`, `category/ci-cd`, `category/dependencies` など
-- **リスクラベル**: `risk/high`, `risk/medium`（該当時）
+- **リスクラベル**: `risk/high`, `risk/medium`（リスク検出時のみ）
 
 ### 3. カスタマイズ（オプション）
 

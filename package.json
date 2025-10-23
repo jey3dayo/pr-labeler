@@ -32,12 +32,12 @@
     "format": "run-s prettier:write eslint:fix",
     "prettier": "prettier --check .",
     "prettier:write": "prettier --write . --log-level warn",
-    "depcruise": "depcruise --config .dependency-cruiser.js src"
+    "depcruise": "depcruise --config .dependency-cruiser.js src",
+    "knip": "knip"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
-    "@octokit/rest": "^22.0.0",
     "@typescript-eslint/parser": "^8.46.2",
     "bytes": "^3.1.2",
     "eslint": "^9.38.0",
@@ -49,11 +49,9 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
-    "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.38.0",
     "@types/bytes": "^3.1.5",
     "@types/js-yaml": "^4.0.9",
-    "@types/minimatch": "^6.0.0",
     "@types/node": "^24.9.1",
     "@vercel/ncc": "^0.38.4",
     "@vitest/coverage-v8": "^4.0.1",
@@ -64,6 +62,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-neverthrow": "^1.1.4",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "knip": "^5.66.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",

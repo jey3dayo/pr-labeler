@@ -1,13 +1,13 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > basic-metrics-en 1`] = `
-"### 📊 Basic Metrics
+"### 📈 Basic Metrics
 
 - Total Additions: **500**
 - Total Files Changed: **1**
 - Excluded Files: **2**
 - Binary files skipped: **2**
-- Analysis Time: 2025-10-18T15:30:00.000Z
+- Analysis Time: 2025-10-18 15:30:00 (UTC)
 
 "
 `;
@@ -45,7 +45,7 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > file-details-en 1`] = `
-"### 📈 Top Large Files
+"### 📈 Largest Files
 
 | File Name | Size | Lines | Changes |
 |------|------|-------|----------|
@@ -86,13 +86,13 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > basic-metrics-ja 1`] = `
-"### 📊 基本メトリクス
+"### 📈 基本メトリクス
 
 - 総追加行数: **500**
 - 変更ファイル数: **1**
 - 除外ファイル数: **2**
 - バイナリファイルをスキップ: **2**
-- 分析時刻: 2025-10-18T15:30:00.000Z
+- 分析時刻: 2025-10-18 15:30:00 (UTC)
 
 "
 `;
@@ -130,7 +130,7 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > file-details-ja 1`] = `
-"### 📈 上位の大規模ファイル
+"### 📈 サイズの大きいファイル
 
 | ファイル名 | サイズ | 行数 | 変更 |
 |------|------|-------|----------|

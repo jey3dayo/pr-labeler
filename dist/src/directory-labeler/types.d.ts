@@ -15,4 +15,3 @@ export interface DirectoryLabelerConfig {
     namespaces?: NamespacePolicy;
     useDefaultExcludes?: boolean;
 }
-export declare const INTERNAL_PATH_SEPARATOR: "/";

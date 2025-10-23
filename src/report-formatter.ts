@@ -52,7 +52,7 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
 
   // Header
   if (includeHeader) {
-    output += `### 📊 ${t('summary', 'basicMetrics.title')}\n\n`;
+    output += `### 📈 ${t('summary', 'basicMetrics.title')}\n\n`;
   }
 
   // Empty check
@@ -74,7 +74,13 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
 
   // Timestamp
   if (includeTimestamp) {
-    output += `- ${t('summary', 'basicMetrics.analysisTime')}: ${new Date().toISOString()}\n`;
+    // Format: YYYY-MM-DD HH:MM (UTC)
+    const now = new Date();
+    const dateStr = now
+      .toISOString()
+      .replace(/T/, ' ')
+      .replace(/\.\d{3}Z$/, ' (UTC)');
+    output += `- ${t('summary', 'basicMetrics.analysisTime')}: ${dateStr}\n`;
   }
   output += '\n';
 
@@ -423,7 +429,7 @@ export function formatBestPractices(violations: Violations, metrics?: Metrics): 
   }
 
   const title = t('summary', 'bestPractices.title');
-  const expandHint = title === 'Best Practices' ? 'Click to expand' : 'クリックして展開';
+  const expandHint = t('summary', 'bestPractices.expandHint');
 
   let output = '<details>\n';
   output += `<summary>📚 ${title} (${expandHint})</summary>\n\n`;

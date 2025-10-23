@@ -2,8 +2,6 @@
  * Type guard functions for runtime type checking
  */
 
-import type { ComplexityAnalysisError } from './types.js';
-
 // ============================================================================
 // Basic Type Guards
 // ============================================================================
@@ -57,19 +55,6 @@ export function isErrorWithTypeAndMessage(obj: unknown): obj is { type: string; 
     typeof obj.type === 'string' &&
     typeof obj.message === 'string'
   );
-}
-
-// ============================================================================
-// Specific Error Type Guards
-// ============================================================================
-
-/**
- * Checks if an unknown error is a ComplexityAnalysisError
- * @param e - Unknown error to check
- * @returns True if the error is a ComplexityAnalysisError
- */
-export function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisError {
-  return !!e && typeof e === 'object' && 'type' in e && e.type === 'ComplexityAnalysisError';
 }
 
 // ============================================================================
