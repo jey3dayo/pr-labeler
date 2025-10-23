@@ -334,7 +334,7 @@ describe('ReportFormatter', () => {
 
       const result = formatFileDetails(files);
 
-      expect(result).toContain('### 📈 Top Large Files');
+      expect(result).toContain('### 📈 Largest Files');
       expect(result).toContain('| File Name | Size | Lines | Changes |');
       expect(result).toContain('src/file1.ts');
       expect(result).toContain('48.8 KB');

@@ -290,10 +290,19 @@ export async function writeSummaryWithAnalysis(
       markdown += generateComplexitySummary(complexity.metrics, complexity.config, complexity.context);
     }
 
-    // Disabled features section (if any)
-    if (options?.disabledFeatures && options.disabledFeatures.length > 0) {
+    // Label types configuration section
+    const allLabelTypes = ['size', 'complexity', 'category', 'risk'];
+    const disabledTypes = options?.disabledFeatures || [];
+    const enabledTypes = allLabelTypes.filter(type => !disabledTypes.includes(type));
+
+    if (enabledTypes.length > 0 || disabledTypes.length > 0) {
       markdown += '\n---\n\n';
-      markdown += `> **ℹ️ Disabled label types:** ${options.disabledFeatures.join(', ')}\n`;
+      if (enabledTypes.length > 0) {
+        markdown += `> **ℹ️ Enabled label types:** ${enabledTypes.join(', ')}\n`;
+      }
+      if (disabledTypes.length > 0) {
+        markdown += `> **ℹ️ Disabled label types:** ${disabledTypes.join(', ')}\n`;
+      }
     }
 
     // Write summary

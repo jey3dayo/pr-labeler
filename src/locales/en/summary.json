@@ -94,7 +94,7 @@
   },
   "fileDetails": {
     "title": "File Details",
-    "topLargeFiles": "Top Large Files",
+    "topLargeFiles": "Largest Files",
     "fileName": "File Name",
     "size": "Size",
     "lines": "Lines",

@@ -45,7 +45,7 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > file-details-en 1`] = `
-"### 📈 Top Large Files
+"### 📈 Largest Files
 
 | File Name | Size | Lines | Changes |
 |------|------|-------|----------|
@@ -130,7 +130,7 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > file-details-ja 1`] = `
-"### 📈 上位の大規模ファイル
+"### 📈 サイズの大きいファイル
 
 | ファイル名 | サイズ | 行数 | 変更 |
 |------|------|-------|----------|

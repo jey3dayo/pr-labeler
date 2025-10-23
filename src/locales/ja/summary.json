@@ -94,7 +94,7 @@
   },
   "fileDetails": {
     "title": "ファイル詳細",
-    "topLargeFiles": "上位の大規模ファイル",
+    "topLargeFiles": "サイズの大きいファイル",
     "fileName": "ファイル名",
     "size": "サイズ",
     "lines": "行数",
