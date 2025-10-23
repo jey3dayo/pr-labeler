@@ -18,6 +18,7 @@ import {
   ok,
   type Result,
 } from '../errors/index.js';
+import { isNumber, isRecord, isString } from '../utils/type-guards.js';
 import { extractNamespace } from '../utils/namespace-utils.js';
 import { isNumber, isRecord, isString } from '../utils/type-guards.js';
 import type { LabelDecision } from './decision-engine.js';
