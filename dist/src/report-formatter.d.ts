@@ -1,6 +1,6 @@
 import type { Violations } from './errors/index.js';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
-import type { AnalysisResult, FileMetrics } from './types/analysis.js';
+import type { AnalysisResult, FileMetrics, Metrics } from './types/analysis.js';
 export interface SummaryContext {
     owner: string;
     repo: string;
@@ -22,4 +22,4 @@ export declare function formatFileAnalysis(violations: Violations, files: FileMe
 export declare function escapeMarkdown(text: string): string;
 export declare function generateComplexitySummary(metrics: ComplexityMetrics, config: ComplexityConfig, context: SummaryContext): string;
 export declare function formatImprovementActions(violations: Violations): string;
-export declare function formatBestPractices(): string;
+export declare function formatBestPractices(violations: Violations, metrics?: Metrics): string;

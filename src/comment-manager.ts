@@ -72,13 +72,14 @@ export function generateCommentBody(analysisResult: AnalysisResult): string {
 
   // Violations section (using shared formatter - summary only)
   body += formatViolations(violations);
-  body += formatImprovementActions(violations);
-  body += formatBestPractices();
 
   // Unified file analysis table (combines violations and file details)
   if (metrics.filesAnalyzed.length > 0) {
     body += formatFileAnalysis(violations, metrics.filesAnalyzed, 10);
   }
+
+  body += formatImprovementActions(violations);
+  body += formatBestPractices(violations, metrics);
 
   // Files with errors note (translated)
   if (metrics.filesWithErrors.length > 0) {

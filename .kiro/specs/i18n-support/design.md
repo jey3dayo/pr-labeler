@@ -552,7 +552,7 @@ interface ReportFormatterService {
   formatBasicMetrics(metrics: Metrics, options: FormatBasicMetricsOptions): string;
   formatViolations(violations: Violations, options: FormatViolationsOptions): string;
   formatFileDetails(files: FileInfo[]): string;
-  formatBestPractices(): string;
+  formatBestPractices(violations: Violations, metrics?: Metrics): string;
   generateComplexitySummary(analysis: ComplexityAnalysis): string;
 }
 
