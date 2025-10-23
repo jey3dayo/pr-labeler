@@ -18,8 +18,6 @@ import {
   logWarningI18n,
   setActionOutputs,
   setFailed,
-  writeSummary,
-  writeSummaryWithAnalysis,
 } from './actions-io';
 import { getCIStatus } from './ci-status.js';
 import { manageComment } from './comment-manager';
@@ -39,6 +37,7 @@ import { parseActionInputs } from './input-parser.js';
 import { applyLabels } from './label-applicator';
 import { decideLabels } from './label-decision-engine';
 import { getCurrentPRLabels } from './label-manager.js';
+import { writeSummary, writeSummaryWithAnalysis } from './summary/summary-writer';
 import type { PRMetrics } from './labeler-types';
 import type { PRContext } from './types';
 
