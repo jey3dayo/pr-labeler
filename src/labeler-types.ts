@@ -3,6 +3,8 @@
  * These types support intelligent label assignment based on PR metrics
  */
 
+import type { FileMetrics } from './types/analysis.js';
+
 // Re-export configuration types from types/config.ts for backward compatibility
 export type {
   CategoryConfig,
@@ -15,6 +17,9 @@ export type {
   RuntimeConfig,
   SizeConfig,
 } from './types/config.js';
+
+// Re-export analysis types from types/analysis.ts for backward compatibility
+export type { FileMetrics };
 
 // ============================================================================
 // Configuration Types
@@ -78,17 +83,6 @@ export interface PRMetrics {
   totalAdditions: number;
   files: FileMetrics[];
   complexity?: ComplexityMetrics; // 複雑度分析が無効の場合はundefined
-}
-
-/**
- * File metrics (reused from existing types)
- */
-export interface FileMetrics {
-  path: string; // ファイルパス（リポジトリルートからの相対パス）
-  size: number;
-  lines: number;
-  additions: number;
-  deletions: number;
 }
 
 // ============================================================================

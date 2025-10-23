@@ -27,7 +27,7 @@ export interface SizeThresholds {
  * // Returns: "size/small"
  *
  * calculateSizeLabel(600, { small: 200, medium: 500, large: 1000, xlarge: 3000 })
- * // Returns: "size/medium"
+ * // Returns: "size/large"
  * ```
  */
 export function calculateSizeLabel(additions: number, thresholds: SizeThresholds): string {
