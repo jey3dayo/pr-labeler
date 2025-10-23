@@ -4,7 +4,7 @@
  */
 
 import * as core from '@actions/core';
-import { err, ok, Result, ResultAsync } from 'neverthrow';
+import { errAsync, okAsync, Result, ResultAsync } from 'neverthrow';
 
 import { logDebug, logInfo, logWarning } from '../actions-io';
 import { ensureError } from '../errors/index.js';
@@ -43,45 +43,48 @@ function buildSummaryMarkdown(
   complexity?: { metrics: ComplexityMetrics; config: ComplexityConfig; context: SummaryContext },
   options?: { disabledFeatures?: string[] },
 ): Result<string, Error> {
-  return Result.fromThrowable(() => {
-    let markdown = '';
-    markdown += '# 📊 PR Labeler\n\n';
-    markdown += formatBasicMetrics(analysis.metrics);
-    markdown += formatViolations(analysis.violations);
+  return Result.fromThrowable(
+    () => {
+      let markdown = '';
+      markdown += '# 📊 PR Labeler\n\n';
+      markdown += formatBasicMetrics(analysis.metrics);
+      markdown += formatViolations(analysis.violations);
 
-    if (analysis.metrics.filesAnalyzed.length > 0) {
-      markdown += formatFileDetails(analysis.metrics.filesAnalyzed, 100);
-    }
-
-    markdown += formatImprovementActions(analysis.violations);
-    markdown += formatBestPractices(analysis.violations, analysis.metrics);
-
-    if (analysis.metrics.filesWithErrors.length > 0) {
-      markdown += '### ⚠️ Analysis Errors\n\n';
-      markdown += 'Some files could not be analyzed:\n\n';
-      for (const file of analysis.metrics.filesWithErrors.slice(0, 10)) {
-        markdown += `- ${file}\n`;
+      if (analysis.metrics.filesAnalyzed.length > 0) {
+        markdown += formatFileDetails(analysis.metrics.filesAnalyzed, 100);
       }
-      if (analysis.metrics.filesWithErrors.length > 10) {
-        markdown += `- ...and ${analysis.metrics.filesWithErrors.length - 10} more\n`;
+
+      markdown += formatImprovementActions(analysis.violations);
+      markdown += formatBestPractices(analysis.violations, analysis.metrics);
+
+      if (analysis.metrics.filesWithErrors.length > 0) {
+        markdown += '### ⚠️ Analysis Errors\n\n';
+        markdown += 'Some files could not be analyzed:\n\n';
+        for (const file of analysis.metrics.filesWithErrors.slice(0, 10)) {
+          markdown += `- ${file}\n`;
+        }
+        if (analysis.metrics.filesWithErrors.length > 10) {
+          markdown += `- ...and ${analysis.metrics.filesWithErrors.length - 10} more\n`;
+        }
+        markdown += '\n';
       }
-      markdown += '\n';
-    }
 
-    if (complexity) {
-      markdown += generateComplexitySummary(complexity.metrics, complexity.config, complexity.context);
-    }
+      if (complexity) {
+        markdown += generateComplexitySummary(complexity.metrics, complexity.config, complexity.context);
+      }
 
-    if (options?.disabledFeatures && options.disabledFeatures.length > 0) {
-      markdown += '\n---\n\n';
-      markdown += `> **ℹ️ Disabled label types:** ${options.disabledFeatures.join(', ')}\n`;
-    }
+      if (options?.disabledFeatures && options.disabledFeatures.length > 0) {
+        markdown += '\n---\n\n';
+        markdown += `> **ℹ️ Disabled label types:** ${options.disabledFeatures.join(', ')}\n`;
+      }
 
-    return markdown;
-  }, error => {
-    const e = ensureError(error);
-    return new Error(`Failed to generate GitHub Actions Summary content: ${e.message}`);
-  })();
+      return markdown;
+    },
+    error => {
+      const e = ensureError(error);
+      return new Error(`Failed to generate GitHub Actions Summary content: ${e.message}`);
+    },
+  )();
 }
 
 /**
@@ -104,7 +107,7 @@ export function writeSummaryWithAnalysis(
 ): ResultAsync<SummaryWriteResult, Error> {
   if (!config.enableSummary) {
     logDebug('Summary output skipped (enable_summary=false)');
-    return ResultAsync.fromResult(ok<SummaryWriteResult, Error>({ action: 'skipped' }));
+    return okAsync<SummaryWriteResult, Error>({ action: 'skipped' });
   }
 
   logDebug('Generating GitHub Actions Summary...');
@@ -113,19 +116,16 @@ export function writeSummaryWithAnalysis(
   if (markdownResult.isErr()) {
     const message = markdownResult.error.message;
     logWarning(`Failed to build summary content: ${message}`);
-    return ResultAsync.fromResult(err<SummaryWriteResult, Error>(markdownResult.error));
+    return errAsync<SummaryWriteResult, Error>(markdownResult.error);
   }
 
   const markdown = markdownResult.value;
 
-  return ResultAsync.fromPromise(
-    writeSummary(markdown),
-    error => {
-      const e = ensureError(error);
-      logWarning(`Failed to write summary: ${e.message}`);
-      return new Error(`Failed to write GitHub Actions Summary: ${e.message}`);
-    },
-  ).map(() => {
+  return ResultAsync.fromPromise(writeSummary(markdown), error => {
+    const e = ensureError(error);
+    logWarning(`Failed to write summary: ${e.message}`);
+    return new Error(`Failed to write GitHub Actions Summary: ${e.message}`);
+  }).map(() => {
     const bytesWritten = Buffer.byteLength(markdown, 'utf8');
     logInfo(`✅ Summary written successfully (${bytesWritten} bytes)`);
 
