@@ -70,7 +70,10 @@ export async function finalizeAction(context: InitializationArtifacts, artifacts
             },
           }
         : undefined,
-      { disabledFeatures },
+      {
+        disabledFeatures,
+        ...(labelerConfig.summary?.title ? { title: labelerConfig.summary.title } : {}),
+      },
     );
 
     if (summaryResult.isErr()) {

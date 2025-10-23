@@ -1,6 +1,6 @@
-# Generated JavaScript bundles and source maps - treat as binary
-dist/**/*.js binary
-dist/**/*.map binary
+# Generated JavaScript bundles and source maps - treat as binary and generated
+dist/**/*.js binary linguist-generated
+dist/**/*.map binary linguist-generated
 
 # Generated type definitions
 dist/**/*.d.ts linguist-generated

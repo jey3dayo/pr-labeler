@@ -4,22 +4,23 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import { type ConfigurationError, createConfigurationError } from '../../errors/index.js';
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
+import { isObject, isString } from '../../utils/type-guards.js';
 
 /**
  * Validate and sanitize labeler configuration
  */
 export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfig, ConfigurationError> {
-  if (typeof config !== 'object' || config === null) {
+  if (!isObject(config)) {
     return errAsync(createConfigurationError('root', config, 'Configuration must be an object'));
   }
 
   const cfg = config as Partial<LabelerConfig>;
 
   if (cfg.language !== undefined) {
-    if (typeof cfg.language !== 'string') {
+    if (!isString(cfg.language)) {
       return errAsync(createConfigurationError('language', cfg.language, 'language must be a string'));
     }
-    const lang = String(cfg.language).toLowerCase();
+    const lang = cfg.language.toLowerCase();
     const isEn = /^en(?:[-_].+)?$/.test(lang);
     const isJa = /^ja(?:[-_].+)?$/.test(lang);
     if (!isEn && !isJa) {
@@ -29,6 +30,19 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
           cfg.language,
           "language must start with 'en' or 'ja' (e.g., 'en', 'en-US', 'ja', 'ja-JP')",
         ),
+      );
+    }
+  }
+
+  if (cfg.summary !== undefined) {
+    if (!isObject(cfg.summary)) {
+      return errAsync(createConfigurationError('summary', cfg.summary, 'summary must be an object'));
+    }
+
+    const summaryRecord = cfg.summary as Record<string, unknown>;
+    if ('title' in summaryRecord && summaryRecord['title'] !== undefined && !isString(summaryRecord['title'])) {
+      return errAsync(
+        createConfigurationError('summary.title', summaryRecord['title'], 'summary.title must be a string'),
       );
     }
   }
@@ -231,6 +245,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
   const knownKeys = [
     'language',
+    'summary',
     'size',
     'complexity',
     'categoryLabeling',
@@ -251,6 +266,13 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerConfig {
   return {
     ...(userConfig.language !== undefined && { language: userConfig.language }),
+    ...(userConfig.summary?.title
+      ? {
+          summary: {
+            title: userConfig.summary.title,
+          },
+        }
+      : {}),
     size: {
       enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
       thresholds: {

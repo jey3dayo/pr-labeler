@@ -102,10 +102,18 @@ export interface RuntimeConfig {
 }
 
 /**
+ * Summary configuration
+ */
+export interface SummaryConfig {
+  title?: string; // Summary出力のタイトル（未設定時は翻訳のデフォルトを使用）
+}
+
+/**
  * Complete labeler configuration
  */
 export interface LabelerConfig {
   language?: string; // 言語選択（ロケール形式 'ja-JP', 'en-US' も許容、正規化フローで LanguageCode に収束）
+  summary?: SummaryConfig;
   size: SizeConfig;
   complexity: ComplexityConfig;
   categoryLabeling: CategoryLabelingConfig;
