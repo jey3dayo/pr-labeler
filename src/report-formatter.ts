@@ -52,7 +52,7 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
 
   // Header
   if (includeHeader) {
-    output += `### 📊 ${t('summary', 'basicMetrics.title')}\n\n`;
+    output += `### 📈 ${t('summary', 'basicMetrics.title')}\n\n`;
   }
 
   // Empty check
