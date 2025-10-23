@@ -1,3 +1,5 @@
-# Generated JavaScript bundles and source maps - treat as binary
+# Generated files - treat as binary to exclude from PR diff stats
 dist/*.js binary
 dist/*.map binary
+dist/**/*.d.ts binary
+dist/licenses.txt binary
