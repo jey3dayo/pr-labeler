@@ -19,6 +19,7 @@ import {
   type Result,
 } from '../errors/index.js';
 import { extractNamespace } from '../utils/namespace-utils.js';
+import { isNumber, isRecord, isString } from '../utils/type-guards.js';
 import type { LabelDecision } from './decision-engine.js';
 import type { NamespacePolicy } from './types.js';
 
@@ -115,14 +116,14 @@ export async function applyDirectoryLabels(
     if (status === 429) {
       // Extract Retry-After header if available
       const errorWithResponse = error as OctokitErrorResponse;
-      const headers = errorWithResponse.response?.headers ?? {};
+      const rawHeaders = errorWithResponse.response?.headers;
+      const headers = isRecord(rawHeaders) ? rawHeaders : {};
       const retryAfterHeader = headers['retry-after'] ?? headers['Retry-After'];
-      const retryAfter =
-        typeof retryAfterHeader === 'string'
-          ? Number.parseInt(retryAfterHeader, 10)
-          : typeof retryAfterHeader === 'number'
-            ? retryAfterHeader
-            : undefined;
+      const retryAfter = isString(retryAfterHeader)
+        ? Number.parseInt(retryAfterHeader, 10)
+        : isNumber(retryAfterHeader)
+          ? retryAfterHeader
+          : undefined;
       return err(createRateLimitError(Number.isFinite(retryAfter) ? (retryAfter as number) : undefined));
     }
 

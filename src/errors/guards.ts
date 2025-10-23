@@ -1,7 +1,6 @@
-import { isBoolean, isNumber, isObject, isString } from '../utils/type-guards.js';
-
-export { isBoolean, isNumber, isObject, isString };
-
+import { hasProperty, isNumber, isObject, isString } from '../utils/type-guards.js';
+export { hasProperty, isBoolean, isNumber, isObject, isRecord, isString } from '../utils/type-guards.js';
+import type { ComplexityAnalysisError } from './types.js';
 /**
  * Type guard functions for runtime type checking
  */
@@ -25,7 +24,7 @@ export function isError(error: unknown): error is Error {
  * @returns True if the object has a string message property
  */
 export function isErrorWithMessage(obj: unknown): obj is { message: string } {
-  return isObject(obj) && 'message' in obj && typeof obj['message'] === 'string';
+  return isObject(obj) && hasProperty(obj, 'message') && isString(obj.message);
 }
 
 /**
@@ -36,10 +35,10 @@ export function isErrorWithMessage(obj: unknown): obj is { message: string } {
 export function isErrorWithTypeAndMessage(obj: unknown): obj is { type: string; message: string } {
   return (
     isObject(obj) &&
-    'type' in obj &&
-    'message' in obj &&
-    typeof obj['type'] === 'string' &&
-    typeof obj['message'] === 'string'
+    hasProperty(obj, 'type') &&
+    hasProperty(obj, 'message') &&
+    isString(obj.type) &&
+    isString(obj.message)
   );
 }
 
@@ -53,8 +52,25 @@ export function isErrorWithTypeAndMessage(obj: unknown): obj is { type: string; 
  * @returns Status code if present, undefined otherwise
  */
 export function extractErrorStatus(error: unknown): number | undefined {
-  if (isObject(error) && 'status' in error && typeof error['status'] === 'number') {
-    return error['status'];
+  if (isObject(error) && hasProperty(error, 'status') && isNumber(error.status)) {
+    return error.status;
   }
   return undefined;
+}
+
+/**
+ * Checks if value is a ComplexityAnalysisError
+ * @param error - Value to check
+ * @returns True if the value matches ComplexityAnalysisError structure
+ */
+export function isComplexityAnalysisError(error: unknown): error is ComplexityAnalysisError {
+  return (
+    isObject(error) &&
+    hasProperty(error, 'type') &&
+    error.type === 'ComplexityAnalysisError' &&
+    hasProperty(error, 'reason') &&
+    isString(error.reason) &&
+    hasProperty(error, 'message') &&
+    isString(error.message)
+  );
 }

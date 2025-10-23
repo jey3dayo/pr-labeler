@@ -3,6 +3,7 @@
  * Following action-cache pattern for unified error handling
  */
 
+import { isString } from '../utils/type-guards.js';
 import { isError, isErrorWithMessage } from './guards.js';
 
 type ErrorConstructor<T extends Error = Error> = new (message: string) => T;
@@ -37,7 +38,7 @@ export function ensureError<T extends Error>(
   }
   const message = isError(error)
     ? error.message
-    : typeof error === 'string'
+    : isString(error)
       ? error
       : isErrorWithMessage(error)
         ? error.message

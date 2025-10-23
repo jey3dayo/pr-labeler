@@ -10,7 +10,7 @@ import * as core from '@actions/core';
 import { load as yamlLoad } from 'js-yaml';
 
 import { createConfigurationError, createFileSystemError, ensureError, err, ok, type Result } from '../errors/index.js';
-import { isBoolean, isNumber, isString } from '../utils/type-guards.js';
+import { isBoolean, isNumber, isRecord, isString } from '../utils/type-guards.js';
 import {
   DEFAULT_NAMESPACES,
   DEFAULT_OPTIONS,
@@ -78,7 +78,7 @@ export function validateDirectoryLabelerConfig(
   config: unknown,
 ): Result<DirectoryLabelerConfig, ReturnType<typeof createConfigurationError>> {
   // 型ガード: オブジェクトであることを確認
-  if (!config || typeof config !== 'object') {
+  if (!isRecord(config)) {
     return err(createConfigurationError('config', config, 'Configuration must be an object'));
   }
 
@@ -116,7 +116,7 @@ export function validateDirectoryLabelerConfig(
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i];
 
-    if (!rule || typeof rule !== 'object') {
+    if (!isRecord(rule)) {
       return err(createConfigurationError(`rules[${i}]`, rule, `Rule at index ${i} must be an object`));
     }
 
@@ -216,8 +216,8 @@ export function validateDirectoryLabelerConfig(
 
   // optionsフィールドのバリデーション（省略可）
   const options = cfg['options'];
-  if ('options' in cfg && options !== undefined) {
-    if (typeof options !== 'object' || options === null) {
+  if (options !== undefined) {
+    if (!isRecord(options)) {
       return err(createConfigurationError('options', options, 'Field "options" must be an object'));
     }
 
@@ -243,8 +243,8 @@ export function validateDirectoryLabelerConfig(
 
   // namespacesフィールドのバリデーション（省略可）
   const namespaces = cfg['namespaces'];
-  if ('namespaces' in cfg && namespaces !== undefined) {
-    if (typeof namespaces !== 'object' || namespaces === null) {
+  if (namespaces !== undefined) {
+    if (!isRecord(namespaces)) {
       return err(createConfigurationError('namespaces', namespaces, 'Field "namespaces" must be an object'));
     }
 
