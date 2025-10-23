@@ -216,7 +216,7 @@ export function validateDirectoryLabelerConfig(
 
   // optionsフィールドのバリデーション（省略可）
   const options = cfg['options'];
-  if ('options' in cfg && options !== undefined) {
+  if (options !== undefined) {
     if (!isRecord(options)) {
       return err(createConfigurationError('options', options, 'Field "options" must be an object'));
     }
@@ -243,7 +243,7 @@ export function validateDirectoryLabelerConfig(
 
   // namespacesフィールドのバリデーション（省略可）
   const namespaces = cfg['namespaces'];
-  if ('namespaces' in cfg && namespaces !== undefined) {
+  if (namespaces !== undefined) {
     if (!isRecord(namespaces)) {
       return err(createConfigurationError('namespaces', namespaces, 'Field "namespaces" must be an object'));
     }
