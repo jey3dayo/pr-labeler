@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > basic-metrics-en 1`] = `
-"### 📊 Basic Metrics
+"### 📈 Basic Metrics
 
 - Total Additions: **500**
 - Total Files Changed: **1**
@@ -86,7 +86,7 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 `;
 
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > basic-metrics-ja 1`] = `
-"### 📊 基本メトリクス
+"### 📈 基本メトリクス
 
 - 総追加行数: **500**
 - 変更ファイル数: **1**

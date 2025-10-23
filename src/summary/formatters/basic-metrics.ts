@@ -12,7 +12,7 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
   let output = '';
 
   if (includeHeader) {
-    output += `### 📊 ${t('summary', 'basicMetrics.title')}\n\n`;
+    output += `### 📈 ${t('summary', 'basicMetrics.title')}\n\n`;
   }
 
   if (metrics.totalFiles === 0) {
