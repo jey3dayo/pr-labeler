@@ -73,7 +73,8 @@
   },
   "draft": {
     "skipping": "skip_draft_prが有効なため、ドラフトPRをスキップします",
-    "summaryWritten": "ドラフトPR用のSummaryを書き込みました"
+    "summaryWritten": "ドラフトPR用のSummaryを書き込みました",
+    "summaryWriteFailed": "ドラフトPR用のSummary書き込みに失敗しました: {{message}}"
   },
   "violations": {
     "detected": "違反が検出されました:",

@@ -23,8 +23,11 @@ import type { AnalysisResult } from '../types/analysis.js';
 /**
  * Write raw markdown content to GitHub Actions summary
  */
-export async function writeSummary(content: string): Promise<void> {
-  await core.summary.addRaw(content).write();
+export function writeSummary(content: string): ResultAsync<void, Error> {
+  return ResultAsync.fromPromise(core.summary.addRaw(content).write(), error => {
+    const e = ensureError(error);
+    return new Error(`Failed to write GitHub Actions Summary: ${e.message}`);
+  }).map(() => undefined);
 }
 
 /**
@@ -121,14 +124,15 @@ export function writeSummaryWithAnalysis(
 
   const markdown = markdownResult.value;
 
-  return ResultAsync.fromPromise(writeSummary(markdown), error => {
-    const e = ensureError(error);
-    logWarning(`Failed to write summary: ${e.message}`);
-    return new Error(`Failed to write GitHub Actions Summary: ${e.message}`);
-  }).map(() => {
-    const bytesWritten = Buffer.byteLength(markdown, 'utf8');
-    logInfo(`✅ Summary written successfully (${bytesWritten} bytes)`);
+  return writeSummary(markdown)
+    .map(() => {
+      const bytesWritten = Buffer.byteLength(markdown, 'utf8');
+      logInfo(`✅ Summary written successfully (${bytesWritten} bytes)`);
 
-    return { action: 'written', bytesWritten };
-  });
+      return { action: 'written' as const, bytesWritten };
+    })
+    .mapErr(error => {
+      logWarning(error.message);
+      return error;
+    });
 }

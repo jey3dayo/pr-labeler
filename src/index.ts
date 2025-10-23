@@ -3,7 +3,7 @@
  * Analyzes pull request files and enforces size limits
  */
 
-import { logErrorI18n, logInfoI18n, setFailed } from './actions-io';
+import { logErrorI18n, logInfoI18n, logWarningI18n, setFailed } from './actions-io';
 import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors/index.js';
 import { t } from './i18n.js';
 import { writeSummary } from './summary/summary-writer';
@@ -22,8 +22,12 @@ async function run(): Promise<void> {
       if (context.config.enableSummary) {
         const title = t('summary', 'draftPr.title');
         const message = t('summary', 'draftPr.message');
-        await writeSummary(`## ⏭️ ${title}\n\n${message}`);
-        logInfoI18n('draft.summaryWritten');
+        const summaryResult = await writeSummary(`## ⏭️ ${title}\n\n${message}`);
+        if (summaryResult.isErr()) {
+          logWarningI18n('draft.summaryWriteFailed', { message: summaryResult.error.message });
+        } else {
+          logInfoI18n('draft.summaryWritten');
+        }
       }
 
       logInfoI18n('completion.skippedDraft');
