@@ -74,7 +74,13 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
 
   // Timestamp
   if (includeTimestamp) {
-    output += `- ${t('summary', 'basicMetrics.analysisTime')}: ${new Date().toISOString()}\n`;
+    // Format: YYYY-MM-DD HH:MM (UTC)
+    const now = new Date();
+    const dateStr = now
+      .toISOString()
+      .replace(/T/, ' ')
+      .replace(/\.\d{3}Z$/, ' (UTC)');
+    output += `- ${t('summary', 'basicMetrics.analysisTime')}: ${dateStr}\n`;
   }
   output += '\n';
 
