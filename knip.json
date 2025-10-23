@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/index.ts", "scripts/**/*.ts"],
+  "project": ["src/**/*.ts", "scripts/**/*.ts"],
+  "ignore": ["**/*.d.ts", "dist/**", "node_modules/**", "coverage/**", "__tests__/**"],
+  "ignoreExportsUsedInFile": true,
+  "eslint": {
+    "config": ["eslint.config.js"]
+  },
+  "vitest": {
+    "config": ["vitest.config.ts"],
+    "entry": ["__tests__/**/*.test.ts", "__tests__/**/*.spec.ts"]
+  },
+  "typescript": {
+    "config": ["tsconfig.json", "tsconfig.test.json"]
+  },
+  "prettier": {
+    "config": ["prettier.config.js"]
+  },
+  "exclude": ["duplicates"],
+  "include": ["files", "dependencies", "devDependencies", "exports"]
+}

@@ -4,157 +4,184 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 ![Test Coverage](https://img.shields.io/badge/Coverage-93%25-green.svg)
 
-Intelligent PR labeling with automatic size checks, categorization, and risk assessment for GitHub Actions.
+**Intelligent PR analysis and labeling for GitHub Actions** - Automatically categorize, size, and assess risk of your pull requests.
 
 🇬🇧 [English](README.md) | 🇯🇵 [日本語](README.ja.md)
 
-## 🚀 Key Features
+## ✨ Why PR Labeler?
 
-- **📏 Automatic PR Labeling**: Apply size labels (small/medium/large/xlarge/xxlarge) based on PR additions
-- **🏷️ Flexible Categorization**: Automatically categorize PRs by type (tests, docs, CI/CD, dependencies, etc.)
-- **📁 Directory-Based Labeling**: Apply labels based on changed file paths using glob patterns
-- **⚠️ Risk Assessment**: Identify high-risk changes (core changes without tests)
-- **⚙️ Workflow Failure Control**: Optional failure triggers based on violations (large files, too many files, PR size)
-- **🌐 Multi-language Support**: English and Japanese output for summaries, comments, and logs
+Streamline your PR review process with intelligent automation:
 
-## 📋 Quick Start
+- **📏 Smart Size Detection**: Automatically label PRs by size (small → xxlarge) to help reviewers prioritize
+- **🏷️ Auto-Categorization**: Classify changes by type (tests, docs, CI/CD, dependencies) for quick filtering
+- **⚠️ Risk Assessment**: Flag high-risk changes (core modifications without tests) before merge
+- **📁 Path-Based Labels**: Custom labels based on file paths using flexible glob patterns
+- **🚦 Quality Gates**: Optional workflow failures for oversized PRs or policy violations
+- **🌐 Multi-language**: Full support for English and Japanese output
 
-### Minimal Configuration
+## 🚀 Quick Start
 
-Add this workflow to `.github/workflows/pr-check.yml`:
+Get started in 2 minutes:
+
+### 1. Create Workflow File
+
+Add `.github/workflows/pr-labeler.yml`:
 
 ```yaml
-name: PR Size Check
+name: PR Labeler
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  check:
+  label:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read        # Read files
-      pull-requests: write  # Manage labels
+      contents: read        # Read PR files
+      pull-requests: write  # Apply labels
       issues: write         # Post comments
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-This will automatically apply labels based on PR size (e.g., `size/small`, `size/large`), category (e.g., `category/tests`, `category/docs`), and risk level (e.g., `risk/high`).
+### 2. What You Get
 
-### Next Steps
+Once configured, every PR automatically receives:
 
-- 📖 **Configure parameters**: See [Configuration Guide](docs/configuration.md) for all input options
-- 🚀 **Advanced scenarios**: See [Advanced Usage](docs/advanced-usage.md) for fork PRs, conditional execution, and more
+- **Size labels**: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
+- **Category labels**: `category/tests`, `category/docs`, `category/ci-cd`, `category/dependencies`, etc.
+- **Risk labels**: `risk/high`, `risk/medium` (when applicable)
 
-## 🔒 Required Permissions
+### 3. Customize (Optional)
 
-This action requires the following permissions:
+Want more control? Check these guides:
+
+- 📖 [Configuration Guide](docs/configuration.md) - All input parameters and thresholds
+- 🔧 [Advanced Usage](docs/advanced-usage.md) - Fork PRs, strict mode, custom workflows
+
+## 🔒 Permissions
+
+Required GitHub Actions permissions:
 
 ```yaml
 permissions:
-  pull-requests: write  # Label management
-  issues: write         # Comment posting
-  contents: read        # File reading
+  contents: read        # Read PR files
+  pull-requests: write  # Apply/remove labels
+  issues: write         # Post PR comments
 ```
 
-**Note**: For fork PRs, use the `pull_request_target` event. See [Advanced Usage - Fork PR Handling](docs/advanced-usage.md#fork-pr-handling) for details.
+**Fork PRs**: Use `pull_request_target` event. See [Fork PR Handling](docs/advanced-usage.md#fork-pr-handling).
 
-## 🏷️ Automatic Labels
+## 🏷️ Labels Applied
 
-### Size Labels
+### Size Labels (additions-based)
 
-Applied based on total PR additions:
-
-- `size/small` - < 200 lines
-- `size/medium` - 200-499 lines
-- `size/large` - 500-999 lines
-- `size/xlarge` - 1000-2999 lines
-- `size/xxlarge` - ≥ 3000 lines
+| Label          | Lines Added | Use Case          |
+| -------------- | ----------- | ----------------- |
+| `size/small`   | < 200       | Quick reviews     |
+| `size/medium`  | 200-499     | Normal reviews    |
+| `size/large`   | 500-999     | Requires focus    |
+| `size/xlarge`  | 1000-2999   | Split recommended |
+| `size/xxlarge` | ≥ 3000      | Should be split   |
 
 ### Category Labels
 
-Applied based on changed file patterns:
+Automatically detect change types:
 
-- `category/tests` - Test file changes
-- `category/ci-cd` - CI/CD configuration
-- `category/documentation` - Documentation changes
-- `category/config` - Configuration files
-- `category/spec` - Specification documents
-- `category/dependencies` - Dependency files (Node.js, Go, Python, Rust, Ruby)
+| Label                    | Matches        | Example                |
+| ------------------------ | -------------- | ---------------------- |
+| `category/tests`         | Test files     | `**/*.test.ts`         |
+| `category/ci-cd`         | CI/CD configs  | `.github/workflows/**` |
+| `category/documentation` | Docs           | `docs/**`, `*.md`      |
+| `category/config`        | Config files   | `*.config.js`, `.env`  |
+| `category/spec`          | Specifications | `.kiro/specs/**`       |
+| `category/dependencies`  | Lock files     | `package-lock.json`    |
 
 ### Risk Labels
 
-Applied based on change risk:
+Flag potential issues:
 
-- `risk/high` - Core changes without tests
-- `risk/medium` - Configuration file changes
+- `risk/high` - Core changes without corresponding test updates
+- `risk/medium` - Configuration or infrastructure changes
 
 ### Violation Labels
 
-Applied when limits are exceeded:
+When limits exceeded:
 
-- `auto/large-files` - Files exceed size/line limits
-- `auto/too-many-files` - PR has too many files
+- `auto/large-files` - Individual files too large
+- `auto/too-many-files` - Too many files changed
 
-**Customization**: Adjust thresholds and labels in [Configuration Guide](docs/configuration.md#label-thresholds-defaults).
+**Customize**: All thresholds and labels configurable. See [Configuration Guide](docs/configuration.md#label-thresholds-defaults).
 
-## 🔧 Input Parameters
+## ⚙️ Configuration
 
-For detailed parameter documentation, see **[Configuration Guide](docs/configuration.md)**.
+### Common Options
 
-**Quick Reference**:
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 
-- **Basic Limits**: `file_size_limit`, `file_lines_limit`, `pr_additions_limit`, `pr_files_limit`
-- **Label Control**: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
-- **Workflow Failure**: `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`
-- **Directory Labeling**: `enable_directory_labeling`
-- **Multi-language**: `language` (en/ja)
+    # Size Limits
+    file_size_limit: "100KB"      # Max file size
+    file_lines_limit: "500"       # Max lines per file
+    pr_additions_limit: "5000"    # Max total additions
+    pr_files_limit: "50"          # Max changed files
 
-## 📝 Advanced Usage
+    # Label Control
+    size_enabled: "true"          # Enable size labels
+    category_enabled: "true"      # Enable category labels
+    risk_enabled: "true"          # Enable risk labels
+    complexity_enabled: "false"   # Complexity labels (off by default)
 
-For real-world examples and advanced configurations, see **[Advanced Usage Guide](docs/advanced-usage.md)**.
+    # Quality Gates
+    fail_on_pr_size: "xlarge"     # Fail if PR too large
+    fail_on_large_files: "true"   # Fail if files exceed limits
 
-**Common Scenarios**:
+    # Localization
+    language: "en"                # Output language (en/ja)
+```
 
-- [Fork PR Handling](docs/advanced-usage.md#fork-pr-handling) - `pull_request_target` configuration
-- [Conditional Execution](docs/advanced-usage.md#conditional-execution) - Skip by label/branch/path
-- [Strict Mode](docs/advanced-usage.md#strict-mode) - Fail workflow on violations
-- [Selective Label Enabling](docs/advanced-usage.md#selective-label-enabling) - Enable/disable label types individually
-- [Directory-Based Labeling](docs/advanced-usage.md#directory-based-labeling) - Label by file path patterns
-- [Multi-language Support](docs/advanced-usage.md#multi-language-support) - Japanese/English output
+### Advanced Features
+
+- **Directory-Based Labeling**: Apply custom labels by file path patterns
+- **Fork PR Support**: Secure handling with `pull_request_target`
+- **Conditional Execution**: Skip checks by label, branch, or path
+- **Custom Thresholds**: Fine-tune all size and complexity limits
+
+👉 **Full documentation**: [Configuration Guide](docs/configuration.md) | [Advanced Usage](docs/advanced-usage.md)
 
 ## 📚 Documentation
 
-- **[Configuration Guide](docs/configuration.md)** - Complete input parameters, output variables, and defaults
-- **[Advanced Usage Guide](docs/advanced-usage.md)** - Real-world examples and advanced scenarios
-- **[Troubleshooting Guide](docs/troubleshooting.md)** - Common issues and solutions
-- **[API Documentation](docs/API.md)** - Internal API reference
-- **[Release Process](docs/release-process.md)** - How to release new versions
+| Guide                                        | Description                       |
+| -------------------------------------------- | --------------------------------- |
+| [Configuration Guide](docs/configuration.md) | All inputs, outputs, and defaults |
+| [Advanced Usage](docs/advanced-usage.md)     | Real-world examples and patterns  |
+| [Troubleshooting](docs/troubleshooting.md)   | Common issues and solutions       |
+| [API Reference](docs/API.md)                 | Internal API documentation        |
+| [Release Process](docs/release-process.md)   | Version management                |
 
 ## 🤝 Contributing
 
-Contributions are welcome! For major changes, please open an issue first to discuss what you would like to change.
+Contributions welcome! Please:
 
-Please ensure tests pass and follow the existing code style.
+1. Open an issue for major changes
+2. Ensure all tests pass
+3. Follow existing code style
 
 ## 📄 License
 
-MIT
+MIT License - see repository for details.
 
-## 🙏 Acknowledgments
+## 🙏 Built With
 
-This project uses the following libraries:
-
-- [neverthrow](https://github.com/supermacro/neverthrow) - Railway-Oriented Programming
-- [minimatch](https://github.com/isaacs/minimatch) - Pattern matching
-- [bytes](https://github.com/visionmedia/bytes.js) - Size parsing
-- [@actions/core](https://github.com/actions/toolkit) - GitHub Actions integration
-- [@actions/github](https://github.com/actions/toolkit) - GitHub API
+- [neverthrow](https://github.com/supermacro/neverthrow) - Type-safe error handling
+- [minimatch](https://github.com/isaacs/minimatch) - Glob pattern matching
+- [bytes](https://github.com/visionmedia/bytes.js) - Size parsing utilities
+- [@actions/toolkit](https://github.com/actions/toolkit) - GitHub Actions SDK

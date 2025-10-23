@@ -92,10 +92,10 @@ describe('ReportFormatter', () => {
 
       const result = formatBasicMetrics(metrics, { includeHeader: true });
 
-      expect(result).toContain('### 📊 Basic Metrics');
+      expect(result).toContain('### 📈 Basic Metrics');
       expect(result).toContain('Total Additions: **500**');
       expect(result).toContain('Total Files Changed: **3**');
-      expect(result).toContain('2025-10-18T15:30:00');
+      expect(result).toContain('2025-10-18 15:30:00 (UTC)');
     });
 
     it('should format basic metrics without header', () => {
@@ -110,7 +110,7 @@ describe('ReportFormatter', () => {
 
       const result = formatBasicMetrics(metrics, { includeHeader: false });
 
-      expect(result).not.toContain('### 📊 Basic Metrics');
+      expect(result).not.toContain('### 📈 Basic Metrics');
       expect(result).toContain('Total Additions: **200**');
       expect(result).toContain('Total Files Changed: **1**');
     });
@@ -334,7 +334,7 @@ describe('ReportFormatter', () => {
 
       const result = formatFileDetails(files);
 
-      expect(result).toContain('### 📈 Top Large Files');
+      expect(result).toContain('### 📈 Largest Files');
       expect(result).toContain('| File Name | Size | Lines | Changes |');
       expect(result).toContain('src/file1.ts');
       expect(result).toContain('48.8 KB');
