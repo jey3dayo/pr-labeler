@@ -4,7 +4,7 @@
  */
 
 import * as core from '@actions/core';
-import { err, ok, Result } from 'neverthrow';
+import { err, ok, Result, ResultAsync } from 'neverthrow';
 
 import { logDebug, logInfo, logWarning } from '../actions-io';
 import { ensureError } from '../errors/index.js';
@@ -36,31 +36,14 @@ export interface SummaryWriteResult {
 }
 
 /**
- * Write PR analysis results to GitHub Actions Summary
- * @param analysis - File analysis result
- * @param config - Summary output configuration
- * @param complexity - Optional complexity data object
- * @param complexity.metrics - Complexity analysis metrics (ComplexityMetrics)
- * @param complexity.config - Complexity configuration settings (ComplexityConfig)
- * @param complexity.context - Summary context for GitHub URLs (SummaryContext)
- * @param options - Optional summary options
- * @param options.disabledFeatures - List of disabled label types (size, complexity, category, risk)
- * @returns Result<SummaryWriteResult, Error>
+ * Build markdown body for GitHub Actions Summary output.
  */
-export async function writeSummaryWithAnalysis(
+function buildSummaryMarkdown(
   analysis: AnalysisResult,
-  config: { enableSummary: boolean },
   complexity?: { metrics: ComplexityMetrics; config: ComplexityConfig; context: SummaryContext },
   options?: { disabledFeatures?: string[] },
-): Promise<Result<SummaryWriteResult, Error>> {
-  if (!config.enableSummary) {
-    logDebug('Summary output skipped (enable_summary=false)');
-    return ok({ action: 'skipped' });
-  }
-
-  try {
-    logDebug('Generating GitHub Actions Summary...');
-
+): Result<string, Error> {
+  return Result.fromThrowable(() => {
     let markdown = '';
     markdown += '# 📊 PR Labeler\n\n';
     markdown += formatBasicMetrics(analysis.metrics);
@@ -94,15 +77,58 @@ export async function writeSummaryWithAnalysis(
       markdown += `> **ℹ️ Disabled label types:** ${options.disabledFeatures.join(', ')}\n`;
     }
 
-    await writeSummary(markdown);
+    return markdown;
+  }, error => {
+    const e = ensureError(error);
+    return new Error(`Failed to generate GitHub Actions Summary content: ${e.message}`);
+  })();
+}
 
+/**
+ * Write PR analysis results to GitHub Actions Summary
+ * @param analysis - File analysis result
+ * @param config - Summary output configuration
+ * @param complexity - Optional complexity data object
+ * @param complexity.metrics - Complexity analysis metrics (ComplexityMetrics)
+ * @param complexity.config - Complexity configuration settings (ComplexityConfig)
+ * @param complexity.context - Summary context for GitHub URLs (SummaryContext)
+ * @param options - Optional summary options
+ * @param options.disabledFeatures - List of disabled label types (size, complexity, category, risk)
+ * @returns ResultAsync<SummaryWriteResult, Error>
+ */
+export function writeSummaryWithAnalysis(
+  analysis: AnalysisResult,
+  config: { enableSummary: boolean },
+  complexity?: { metrics: ComplexityMetrics; config: ComplexityConfig; context: SummaryContext },
+  options?: { disabledFeatures?: string[] },
+): ResultAsync<SummaryWriteResult, Error> {
+  if (!config.enableSummary) {
+    logDebug('Summary output skipped (enable_summary=false)');
+    return ResultAsync.fromResult(ok<SummaryWriteResult, Error>({ action: 'skipped' }));
+  }
+
+  logDebug('Generating GitHub Actions Summary...');
+
+  const markdownResult = buildSummaryMarkdown(analysis, complexity, options);
+  if (markdownResult.isErr()) {
+    const message = markdownResult.error.message;
+    logWarning(`Failed to build summary content: ${message}`);
+    return ResultAsync.fromResult(err<SummaryWriteResult, Error>(markdownResult.error));
+  }
+
+  const markdown = markdownResult.value;
+
+  return ResultAsync.fromPromise(
+    writeSummary(markdown),
+    error => {
+      const e = ensureError(error);
+      logWarning(`Failed to write summary: ${e.message}`);
+      return new Error(`Failed to write GitHub Actions Summary: ${e.message}`);
+    },
+  ).map(() => {
     const bytesWritten = Buffer.byteLength(markdown, 'utf8');
     logInfo(`✅ Summary written successfully (${bytesWritten} bytes)`);
 
-    return ok({ action: 'written', bytesWritten });
-  } catch (error) {
-    const e = ensureError(error);
-    logWarning(`Failed to write summary: ${e.message}`);
-    return err(new Error(`Failed to write GitHub Actions Summary: ${e.message}`));
-  }
+    return { action: 'written', bytesWritten };
+  });
 }
