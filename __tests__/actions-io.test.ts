@@ -18,7 +18,8 @@ import {
   writeSummaryWithAnalysis,
 } from '../src/actions-io';
 import type { AnalysisResult } from '../src/file-metrics';
-import { changeLanguage, initializeI18n, resetI18n } from '../src/i18n';
+import { resetI18n } from '../src/i18n';
+import { clearGitHubTokens, setupI18nTestEnglish, setupI18nTestJapanese } from './__fixtures__/index.js';
 
 // Mock @actions/core
 vi.mock('@actions/core');
@@ -27,13 +28,10 @@ describe('GitHub Actions I/O', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset environment variables
-    delete process.env['GITHUB_TOKEN'];
-    delete process.env['GH_TOKEN'];
+    clearGitHubTokens();
 
     // Initialize i18n with English for consistent test results
-    resetI18n();
-    initializeI18n('en');
-    changeLanguage('en'); // 明示的に英語に変更
+    setupI18nTestEnglish();
   });
 
   afterEach(() => {
@@ -420,13 +418,11 @@ describe('GitHub Actions I/O', () => {
   describe('i18n Log Helpers', () => {
     beforeEach(() => {
       vi.clearAllMocks();
-      resetI18n();
     });
 
     describe('logInfoI18n', () => {
       it('should translate log message in English', () => {
-        initializeI18n('en');
-        changeLanguage('en');
+        setupI18nTestEnglish();
         const spy = vi.mocked(core.info);
 
         logInfoI18n('initialization.starting');
@@ -435,8 +431,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate log message in Japanese', () => {
-        initializeI18n('ja');
-        changeLanguage('ja');
+        setupI18nTestJapanese();
         const spy = vi.mocked(core.info);
 
         logInfoI18n('initialization.starting');
@@ -445,8 +440,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should interpolate variables in English', () => {
-        initializeI18n('en');
-        changeLanguage('en');
+        setupI18nTestEnglish();
         const spy = vi.mocked(core.info);
 
         logInfoI18n('initialization.analyzingPr', { prNumber: 123, owner: 'user', repo: 'test-repo' });
@@ -455,8 +449,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should interpolate variables in Japanese', () => {
-        initializeI18n('ja');
-        changeLanguage('ja');
+        setupI18nTestJapanese();
         const spy = vi.mocked(core.info);
 
         logInfoI18n('initialization.analyzingPr', { prNumber: 123, owner: 'user', repo: 'test-repo' });
@@ -466,6 +459,7 @@ describe('GitHub Actions I/O', () => {
 
       it('should fallback to key when i18n not initialized', () => {
         // i18n未初期化のまま呼び出し
+        resetI18n();
         const spy = vi.mocked(core.info);
 
         logInfoI18n('initialization.starting');
@@ -476,8 +470,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('logWarningI18n', () => {
       it('should translate warning message in English', () => {
-        initializeI18n('en');
-        changeLanguage('en');
+        setupI18nTestEnglish();
         const spy = vi.mocked(core.warning);
 
         logWarningI18n('initialization.i18nFailed', { message: 'Invalid JSON' });
@@ -487,8 +480,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate warning message in Japanese', () => {
-        initializeI18n('ja');
-        changeLanguage('ja');
+        setupI18nTestJapanese();
         const spy = vi.mocked(core.warning);
 
         logWarningI18n('initialization.i18nFailed', { message: 'Invalid JSON' });
@@ -498,6 +490,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should fallback when i18n not initialized', () => {
+        resetI18n();
         const spy = vi.mocked(core.warning);
 
         logWarningI18n('initialization.i18nFailed');
@@ -508,8 +501,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('logErrorI18n', () => {
       it('should translate error message in English', () => {
-        initializeI18n('en');
-        changeLanguage('en');
+        setupI18nTestEnglish();
         const spy = vi.mocked(core.error);
 
         logErrorI18n('completion.failed', { message: 'Network error' });
@@ -519,8 +511,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate error message in Japanese', () => {
-        initializeI18n('ja');
-        changeLanguage('ja');
+        setupI18nTestJapanese();
         const spy = vi.mocked(core.error);
 
         logErrorI18n('completion.failed', { message: 'Network error' });
@@ -530,6 +521,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should fallback when i18n not initialized', () => {
+        resetI18n();
         const spy = vi.mocked(core.error);
 
         logErrorI18n('completion.failed');
@@ -540,8 +532,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('logDebugI18n', () => {
       it('should translate debug message in English', () => {
-        initializeI18n('en');
-        changeLanguage('en');
+        setupI18nTestEnglish();
         const spy = vi.mocked(core.debug);
 
         logDebugI18n('analysis.gettingDiff');
@@ -550,8 +541,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should translate debug message in Japanese', () => {
-        initializeI18n('ja');
-        changeLanguage('ja');
+        setupI18nTestJapanese();
         const spy = vi.mocked(core.debug);
 
         logDebugI18n('analysis.gettingDiff');
@@ -560,6 +550,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should fallback when i18n not initialized', () => {
+        resetI18n();
         const spy = vi.mocked(core.debug);
 
         logDebugI18n('analysis.gettingDiff');
@@ -570,8 +561,7 @@ describe('GitHub Actions I/O', () => {
 
     describe('Technical Details Preservation', () => {
       it('should preserve filename in translated messages', () => {
-        initializeI18n('ja');
-        changeLanguage('ja');
+        setupI18nTestJapanese();
 
         // i18n初期化ログをクリア
         vi.clearAllMocks();
@@ -585,8 +575,7 @@ describe('GitHub Actions I/O', () => {
       });
 
       it('should preserve error messages in original form', () => {
-        initializeI18n('ja');
-        changeLanguage('ja');
+        setupI18nTestJapanese();
 
         // i18n初期化ログをクリア
         vi.clearAllMocks();

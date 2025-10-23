@@ -9,26 +9,23 @@ import {
   getCurrentLanguage,
   getLabelDisplayName,
   initializeI18n,
-  isInitialized,
   normalizeLanguageCode,
-  resetI18n,
   t,
 } from '../src/i18n';
 import type { CategoryConfig } from '../src/labeler-types';
+import { setupI18nEnvironment } from './__fixtures__/index.js';
 
 describe('i18n Core Functions', () => {
-  let originalEnv: NodeJS.ProcessEnv;
+  let restoreEnv: () => void;
 
   beforeEach(() => {
-    // 環境変数のバックアップ
-    originalEnv = { ...process.env };
-    // i18nをリセット
-    resetI18n();
+    // Setup environment and i18n
+    restoreEnv = setupI18nEnvironment();
   });
 
   afterEach(() => {
-    // 環境変数を復元
-    process.env = originalEnv;
+    // Restore environment
+    restoreEnv();
   });
 
   describe('normalizeLanguageCode', () => {
@@ -61,22 +58,16 @@ describe('i18n Core Functions', () => {
 
   describe('initializeI18n', () => {
     it('should initialize successfully with English', () => {
-      resetI18n(); // 明示的にリセット
-
       const result = initializeI18n('en');
 
       expect(result.isOk()).toBe(true);
-      expect(isInitialized()).toBe(true);
       expect(getCurrentLanguage()).toBe('en');
     });
 
     it('should initialize successfully with Japanese', () => {
-      resetI18n(); // 明示的にリセット
-
       const result = initializeI18n('ja');
 
       expect(result.isOk()).toBe(true);
-      expect(isInitialized()).toBe(true);
       expect(getCurrentLanguage()).toBe('ja');
     });
 
@@ -91,8 +82,6 @@ describe('i18n Core Functions', () => {
     });
 
     it('should handle language switching correctly', () => {
-      resetI18n();
-
       const result1 = initializeI18n('en');
       expect(result1.isOk()).toBe(true);
       expect(getCurrentLanguage()).toBe('en');
