@@ -1,4 +1,6 @@
+import type { FileMetrics } from './types/analysis.js';
 export type { CategoryConfig, CategoryLabelingConfig, ComplexityConfig, ExcludeConfig, LabelerConfig, LabelPolicyConfig, RiskConfig, RuntimeConfig, SizeConfig, } from './types/config.js';
+export type { FileMetrics };
 export interface ComplexityMetrics {
     maxComplexity: number;
     avgComplexity: number;
@@ -33,13 +35,6 @@ export interface PRMetrics {
     totalAdditions: number;
     files: FileMetrics[];
     complexity?: ComplexityMetrics;
-}
-export interface FileMetrics {
-    path: string;
-    size: number;
-    lines: number;
-    additions: number;
-    deletions: number;
 }
 export interface LabelDecisions {
     labelsToAdd: string[];
