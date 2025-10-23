@@ -1,10 +1,10 @@
 import * as core from '@actions/core';
 import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 
-import { isObject, isString } from '../../errors/guards.js';
 import { type ConfigurationError, createConfigurationError } from '../../errors/index.js';
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
+import { isObject, isString } from '../../utils/type-guards.js';
 
 /**
  * Validate and sanitize labeler configuration
@@ -39,8 +39,11 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
       return errAsync(createConfigurationError('summary', cfg.summary, 'summary must be an object'));
     }
 
-    if (cfg.summary.title !== undefined && !isString(cfg.summary.title)) {
-      return errAsync(createConfigurationError('summary.title', cfg.summary.title, 'summary.title must be a string'));
+    const summaryRecord = cfg.summary as Record<string, unknown>;
+    if ('title' in summaryRecord && summaryRecord['title'] !== undefined && !isString(summaryRecord['title'])) {
+      return errAsync(
+        createConfigurationError('summary.title', summaryRecord['title'], 'summary.title must be a string'),
+      );
     }
   }
 

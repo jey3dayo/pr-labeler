@@ -10,6 +10,7 @@ import * as core from '@actions/core';
 import { load as yamlLoad } from 'js-yaml';
 
 import { createConfigurationError, createFileSystemError, ensureError, err, ok, type Result } from '../errors/index.js';
+import { isBoolean, isNumber, isString } from '../utils/type-guards.js';
 import {
   DEFAULT_NAMESPACES,
   DEFAULT_OPTIONS,
@@ -65,27 +66,6 @@ export function loadDirectoryLabelerConfig(
   const configWithDefaults = applyDefaults(validatedConfig);
 
   return ok(configWithDefaults);
-}
-
-/**
- * プロパティが文字列であることを検証
- */
-function isString(value: unknown): value is string {
-  return typeof value === 'string';
-}
-
-/**
- * プロパティが数値であることを検証
- */
-function isNumber(value: unknown): value is number {
-  return typeof value === 'number';
-}
-
-/**
- * プロパティがブール値であることを検証
- */
-function isBoolean(value: unknown): value is boolean {
-  return typeof value === 'boolean';
 }
 
 /**
