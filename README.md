@@ -13,10 +13,15 @@
 Streamline your PR review process with intelligent automation:
 
 - **📏 Smart Size Detection**: Automatically label PRs by size (small → xxlarge) to help reviewers prioritize
+  - Example: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
 - **🏷️ Auto-Categorization**: Classify changes by type (tests, docs, CI/CD, dependencies) for quick filtering
+  - Example: `category/tests`, `category/documentation`, `category/ci-cd`, `category/dependencies`
 - **⚠️ Risk Assessment**: Flag high-risk changes (core modifications without tests) before merge
+  - Example: `risk/high` (core changes without test updates), `risk/medium` (config/infrastructure changes)
 - **📁 Path-Based Labels**: Custom labels based on file paths using flexible glob patterns
+  - Example: `frontend/**` → `team/frontend`, `backend/**` → `team/backend`
 - **🚦 Quality Gates**: Optional workflow failures for oversized PRs or policy violations
+  - Example: `fail_on_pr_size: "xlarge"` fails workflow for xlarge or larger PRs
 - **🌐 Multi-language**: Full support for English and Japanese output
 
 ## 🚀 Quick Start
@@ -48,6 +53,8 @@ jobs:
       - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Language setting (defaults to English)
+          # language: "ja"  # Uncomment for Japanese output
 ```
 
 ### 2. What You Get

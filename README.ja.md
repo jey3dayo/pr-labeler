@@ -13,10 +13,15 @@
 インテリジェントな自動化でPRレビュープロセスを効率化:
 
 - **📏 スマートなサイズ検出**: PRサイズ（small → xxlarge）を自動ラベリングし、レビュー優先度の判断をサポート
+  - 例: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
 - **🏷️ 自動カテゴリ分類**: 変更タイプ（テスト、ドキュメント、CI/CD、依存関係）を自動判定し、素早いフィルタリングを実現
+  - 例: `category/tests`, `category/documentation`, `category/ci-cd`, `category/dependencies`
 - **⚠️ リスク評価**: テストなしのコア変更を事前に検出し、マージ前に警告
+  - 例: `risk/high`（テスト更新を伴わないコア変更）、`risk/medium`（設定・インフラ変更）
 - **📁 パスベースラベル**: 柔軟なGlobパターンでファイルパスに基づくカスタムラベルを適用
+  - 例: `frontend/**` → `team/frontend`, `backend/**` → `team/backend`
 - **🚦 品質ゲート**: 大きすぎるPRやポリシー違反時にワークフローを失敗させるオプション機能
+  - 例: `fail_on_pr_size: "xlarge"` で xlarge 以上のPRでワークフロー失敗
 - **🌐 多言語対応**: 英語・日本語の完全サポート
 
 ## 🚀 クイックスタート
@@ -48,6 +53,8 @@ jobs:
       - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 言語設定（デフォルトは英語）
+          # language: "ja"  # 日本語出力にする場合はコメントを外す
 ```
 
 ### 2. 自動適用されるラベル
