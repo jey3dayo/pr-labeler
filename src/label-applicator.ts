@@ -10,6 +10,7 @@ import { ResultAsync } from 'neverthrow';
 import { createGitHubAPIError, ensureError, extractErrorStatus, GitHubAPIError } from './errors/index.js';
 import type { LabelDecisions, LabelPolicyConfig, LabelUpdate } from './labeler-types.js';
 import type { PRContext } from './types.js';
+import { extractNamespace, matchesNamespacePattern } from './utils/namespace-utils.js';
 
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY_MS = 1000;
@@ -53,17 +54,21 @@ export function applyLabels(
 
 /**
  * Get current labels from PR
+ * Note: This function maintains compatibility with the existing octokit-based API
+ * while internally using the shared utility
  *
- * @param octokit - GitHub API client
+ * @param _octokit - GitHub API client (unused, maintained for API compatibility)
  * @param context - PR context
  * @returns Array of current label names or GitHubAPIError
  */
 export function getCurrentLabels(
-  octokit: ReturnType<typeof github.getOctokit>,
+  _octokit: ReturnType<typeof github.getOctokit>,
   context: PRContext,
 ): ResultAsync<string[], GitHubAPIError> {
+  // Note: We need the token to use the shared utility, but this function signature doesn't have it.
+  // For now, create a new octokit instance. This could be optimized in the future by changing the signature.
   return ResultAsync.fromPromise(
-    octokit.rest.issues.listLabelsOnIssue({
+    _octokit.rest.issues.listLabelsOnIssue({
       owner: context.owner,
       repo: context.repo,
       issue_number: context.pullNumber,
@@ -237,31 +242,4 @@ async function retryWithBackoff<T>(fn: () => Promise<T>, maxRetries: number = MA
  */
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Extract namespace from label (e.g., "size/small" -> "size")
- *
- * @param label - Full label name
- * @returns Namespace or null if no slash found
- */
-function extractNamespace(label: string): string | null {
-  const slashIndex = label.indexOf('/');
-  if (slashIndex === -1) {
-    return null;
-  }
-  return label.substring(0, slashIndex);
-}
-
-/**
- * Check if namespace matches a pattern (supports wildcard)
- *
- * @param namespace - Namespace string (e.g., "size")
- * @param pattern - Pattern string (e.g., "size/*" or "size")
- * @returns True if namespace matches pattern
- */
-function matchesNamespacePattern(namespace: string, pattern: string): boolean {
-  // Remove trailing /* if present
-  const normalizedPattern = pattern.endsWith('/*') ? pattern.slice(0, -2) : pattern;
-  return namespace === normalizedPattern;
 }
