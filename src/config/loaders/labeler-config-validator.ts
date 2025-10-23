@@ -4,19 +4,20 @@ import { errAsync, okAsync, ResultAsync } from 'neverthrow';
 import { type ConfigurationError, createConfigurationError } from '../../errors/index.js';
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
+import { isBoolean, isNumber, isRecord, isString } from '../../utils/type-guards.js';
 
 /**
  * Validate and sanitize labeler configuration
  */
 export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfig, ConfigurationError> {
-  if (typeof config !== 'object' || config === null) {
+  if (!isRecord(config)) {
     return errAsync(createConfigurationError('root', config, 'Configuration must be an object'));
   }
 
   const cfg = config as Partial<LabelerConfig>;
 
   if (cfg.language !== undefined) {
-    if (typeof cfg.language !== 'string') {
+    if (!isString(cfg.language)) {
       return errAsync(createConfigurationError('language', cfg.language, 'language must be a string'));
     }
     const lang = String(cfg.language).toLowerCase();
@@ -36,7 +37,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   if (cfg.size?.thresholds) {
     const { small, medium, large, xlarge } = cfg.size.thresholds;
 
-    if (small !== undefined && (typeof small !== 'number' || small < 0 || !Number.isInteger(small))) {
+    if (small !== undefined && (!isNumber(small) || small < 0 || !Number.isInteger(small))) {
       return errAsync(
         createConfigurationError(
           'size.thresholds.small',
@@ -45,7 +46,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
         ),
       );
     }
-    if (medium !== undefined && (typeof medium !== 'number' || medium < 0 || !Number.isInteger(medium))) {
+    if (medium !== undefined && (!isNumber(medium) || medium < 0 || !Number.isInteger(medium))) {
       return errAsync(
         createConfigurationError(
           'size.thresholds.medium',
@@ -54,7 +55,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
         ),
       );
     }
-    if (large !== undefined && (typeof large !== 'number' || large < 0 || !Number.isInteger(large))) {
+    if (large !== undefined && (!isNumber(large) || large < 0 || !Number.isInteger(large))) {
       return errAsync(
         createConfigurationError(
           'size.thresholds.large',
@@ -63,7 +64,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
         ),
       );
     }
-    if (xlarge !== undefined && (typeof xlarge !== 'number' || xlarge < 0 || !Number.isInteger(xlarge))) {
+    if (xlarge !== undefined && (!isNumber(xlarge) || xlarge < 0 || !Number.isInteger(xlarge))) {
       return errAsync(
         createConfigurationError(
           'size.thresholds.xlarge',
@@ -110,7 +111,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   if (cfg.complexity?.thresholds) {
     const { medium, high } = cfg.complexity.thresholds;
 
-    if (medium !== undefined && (typeof medium !== 'number' || medium < 0 || !Number.isInteger(medium))) {
+    if (medium !== undefined && (!isNumber(medium) || medium < 0 || !Number.isInteger(medium))) {
       return errAsync(
         createConfigurationError(
           'complexity.thresholds.medium',
@@ -119,7 +120,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
         ),
       );
     }
-    if (high !== undefined && (typeof high !== 'number' || high < 0 || !Number.isInteger(high))) {
+    if (high !== undefined && (!isNumber(high) || high < 0 || !Number.isInteger(high))) {
       return errAsync(
         createConfigurationError(
           'complexity.thresholds.high',
@@ -150,13 +151,13 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
     for (let i = 0; i < cfg.categories.length; i++) {
       const category = cfg.categories[i];
-      if (!category || typeof category !== 'object') {
+      if (!isRecord(category)) {
         return errAsync(createConfigurationError(`categories[${i}]`, category, 'Category config must be an object'));
       }
 
       const cat = category as { label?: unknown; patterns?: unknown; display_name?: unknown };
 
-      if (typeof cat.label !== 'string') {
+      if (!isString(cat.label)) {
         return errAsync(
           createConfigurationError(`categories[${i}].label`, cat.label, 'Category label must be a string'),
         );
@@ -169,7 +170,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
       }
 
       if (cat.display_name !== undefined) {
-        if (typeof cat.display_name !== 'object' || cat.display_name === null) {
+        if (!isRecord(cat.display_name)) {
           return errAsync(
             createConfigurationError(
               `categories[${i}].display_name`,
@@ -181,7 +182,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
         const displayName = cat.display_name as { en?: unknown; ja?: unknown };
 
-        if (typeof displayName.en !== 'string') {
+        if (!isString(displayName.en)) {
           return errAsync(
             createConfigurationError(
               `categories[${i}].display_name.en`,
@@ -191,7 +192,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
           );
         }
 
-        if (typeof displayName.ja !== 'string') {
+        if (!isString(displayName.ja)) {
           return errAsync(
             createConfigurationError(
               `categories[${i}].display_name.ja`,
@@ -204,7 +205,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
 
       for (let j = 0; j < cat.patterns.length; j++) {
         const pattern = cat.patterns[j];
-        if (typeof pattern !== 'string') {
+        if (!isString(pattern)) {
           return errAsync(
             createConfigurationError(`categories[${i}].patterns[${j}]`, pattern, 'Pattern must be a string'),
           );
@@ -223,7 +224,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
     }
   }
 
-  if (cfg.risk?.use_ci_status !== undefined && typeof cfg.risk.use_ci_status !== 'boolean') {
+  if (cfg.risk?.use_ci_status !== undefined && !isBoolean(cfg.risk.use_ci_status)) {
     return errAsync(
       createConfigurationError('risk.use_ci_status', cfg.risk.use_ci_status, 'risk.use_ci_status must be a boolean'),
     );
@@ -240,7 +241,7 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
     'labels',
     'runtime',
   ];
-  const unknownKeys = Object.keys(config as Record<string, unknown>).filter(key => !knownKeys.includes(key));
+  const unknownKeys = Object.keys(config).filter(key => !knownKeys.includes(key));
   if (unknownKeys.length > 0) {
     core.warning(`Unknown configuration keys will be ignored: ${unknownKeys.join(', ')}`);
   }

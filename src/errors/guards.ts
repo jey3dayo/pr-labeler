@@ -1,3 +1,6 @@
+import { hasProperty, isNumber, isObject, isString } from '../utils/type-guards.js';
+export { hasProperty, isBoolean, isNumber, isObject, isRecord, isString } from '../utils/type-guards.js';
+
 /**
  * Type guard functions for runtime type checking
  */
@@ -16,30 +19,12 @@ export function isError(error: unknown): error is Error {
 }
 
 /**
- * Checks if value is a non-null object
- * @param value - Value to check
- * @returns True if the value is an object and not null
- */
-export function isObject(value: unknown): value is object {
-  return typeof value === 'object' && value !== null;
-}
-
-/**
- * Checks if value is a string
- * @param value - Value to check
- * @returns True if the value is a string
- */
-export function isString(value: unknown): value is string {
-  return typeof value === 'string';
-}
-
-/**
  * Checks if object has a message property
  * @param obj - Object to check
  * @returns True if the object has a string message property
  */
 export function isErrorWithMessage(obj: unknown): obj is { message: string } {
-  return isObject(obj) && 'message' in obj && typeof obj.message === 'string';
+  return isObject(obj) && hasProperty(obj, 'message') && isString(obj.message);
 }
 
 /**
@@ -50,10 +35,10 @@ export function isErrorWithMessage(obj: unknown): obj is { message: string } {
 export function isErrorWithTypeAndMessage(obj: unknown): obj is { type: string; message: string } {
   return (
     isObject(obj) &&
-    'type' in obj &&
-    'message' in obj &&
-    typeof obj.type === 'string' &&
-    typeof obj.message === 'string'
+    hasProperty(obj, 'type') &&
+    hasProperty(obj, 'message') &&
+    isString(obj.type) &&
+    isString(obj.message)
   );
 }
 
@@ -67,7 +52,7 @@ export function isErrorWithTypeAndMessage(obj: unknown): obj is { type: string; 
  * @returns Status code if present, undefined otherwise
  */
 export function extractErrorStatus(error: unknown): number | undefined {
-  if (isObject(error) && 'status' in error && typeof error.status === 'number') {
+  if (isObject(error) && hasProperty(error, 'status') && isNumber(error.status)) {
     return error.status;
   }
   return undefined;

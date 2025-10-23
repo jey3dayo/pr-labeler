@@ -17,6 +17,7 @@ import { DEFAULT_ANALYSIS_OPTIONS } from './configs/default-config.js';
 import { type ComplexityAnalysisError, createComplexityAnalysisError, ensureError } from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
 import type { AnalysisOptions } from './types/config.js';
+import { hasProperty } from './utils/type-guards.js';
 
 // Re-export for backward compatibility
 export { DEFAULT_ANALYSIS_OPTIONS };
@@ -140,7 +141,7 @@ export class ComplexityAnalyzer {
             });
           }
         } catch (error) {
-          if (error && typeof error === 'object' && 'reason' in error) {
+          if (hasProperty(error, 'reason')) {
             // Re-throw ComplexityAnalysisError
             throw error;
           }
@@ -205,7 +206,7 @@ export class ComplexityAnalyzer {
       })(),
       (error): ComplexityAnalysisError => {
         // Error is already a ComplexityAnalysisError
-        if (error && typeof error === 'object' && 'reason' in error) {
+        if (hasProperty(error, 'reason')) {
           return error as ComplexityAnalysisError;
         }
 
@@ -307,7 +308,7 @@ export class ComplexityAnalyzer {
         return completeMetrics;
       })(),
       (error): ComplexityAnalysisError => {
-        if (error && typeof error === 'object' && 'reason' in error) {
+        if (hasProperty(error, 'reason')) {
           return error as ComplexityAnalysisError;
         }
         return createComplexityAnalysisError('general', {
