@@ -6,6 +6,7 @@
 import { minimatch } from 'minimatch';
 
 import { DEFAULT_EXCLUDE_PATTERNS } from './configs/default-excludes.js';
+import { normalizePath } from './utils/path-utils.js';
 
 /**
  * Get the default exclusion patterns
@@ -19,15 +20,7 @@ export function getDefaultExcludePatterns(): string[] {
  * Converts backslashes to forward slashes and removes leading ./
  */
 export function normalizePattern(pattern: string): string {
-  // Replace backslashes with forward slashes for cross-platform compatibility
-  let normalized = pattern.replace(/\\/g, '/');
-
-  // Remove leading ./ from the pattern
-  if (normalized.startsWith('./')) {
-    normalized = normalized.slice(2);
-  }
-
-  return normalized;
+  return normalizePath(pattern);
 }
 
 /**

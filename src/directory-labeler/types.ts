@@ -5,21 +5,11 @@
  */
 
 import { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS } from '../configs/directory-labeler-defaults.js';
+import type { MinimatchOptions, NamespacePolicy } from '../types/directory-labeler.js';
 
 // Re-export for backward compatibility
 export { DEFAULT_EXCLUDES, DEFAULT_NAMESPACES, DEFAULT_OPTIONS };
-
-/**
- * minimatchオプションの型定義
- */
-export interface MinimatchOptions {
-  /** 隠しファイル/ディレクトリ（`.github`等）をマッチ対象に含める */
-  dot?: boolean;
-  /** 大文字小文字を区別しない */
-  nocase?: boolean;
-  /** ベース名のみマッチを有効にする */
-  matchBase?: boolean;
-}
+export type { MinimatchOptions, NamespacePolicy };
 
 /**
  * ラベルマッピングルールの型定義
@@ -33,16 +23,6 @@ export interface LabelRule {
   exclude?: string[];
   /** 優先度（省略可、大きいほど優先） */
   priority?: number;
-}
-
-/**
- * 名前空間ポリシーの型定義
- */
-export interface NamespacePolicy {
-  /** 相互排他（置換）名前空間のリスト */
-  exclusive: string[];
-  /** 加法的（追加）名前空間のリスト */
-  additive: string[];
 }
 
 /**

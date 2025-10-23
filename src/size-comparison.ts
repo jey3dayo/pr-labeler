@@ -3,6 +3,7 @@
  */
 
 import type { SizeThresholdsV2 } from './input-mapper.js';
+import { calculateSizeLabel } from './utils/size-label-utils.js';
 
 /**
  * Size order definition (small < medium < large < xlarge < xxlarge)
@@ -55,17 +56,5 @@ export function compareSizeThreshold(appliedSize: string, threshold: string): bo
  * calculateSizeCategory(600, { small: 200, medium: 500, large: 1000, xlarge: 3000 }) // "size/medium"
  */
 export function calculateSizeCategory(totalAdditions: number, thresholds: SizeThresholdsV2): string {
-  if (totalAdditions < thresholds.small) {
-    return 'size/small';
-  }
-  if (totalAdditions < thresholds.medium) {
-    return 'size/medium';
-  }
-  if (totalAdditions < thresholds.large) {
-    return 'size/large';
-  }
-  if (totalAdditions < thresholds.xlarge) {
-    return 'size/xlarge';
-  }
-  return 'size/xxlarge';
+  return calculateSizeLabel(totalAdditions, thresholds);
 }

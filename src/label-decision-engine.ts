@@ -9,6 +9,7 @@ import { ok, Result } from 'neverthrow';
 import { allCIPassed, anyCIFailed } from './ci-status.js';
 import type { LabelDecisions, LabelerConfig, LabelReasoning, PRMetrics } from './labeler-types.js';
 import type { ChangeType, PRContext } from './types.js';
+import { calculateSizeLabel } from './utils/size-label-utils.js';
 
 /**
  * Decide labels based on PR metrics and configuration
@@ -110,19 +111,7 @@ export function decideSizeLabel(
   additions: number,
   thresholds: { small: number; medium: number; large: number; xlarge: number },
 ): string {
-  if (additions < thresholds.small) {
-    return 'size/small';
-  }
-  if (additions < thresholds.medium) {
-    return 'size/medium';
-  }
-  if (additions < thresholds.large) {
-    return 'size/large';
-  }
-  if (additions < thresholds.xlarge) {
-    return 'size/xlarge';
-  }
-  return 'size/xxlarge';
+  return calculateSizeLabel(additions, thresholds);
 }
 
 /**

@@ -10,6 +10,5 @@ export interface MatchResult {
     matchLength?: number;
     priority?: number;
 }
-export declare function normalizePath(path: string): string;
 export declare function compilePatterns(patterns: string[], options: MinimatchOptions, priority?: number): CompiledPattern[];
 export declare function matchIncludePatterns(filePath: string, includePatterns: CompiledPattern[], excludePatterns: CompiledPattern[]): MatchResult;

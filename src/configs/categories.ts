@@ -2,7 +2,7 @@
  * Default category configurations for PR Labeler
  */
 
-import type { CategoryConfig } from '../labeler-types.js';
+import type { CategoryConfig } from '../types/config.js';
 
 /**
  * Default categories for PR classification

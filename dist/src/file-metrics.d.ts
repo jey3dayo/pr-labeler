@@ -1,24 +1,8 @@
 import { Result } from 'neverthrow';
 import type { DiffFile } from './diff-strategy';
-import type { FileAnalysisError, Violations } from './errors/index.js';
-export interface FileMetrics {
-    path: string;
-    size: number;
-    lines: number;
-    additions: number;
-    deletions: number;
-}
-export interface AnalysisResult {
-    metrics: {
-        totalFiles: number;
-        totalAdditions: number;
-        filesAnalyzed: FileMetrics[];
-        filesExcluded: string[];
-        filesSkippedBinary: string[];
-        filesWithErrors: string[];
-    };
-    violations: Violations;
-}
+import type { FileAnalysisError } from './errors/index.js';
+import type { AnalysisResult, FileMetrics } from './types/analysis.js';
+export type { AnalysisResult, FileMetrics };
 interface RepoContext {
     owner: string;
     repo: string;
@@ -35,4 +19,3 @@ export declare function getFileSize(filePath: string, token: string, context: Re
 export declare function getFileLineCount(filePath: string, maxLines?: number): Promise<Result<number, FileAnalysisError>>;
 export declare function isBinaryFile(filePath: string): Promise<boolean>;
 export declare function analyzeFiles(files: DiffFile[], config: AnalysisConfig, token: string, context: RepoContext): Promise<Result<AnalysisResult, FileAnalysisError>>;
-export {};

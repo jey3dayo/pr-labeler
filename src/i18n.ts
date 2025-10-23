@@ -7,8 +7,6 @@
 import i18next, { type TOptions } from 'i18next';
 import { err, ok, type Result } from 'neverthrow';
 
-import { logDebug, logWarning } from './actions-io.js';
-import { createConfigurationError } from './errors/factories.js';
 import { ensureError } from './errors/helpers.js';
 import type { ConfigurationError } from './errors/types.js';
 import commonEn from './locales/en/common.json';
@@ -55,7 +53,7 @@ export function normalizeLanguageCode(lang: string): LanguageCode {
     return normalized;
   }
 
-  logWarning(`Invalid language code: "${lang}". Falling back to English. Supported languages: en, ja`);
+  console.warn(`[i18n] Invalid language code: "${lang}". Falling back to English. Supported languages: en, ja`);
   return 'en';
 }
 
@@ -67,9 +65,6 @@ export function normalizeLanguageCode(lang: string): LanguageCode {
  */
 export function initializeI18n(language: LanguageCode): Result<void, ConfigurationError> {
   try {
-    // デバッグログ: 受け取った言語コードを出力
-    logDebug(`[i18n] Initializing with language: "${language}"`);
-
     // 翻訳リソース定義 (静的import)
     const resources = {
       en: {
@@ -140,7 +135,13 @@ export function initializeI18n(language: LanguageCode): Result<void, Configurati
     return ok(undefined);
   } catch (error) {
     const errorMessage = ensureError(error).message;
-    return err(createConfigurationError('language', language, `Failed to initialize i18n: ${errorMessage}`));
+    // Directly create ConfigurationError to avoid circular dependency with errors/factories.ts
+    return err({
+      type: 'ConfigurationError' as const,
+      field: 'language',
+      value: language,
+      message: `Failed to initialize i18n: ${errorMessage}`,
+    });
   }
 }
 
@@ -158,7 +159,7 @@ export function initializeI18n(language: LanguageCode): Result<void, Configurati
  */
 export function t(namespace: Namespace, key: string, options?: TOptions): string {
   if (!isI18nInitialized || !cachedTFunction) {
-    logWarning(`i18n not initialized, returning key as fallback: ${namespace}:${key}`);
+    console.warn(`[i18n] not initialized, returning key as fallback: ${namespace}:${key}`);
     return key;
   }
 
@@ -171,7 +172,7 @@ export function t(namespace: Namespace, key: string, options?: TOptions): string
 
     return cachedTFunction(translationKey, options);
   } catch (error) {
-    logWarning(`Translation failed for key "${namespace}:${key}", returning key as fallback: ${error}`);
+    console.warn(`[i18n] Translation failed for key "${namespace}:${key}", returning key as fallback: ${error}`);
     return key;
   }
 }

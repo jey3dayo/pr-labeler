@@ -8,9 +8,9 @@ import {
   type CompiledPattern,
   compilePatterns,
   matchIncludePatterns,
-  normalizePath,
 } from '../../src/directory-labeler/pattern-matcher.js';
 import { DEFAULT_EXCLUDES } from '../../src/directory-labeler/types.js';
+import { normalizePath } from '../../src/utils/path-utils.js';
 
 describe('Directory-Based Labeler: Pattern Matcher', () => {
   describe('normalizePath', () => {

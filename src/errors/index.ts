@@ -55,7 +55,7 @@ export {
 } from './guards.js';
 
 // Export error helper functions
-export { ensureError, extractAggregateError, handleErrorLevel, processError } from './helpers.js';
+export { ensureError, extractAggregateError } from './helpers.js';
 
 // Re-export from neverthrow for convenience
 export type { Err, Ok } from 'neverthrow';

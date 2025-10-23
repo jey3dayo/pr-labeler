@@ -3,22 +3,9 @@
  * Following action-cache pattern for unified error handling
  */
 
-import { logInfo, logWarning } from '../actions-io.js';
-import { BaseError, type ErrorLevel } from './base-error.js';
 import { isError, isErrorWithMessage } from './guards.js';
 
 type ErrorConstructor<T extends Error = Error> = new (message: string) => T;
-type ErrorHandler = (error: Error) => void;
-type ErrorHandlerMap = Record<ErrorLevel, ErrorHandler>;
-
-/**
- * Creates a formatted error message
- * @param error - Error instance
- * @returns Formatted error message with error name
- */
-function createErrorMessage(error: Error): string {
-  return `[${error.name}]: ${error.message}`;
-}
 
 /**
  * Ensures that an unknown value is converted to an Error instance
@@ -56,53 +43,6 @@ export function ensureError<T extends Error>(
         ? error.message
         : defaultMessage;
   return new ErrorClass(message);
-}
-
-/**
- * Extracts the error level from an error
- * If the error is a BaseError, returns its errorLevel
- * Otherwise, returns 'warning' as default
- *
- * @param error - Unknown error value
- * @returns Error level ('warning' or 'info')
- */
-export function handleErrorLevel(error: unknown): ErrorLevel {
-  const e = ensureError(error);
-  return e instanceof BaseError ? e.errorLevel : 'warning';
-}
-
-/**
- * Error handler mapping for different error levels
- */
-const errorHandlers: ErrorHandlerMap = {
-  warning: error => logWarning(createErrorMessage(error)),
-  info: error => logInfo(createErrorMessage(error)),
-};
-
-/**
- * Processes an error by logging it according to its error level
- * and returning a formatted error message
- *
- * @param error - Unknown error value
- * @returns Formatted error message
- *
- * @example
- * ```typescript
- * try {
- *   // some code
- * } catch (error) {
- *   const message = processError(error); // Logs and returns message
- * }
- * ```
- */
-export function processError(error: unknown): string {
-  const normalizedError = ensureError(error);
-
-  const errorLevel = handleErrorLevel(normalizedError);
-  const handler = errorHandlers[errorLevel];
-  handler(normalizedError);
-
-  return createErrorMessage(normalizedError);
 }
 
 /**
