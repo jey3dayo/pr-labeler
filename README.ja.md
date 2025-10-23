@@ -4,157 +4,184 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 ![Test Coverage](https://img.shields.io/badge/Coverage-93%25-green.svg)
 
-PRのサイズ、カテゴリ、リスクを自動的に判定してラベル付けするGitHub Actionです。
+**GitHub Actions用のインテリジェントなPR分析・ラベリングツール** - プルリクエストを自動的に分類、サイズ判定、リスク評価します。
 
 🇯🇵 [日本語](README.ja.md) | 🇬🇧 [English](README.md)
 
-## 🚀 主要機能
+## ✨ PR Labelerを選ぶ理由
 
-- **📏 自動PRラベル付け**: PR追加行数に基づいてサイズラベル（small/medium/large/xlarge/xxlarge）を自動適用
-- **🏷️ 柔軟なカテゴリ分類**: PRをタイプ別に自動分類（テスト、ドキュメント、CI/CD、依存関係など）
-- **📁 ディレクトリベースラベル**: 変更ファイルパスに基づいてGlobパターンでラベル適用
-- **⚠️ リスク評価**: 高リスクな変更を識別（テストなしのコア変更）
-- **⚙️ ワークフロー失敗制御**: 違反検出時のワークフロー失敗をオプションで設定可能（大きなファイル、ファイル数超過、PRサイズ）
-- **🌐 多言語サポート**: サマリー、コメント、ログの英語・日本語出力
+インテリジェントな自動化でPRレビュープロセスを効率化:
 
-## 📋 クイックスタート
+- **📏 スマートなサイズ検出**: PRサイズ（small → xxlarge）を自動ラベリングし、レビュー優先度の判断をサポート
+- **🏷️ 自動カテゴリ分類**: 変更タイプ（テスト、ドキュメント、CI/CD、依存関係）を自動判定し、素早いフィルタリングを実現
+- **⚠️ リスク評価**: テストなしのコア変更を事前に検出し、マージ前に警告
+- **📁 パスベースラベル**: 柔軟なGlobパターンでファイルパスに基づくカスタムラベルを適用
+- **🚦 品質ゲート**: 大きすぎるPRやポリシー違反時にワークフローを失敗させるオプション機能
+- **🌐 多言語対応**: 英語・日本語の完全サポート
 
-### 最小構成
+## 🚀 クイックスタート
 
-`.github/workflows/pr-check.yml` に以下のワークフローを追加：
+2分で導入完了:
+
+### 1. ワークフローファイルを作成
+
+`.github/workflows/pr-labeler.yml` を追加:
 
 ```yaml
-name: PR Size Check
+name: PR Labeler
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  check:
+  label:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read        # ファイル読み取り
-      pull-requests: write  # ラベル管理
+      contents: read        # PRファイル読み取り
+      pull-requests: write  # ラベル適用
       issues: write         # コメント投稿
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: jey3dayo/pr-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-これにより、PRサイズ（例: `size/small`, `size/large`）、カテゴリ（例: `category/tests`, `category/docs`）、リスクレベル（例: `risk/high`）に基づいてラベルが自動的に適用されます。
+### 2. 自動適用されるラベル
 
-### 次のステップ
+設定後、すべてのPRに自動的に以下が付与されます:
 
-- 📖 **パラメータ設定**: 全入力オプションは [設定ガイド](docs/configuration.md) を参照
-- 🚀 **高度なシナリオ**: フォークPR、条件付き実行などは [高度な使用例](docs/advanced-usage.md) を参照
+- **サイズラベル**: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
+- **カテゴリラベル**: `category/tests`, `category/docs`, `category/ci-cd`, `category/dependencies` など
+- **リスクラベル**: `risk/high`, `risk/medium`（該当時）
 
-## 🔒 必要な権限
+### 3. カスタマイズ（オプション）
 
-このアクションには以下の権限が必要です：
+さらに詳細な制御が必要な場合:
+
+- 📖 [設定ガイド](docs/configuration.md) - 全入力パラメータと閾値設定
+- 🔧 [高度な使用例](docs/advanced-usage.md) - フォークPR、厳格モード、カスタムワークフロー
+
+## 🔒 権限設定
+
+必要なGitHub Actions権限:
 
 ```yaml
 permissions:
-  pull-requests: write  # ラベル管理
-  issues: write         # コメント投稿
-  contents: read        # ファイル読み取り
+  contents: read        # PRファイル読み取り
+  pull-requests: write  # ラベル適用・削除
+  issues: write         # PRコメント投稿
 ```
 
-**注意**: フォークからのPRには `pull_request_target` イベントを使用してください。詳細は [高度な使用例 - フォークPR対応](docs/advanced-usage.md#fork-pr-handling) を参照。
+**フォークPR**: `pull_request_target` イベントを使用してください。詳細は [フォークPR対応](docs/advanced-usage.md#fork-pr-handling) を参照。
 
-## 🏷️ 自動適用ラベル
+## 🏷️ 適用されるラベル
 
-### サイズラベル
+### サイズラベル（追加行数ベース）
 
-PR全体の追加行数に基づいて適用：
-
-- `size/small` - 200行未満
-- `size/medium` - 200-499行
-- `size/large` - 500-999行
-- `size/xlarge` - 1000-2999行
-- `size/xxlarge` - 3000行以上
+| ラベル         | 追加行数  | 用途             |
+| -------------- | --------- | ---------------- |
+| `size/small`   | < 200     | クイックレビュー |
+| `size/medium`  | 200-499   | 通常レビュー     |
+| `size/large`   | 500-999   | 集中が必要       |
+| `size/xlarge`  | 1000-2999 | 分割推奨         |
+| `size/xxlarge` | ≥ 3000    | 分割すべき       |
 
 ### カテゴリラベル
 
-変更ファイルパターンに基づいて適用：
+変更タイプを自動検出:
 
-- `category/tests` - テストファイルの変更
-- `category/ci-cd` - CI/CD設定
-- `category/documentation` - ドキュメント変更
-- `category/config` - 設定ファイル
-- `category/spec` - 仕様書ドキュメント
-- `category/dependencies` - 依存関係ファイル（Node.js、Go、Python、Rust、Ruby）
+| ラベル                   | マッチ対象     | 例                     |
+| ------------------------ | -------------- | ---------------------- |
+| `category/tests`         | テストファイル | `**/*.test.ts`         |
+| `category/ci-cd`         | CI/CD設定      | `.github/workflows/**` |
+| `category/documentation` | ドキュメント   | `docs/**`, `*.md`      |
+| `category/config`        | 設定ファイル   | `*.config.js`, `.env`  |
+| `category/spec`          | 仕様書         | `.kiro/specs/**`       |
+| `category/dependencies`  | ロックファイル | `package-lock.json`    |
 
 ### リスクラベル
 
-変更リスクに基づいて適用：
+潜在的な問題を警告:
 
-- `risk/high` - テストなしのコア変更
-- `risk/medium` - 設定ファイルの変更
+- `risk/high` - テスト更新を伴わないコア変更
+- `risk/medium` - 設定やインフラの変更
 
 ### 違反ラベル
 
-制限超過時に適用：
+制限超過時:
 
-- `auto/large-files` - ファイルサイズ/行数制限違反
-- `auto/too-many-files` - ファイル数超過
+- `auto/large-files` - 個別ファイルが大きすぎる
+- `auto/too-many-files` - 変更ファイル数が多すぎる
 
-**カスタマイズ**: 閾値とラベルの調整は [設定ガイド](docs/configuration.md#label-thresholds-defaults) を参照。
+**カスタマイズ**: すべての閾値とラベルは設定可能。詳細は [設定ガイド](docs/configuration.md#label-thresholds-defaults) を参照。
 
-## 🔧 入力パラメータ
+## ⚙️ 設定
 
-詳細なパラメータドキュメントは **[設定ガイド](docs/configuration.md)** を参照してください。
+### 主要オプション
 
-**クイックリファレンス**:
+```yaml
+- uses: jey3dayo/pr-labeler@v1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
 
-- **基本制限**: `file_size_limit`, `file_lines_limit`, `pr_additions_limit`, `pr_files_limit`
-- **ラベル制御**: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
-- **ワークフロー失敗**: `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`
-- **ディレクトリラベル**: `enable_directory_labeling`
-- **多言語**: `language` (en/ja)
+    # サイズ制限
+    file_size_limit: "100KB"      # 最大ファイルサイズ
+    file_lines_limit: "500"       # 最大行数/ファイル
+    pr_additions_limit: "5000"    # 最大追加行数合計
+    pr_files_limit: "50"          # 最大変更ファイル数
 
-## 📝 高度な使用例
+    # ラベル制御
+    size_enabled: "true"          # サイズラベル有効化
+    category_enabled: "true"      # カテゴリラベル有効化
+    risk_enabled: "true"          # リスクラベル有効化
+    complexity_enabled: "false"   # 複雑度ラベル（デフォルトOFF）
 
-実践的な例と高度な設定は **[高度な使用例ガイド](docs/advanced-usage.md)** を参照してください。
+    # 品質ゲート
+    fail_on_pr_size: "xlarge"     # PRが大きすぎる場合に失敗
+    fail_on_large_files: "true"   # ファイルが制限超過時に失敗
 
-**一般的なシナリオ**:
+    # ローカライズ
+    language: "ja"                # 出力言語（en/ja）
+```
 
-- [フォークPR対応](docs/advanced-usage.md#fork-pr-handling) - `pull_request_target` 設定
-- [条件付き実行](docs/advanced-usage.md#conditional-execution) - ラベル/ブランチ/パスでスキップ
-- [厳格モード](docs/advanced-usage.md#strict-mode) - 違反時にワークフロー失敗
-- [選択的ラベル有効化](docs/advanced-usage.md#selective-label-enabling) - ラベル種別を個別に有効/無効化
-- [ディレクトリベースラベル](docs/advanced-usage.md#directory-based-labeling) - ファイルパスパターンでラベル適用
-- [多言語サポート](docs/advanced-usage.md#multi-language-support) - 日本語/英語出力
+### 高度な機能
+
+- **ディレクトリベースラベル**: ファイルパスパターンでカスタムラベルを適用
+- **フォークPRサポート**: `pull_request_target` で安全に処理
+- **条件付き実行**: ラベル、ブランチ、パスでチェックをスキップ
+- **カスタム閾値**: すべてのサイズ・複雑度の制限を微調整
+
+👉 **完全なドキュメント**: [設定ガイド](docs/configuration.md) | [高度な使用例](docs/advanced-usage.md)
 
 ## 📚 ドキュメント
 
-- **[設定ガイド](docs/configuration.md)** - 全入力パラメータ、出力変数、デフォルト値
-- **[高度な使用例ガイド](docs/advanced-usage.md)** - 実践的な例と高度なシナリオ
-- **[トラブルシューティングガイド](docs/troubleshooting.md)** - よくある問題と解決策
-- **[APIドキュメント](docs/API.md)** - 内部APIリファレンス
-- **[リリースプロセス](docs/release-process.md)** - 新バージョンのリリース方法
+| ガイド                                            | 説明                       |
+| ------------------------------------------------- | -------------------------- |
+| [設定ガイド](docs/configuration.md)               | 全入力・出力・デフォルト値 |
+| [高度な使用例](docs/advanced-usage.md)            | 実践的な例とパターン       |
+| [トラブルシューティング](docs/troubleshooting.md) | よくある問題と解決策       |
+| [APIリファレンス](docs/API.md)                    | 内部APIドキュメント        |
+| [リリースプロセス](docs/release-process.md)       | バージョン管理             |
 
 ## 🤝 コントリビューション
 
-コントリビューションを歓迎します！大きな変更の場合は、まずissueを開いて変更内容を議論してください。
+コントリビューション歓迎！以下をお願いします:
 
-テストが通ることと、既存のコードスタイルに従うことを確認してください。
+1. 大きな変更の場合はissueを開く
+2. すべてのテストが成功することを確認
+3. 既存のコードスタイルに従う
 
 ## 📄 ライセンス
 
-MIT
+MIT License - 詳細はリポジトリを参照してください。
 
-## 🙏 謝辞
+## 🙏 使用ライブラリ
 
-このプロジェクトは以下のライブラリを使用しています：
-
-- [neverthrow](https://github.com/supermacro/neverthrow) - Railway-Oriented Programming
-- [minimatch](https://github.com/isaacs/minimatch) - パターンマッチング
-- [bytes](https://github.com/visionmedia/bytes.js) - サイズ解析
-- [@actions/core](https://github.com/actions/toolkit) - GitHub Actions統合
-- [@actions/github](https://github.com/actions/toolkit) - GitHub API
+- [neverthrow](https://github.com/supermacro/neverthrow) - 型安全なエラーハンドリング
+- [minimatch](https://github.com/isaacs/minimatch) - Globパターンマッチング
+- [bytes](https://github.com/visionmedia/bytes.js) - サイズ解析ユーティリティ
+- [@actions/toolkit](https://github.com/actions/toolkit) - GitHub Actions SDK
