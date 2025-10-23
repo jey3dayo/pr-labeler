@@ -24,6 +24,14 @@ Streamline your PR review process with intelligent automation:
   - Example: `fail_on_pr_size: "xlarge"` fails workflow for xlarge or larger PRs
 - **🌐 Multi-language**: Full support for English and Japanese output
 
+## 🎯 Design Philosophy
+
+**Static Analysis First** - Focus on rule-based static analysis without AI/LLM dependencies.
+
+- ⚡ **Fast & Predictable**: No API calls, consistent results
+- 🔒 **Privacy-Focused**: Runs entirely within GitHub Actions, no external data transmission
+- 💰 **Cost-Effective**: Zero external API costs
+
 ## 🚀 Quick Start
 
 Get started in 2 minutes:
