@@ -7,12 +7,19 @@ import {
   decideRiskLabel,
   decideSizeLabel,
 } from '../src/label-decision-engine';
-import type { PRMetrics } from '../src/labeler-types';
 import { DEFAULT_LABELER_CONFIG } from '../src/labeler-types';
+import {
+  ciCdCategory,
+  defaultComplexityThresholds,
+  defaultRiskConfig,
+  defaultSizeThresholds,
+  docsCategory,
+  testCategory,
+} from './__fixtures__/index.js';
 
 describe('Label Decision Engine', () => {
   describe('decideSizeLabel', () => {
-    const thresholds = { small: 200, medium: 500, large: 1000, xlarge: 3000 };
+    const thresholds = defaultSizeThresholds;
 
     it('should return size/small for additions < 200', () => {
       expect(decideSizeLabel(0, thresholds)).toBe('size/small');
@@ -46,7 +53,7 @@ describe('Label Decision Engine', () => {
   });
 
   describe('decideComplexityLabel', () => {
-    const thresholds = { medium: 10, high: 20 };
+    const thresholds = defaultComplexityThresholds;
 
     it('should return null for low complexity', () => {
       expect(decideComplexityLabel(0, thresholds)).toBeNull();
@@ -68,11 +75,7 @@ describe('Label Decision Engine', () => {
   });
 
   describe('decideCategoryLabels', () => {
-    const categories = [
-      { label: 'category/tests', patterns: ['__tests__/**', '**/*.test.ts'] },
-      { label: 'category/ci-cd', patterns: ['.github/workflows/**'] },
-      { label: 'category/docs', patterns: ['docs/**', '**/*.md'] },
-    ];
+    const categories = [testCategory, ciCdCategory, docsCategory];
 
     it('should return empty array for no matches', () => {
       const files = ['src/index.ts', 'src/utils.ts'];
@@ -89,7 +92,7 @@ describe('Label Decision Engine', () => {
       const result = decideCategoryLabels(files, categories);
       expect(result).toContain('category/tests');
       expect(result).toContain('category/ci-cd');
-      expect(result).toContain('category/docs');
+      expect(result).toContain('category/documentation');
       expect(result).toHaveLength(3);
     });
 
@@ -101,9 +104,9 @@ describe('Label Decision Engine', () => {
 
   describe('decideRiskLabel', () => {
     const config = {
-      high_if_no_tests_for_core: true,
-      core_paths: ['src/**'],
-      config_files: ['.github/workflows/**', 'package.json', 'tsconfig.json'],
+      high_if_no_tests_for_core: defaultRiskConfig.high_if_no_tests_for_core,
+      core_paths: defaultRiskConfig.core_paths,
+      config_files: defaultRiskConfig.config_files,
     };
 
     it('should return null for docs-only changes', () => {

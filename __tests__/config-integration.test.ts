@@ -9,27 +9,24 @@
  * 5. initializeI18n() - Initialize i18n with language code
  */
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { buildCompleteConfig } from '../src/config-builder.js';
 import { loadEnvironmentConfig } from '../src/environment-loader.js';
-import { initializeI18n, resetI18n } from '../src/i18n.js';
-import type { ParsedInputs } from '../src/input-parser.js';
-import type { LabelerConfig } from '../src/labeler-types.js';
+import { initializeI18n } from '../src/i18n.js';
+import { createMockLabelerConfig, createMockParsedInputs, setupI18nEnvironment } from './__fixtures__/index.js';
 
 describe('Configuration Integration', () => {
-  let originalEnv: NodeJS.ProcessEnv;
+  let restoreEnv: () => void;
 
   beforeEach(() => {
-    // 環境変数のバックアップ
-    originalEnv = { ...process.env };
-    // i18nをリセット
-    resetI18n();
+    // Setup environment and i18n
+    restoreEnv = setupI18nEnvironment();
   });
 
   afterEach(() => {
-    // 環境変数を復元
-    process.env = originalEnv;
+    // Restore environment
+    restoreEnv();
   });
 
   describe('Priority Chain: action input > labeler config > env > default', () => {
@@ -37,23 +34,12 @@ describe('Configuration Integration', () => {
       // Setup: 全てのソースに異なる値を設定
       process.env['LANGUAGE'] = 'ja'; // 環境変数
 
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: 'en', // action input (最優先)
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: 'ja', // labeler config
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: 'en' }); // action input (最優先)
+      const labelerConfig = createMockLabelerConfig({ language: 'ja' }); // labeler config
       const envConfig = loadEnvironmentConfig();
 
       // Act: 設定を統合
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       // Assert: action input が優先される
       expect(config.language).toBe('en');
@@ -63,23 +49,12 @@ describe('Configuration Integration', () => {
       // Setup
       process.env['LANGUAGE'] = 'en'; // 環境変数
 
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: undefined, // action input は未設定
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: 'ja', // labeler config (優先される)
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: undefined }); // action input は未設定
+      const labelerConfig = createMockLabelerConfig({ language: 'ja' }); // labeler config (優先される)
       const envConfig = loadEnvironmentConfig();
 
       // Act
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       // Assert: labeler config が優先される
       expect(config.language).toBe('ja');
@@ -89,23 +64,12 @@ describe('Configuration Integration', () => {
       // Setup
       process.env['LANGUAGE'] = 'ja'; // 環境変数 (優先される)
 
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: undefined, // action input は未設定
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: undefined, // labeler config も未設定
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: undefined }); // action input は未設定
+      const labelerConfig = createMockLabelerConfig({ language: undefined }); // labeler config も未設定
       const envConfig = loadEnvironmentConfig();
 
       // Act
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       // Assert: environment が優先される
       expect(config.language).toBe('ja');
@@ -116,23 +80,12 @@ describe('Configuration Integration', () => {
       delete process.env['LANGUAGE'];
       delete process.env['LANG'];
 
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: undefined,
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: undefined,
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: undefined });
+      const labelerConfig = createMockLabelerConfig({ language: undefined });
       const envConfig = loadEnvironmentConfig();
 
       // Act
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       // Assert: デフォルト値 'en' が使用される
       expect(config.language).toBe('en');
@@ -142,23 +95,12 @@ describe('Configuration Integration', () => {
   describe('Language Code Normalization', () => {
     it('should normalize locale format from labeler config (ja-JP -> ja)', () => {
       // Setup
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: undefined,
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: 'ja-JP', // ロケール形式
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: undefined });
+      const labelerConfig = createMockLabelerConfig({ language: 'ja-JP' }); // ロケール形式
       const envConfig = loadEnvironmentConfig();
 
       // Act
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       // Assert: 'ja-JP' が 'ja' に正規化される
       expect(config.language).toBe('ja');
@@ -168,23 +110,12 @@ describe('Configuration Integration', () => {
       // Setup
       process.env['LANGUAGE'] = 'en-US';
 
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: undefined,
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: undefined,
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: undefined });
+      const labelerConfig = createMockLabelerConfig({ language: undefined });
       const envConfig = loadEnvironmentConfig();
 
       // Act
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       // Assert: 'en-US' が 'en' に正規化される
       expect(config.language).toBe('en');
@@ -196,23 +127,12 @@ describe('Configuration Integration', () => {
       // Setup: 以前は action.yml の default: "en" により、この環境変数が無視されていた
       process.env['LANGUAGE'] = 'ja';
 
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: undefined, // action.yml の default 削除により、undefined になる
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: undefined,
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: undefined }); // action.yml の default 削除により、undefined になる
+      const labelerConfig = createMockLabelerConfig({ language: undefined });
       const envConfig = loadEnvironmentConfig();
 
       // Act
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       // Assert: LANGUAGE=ja が正しく動作する
       expect(config.language).toBe('ja');
@@ -224,23 +144,12 @@ describe('Configuration Integration', () => {
       // Setup
       process.env['LANGUAGE'] = 'ja';
 
-      const parsedInputs: Partial<ParsedInputs> = {
-        language: undefined,
-        githubToken: 'test-token',
-        fileSizeLimit: 100000,
-        fileLinesLimit: 500,
-        prAdditionsLimit: 5000,
-        prFilesLimit: 50,
-      };
-
-      const labelerConfig: Partial<LabelerConfig> = {
-        language: undefined,
-      };
-
+      const parsedInputs = createMockParsedInputs({ language: undefined });
+      const labelerConfig = createMockLabelerConfig({ language: undefined });
       const envConfig = loadEnvironmentConfig();
 
       // Act
-      const config = buildCompleteConfig(parsedInputs as ParsedInputs, labelerConfig as LabelerConfig, envConfig);
+      const config = buildCompleteConfig(parsedInputs, labelerConfig, envConfig);
 
       const result = initializeI18n(config.language);
 
