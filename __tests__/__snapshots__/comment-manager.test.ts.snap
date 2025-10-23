@@ -3,7 +3,7 @@
 exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring safety) > should match snapshot: large PR with many files 1`] = `
 "## ✅ PR Size Check Passed
 
-### 📈 Basic Metrics
+### 📊 Basic Metrics
 
 - Total Additions: **200**
 - Total Files Changed: **5**
@@ -30,7 +30,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring safety) > should match snapshot: no violations 1`] = `
 "## ✅ PR Size Check Passed
 
-### 📈 Basic Metrics
+### 📊 Basic Metrics
 
 - Total Additions: **100**
 - Total Files Changed: **0**
@@ -47,7 +47,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring safety) > should match snapshot: with errors 1`] = `
 "## ✅ PR Size Check Passed
 
-### 📈 Basic Metrics
+### 📊 Basic Metrics
 
 - Total Additions: **50**
 - Total Files Changed: **0**
@@ -72,7 +72,7 @@ Some files could not be analyzed:
 exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring safety) > should match snapshot: with violations 1`] = `
 "## 📊 PR Size Check - Large PR Detected
 
-### 📈 Basic Metrics
+### 📊 Basic Metrics
 
 - Total Additions: **1,500**
 - Total Files Changed: **2**
