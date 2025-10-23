@@ -3,17 +3,17 @@
  */
 
 /**
- * Checks whether a value is a non-null object (including arrays, dates, etc.)
+ * Checks whether a value is a non-null object (excluding arrays)
  */
 export function isObject(value: unknown): value is Record<PropertyKey, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**
  * Checks whether a value is a plain record (non-null object excluding arrays)
  */
 export function isRecord(value: unknown): value is Record<string, unknown> {
-  return isObject(value) && !Array.isArray(value);
+  return isObject(value);
 }
 
 /**
