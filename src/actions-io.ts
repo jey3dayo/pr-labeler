@@ -8,7 +8,7 @@ import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
 import type { ConfigurationError } from './errors/index.js';
-import { createConfigurationError, extractErrorMessage } from './errors/index.js';
+import { createConfigurationError, ensureError } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import { isInitialized, t } from './i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from './labeler-types';
@@ -303,9 +303,9 @@ export async function writeSummaryWithAnalysis(
 
     return ok({ action: 'written', bytesWritten });
   } catch (error) {
-    const message = extractErrorMessage(error);
-    logWarning(`Failed to write summary: ${message}`);
-    return err(new Error(`Failed to write GitHub Actions Summary: ${message}`));
+    const e = ensureError(error);
+    logWarning(`Failed to write summary: ${e.message}`);
+    return err(new Error(`Failed to write GitHub Actions Summary: ${e.message}`));
   }
 }
 

@@ -73,24 +73,8 @@ export function isComplexityAnalysisError(e: unknown): e is ComplexityAnalysisEr
 }
 
 // ============================================================================
-// Error Message Extraction
+// Error Property Extraction
 // ============================================================================
-
-/**
- * Extracts error message from unknown error value
- * Handles Error instances, objects with message property, and other types
- * @param error - Unknown error value
- * @returns Error message string
- */
-export function extractErrorMessage(error: unknown): string {
-  if (isError(error)) {
-    return error.message;
-  }
-  if (isErrorWithMessage(error)) {
-    return error.message;
-  }
-  return String(error);
-}
 
 /**
  * Extracts HTTP status code from error (typically from GitHub API errors)

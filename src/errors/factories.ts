@@ -3,6 +3,7 @@
  */
 
 import { t } from '../i18n.js';
+import { ensureError } from './helpers.js';
 import type {
   CacheError,
   ComplexityAnalysisError,
@@ -264,7 +265,7 @@ export const createRateLimitError = (retryAfter?: number, customMessage?: string
  * @returns UnexpectedError
  */
 export const createUnexpectedError = (originalError?: unknown, customMessage?: string): UnexpectedError => {
-  const details = originalError instanceof Error ? originalError.message : String(originalError || 'unknown error');
+  const details = ensureError(originalError, 'unknown error').message;
   const message = customMessage || `Unexpected error occurred: ${details}`;
   const error: UnexpectedError = { type: 'UnexpectedError', message };
   return withOptionalField(error, 'originalError', originalError);

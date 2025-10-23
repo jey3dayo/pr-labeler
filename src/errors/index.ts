@@ -1,6 +1,6 @@
 /**
  * Error handling module
- * Re-exports all error types, factories, and guards for convenience
+ * Re-exports all error types, factories, guards, and helpers for convenience
  */
 
 // Export all types
@@ -23,6 +23,9 @@ export type {
   Violations,
 } from './types.js';
 
+// Export BaseError and ErrorLevel
+export { BaseError, type ErrorLevel } from './base-error.js';
+
 // Export all factory functions
 export {
   createCacheError,
@@ -42,7 +45,6 @@ export {
 
 // Export all type guard functions
 export {
-  extractErrorMessage,
   extractErrorStatus,
   isComplexityAnalysisError,
   isError,
@@ -51,6 +53,9 @@ export {
   isObject,
   isString,
 } from './guards.js';
+
+// Export error helper functions
+export { ensureError, extractAggregateError, handleErrorLevel, processError } from './helpers.js';
 
 // Re-export from neverthrow for convenience
 export type { Err, Ok } from 'neverthrow';

@@ -3,17 +3,18 @@
  * Uses ESLint standard complexity rule
  */
 
-import { promises as fs } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
 import * as core from '@actions/core';
+import parser from '@typescript-eslint/parser';
 import type { Linter } from 'eslint';
 import { ESLint } from 'eslint';
 import { ResultAsync } from 'neverthrow';
 import pLimit from 'p-limit';
 
 import { DEFAULT_ANALYSIS_OPTIONS } from './configs/default-config.js';
-import { type ComplexityAnalysisError, createComplexityAnalysisError, extractErrorMessage } from './errors/index.js';
+import { type ComplexityAnalysisError, createComplexityAnalysisError, ensureError } from './errors/index.js';
 import type { ComplexityMetrics, FileComplexity, FunctionComplexity, SkippedFile } from './labeler-types.js';
 
 // Re-export for backward compatibility
@@ -38,8 +39,7 @@ export interface AnalysisOptions {
 function hasTsconfigJson(): boolean {
   try {
     const tsconfigPath = path.join(process.cwd(), 'tsconfig.json');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return require('fs').existsSync(tsconfigPath);
+    return existsSync(tsconfigPath);
   } catch {
     return false;
   }
@@ -51,15 +51,12 @@ function hasTsconfigJson(): boolean {
  * @returns Configured ESLint instance
  */
 function createESLintInstance(hasTsconfig: boolean): ESLint {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const typescriptParser = require('@typescript-eslint/parser');
-
   return new ESLint({
     overrideConfigFile: true,
     baseConfig: {
       files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
       languageOptions: {
-        parser: typescriptParser,
+        parser,
         parserOptions: {
           ecmaVersion: 'latest',
           sourceType: 'module',
@@ -126,7 +123,6 @@ function hasSyntaxError(messages: Linter.LintMessage[]): boolean {
  * Note: This uses class syntax for better organization of related methods.
  * Class syntax is restricted elsewhere in the codebase, but allowed here for this specific use case.
  */
-// eslint-disable-next-line no-restricted-syntax
 export class ComplexityAnalyzer {
   /**
    * Analyze a single file for complexity
@@ -160,7 +156,7 @@ export class ComplexityAnalyzer {
           }
           throw createComplexityAnalysisError('analysis_failed', {
             filename: filePath,
-            details: `Failed to stat file ${filePath}: ${extractErrorMessage(error)}`,
+            details: `Failed to stat file ${filePath}: ${ensureError(error).message}`,
           });
         }
 
@@ -226,7 +222,7 @@ export class ComplexityAnalyzer {
         // Convert unknown errors
         return createComplexityAnalysisError('analysis_failed', {
           filename: filePath,
-          details: `Failed to analyze ${filePath}: ${extractErrorMessage(error)}`,
+          details: `Failed to analyze ${filePath}: ${ensureError(error).message}`,
         });
       },
     );
@@ -251,7 +247,8 @@ export class ComplexityAnalyzer {
         const skippedFiles: SkippedFile[] = [];
 
         // p-limitで並列度制御
-        const concurrency = Math.min(opts.concurrency, 8);
+        const raw = Number.isFinite(opts.concurrency as number) ? (opts.concurrency as number) : 8;
+        const concurrency = Math.max(1, Math.min(raw, 8));
         const limit = pLimit(concurrency);
 
         core.info(`Analyzing ${filePaths.length} files with concurrency ${concurrency}`);
@@ -324,7 +321,7 @@ export class ComplexityAnalyzer {
           return error as ComplexityAnalysisError;
         }
         return createComplexityAnalysisError('general', {
-          details: `Failed to analyze files: ${extractErrorMessage(error)}`,
+          details: `Failed to analyze files: ${ensureError(error).message}`,
         });
       },
     );

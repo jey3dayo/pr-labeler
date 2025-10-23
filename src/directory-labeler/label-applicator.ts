@@ -12,8 +12,8 @@ import {
   createGitHubAPIError,
   createPermissionError,
   createRateLimitError,
+  ensureError,
   err,
-  extractErrorMessage,
   extractErrorStatus,
   ok,
   type Result,
@@ -48,6 +48,12 @@ export interface ApplyResult {
   removed?: string[];
   /** 失敗したラベル */
   failed: Array<{ label: string; reason: string }>;
+}
+
+interface OctokitErrorResponse {
+  response?: {
+    headers?: Record<string, unknown>;
+  };
 }
 
 /**
@@ -112,19 +118,18 @@ export async function applyDirectoryLabels(
     existingLabels = data.map(label => label.name);
     core.debug(`Existing labels: ${existingLabels.join(', ')}`);
   } catch (error) {
-    const message = extractErrorMessage(error);
+    const e = ensureError(error);
     const status = extractErrorStatus(error);
 
     if (status === 403) {
-      return err(createPermissionError('issues: read', `Failed to list labels: ${message}`));
+      return err(createPermissionError('issues: read', `Failed to list labels: ${e.message}`));
     }
 
     if (status === 429) {
       // Extract Retry-After header if available
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const errorWithResponse = error as any;
-      const retryAfterHeader =
-        errorWithResponse?.response?.headers?.['retry-after'] ?? errorWithResponse?.response?.headers?.['Retry-After'];
+      const errorWithResponse = error as OctokitErrorResponse;
+      const headers = errorWithResponse.response?.headers ?? {};
+      const retryAfterHeader = headers['retry-after'] ?? headers['Retry-After'];
       const retryAfter =
         typeof retryAfterHeader === 'string'
           ? Number.parseInt(retryAfterHeader, 10)
@@ -134,7 +139,7 @@ export async function applyDirectoryLabels(
       return err(createRateLimitError(Number.isFinite(retryAfter) ? (retryAfter as number) : undefined));
     }
 
-    return err(createGitHubAPIError(`Failed to list labels: ${message}`, status));
+    return err(createGitHubAPIError(`Failed to list labels: ${e.message}`, status));
   }
 
   // 名前空間ポリシーに基づいて削除すべきラベルを決定
@@ -167,9 +172,9 @@ export async function applyDirectoryLabels(
       result.removed?.push(label);
       core.info(`Removed label: ${label}`);
     } catch (error) {
-      const message = extractErrorMessage(error);
-      core.warning(`Failed to remove label "${label}": ${message}`);
-      result.failed.push({ label, reason: `Failed to remove: ${message}` });
+      const e = ensureError(error);
+      core.warning(`Failed to remove label "${label}": ${e.message}`);
+      result.failed.push({ label, reason: `Failed to remove: ${e.message}` });
     }
   }
 
@@ -196,7 +201,7 @@ export async function applyDirectoryLabels(
       result.applied.push(...labelsToAdd);
       core.info(`Applied labels: ${labelsToAdd.join(', ')}`);
     } catch (error) {
-      const message = extractErrorMessage(error);
+      const e = ensureError(error);
       const status = extractErrorStatus(error);
 
       // ラベル未存在エラー（422）の場合、常にラベルを作成
@@ -206,9 +211,9 @@ export async function applyDirectoryLabels(
       } else {
         // その他のエラーは失敗として記録
         for (const label of labelsToAdd) {
-          result.failed.push({ label, reason: message });
+          result.failed.push({ label, reason: e.message });
         }
-        core.error(`Failed to add labels: ${message}`);
+        core.error(`Failed to add labels: ${e.message}`);
       }
     }
   }
@@ -246,9 +251,9 @@ async function createMissingLabels(
       const status = extractErrorStatus(error);
       // 422 ⇒ label likely doesn't exist in the repo; try to create
       if (status !== 422) {
-        const message = extractErrorMessage(error);
-        result.failed.push({ label, reason: `Failed to add: ${message}` });
-        core.warning(`Failed to add label "${label}": ${message}`);
+        const e = ensureError(error);
+        result.failed.push({ label, reason: `Failed to add: ${e.message}` });
+        core.warning(`Failed to add label "${label}": ${e.message}`);
         continue;
       }
       // Fall through to create label
@@ -266,11 +271,11 @@ async function createMissingLabels(
       core.info(`Created label: ${label}`);
     } catch (error) {
       const status = extractErrorStatus(error);
-      const message = extractErrorMessage(error);
+      const e = ensureError(error);
       // If it already exists (422), proceed to add; otherwise record failure and continue
       if (status !== 422) {
-        result.failed.push({ label, reason: `Failed to create: ${message}` });
-        core.warning(`Failed to create label "${label}": ${message}`);
+        result.failed.push({ label, reason: `Failed to create: ${e.message}` });
+        core.warning(`Failed to create label "${label}": ${e.message}`);
         continue;
       }
     }
@@ -285,9 +290,9 @@ async function createMissingLabels(
       result.applied.push(label);
       core.info(`Applied label: ${label}`);
     } catch (error) {
-      const message = extractErrorMessage(error);
-      result.failed.push({ label, reason: `Failed to apply after create: ${message}` });
-      core.warning(`Failed to apply label "${label}" after create: ${message}`);
+      const e = ensureError(error);
+      result.failed.push({ label, reason: `Failed to apply after create: ${e.message}` });
+      core.warning(`Failed to apply label "${label}" after create: ${e.message}`);
     }
   }
 }

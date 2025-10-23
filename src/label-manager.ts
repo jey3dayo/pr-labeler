@@ -9,7 +9,7 @@ import { err, ok, Result } from 'neverthrow';
 import { logDebug, logInfo, logWarning } from './actions-io';
 import { AUTO_LABEL_PREFIX, SIZE_LABEL_PREFIX, SIZE_LABELS, VIOLATION_LABELS } from './configs/label-defaults.js';
 import type { ConfigurationError, GitHubAPIError, Violations } from './errors/index.js';
-import { createConfigurationError, createGitHubAPIError, extractErrorMessage } from './errors/index.js';
+import { createConfigurationError, createGitHubAPIError, ensureError } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
 
@@ -135,7 +135,7 @@ export async function getCurrentLabels(token: string, context: PRContext): Promi
 
     return ok(labels);
   } catch (error) {
-    const message = extractErrorMessage(error);
+    const message = ensureError(error).message;
     return err(createGitHubAPIError(`Failed to get labels: ${message}`));
   }
 }
@@ -161,7 +161,7 @@ export async function getCurrentPRLabels(token: string, context: PRContext): Pro
 
     return labels;
   } catch (error) {
-    const message = extractErrorMessage(error);
+    const message = ensureError(error).message;
     logWarning(`Failed to get labels (will use violations only): ${message}`);
     return undefined;
   }
@@ -201,7 +201,7 @@ async function modifyLabels(
     await operation.execute(octokit, context, labels);
     return ok(undefined);
   } catch (error) {
-    const message = extractErrorMessage(error);
+    const message = ensureError(error).message;
     return err(createGitHubAPIError(`Failed to ${operation.name} labels: ${message}`));
   }
 }
@@ -251,7 +251,7 @@ export async function removeLabels(
           });
         } catch (error) {
           // Log warning but continue removing other labels
-          logWarning(`Failed to remove label '${label}': ${extractErrorMessage(error)}`);
+          logWarning(`Failed to remove label '${label}': ${ensureError(error).message}`);
         }
       }
     },

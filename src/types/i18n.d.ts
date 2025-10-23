@@ -17,17 +17,17 @@ import type summaryEn from '../locales/en/summary.json';
  * Phase 1: resources形状型のみ (DotPath型は将来実装)
  */
 export type TranslationResources = {
-  summary: typeof summaryEn;
-  errors: typeof errorsEn;
-  logs: typeof logsEn;
-  labels: typeof labelsEn;
   common: typeof commonEn;
+  errors: typeof errorsEn;
+  labels: typeof labelsEn;
+  logs: typeof logsEn;
+  summary: typeof summaryEn;
 };
 
 /**
  * 名前空間の型定義
  */
-export type Namespace = 'summary' | 'errors' | 'logs' | 'labels' | 'common';
+export type Namespace = 'common' | 'errors' | 'labels' | 'logs' | 'summary';
 
 /**
  * 言語コードの型定義

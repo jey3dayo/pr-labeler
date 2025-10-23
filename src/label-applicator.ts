@@ -7,7 +7,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { ResultAsync } from 'neverthrow';
 
-import { createGitHubAPIError, extractErrorMessage, extractErrorStatus, GitHubAPIError } from './errors/index.js';
+import { createGitHubAPIError, ensureError, extractErrorStatus, GitHubAPIError } from './errors/index.js';
 import type { LabelDecisions, LabelPolicyConfig, LabelUpdate } from './labeler-types.js';
 import type { PRContext } from './types.js';
 
@@ -70,7 +70,7 @@ export function getCurrentLabels(
     }),
     (error): GitHubAPIError => {
       return createGitHubAPIError(
-        `Failed to get current labels: ${extractErrorMessage(error)}`,
+        `Failed to get current labels: ${ensureError(error).message}`,
         extractErrorStatus(error),
       );
     },
@@ -199,7 +199,7 @@ function applyLabelChanges(
         return createGitHubAPIError('Permission denied: cannot apply labels', 403);
       }
 
-      return createGitHubAPIError(`Failed to apply labels: ${extractErrorMessage(error)}`, status);
+      return createGitHubAPIError(`Failed to apply labels: ${ensureError(error).message}`, status);
     },
   );
 }
