@@ -1264,13 +1264,6 @@ throw createConfigurationError('field', value);
    createParseError(input, errorDetails);
    ```
 
-3. **翻訳リソースに未登録のエラー**（一時的な対応）:
-
-   ```typescript
-   createConfigurationError('newField', value, 'Temporary error message');
-   // TODO: 翻訳リソースに登録後、customMessage を削除
-   ```
-
 ### ベストプラクティス
 
 #### 1. 翻訳キーの命名規則
