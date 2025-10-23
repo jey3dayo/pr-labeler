@@ -6,7 +6,7 @@ Configuration Layer Pattern の実装により、PR Labeler の設定管理を�
 
 ## 実装タスク
 
-- [ ] 1. Environment Layer の実装
+- [x] 1. Environment Layer の実装
 - [x] 1.1 環境変数読み込み機能の実装
   - 環境変数から設定を読み込む関数を作成
   - LANGUAGE または LANG 環境変数を優先順位に従って読み込む
@@ -21,7 +21,7 @@ Configuration Layer Pattern の実装により、PR Labeler の設定管理を�
   - GITHUB_TOKEN の読み込みをテスト
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 2. Input Parser Layer の実装
+- [x] 2. Input Parser Layer の実装
 - [x] 2.1 Action inputs のパース・バリデーション機能の実装
   - 全ての action input を型安全な ParsedInputs に変換する関数を作成
   - 空文字列を undefined に変換する（language input）
@@ -45,7 +45,7 @@ Configuration Layer Pattern の実装により、PR Labeler の設定管理を�
   - JSON パースエラーのハンドリングをテスト
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 3. Config Builder Layer の実装
+- [x] 3. Config Builder Layer の実装
 - [x] 3.1 設定統合と優先順位解決機能の実装
   - ParsedInputs、LabelerConfig、EnvironmentConfig を統合する関数を作成
   - 優先順位（action input > labeler config > env > default）に従って設定を解決
@@ -68,7 +68,7 @@ Configuration Layer Pattern の実装により、PR Labeler の設定管理を�
   - 言語コードの正規化が全ソースで動作することを確認
   - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7_
 
-- [ ] 4. i18n モジュールのリファクタリング
+- [x] 4. i18n モジュールのリファクタリング
 - [x] 4.1 i18n 初期化のシグネチャ変更
   - initializeI18n の引数を Config から LanguageCode に変更
   - 言語コードのみを受け取るようにリファクタリング
@@ -89,21 +89,21 @@ Configuration Layer Pattern の実装により、PR Labeler の設定管理を�
   - エラーハンドリングをテスト
   - _Requirements: 4.1, 4.2, 4.5, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 5. action.yml の修正
+- [x] 5. action.yml の修正
 - [x] 5.1 language input の default 削除
   - action.yml から language input の default: "en" を削除
   - 未設定の場合は空文字列が返されることを確認
   - 優先順位チェーンが正しく機能することを確認
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 6. LabelerConfig の型定義修正
+- [x] 6. LabelerConfig の型定義修正
 - [x] 6.1 LabelerConfig.language の型を string に変更
   - LabelerConfig.language の型を 'en' | 'ja' から string | undefined に変更
   - ロケール形式（'ja-JP', 'en-US'）を許容
   - 正規化フローで最終的に LanguageCode に収束することを確認
   - _Requirements: 3.7_
 
-- [ ] 7. メインエントリーポイントの統合
+- [x] 7. メインエントリーポイントの統合
 - [x] 7.1 新しい設定フローの採用
   - index.ts で parseActionInputs を呼び出す
   - パースエラー時は即座に失敗させる
@@ -127,7 +127,7 @@ Configuration Layer Pattern の実装により、PR Labeler の設定管理を�
   - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 5.1, 5.2, 5.3, 5.4, 5.5_
 
 - [ ] 8. 品質保証とドキュメント
-- [ ] 8.1 全テストの実行と修正
+- [x] 8.1 全テストの実行と修正
   - 全ての既存テストが成功することを確認
   - 新しいテストが全て成功することを確認
   - テストの失敗があれば修正
