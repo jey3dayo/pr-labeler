@@ -1,9 +1,17 @@
 {
   "configuration": {
     "invalidLanguage": "Invalid language code: {{code}}. Falling back to English.",
+    "invalidLanguageFormat": "language must start with 'en' or 'ja' (e.g., 'en', 'en-US', 'ja', 'ja-JP')",
     "invalidField": "Invalid configuration field: {{field}}",
     "parsingFailed": "Failed to parse configuration: {{message}}",
-    "invalidValue": "Invalid value for {{field}}: {{value}}"
+    "invalidValue": "Invalid value for {{field}}: {{value}}",
+    "mustBeObject": "Configuration must be an object",
+    "mustBeString": "{{field}} must be a string",
+    "mustBeBoolean": "{{field}} must be a boolean",
+    "mustBeNumber": "{{field}} must be a number",
+    "mustBeArray": "{{field}} must be an array",
+    "mustBeNonNegativeInteger": "{{field}} must be a non-negative integer",
+    "thresholdOrderViolation": "{{field}}.{{lower}} ({{lowerValue}}) must be less than {{upper}} ({{upperValue}})"
   },
   "github": {
     "apiError": "GitHub API error: {{message}}",

@@ -4,6 +4,7 @@
  * i18nextライブラリを使用した多言語対応システムの初期化と翻訳関数を提供します。
  */
 
+import * as core from '@actions/core';
 import i18next, { type TOptions } from 'i18next';
 import { err, ok, type Result } from 'neverthrow';
 
@@ -64,6 +65,8 @@ export function normalizeLanguageCode(lang: string): LanguageCode {
  * @returns 初期化結果 (成功/失敗)
  */
 export function initializeI18n(language: LanguageCode): Result<void, ConfigurationError> {
+  core.debug(`[i18n] Initializing with language: ${language}`);
+
   try {
     // 翻訳リソース定義 (静的import)
     const resources = {
@@ -104,9 +107,13 @@ export function initializeI18n(language: LanguageCode): Result<void, Configurati
 
       const currentLang = getCurrentLanguage();
       if (currentLang !== language) {
+        core.debug(`[i18n] Changing language from ${currentLang} to ${language}`);
         changeLanguage(language);
+      } else {
+        core.debug('[i18n] Language already set, skipping changeLanguage');
       }
 
+      core.debug('[i18n] Reused existing i18n instance');
       return ok(undefined);
     }
 
@@ -132,9 +139,11 @@ export function initializeI18n(language: LanguageCode): Result<void, Configurati
     isI18nInitialized = true;
     cachedTFunction = i18next.t.bind(i18next) as BoundTFunction;
 
+    core.debug('[i18n] Initialization completed successfully');
     return ok(undefined);
   } catch (error) {
     const errorMessage = ensureError(error).message;
+    core.debug(`[i18n] Initialization failed: ${errorMessage}`);
     // Directly create ConfigurationError to avoid circular dependency with errors/factories.ts
     return err({
       type: 'ConfigurationError' as const,

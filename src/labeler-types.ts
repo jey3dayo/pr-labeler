@@ -1,3 +1,5 @@
+/* c8 ignore start */
+
 /**
  * Type definitions for PR Labeler functionality
  * These types support intelligent label assignment based on PR metrics
@@ -125,3 +127,5 @@ export interface LabelUpdate {
  * Exported from configs/ for better maintainability
  */
 export { DEFAULT_LABELER_CONFIG } from './configs/index.js';
+
+/* c8 ignore end */
