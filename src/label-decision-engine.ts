@@ -244,7 +244,7 @@ type RiskEvaluation = {
 
 type RiskEvaluationConfig = Pick<
   RiskConfig,
-  'high_if_no_tests_for_core' | 'core_paths' | 'config_files' | 'use_ci_status' | 'coverage_threshold'
+  'high_if_no_tests_for_core' | 'core_paths' | 'config_files' | 'use_ci_status'
 >;
 
 /**
