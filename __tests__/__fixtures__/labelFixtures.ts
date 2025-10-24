@@ -8,7 +8,8 @@
  */
 
 import { DEFAULT_CATEGORIES } from '../../src/configs/categories.js';
-import type { CategoryConfig, ComplexityConfig, RiskConfig, SizeConfig } from '../../src/labeler-types.js';
+import type { CategoryConfig, ComplexityConfig, SizeConfig } from '../../src/labeler-types.js';
+import type { RiskConfig } from '../../src/types/config.js';
 
 // ============================================================================
 // Default Thresholds

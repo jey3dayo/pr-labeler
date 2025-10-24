@@ -13,7 +13,6 @@ export type {
   ExcludeConfig,
   LabelerConfig,
   LabelPolicyConfig,
-  RiskConfig,
   RuntimeConfig,
   SizeConfig,
 } from './types/config.js';
