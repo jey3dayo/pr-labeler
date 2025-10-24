@@ -8,8 +8,8 @@ import { ok, Result } from 'neverthrow';
 
 import { allCIPassed, anyCIFailed } from './ci-status.js';
 import type { LabelDecisions, LabelerConfig, LabelReasoning, PRMetrics } from './labeler-types.js';
-import type { RiskConfig } from './types/config.js';
 import type { ChangeType, PRContext } from './types.js';
+import type { RiskConfig } from './types/config.js';
 import { extractNamespace, matchesNamespacePattern } from './utils/namespace-utils.js';
 import { calculateSizeLabel } from './utils/size-label-utils.js';
 

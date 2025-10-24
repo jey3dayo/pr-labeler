@@ -237,10 +237,209 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
     }
   }
 
-  if (cfg.risk?.use_ci_status !== undefined && !isBoolean(cfg.risk.use_ci_status)) {
-    return errAsync(
-      createConfigurationError('risk.use_ci_status', cfg.risk.use_ci_status, 'risk.use_ci_status must be a boolean'),
-    );
+  if (cfg.categoryLabeling !== undefined) {
+    if (!isRecord(cfg.categoryLabeling)) {
+      return errAsync(
+        createConfigurationError('categoryLabeling', cfg.categoryLabeling, 'categoryLabeling must be an object'),
+      );
+    }
+
+    const categoryLabeling = cfg.categoryLabeling as { enabled?: unknown };
+
+    if (categoryLabeling.enabled === undefined || !isBoolean(categoryLabeling.enabled)) {
+      return errAsync(
+        createConfigurationError(
+          'categoryLabeling.enabled',
+          categoryLabeling.enabled,
+          'categoryLabeling.enabled must be a boolean',
+        ),
+      );
+    }
+  }
+
+  if (cfg.risk !== undefined) {
+    if (!isRecord(cfg.risk)) {
+      return errAsync(createConfigurationError('risk', cfg.risk, 'risk must be an object'));
+    }
+
+    const risk = cfg.risk as {
+      enabled?: unknown;
+      high_if_no_tests_for_core?: unknown;
+      core_paths?: unknown;
+      config_files?: unknown;
+      use_ci_status?: unknown;
+    };
+
+    if (risk.enabled !== undefined && !isBoolean(risk.enabled)) {
+      return errAsync(createConfigurationError('risk.enabled', risk.enabled, 'risk.enabled must be a boolean'));
+    }
+
+    if (risk.high_if_no_tests_for_core !== undefined && !isBoolean(risk.high_if_no_tests_for_core)) {
+      return errAsync(
+        createConfigurationError(
+          'risk.high_if_no_tests_for_core',
+          risk.high_if_no_tests_for_core,
+          'risk.high_if_no_tests_for_core must be a boolean',
+        ),
+      );
+    }
+
+    if (risk.use_ci_status !== undefined && !isBoolean(risk.use_ci_status)) {
+      return errAsync(
+        createConfigurationError('risk.use_ci_status', risk.use_ci_status, 'risk.use_ci_status must be a boolean'),
+      );
+    }
+
+    const finalCorePaths = risk.core_paths ?? DEFAULT_LABELER_CONFIG.risk.core_paths;
+    if (!Array.isArray(finalCorePaths)) {
+      return errAsync(createConfigurationError('risk.core_paths', risk.core_paths, 'risk.core_paths must be an array'));
+    }
+
+    for (let i = 0; i < finalCorePaths.length; i++) {
+      const path = finalCorePaths[i];
+      if (!isString(path) || path.trim() === '') {
+        return errAsync(
+          createConfigurationError(`risk.core_paths[${i}]`, path, 'risk.core_paths entries must be non-empty strings'),
+        );
+      }
+    }
+
+    const finalConfigFiles = risk.config_files ?? DEFAULT_LABELER_CONFIG.risk.config_files;
+    if (!Array.isArray(finalConfigFiles)) {
+      return errAsync(
+        createConfigurationError('risk.config_files', risk.config_files, 'risk.config_files must be an array'),
+      );
+    }
+
+    for (let i = 0; i < finalConfigFiles.length; i++) {
+      const filePattern = finalConfigFiles[i];
+      if (!isString(filePattern) || filePattern.trim() === '') {
+        return errAsync(
+          createConfigurationError(
+            `risk.config_files[${i}]`,
+            filePattern,
+            'risk.config_files entries must be non-empty strings',
+          ),
+        );
+      }
+    }
+  }
+
+  if (cfg.exclude !== undefined) {
+    if (!isRecord(cfg.exclude)) {
+      return errAsync(createConfigurationError('exclude', cfg.exclude, 'exclude must be an object'));
+    }
+
+    const exclude = cfg.exclude as { additional?: unknown };
+
+    if (exclude.additional !== undefined) {
+      if (!Array.isArray(exclude.additional)) {
+        return errAsync(
+          createConfigurationError('exclude.additional', exclude.additional, 'exclude.additional must be an array'),
+        );
+      }
+
+      const additional = exclude.additional as unknown[];
+      for (let i = 0; i < additional.length; i++) {
+        const pattern = additional[i];
+        if (!isString(pattern) || pattern.trim() === '') {
+          return errAsync(
+            createConfigurationError(
+              `exclude.additional[${i}]`,
+              pattern,
+              'exclude.additional entries must be non-empty strings',
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  if (cfg.labels !== undefined) {
+    if (!isRecord(cfg.labels)) {
+      return errAsync(createConfigurationError('labels', cfg.labels, 'labels must be an object'));
+    }
+
+    const labelsConfig = cfg.labels as { create_missing?: unknown; namespace_policies?: unknown };
+
+    if (labelsConfig.create_missing !== undefined && !isBoolean(labelsConfig.create_missing)) {
+      return errAsync(
+        createConfigurationError(
+          'labels.create_missing',
+          labelsConfig.create_missing,
+          'labels.create_missing must be a boolean',
+        ),
+      );
+    }
+
+    if (labelsConfig.namespace_policies !== undefined) {
+      if (!isRecord(labelsConfig.namespace_policies)) {
+        return errAsync(
+          createConfigurationError(
+            'labels.namespace_policies',
+            labelsConfig.namespace_policies,
+            'labels.namespace_policies must be an object',
+          ),
+        );
+      }
+
+      const namespacePolicies = labelsConfig.namespace_policies as Record<string, unknown>;
+      for (const [pattern, policy] of Object.entries(namespacePolicies)) {
+        if (pattern.trim() === '') {
+          return errAsync(
+            createConfigurationError(
+              'labels.namespace_policies',
+              labelsConfig.namespace_policies,
+              'labels.namespace_policies keys must be non-empty strings',
+            ),
+          );
+        }
+
+        if (!isString(policy)) {
+          return errAsync(
+            createConfigurationError(
+              `labels.namespace_policies['${pattern}']`,
+              policy,
+              "labels.namespace_policies values must be 'replace' or 'additive'",
+            ),
+          );
+        }
+
+        if (policy !== 'replace' && policy !== 'additive') {
+          return errAsync(
+            createConfigurationError(
+              `labels.namespace_policies['${pattern}']`,
+              policy,
+              "labels.namespace_policies values must be 'replace' or 'additive'",
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  if (cfg.runtime !== undefined) {
+    if (!isRecord(cfg.runtime)) {
+      return errAsync(createConfigurationError('runtime', cfg.runtime, 'runtime must be an object'));
+    }
+
+    const runtime = cfg.runtime as { fail_on_error?: unknown; dry_run?: unknown };
+
+    if (runtime.fail_on_error !== undefined && !isBoolean(runtime.fail_on_error)) {
+      return errAsync(
+        createConfigurationError(
+          'runtime.fail_on_error',
+          runtime.fail_on_error,
+          'runtime.fail_on_error must be a boolean',
+        ),
+      );
+    }
+
+    if (runtime.dry_run !== undefined && !isBoolean(runtime.dry_run)) {
+      return errAsync(
+        createConfigurationError('runtime.dry_run', runtime.dry_run, 'runtime.dry_run must be a boolean'),
+      );
+    }
   }
 
   const knownKeys = [
