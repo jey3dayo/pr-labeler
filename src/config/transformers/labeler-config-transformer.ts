@@ -3,31 +3,34 @@ import { err, ok, type Result } from 'neverthrow';
 import { type ConfigurationError, createConfigurationError } from '../../errors/index.js';
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
+import { validateMinimatchPattern } from '../../utils/pattern-validator.js';
 import { isBoolean, isNumber, isRecord, isString, isStringArray } from '../../utils/type-guards.js';
 
-const LANGUAGE_FIELD = 'language';
-const SUMMARY_FIELD = 'summary';
-const SIZE_FIELD = 'size';
-const COMPLEXITY_FIELD = 'complexity';
-const CATEGORIES_FIELD = 'categories';
-const CATEGORY_LABELING_FIELD = 'categoryLabeling';
-const RISK_FIELD = 'risk';
-const EXCLUDE_FIELD = 'exclude';
-const LABELS_FIELD = 'labels';
-const RUNTIME_FIELD = 'runtime';
+const KNOWN_FIELD_NAMES = {
+  LANGUAGE: 'language',
+  SUMMARY: 'summary',
+  SIZE: 'size',
+  COMPLEXITY: 'complexity',
+  CATEGORY_LABELING: 'categoryLabeling',
+  CATEGORIES: 'categories',
+  RISK: 'risk',
+  EXCLUDE: 'exclude',
+  LABELS: 'labels',
+  RUNTIME: 'runtime',
+} as const;
 
-const KNOWN_KEYS = [
-  LANGUAGE_FIELD,
-  SUMMARY_FIELD,
-  SIZE_FIELD,
-  COMPLEXITY_FIELD,
-  CATEGORY_LABELING_FIELD,
-  CATEGORIES_FIELD,
-  RISK_FIELD,
-  EXCLUDE_FIELD,
-  LABELS_FIELD,
-  RUNTIME_FIELD,
-] as const;
+const LANGUAGE_FIELD = KNOWN_FIELD_NAMES.LANGUAGE;
+const SUMMARY_FIELD = KNOWN_FIELD_NAMES.SUMMARY;
+const SIZE_FIELD = KNOWN_FIELD_NAMES.SIZE;
+const COMPLEXITY_FIELD = KNOWN_FIELD_NAMES.COMPLEXITY;
+const CATEGORIES_FIELD = KNOWN_FIELD_NAMES.CATEGORIES;
+const CATEGORY_LABELING_FIELD = KNOWN_FIELD_NAMES.CATEGORY_LABELING;
+const RISK_FIELD = KNOWN_FIELD_NAMES.RISK;
+const EXCLUDE_FIELD = KNOWN_FIELD_NAMES.EXCLUDE;
+const LABELS_FIELD = KNOWN_FIELD_NAMES.LABELS;
+const RUNTIME_FIELD = KNOWN_FIELD_NAMES.RUNTIME;
+
+const KNOWN_KEYS = Object.values(KNOWN_FIELD_NAMES);
 
 export interface LabelerConfigTransformResult {
   config: Partial<LabelerConfig>;
@@ -300,15 +303,17 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
             throw createConfigurationError(`categories[${index}].patterns[${j}]`, pattern, 'Pattern must be a string');
           }
 
-          if (!isValidMinimatchPattern(pattern)) {
+          const patternValidation = validateMinimatchPattern(pattern);
+          if (patternValidation.isErr()) {
+            const { reason, details } = patternValidation.error;
             throw createConfigurationError(
               `categories[${index}].patterns[${j}]`,
               pattern,
-              `Invalid minimatch pattern: ${pattern}`,
+              `Invalid minimatch pattern: ${reason}${details ? ` - ${details}` : ''}`,
             );
           }
 
-          validatedPatterns.push(pattern);
+          validatedPatterns.push(patternValidation.value);
         }
 
         const normalizedCategory: LabelerConfig['categories'][number] = {
@@ -408,21 +413,4 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
   }
 
   return ok({ config: normalized, warnings });
-}
-
-function isValidMinimatchPattern(pattern: string): boolean {
-  const openBraces = (pattern.match(/\{/g) || []).length;
-  const closeBraces = (pattern.match(/\}/g) || []).length;
-  const openBrackets = (pattern.match(/\[/g) || []).length;
-  const closeBrackets = (pattern.match(/\]/g) || []).length;
-
-  if (openBraces !== closeBraces) {
-    return false;
-  }
-
-  if (openBrackets !== closeBrackets) {
-    return false;
-  }
-
-  return true;
 }

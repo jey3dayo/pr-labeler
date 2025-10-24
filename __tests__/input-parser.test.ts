@@ -15,43 +15,54 @@ vi.mock('@actions/core', () => ({
 describe('parseActionInputs', () => {
   const mockGetInput = vi.mocked(core.getInput);
 
+  const defaultSizeThresholds = '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}';
+  const defaultComplexityThresholds = '{"medium": 10, "high": 20}';
+
+  const buildInputs = (overrides: Partial<Record<string, string>> = {}): ((name: string) => string) => {
+    const defaults: Record<string, string> = {
+      language: '',
+      github_token: 'test-token',
+      file_size_limit: '100KB',
+      file_lines_limit: '1000',
+      pr_additions_limit: '5000',
+      pr_files_limit: '100',
+      auto_remove_labels: 'true',
+      size_enabled: 'true',
+      size_thresholds: defaultSizeThresholds,
+      complexity_enabled: 'false',
+      complexity_thresholds: defaultComplexityThresholds,
+      category_enabled: 'true',
+      risk_enabled: 'true',
+      large_files_label: 'auto/large-files',
+      too_many_files_label: 'auto/too-many-files',
+      too_many_lines_label: 'auto/too-many-lines',
+      excessive_changes_label: 'auto/excessive-changes',
+      skip_draft_pr: 'true',
+      comment_on_pr: 'auto',
+      fail_on_large_files: '',
+      fail_on_too_many_files: '',
+      fail_on_pr_size: '',
+      enable_summary: 'true',
+      additional_exclude_patterns: '',
+      enable_directory_labeling: 'false',
+      directory_labeler_config_path: '.github/directory-labeler.yml',
+      max_labels: '0',
+      use_default_excludes: 'true',
+    };
+
+    return (name: string) => {
+      if (name in overrides) {
+        return overrides[name] ?? '';
+      }
+      return defaults[name] ?? '';
+    };
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
 
     // デフォルトの有効な入力値を設定
-    mockGetInput.mockImplementation((name: string) => {
-      const defaults: Record<string, string> = {
-        language: '', // action.yml の default 削除により空文字列
-        github_token: 'test-token',
-        file_size_limit: '100KB',
-        file_lines_limit: '1000',
-        pr_additions_limit: '5000',
-        pr_files_limit: '100',
-        auto_remove_labels: 'true',
-        size_enabled: 'true',
-        size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}',
-        complexity_enabled: 'false',
-        complexity_thresholds: '{"medium": 10, "high": 20}',
-        category_enabled: 'true',
-        risk_enabled: 'true',
-        large_files_label: 'auto/large-files',
-        too_many_files_label: 'auto/too-many-files',
-        too_many_lines_label: 'auto/too-many-lines',
-        excessive_changes_label: 'auto/excessive-changes',
-        skip_draft_pr: 'true',
-        comment_on_pr: 'auto',
-        fail_on_large_files: '',
-        fail_on_too_many_files: '',
-        fail_on_pr_size: '',
-        enable_summary: 'true',
-        additional_exclude_patterns: '',
-        enable_directory_labeling: 'false',
-        directory_labeler_config_path: '.github/directory-labeler.yml',
-        max_labels: '0',
-        use_default_excludes: 'true',
-      };
-      return defaults[name] ?? '';
-    });
+    mockGetInput.mockImplementation(buildInputs());
   });
 
   describe('successful parsing', () => {

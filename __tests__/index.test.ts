@@ -1,6 +1,12 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { err, ok } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { logErrorI18n, logInfoI18n, logWarningI18n, setFailed } from '../src/actions-io';
+import { run } from '../src/index';
+import { writeSummary } from '../src/summary/summary-writer';
+import { analyzePullRequest, applyLabelsStage, finalizeAction, initializeAction } from '../src/workflow/pipeline';
 
 // Mock modules
 vi.mock('@actions/core');
@@ -8,10 +14,37 @@ vi.mock('@actions/github');
 vi.mock('../src/diff-strategy');
 vi.mock('../src/file-metrics');
 vi.mock('../src/comment-manager');
+vi.mock('../src/actions-io', () => ({
+  logInfoI18n: vi.fn(),
+  logWarningI18n: vi.fn(),
+  logErrorI18n: vi.fn(),
+  setFailed: vi.fn(),
+}));
+vi.mock('../src/workflow/pipeline', () => ({
+  initializeAction: vi.fn(),
+  analyzePullRequest: vi.fn(),
+  applyLabelsStage: vi.fn(),
+  finalizeAction: vi.fn(),
+}));
+vi.mock('../src/summary/summary-writer', () => ({
+  writeSummary: vi.fn(),
+}));
+vi.mock('../src/i18n.js', () => ({
+  t: vi.fn((_ns: string, key: string) => key),
+}));
 
 describe('PR Labeler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(initializeAction).mockReset();
+    vi.mocked(analyzePullRequest).mockReset();
+    vi.mocked(applyLabelsStage).mockReset();
+    vi.mocked(finalizeAction).mockReset();
+    vi.mocked(writeSummary).mockReset();
+    vi.mocked(logInfoI18n).mockReset();
+    vi.mocked(logWarningI18n).mockReset();
+    vi.mocked(logErrorI18n).mockReset();
+    vi.mocked(setFailed).mockReset();
 
     // Setup default mocks
     vi.mocked(core.getInput).mockImplementation((name: string) => {
@@ -154,6 +187,106 @@ describe('PR Labeler', () => {
       });
 
       expect(core.getInput('comment_on_pr')).toBe('always');
+    });
+  });
+
+  describe('run()', () => {
+    const baseContext = {
+      token: 'token',
+      prContext: {
+        owner: 'owner',
+        repo: 'repo',
+        pullNumber: 1,
+        baseSha: 'base',
+        headSha: 'head',
+        isDraft: true,
+      },
+      config: { enableSummary: true },
+      labelerConfig: {} as any,
+      skipDraft: true,
+    } as any;
+
+    it('skips draft PR and writes summary', async () => {
+      vi.mocked(initializeAction).mockResolvedValue({ ...baseContext });
+      vi.mocked(writeSummary).mockResolvedValue(ok(undefined));
+
+      await run();
+
+      expect(writeSummary).toHaveBeenCalled();
+      expect(logInfoI18n).toHaveBeenCalledWith('draft.summaryWritten');
+      expect(analyzePullRequest).not.toHaveBeenCalled();
+    });
+
+    it('logs warning when summary write fails', async () => {
+      vi.mocked(initializeAction).mockResolvedValue({ ...baseContext });
+      vi.mocked(writeSummary).mockResolvedValue(err(new Error('summary failed')));
+
+      await run();
+
+      expect(logWarningI18n).toHaveBeenCalledWith('draft.summaryWriteFailed', { message: 'summary failed' });
+      expect(logInfoI18n).toHaveBeenCalledWith('completion.skippedDraft');
+    });
+
+    it('executes pipeline for active PRs', async () => {
+      const context = { ...baseContext, skipDraft: false, config: { enableSummary: false } };
+      const artifacts = {
+        files: [],
+        analysis: {
+          metrics: {
+            totalFiles: 0,
+            totalAdditions: 0,
+            filesAnalyzed: [],
+            filesExcluded: [],
+            filesSkippedBinary: [],
+            filesWithErrors: [],
+          },
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+        },
+        hasViolations: false,
+      } as any;
+
+      vi.mocked(initializeAction).mockResolvedValue(context);
+      vi.mocked(analyzePullRequest).mockResolvedValue(artifacts);
+      vi.mocked(applyLabelsStage).mockResolvedValue(undefined);
+      vi.mocked(finalizeAction).mockResolvedValue(undefined);
+
+      await run();
+
+      expect(analyzePullRequest).toHaveBeenCalledWith(context);
+      expect(applyLabelsStage).toHaveBeenCalledWith(context, artifacts);
+      expect(finalizeAction).toHaveBeenCalledWith(context, artifacts);
+    });
+
+    it('formats configuration errors with type information', async () => {
+      vi.mocked(initializeAction).mockRejectedValue({ type: 'UnexpectedError', message: 'boom' });
+
+      await run();
+
+      expect(logErrorI18n).toHaveBeenCalledWith('completion.failed', { message: '[UnexpectedError] boom' });
+      expect(setFailed).toHaveBeenCalledWith('[UnexpectedError] boom');
+    });
+
+    it('handles standard Error instances', async () => {
+      vi.mocked(initializeAction).mockRejectedValue(new Error('standard failure'));
+
+      await run();
+
+      expect(logErrorI18n).toHaveBeenCalledWith('completion.failed', { message: 'standard failure' });
+      expect(setFailed).toHaveBeenCalledWith('standard failure');
+    });
+
+    it('handles non-error rejection values', async () => {
+      vi.mocked(initializeAction).mockRejectedValue('string failure');
+
+      await run();
+
+      expect(logErrorI18n).toHaveBeenCalledWith('completion.failed', { message: 'string failure' });
+      expect(setFailed).toHaveBeenCalledWith('string failure');
     });
   });
 

@@ -1,9 +1,17 @@
 {
   "configuration": {
     "invalidLanguage": "無効な言語コード: {{code}}。英語にフォールバックします。",
+    "invalidLanguageFormat": "languageは'en'または'ja'で始まる必要があります（例: 'en', 'en-US', 'ja', 'ja-JP'）",
     "invalidField": "設定フィールドが無効です: {{field}}",
     "parsingFailed": "設定の解析に失敗しました: {{message}}",
-    "invalidValue": "{{field}}の値が無効です: {{value}}"
+    "invalidValue": "{{field}}の値が無効です: {{value}}",
+    "mustBeObject": "設定はオブジェクトである必要があります",
+    "mustBeString": "{{field}}は文字列である必要があります",
+    "mustBeBoolean": "{{field}}はブール値である必要があります",
+    "mustBeNumber": "{{field}}は数値である必要があります",
+    "mustBeArray": "{{field}}は配列である必要があります",
+    "mustBeNonNegativeInteger": "{{field}}は非負の整数である必要があります",
+    "thresholdOrderViolation": "{{field}}.{{lower}} ({{lowerValue}}) は {{upper}} ({{upperValue}}) より小さい必要があります"
   },
   "github": {
     "apiError": "GitHub APIエラー: {{message}}",
