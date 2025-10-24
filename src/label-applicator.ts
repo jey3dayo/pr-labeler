@@ -57,18 +57,17 @@ export function applyLabels(
  * Note: This function maintains compatibility with the existing octokit-based API
  * while internally using the shared utility
  *
- * @param _octokit - GitHub API client (unused, maintained for API compatibility)
+ * @param octokit - GitHub API client used to fetch label data
  * @param context - PR context
  * @returns Array of current label names or GitHubAPIError
  */
 export function getCurrentLabels(
-  _octokit: ReturnType<typeof github.getOctokit>,
+  octokit: ReturnType<typeof github.getOctokit>,
   context: PRContext,
 ): ResultAsync<string[], GitHubAPIError> {
-  // Note: We need the token to use the shared utility, but this function signature doesn't have it.
-  // For now, create a new octokit instance. This could be optimized in the future by changing the signature.
+  // Use the provided octokit instance to fetch current labels
   return ResultAsync.fromPromise(
-    _octokit.rest.issues.listLabelsOnIssue({
+    octokit.rest.issues.listLabelsOnIssue({
       owner: context.owner,
       repo: context.repo,
       issue_number: context.pullNumber,
@@ -83,6 +82,11 @@ export function getCurrentLabels(
 }
 
 /**
+ * Label diff structure for add/remove operations
+ */
+type LabelDiff = { toAdd: string[]; toRemove: string[] };
+
+/**
  * Calculate label diff based on decisions and current labels
  *
  * @param decisions - Label decisions
@@ -94,7 +98,7 @@ function calculateLabelDiff(
   decisions: LabelDecisions,
   currentLabels: string[],
   policies: Record<string, 'replace' | 'additive'>,
-): { toAdd: string[]; toRemove: string[] } {
+): LabelDiff {
   const toAdd: string[] = [];
   const toRemove: string[] = [];
 
@@ -118,8 +122,8 @@ function calculateLabelDiff(
       }
     }
 
-    // Add label if not present
-    if (!currentLabels.includes(label)) {
+    // Add label if not present and not already in toAdd
+    if (!currentLabels.includes(label) && !toAdd.includes(label)) {
       toAdd.push(label);
     }
   }
@@ -139,7 +143,7 @@ function calculateLabelDiff(
 function applyLabelChanges(
   octokit: ReturnType<typeof github.getOctokit>,
   context: PRContext,
-  diff: { toAdd: string[]; toRemove: string[] },
+  diff: LabelDiff,
   _createMissing: boolean, // Future extension: auto-create missing labels
 ): ResultAsync<{ added: string[]; removed: string[]; skipped: string[]; apiCalls: number }, GitHubAPIError> {
   let apiCalls = 0;
@@ -170,15 +174,25 @@ function applyLabelChanges(
   const removeLabelsWithRetry = async (): Promise<void> => {
     for (const label of diff.toRemove) {
       await retryWithBackoff(async () => {
-        await octokit.rest.issues.removeLabel({
-          owner: context.owner,
-          repo: context.repo,
-          issue_number: context.pullNumber,
-          name: label,
-        });
-        apiCalls++;
-        removed.push(label);
-        core.info(`Removed label: ${label}`);
+        try {
+          await octokit.rest.issues.removeLabel({
+            owner: context.owner,
+            repo: context.repo,
+            issue_number: context.pullNumber,
+            name: label,
+          });
+          apiCalls++;
+          removed.push(label);
+          core.info(`Removed label: ${label}`);
+        } catch (err) {
+          const status = extractErrorStatus(err);
+          if (status === 404) {
+            core.info(`Label not present, skip remove: ${label}`);
+            skipped.push(label);
+            return; // treat as success
+          }
+          throw err;
+        }
       });
     }
   };
@@ -200,7 +214,7 @@ function applyLabelChanges(
       // Handle permission errors
       if (status === 403) {
         core.warning('Insufficient permissions to apply labels (fork PR or missing pull-requests: write permission)');
-        skipped.push(...diff.toAdd);
+        skipped.push(...diff.toAdd, ...diff.toRemove);
         return createGitHubAPIError('Permission denied: cannot apply labels', 403);
       }
 
@@ -222,7 +236,9 @@ async function retryWithBackoff<T>(fn: () => Promise<T>, maxRetries: number = MA
       return await fn();
     } catch (error) {
       const status = extractErrorStatus(error);
-      if (status && (status === 429 || status === 403) && i < maxRetries - 1) {
+      const msg = ensureError(error).message ?? '';
+      const isRateLimited = status === 429 || (status === 403 && /rate limit|abuse/i.test(msg));
+      if (isRateLimited && i < maxRetries - 1) {
         const delay = INITIAL_RETRY_DELAY_MS * Math.pow(2, i); // 1s, 2s, 4s
         core.warning(`Rate limit hit, retrying in ${delay}ms (attempt ${i + 1}/${maxRetries})...`);
         await sleep(delay);

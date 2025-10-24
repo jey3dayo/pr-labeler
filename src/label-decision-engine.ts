@@ -9,6 +9,7 @@ import { ok, Result } from 'neverthrow';
 import { allCIPassed, anyCIFailed } from './ci-status.js';
 import type { LabelDecisions, LabelerConfig, LabelReasoning, PRMetrics } from './labeler-types.js';
 import type { ChangeType, PRContext } from './types.js';
+import type { RiskConfig } from './types/config.js';
 import { extractNamespace, matchesNamespacePattern } from './utils/namespace-utils.js';
 import { calculateSizeLabel } from './utils/size-label-utils.js';
 
@@ -241,6 +242,11 @@ type RiskEvaluation = {
   reason: string;
 };
 
+type RiskEvaluationConfig = Pick<
+  RiskConfig,
+  'high_if_no_tests_for_core' | 'core_paths' | 'config_files' | 'use_ci_status'
+>;
+
 /**
  * Evaluate risk based on file changes, CI status, and commit messages
  * Combines label decision and reason generation
@@ -250,16 +256,7 @@ type RiskEvaluation = {
  * @param prContext - Optional PR context with CI status and commit messages
  * @returns Risk evaluation with label and reason
  */
-function evaluateRisk(
-  files: string[],
-  config: {
-    high_if_no_tests_for_core: boolean;
-    core_paths: string[];
-    config_files: string[];
-    use_ci_status?: boolean;
-  },
-  prContext?: PRContext,
-): RiskEvaluation {
+function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?: PRContext): RiskEvaluation {
   const { hasTestFiles, hasCoreChanges, hasConfigChanges } = analyzeRiskFactors(files, config);
   const useCIStatus = config.use_ci_status ?? true;
 
@@ -326,17 +323,7 @@ function evaluateRisk(
  * @param prContext - Optional PR context with CI status and commit messages
  * @returns Risk label or null
  */
-export function decideRiskLabel(
-  files: string[],
-  config: {
-    high_if_no_tests_for_core: boolean;
-    core_paths: string[];
-    coverage_threshold?: number;
-    config_files: string[];
-    use_ci_status?: boolean;
-  },
-  prContext?: PRContext,
-): string | null {
+export function decideRiskLabel(files: string[], config: RiskEvaluationConfig, prContext?: PRContext): string | null {
   return evaluateRisk(files, config, prContext).label;
 }
 
@@ -348,17 +335,7 @@ export function decideRiskLabel(
  * @param label - Risk label (for validation)
  * @returns Reason string
  */
-function getRiskReason(
-  files: string[],
-  config: {
-    high_if_no_tests_for_core: boolean;
-    core_paths: string[];
-    config_files: string[];
-    use_ci_status?: boolean;
-  },
-  label: string,
-  prContext?: PRContext,
-): string {
+function getRiskReason(files: string[], config: RiskEvaluationConfig, label: string, prContext?: PRContext): string {
   const evaluation = evaluateRisk(files, config, prContext);
 
   // Validate that the provided label matches the evaluated label
