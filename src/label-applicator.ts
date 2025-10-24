@@ -82,8 +82,6 @@ export function getCurrentLabels(
   ).map(response => response.data.map(label => label.name));
 }
 
-type LabelDiff = { toAdd: string[]; toRemove: string[] };
-
 /**
  * Label diff structure for add/remove operations
  */
