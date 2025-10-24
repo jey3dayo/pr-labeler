@@ -85,6 +85,11 @@ export function getCurrentLabels(
 type LabelDiff = { toAdd: string[]; toRemove: string[] };
 
 /**
+ * Label diff structure for add/remove operations
+ */
+type LabelDiff = { toAdd: string[]; toRemove: string[] };
+
+/**
  * Calculate label diff based on decisions and current labels
  *
  * @param decisions - Label decisions
@@ -120,8 +125,8 @@ function calculateLabelDiff(
       }
     }
 
-    // Add label if not present
-    if (!currentLabels.includes(label)) {
+    // Add label if not present and not already in toAdd
+    if (!currentLabels.includes(label) && !toAdd.includes(label)) {
       toAdd.push(label);
     }
   }
@@ -172,15 +177,25 @@ function applyLabelChanges(
   const removeLabelsWithRetry = async (): Promise<void> => {
     for (const label of diff.toRemove) {
       await retryWithBackoff(async () => {
-        await octokit.rest.issues.removeLabel({
-          owner: context.owner,
-          repo: context.repo,
-          issue_number: context.pullNumber,
-          name: label,
-        });
-        apiCalls++;
-        removed.push(label);
-        core.info(`Removed label: ${label}`);
+        try {
+          await octokit.rest.issues.removeLabel({
+            owner: context.owner,
+            repo: context.repo,
+            issue_number: context.pullNumber,
+            name: label,
+          });
+          apiCalls++;
+          removed.push(label);
+          core.info(`Removed label: ${label}`);
+        } catch (err) {
+          const status = extractErrorStatus(err);
+          if (status === 404) {
+            core.info(`Label not present, skip remove: ${label}`);
+            skipped.push(label);
+            return; // treat as success
+          }
+          throw err;
+        }
       });
     }
   };
@@ -202,7 +217,7 @@ function applyLabelChanges(
       // Handle permission errors
       if (status === 403) {
         core.warning('Insufficient permissions to apply labels (fork PR or missing pull-requests: write permission)');
-        skipped.push(...diff.toAdd);
+        skipped.push(...diff.toAdd, ...diff.toRemove);
         return createGitHubAPIError('Permission denied: cannot apply labels', 403);
       }
 
@@ -224,7 +239,9 @@ async function retryWithBackoff<T>(fn: () => Promise<T>, maxRetries: number = MA
       return await fn();
     } catch (error) {
       const status = extractErrorStatus(error);
-      if (status && (status === 429 || status === 403) && i < maxRetries - 1) {
+      const msg = ensureError(error).message ?? '';
+      const isRateLimited = status === 429 || (status === 403 && /rate limit|abuse/i.test(msg));
+      if (isRateLimited && i < maxRetries - 1) {
         const delay = INITIAL_RETRY_DELAY_MS * Math.pow(2, i); // 1s, 2s, 4s
         core.warning(`Rate limit hit, retrying in ${delay}ms (attempt ${i + 1}/${maxRetries})...`);
         await sleep(delay);
