@@ -57,18 +57,17 @@ export function applyLabels(
  * Note: This function maintains compatibility with the existing octokit-based API
  * while internally using the shared utility
  *
- * @param _octokit - GitHub API client (unused, maintained for API compatibility)
+ * @param octokit - GitHub API client used to fetch label data
  * @param context - PR context
  * @returns Array of current label names or GitHubAPIError
  */
 export function getCurrentLabels(
-  _octokit: ReturnType<typeof github.getOctokit>,
+  octokit: ReturnType<typeof github.getOctokit>,
   context: PRContext,
 ): ResultAsync<string[], GitHubAPIError> {
-  // Note: We need the token to use the shared utility, but this function signature doesn't have it.
-  // For now, create a new octokit instance. This could be optimized in the future by changing the signature.
+  // Use the provided octokit instance to fetch current labels
   return ResultAsync.fromPromise(
-    _octokit.rest.issues.listLabelsOnIssue({
+    octokit.rest.issues.listLabelsOnIssue({
       owner: context.owner,
       repo: context.repo,
       issue_number: context.pullNumber,
