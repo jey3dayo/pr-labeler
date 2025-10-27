@@ -7,13 +7,16 @@ import type { ComplexityConfig, ComplexityMetrics } from '../src/labeler-types';
 import type { SummaryContext } from '../src/report-formatter';
 import {
   escapeMarkdown,
+  formatAppliedLabels,
   formatBasicMetrics,
   formatBestPractices,
   formatBytes,
+  formatExcludedFiles,
   formatFileAnalysis,
   formatFileDetails,
   formatImprovementActions,
   formatNumber,
+  formatSummaryBasicMetrics,
   formatViolations,
   generateComplexitySummary,
 } from '../src/report-formatter';
@@ -165,6 +168,77 @@ describe('ReportFormatter', () => {
       const result = formatBasicMetrics(metrics);
 
       expect(result).toContain('Files with errors: **2** ⚠️');
+    });
+  });
+
+  describe('formatSummaryBasicMetrics', () => {
+    it('should include total files and analyzed files', () => {
+      const metrics: AnalysisResult['metrics'] = {
+        totalFiles: 8,
+        totalAdditions: 450,
+        excludedAdditions: 30,
+        filesAnalyzed: [{} as any, {} as any, {} as any, {} as any],
+        filesExcluded: ['lock.json'],
+        filesSkippedBinary: [],
+        filesWithErrors: [],
+      };
+
+      const result = formatSummaryBasicMetrics(metrics);
+
+      expect(result).toContain('Total Files Changed: **8**');
+      expect(result).toContain('Excluded Additions: **30**');
+      expect(result).toContain('Files Analyzed: **4**');
+    });
+
+    it('should handle zero files gracefully', () => {
+      const metrics: AnalysisResult['metrics'] = {
+        totalFiles: 0,
+        totalAdditions: 0,
+        excludedAdditions: 0,
+        filesAnalyzed: [],
+        filesExcluded: [],
+        filesSkippedBinary: [],
+        filesWithErrors: [],
+      };
+
+      const result = formatSummaryBasicMetrics(metrics);
+
+      expect(result).toContain('**No files to display**');
+    });
+  });
+
+  describe('formatExcludedFiles', () => {
+    it('should render details block with escaped file names', () => {
+      const result = formatExcludedFiles(['dist/index.js', 'node_modules/@types/index.d.ts']);
+
+      expect(result).toContain('<details>');
+      expect(result).toContain('Excluded Files');
+      expect(result).toContain('dist/index.js');
+      expect(result).toContain('node\\_modules/@types/index.d.ts');
+    });
+
+    it('should return empty string when no files provided', () => {
+      expect(formatExcludedFiles([])).toBe('');
+    });
+  });
+
+  describe('formatAppliedLabels', () => {
+    it('should render header and labels when present', () => {
+      const result = formatAppliedLabels(['size/large', 'category/docs']);
+
+      expect(result).toContain('### 🏷️');
+      expect(result).toContain('size/large');
+      expect(result).toContain('category/docs');
+    });
+
+    it('should show no labels message when array is empty', () => {
+      const result = formatAppliedLabels([]);
+
+      expect(result).toContain('No labels applied');
+    });
+
+    it('should render nothing when labels are undefined', () => {
+      expect(formatAppliedLabels(undefined)).toBe('');
     });
   });
 
@@ -972,7 +1046,7 @@ describe('ReportFormatter', () => {
       changeLanguage('en');
 
       const context = createTestContext();
-      const basicMetrics = formatBasicMetrics(context.analysisResult.metrics);
+      const basicMetrics = formatSummaryBasicMetrics(context.analysisResult.metrics);
       const violations = formatViolations(context.analysisResult.violations);
       const complexitySummary = generateComplexitySummary(
         context.complexityMetrics,
@@ -982,6 +1056,8 @@ describe('ReportFormatter', () => {
       const fileDetails = formatFileDetails(context.analysisResult.metrics.filesAnalyzed, 10);
       const improvementActions = formatImprovementActions(context.analysisResult.violations);
       const bestPractices = formatBestPractices(context.analysisResult.violations, context.analysisResult.metrics);
+      const excludedFiles = formatExcludedFiles(context.analysisResult.metrics.filesExcluded);
+      const appliedLabels = formatAppliedLabels(context.labels);
 
       expect(basicMetrics).toMatchSnapshot('basic-metrics-en');
       expect(violations).toMatchSnapshot('violations-en');
@@ -989,6 +1065,8 @@ describe('ReportFormatter', () => {
       expect(fileDetails).toMatchSnapshot('file-details-en');
       expect(improvementActions).toMatchSnapshot('improvement-actions-en');
       expect(bestPractices).toMatchSnapshot('best-practices-en');
+      expect(excludedFiles).toMatchSnapshot('excluded-files-en');
+      expect(appliedLabels).toMatchSnapshot('applied-labels-en');
     });
 
     it('should match Japanese snapshot', () => {
@@ -996,7 +1074,7 @@ describe('ReportFormatter', () => {
       changeLanguage('ja');
 
       const context = createTestContext();
-      const basicMetrics = formatBasicMetrics(context.analysisResult.metrics);
+      const basicMetrics = formatSummaryBasicMetrics(context.analysisResult.metrics);
       const violations = formatViolations(context.analysisResult.violations);
       const complexitySummary = generateComplexitySummary(
         context.complexityMetrics,
@@ -1006,6 +1084,8 @@ describe('ReportFormatter', () => {
       const fileDetails = formatFileDetails(context.analysisResult.metrics.filesAnalyzed, 10);
       const improvementActions = formatImprovementActions(context.analysisResult.violations);
       const bestPractices = formatBestPractices(context.analysisResult.violations, context.analysisResult.metrics);
+      const excludedFiles = formatExcludedFiles(context.analysisResult.metrics.filesExcluded);
+      const appliedLabels = formatAppliedLabels(context.labels);
 
       expect(basicMetrics).toMatchSnapshot('basic-metrics-ja');
       expect(violations).toMatchSnapshot('violations-ja');
@@ -1013,6 +1093,8 @@ describe('ReportFormatter', () => {
       expect(fileDetails).toMatchSnapshot('file-details-ja');
       expect(improvementActions).toMatchSnapshot('improvement-actions-ja');
       expect(bestPractices).toMatchSnapshot('best-practices-ja');
+      expect(excludedFiles).toMatchSnapshot('excluded-files-ja');
+      expect(appliedLabels).toMatchSnapshot('applied-labels-ja');
     });
 
     it('should detect regression in English output', () => {

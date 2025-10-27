@@ -12,7 +12,9 @@
     "totalAdditions": "Total Additions",
     "excludedAdditions": "Excluded Additions",
     "totalFiles": "Total Files Changed",
+    "filesAnalyzed": "Files Analyzed",
     "excludedFiles": "Excluded Files",
+    "excludedFilesDetail": "Excluded Files ({{count}})",
     "binaryFilesSkipped": "Binary files skipped",
     "filesWithErrors": "Files with errors",
     "analysisTime": "Analysis Time"

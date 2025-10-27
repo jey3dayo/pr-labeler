@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { changeLanguage, initializeI18n, resetI18n, t } from '../src/i18n';
 import type { ComplexityConfig, ComplexityMetrics } from '../src/labeler-types.js';
 import * as reportFormatter from '../src/report-formatter';
 import { writeSummary, writeSummaryWithAnalysis } from '../src/summary/summary-writer';
@@ -23,6 +24,7 @@ const { summaryMock } = vi.hoisted(() => {
 
 vi.mock('@actions/core', () => ({
   summary: summaryMock,
+  debug: vi.fn(),
 }));
 
 describe('summary-writer', () => {
@@ -84,6 +86,10 @@ describe('summary-writer', () => {
   };
 
   beforeEach(() => {
+    resetI18n();
+    initializeI18n('en');
+    changeLanguage('en');
+
     summaryMock.addRaw.mockReset();
     summaryMock.write.mockReset();
     summaryMock.clear.mockReset?.();
@@ -115,25 +121,38 @@ describe('summary-writer', () => {
     }
   });
 
-  it('writeSummaryWithAnalysis should include complexity and disabled labels', async () => {
+  it('writeSummaryWithAnalysis should include metrics, exclusions, labels, and disabled features', async () => {
     const summaryResult = await writeSummaryWithAnalysis(
       baseAnalysis,
       { enableSummary: true },
       { metrics: complexityMetrics, config: complexityConfig, context: { owner: 'org', repo: 'repo', sha: 'abc' } },
-      { disabledFeatures: ['risk', 'category'], title: 'Custom Title' },
+      {
+        disabledFeatures: ['risk', 'category'],
+        title: 'Custom Title',
+        appliedLabels: ['size/large', 'auto/large-files'],
+      },
     );
 
     expect(summaryResult.isOk()).toBe(true);
     expect(summaryMock.addRaw).toHaveBeenCalledTimes(1);
     const markdown = summaryMock.addRaw.mock.calls[0][0] as string;
     expect(markdown).toContain('# 📊 Custom Title');
+    expect(markdown).toContain('Files Analyzed');
+    expect(markdown).toContain('<details>');
+    expect(markdown).toContain('### 🏷️');
+    expect(markdown).toContain('size/large');
     expect(markdown).toContain('Disabled label types');
-    expect(markdown).toContain('complexity.title');
+    expect(markdown).toContain(t('summary', 'complexity.title'));
+    const labelsIndex = markdown.indexOf('### 🏷️');
+    const excludedIndex = markdown.indexOf('<details>');
+    expect(labelsIndex).toBeGreaterThan(-1);
+    expect(excludedIndex).toBeGreaterThan(-1);
+    expect(labelsIndex).toBeLessThan(excludedIndex);
     expect(summaryResult.isOk() && summaryResult.value.bytesWritten).toBeGreaterThan(0);
   });
 
   it('writeSummaryWithAnalysis should return error when markdown generation fails', async () => {
-    const formatStub = vi.spyOn(reportFormatter, 'formatBasicMetrics').mockImplementation(() => {
+    const formatStub = vi.spyOn(reportFormatter, 'formatSummaryBasicMetrics').mockImplementation(() => {
       throw new Error('format failed');
     });
 
