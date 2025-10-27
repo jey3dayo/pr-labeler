@@ -32,6 +32,7 @@ describe('summary-writer', () => {
     metrics: {
       totalFiles: 2,
       totalAdditions: 150,
+      excludedAdditions: 0,
       filesAnalyzed: [
         { path: 'src/a.ts', size: 1024, lines: 200, additions: 120, deletions: 10 },
         { path: 'src/b.ts', size: 512, lines: 80, additions: 30, deletions: 5 },

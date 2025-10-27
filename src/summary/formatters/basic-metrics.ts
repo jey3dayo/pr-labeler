@@ -37,12 +37,12 @@ function renderBasicMetrics(metrics: AnalysisResult['metrics'], options: RenderB
   }
 
   output += `- ${t('summary', 'basicMetrics.totalAdditions')}: **${formatNumber(metrics.totalAdditions)}**\n`;
+  output += `- ${t('summary', 'basicMetrics.excludedAdditions')}: **${formatNumber(metrics.excludedAdditions)}**\n`;
   output += `- ${totalFilesLabel}: **${formatNumber(totalFilesValue)}**\n`;
 
   if (filesAnalyzedLine) {
     output += `- ${filesAnalyzedLine.label}: **${formatNumber(filesAnalyzedLine.value)}**\n`;
   }
-
   output += `- ${t('summary', 'basicMetrics.excludedFiles')}: **${metrics.filesExcluded.length}**\n`;
   output += `- ${t('summary', 'basicMetrics.binaryFilesSkipped')}: **${metrics.filesSkippedBinary.length}**\n`;
 

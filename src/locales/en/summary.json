@@ -10,6 +10,7 @@
   "basicMetrics": {
     "title": "Basic Metrics",
     "totalAdditions": "Total Additions",
+    "excludedAdditions": "Excluded Additions",
     "totalFiles": "Total Files Changed",
     "filesAnalyzed": "Files Analyzed",
     "excludedFiles": "Excluded Files",

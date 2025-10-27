@@ -87,6 +87,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 5,
             totalAdditions: 100,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: ['package-lock.json'],
             filesSkippedBinary: ['image.png'],
@@ -111,6 +112,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 5,
             totalAdditions: 100,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: ['package-lock.json'],
             filesSkippedBinary: ['image.png'],
@@ -138,6 +140,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 3,
             totalAdditions: 50,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
@@ -162,6 +165,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 3,
             totalAdditions: 50,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
@@ -189,6 +193,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 10,
             totalAdditions: 1500,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
@@ -216,6 +221,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 5,
             totalAdditions: 100,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: ['package-lock.json'],
             filesSkippedBinary: ['image.png'],
@@ -238,6 +244,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 10,
             totalAdditions: 1500,
+            excludedAdditions: 0,
             filesAnalyzed: [
               {
                 path: 'src/large.ts',
@@ -291,6 +298,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 5,
             totalAdditions: 200,
+            excludedAdditions: 0,
             filesAnalyzed: [
               {
                 path: 'src/file1.ts',
@@ -349,6 +357,7 @@ describe('CommentManager', () => {
           metrics: {
             totalFiles: 3,
             totalAdditions: 50,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
@@ -372,6 +381,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 100,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: ['package-lock.json'],
           filesSkippedBinary: ['image.png'],
@@ -401,6 +411,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 10,
           totalAdditions: 1500,
+          excludedAdditions: 0,
           filesAnalyzed: [
             {
               path: 'src/large.ts',
@@ -464,6 +475,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 200,
+          excludedAdditions: 0,
           filesAnalyzed: [
             {
               path: 'src/file1.ts',
@@ -530,6 +542,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 10,
+          excludedAdditions: 0,
           filesAnalyzed: [
             {
               path: 'small.ts',
@@ -560,6 +573,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 0,
           totalAdditions: 0,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -584,6 +598,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 3,
           totalAdditions: 50,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -783,6 +798,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 10,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -821,6 +837,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 10,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -860,6 +877,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 1000,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -925,6 +943,7 @@ describe('CommentManager', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 1000,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],

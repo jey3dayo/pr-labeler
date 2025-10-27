@@ -87,6 +87,7 @@ describe('ReportFormatter', () => {
       const metrics: AnalysisResult['metrics'] = {
         totalFiles: 10,
         totalAdditions: 500,
+        excludedAdditions: 75,
         filesAnalyzed: [{} as any, {} as any, {} as any],
         filesExcluded: ['package-lock.json'],
         filesSkippedBinary: ['image.png'],
@@ -97,6 +98,7 @@ describe('ReportFormatter', () => {
 
       expect(result).toContain('### 📈 Basic Metrics');
       expect(result).toContain('Total Additions: **500**');
+      expect(result).toContain('Excluded Additions: **75**');
       expect(result).toContain('Total Files Changed: **3**');
       expect(result).toContain('2025-10-18 15:30:00 (UTC)');
     });
@@ -105,6 +107,7 @@ describe('ReportFormatter', () => {
       const metrics: AnalysisResult['metrics'] = {
         totalFiles: 5,
         totalAdditions: 200,
+        excludedAdditions: 0,
         filesAnalyzed: [{} as any],
         filesExcluded: [],
         filesSkippedBinary: [],
@@ -122,6 +125,7 @@ describe('ReportFormatter', () => {
       const metrics: AnalysisResult['metrics'] = {
         totalFiles: 0,
         totalAdditions: 0,
+        excludedAdditions: 0,
         filesAnalyzed: [],
         filesExcluded: [],
         filesSkippedBinary: [],
@@ -137,6 +141,7 @@ describe('ReportFormatter', () => {
       const metrics: AnalysisResult['metrics'] = {
         totalFiles: 10,
         totalAdditions: 300,
+        excludedAdditions: 120,
         filesAnalyzed: [{} as any, {} as any],
         filesExcluded: ['lock1', 'lock2', 'lock3'],
         filesSkippedBinary: ['img1.png', 'img2.jpg'],
@@ -153,6 +158,7 @@ describe('ReportFormatter', () => {
       const metrics: AnalysisResult['metrics'] = {
         totalFiles: 5,
         totalAdditions: 100,
+        excludedAdditions: 0,
         filesAnalyzed: [{} as any],
         filesExcluded: [],
         filesSkippedBinary: [],
@@ -170,6 +176,7 @@ describe('ReportFormatter', () => {
       const metrics: AnalysisResult['metrics'] = {
         totalFiles: 8,
         totalAdditions: 450,
+        excludedAdditions: 30,
         filesAnalyzed: [{} as any, {} as any, {} as any, {} as any],
         filesExcluded: ['lock.json'],
         filesSkippedBinary: [],
@@ -179,6 +186,7 @@ describe('ReportFormatter', () => {
       const result = formatSummaryBasicMetrics(metrics);
 
       expect(result).toContain('Total Files Changed: **8**');
+      expect(result).toContain('Excluded Additions: **30**');
       expect(result).toContain('Files Analyzed: **4**');
     });
 
@@ -186,6 +194,7 @@ describe('ReportFormatter', () => {
       const metrics: AnalysisResult['metrics'] = {
         totalFiles: 0,
         totalAdditions: 0,
+        excludedAdditions: 0,
         filesAnalyzed: [],
         filesExcluded: [],
         filesSkippedBinary: [],
@@ -974,6 +983,7 @@ describe('ReportFormatter', () => {
         metrics: {
           totalFiles: 10,
           totalAdditions: 500,
+          excludedAdditions: 180,
           filesAnalyzed: [fileMetrics],
           filesExcluded: ['node_modules/package.json', 'dist/index.js'],
           filesSkippedBinary: ['icon.png', 'logo.svg'],

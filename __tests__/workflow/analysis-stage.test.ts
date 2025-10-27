@@ -131,6 +131,7 @@ describe('workflow/stages/analysis', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 120,
+          excludedAdditions: 0,
           filesAnalyzed: [{ path: 'src/app.ts', size: 2048, lines: 250, additions: 120, deletions: 20 }],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -199,6 +200,7 @@ describe('workflow/stages/analysis', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 50,
+          excludedAdditions: 0,
           filesAnalyzed: [{ path: 'src/app.ts', size: 2048, lines: 250, additions: 50, deletions: 10 }],
           filesExcluded: [],
           filesSkippedBinary: [],

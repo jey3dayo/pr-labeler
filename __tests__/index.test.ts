@@ -235,6 +235,7 @@ describe('PR Labeler', () => {
           metrics: {
             totalFiles: 0,
             totalAdditions: 0,
+            excludedAdditions: 0,
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],

@@ -504,7 +504,8 @@ describe('FileMetrics', () => {
         expect(result.value.metrics.filesAnalyzed).toHaveLength(1);
         expect(result.value.metrics.filesWithErrors).toHaveLength(1);
         expect(result.value.metrics.filesWithErrors).toContain('src/error.ts');
-        expect(result.value.metrics.totalAdditions).toBe(150); // Total from all files (100 + 50), including errors
+        expect(result.value.metrics.excludedAdditions).toBe(100); // Errors are tracked separately
+        expect(result.value.metrics.totalAdditions).toBe(50); // Only successful files (errors excluded from totals)
       }
     });
 

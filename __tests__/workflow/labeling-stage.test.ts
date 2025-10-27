@@ -130,6 +130,7 @@ describe('workflow/stages/labeling', () => {
       metrics: {
         totalFiles: 2,
         totalAdditions: 220,
+        excludedAdditions: 0,
         filesAnalyzed: [
           { path: 'src/app.ts', size: 2000, lines: 200, additions: 120, deletions: 10 },
           { path: 'src/util.ts', size: 500, lines: 50, additions: 100, deletions: 5 },

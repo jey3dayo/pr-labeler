@@ -91,6 +91,11 @@ export const DEFAULT_EXCLUDE_PATTERNS: string[] = [
   '.gitignore',
   '.gitattributes',
 
+  // Spec-driven metadata
+  '.claude/**',
+  '.codex/**',
+  '.kiro/**',
+
   // Generated files
   '*.generated.*',
   '*.gen.ts',

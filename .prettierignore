@@ -23,6 +23,11 @@ __tests__/__tests__/
 # Git
 .git/
 
+# Spec-driven metadata
+.claude/
+.codex/
+.kiro/
+
 # Specify
 .specify/templates/
 

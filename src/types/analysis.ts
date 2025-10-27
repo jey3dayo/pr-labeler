@@ -21,6 +21,7 @@ export interface FileMetrics {
 export interface Metrics {
   totalFiles: number;
   totalAdditions: number;
+  excludedAdditions: number;
   filesAnalyzed: FileMetrics[];
   filesExcluded: string[];
   filesSkippedBinary: string[];
