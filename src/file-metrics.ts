@@ -338,6 +338,7 @@ export async function analyzeFiles(
     // Check if file should be excluded
     if (isExcluded(file.filename, excludePatterns)) {
       result.metrics.filesExcluded.push(file.filename);
+      result.metrics.excludedAdditions += file.additions;
       continue;
     }
 
@@ -355,6 +356,7 @@ export async function analyzeFiles(
 
       if (sizeResult.isErr() || lineResult.isErr()) {
         result.metrics.filesWithErrors.push(file.filename);
+        result.metrics.excludedAdditions += file.additions;
         logWarning(`Failed to analyze file ${file.filename}`);
         continue;
       }
@@ -396,6 +398,7 @@ export async function analyzeFiles(
       }
     } catch (error) {
       result.metrics.filesWithErrors.push(file.filename);
+      result.metrics.excludedAdditions += file.additions;
       logWarning(`Unexpected error analyzing file ${file.filename}: ${ensureError(error).message}`);
     }
   }
