@@ -82,6 +82,7 @@ export interface FunctionComplexity {
  */
 export interface PRMetrics {
   totalAdditions: number;
+  excludedAdditions: number;
   files: FileMetrics[];
   complexity?: ComplexityMetrics; // 複雑度分析が無効の場合はundefined
 }

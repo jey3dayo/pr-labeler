@@ -21,6 +21,7 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
   }
 
   output += `- ${t('summary', 'basicMetrics.totalAdditions')}: **${formatNumber(metrics.totalAdditions)}**\n`;
+  output += `- ${t('summary', 'basicMetrics.excludedAdditions')}: **${formatNumber(metrics.excludedAdditions)}**\n`;
   output += `- ${t('summary', 'basicMetrics.totalFiles')}: **${metrics.filesAnalyzed.length}**\n`;
   output += `- ${t('summary', 'basicMetrics.excludedFiles')}: **${metrics.filesExcluded.length}**\n`;
   output += `- ${t('summary', 'basicMetrics.binaryFilesSkipped')}: **${metrics.filesSkippedBinary.length}**\n`;

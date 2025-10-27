@@ -79,6 +79,8 @@
     "**/node_modules/**",
     "**/dist/**",
     "**/.git/**",
-    "**/_*.md" // アンダースコアで始まるmarkdownファイルを除外
+    "**/_*.md", // アンダースコアで始まるmarkdownファイルを除外
+    "**/.codex/**",
+    "**/.kiro/settings/**"
   ]
 }

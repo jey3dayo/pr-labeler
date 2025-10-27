@@ -6,6 +6,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 ### 📈 Basic Metrics
 
 - Total Additions: **200**
+- Excluded Additions: **0**
 - Total Files Changed: **5**
 - Excluded Files: **0**
 - Binary files skipped: **0**
@@ -33,6 +34,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 ### 📈 Basic Metrics
 
 - Total Additions: **100**
+- Excluded Additions: **0**
 - Total Files Changed: **0**
 - Excluded Files: **1**
 - Binary files skipped: **1**
@@ -50,6 +52,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 ### 📈 Basic Metrics
 
 - Total Additions: **50**
+- Excluded Additions: **0**
 - Total Files Changed: **0**
 - Excluded Files: **0**
 - Binary files skipped: **0**
@@ -75,6 +78,7 @@ exports[`CommentManager > generateCommentBody > snapshot tests (for refactoring 
 ### 📈 Basic Metrics
 
 - Total Additions: **1,500**
+- Excluded Additions: **0**
 - Total Files Changed: **2**
 - Excluded Files: **0**
 - Binary files skipped: **0**

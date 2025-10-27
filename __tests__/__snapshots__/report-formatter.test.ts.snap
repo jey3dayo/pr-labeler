@@ -4,6 +4,7 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 "### 📈 Basic Metrics
 
 - Total Additions: **500**
+- Excluded Additions: **180**
 - Total Files Changed: **1**
 - Excluded Files: **2**
 - Binary files skipped: **2**
@@ -89,6 +90,7 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 "### 📈 基本メトリクス
 
 - 総追加行数: **500**
+- 除外ファイルの追加行数: **180**
 - 変更ファイル数: **1**
 - 除外ファイル数: **2**
 - バイナリファイルをスキップ: **2**

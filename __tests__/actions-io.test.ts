@@ -285,6 +285,7 @@ describe('GitHub Actions I/O', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 100,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -313,6 +314,7 @@ describe('GitHub Actions I/O', () => {
         metrics: {
           totalFiles: 3,
           totalAdditions: 200,
+          excludedAdditions: 0,
           filesAnalyzed: [
             {
               path: 'src/test.ts',
@@ -358,6 +360,7 @@ describe('GitHub Actions I/O', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 10,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -384,6 +387,7 @@ describe('GitHub Actions I/O', () => {
         metrics: {
           totalFiles: 1,
           totalAdditions: 42,
+          excludedAdditions: 0,
           filesAnalyzed: [
             {
               path: 'src/custom.ts',
@@ -421,6 +425,7 @@ describe('GitHub Actions I/O', () => {
         metrics: {
           totalFiles: 2,
           totalAdditions: 1000,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],

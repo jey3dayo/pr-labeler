@@ -232,6 +232,7 @@ describe('Label Decision Engine', () => {
     it('should decide all label types for a typical PR', () => {
       const metrics: PRMetrics = {
         totalAdditions: 250,
+        excludedAdditions: 0,
         files: [
           { path: 'src/index.ts', size: 5000, lines: 150, additions: 100, deletions: 20 },
           { path: '__tests__/index.test.ts', size: 3000, lines: 80, additions: 50, deletions: 10 },
@@ -252,6 +253,7 @@ describe('Label Decision Engine', () => {
     it('should decide size/small for small PRs', () => {
       const metrics: PRMetrics = {
         totalAdditions: 50,
+        excludedAdditions: 0,
         files: [{ path: 'src/small.ts', size: 1000, lines: 30, additions: 50, deletions: 5 }],
       };
 
@@ -263,6 +265,7 @@ describe('Label Decision Engine', () => {
     it('should decide risk/high for core changes without tests', () => {
       const metrics: PRMetrics = {
         totalAdditions: 100,
+        excludedAdditions: 0,
         files: [{ path: 'src/core.ts', size: 5000, lines: 150, additions: 100, deletions: 10 }],
       };
 
@@ -274,6 +277,7 @@ describe('Label Decision Engine', () => {
     it('should include reasoning for each label', () => {
       const metrics: PRMetrics = {
         totalAdditions: 150,
+        excludedAdditions: 0,
         files: [{ path: 'src/index.ts', size: 5000, lines: 150, additions: 150, deletions: 20 }],
       };
 
@@ -287,6 +291,7 @@ describe('Label Decision Engine', () => {
     it('should not add complexity label when metrics.complexity is undefined', () => {
       const metrics: PRMetrics = {
         totalAdditions: 120,
+        excludedAdditions: 0,
         files: [{ path: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
       };
 
@@ -303,6 +308,7 @@ describe('Label Decision Engine', () => {
 
       const metrics: PRMetrics = {
         totalAdditions: 120,
+        excludedAdditions: 0,
         files: [{ path: 'src/a.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
         complexity: {
           maxComplexity: 99,
@@ -329,6 +335,7 @@ describe('Label Decision Engine', () => {
 
       const metrics: PRMetrics = {
         totalAdditions: 1200,
+        excludedAdditions: 0,
         files: [{ path: 'src/a.ts', size: 1000, lines: 50, additions: 1200, deletions: 0 }],
       };
 
@@ -346,6 +353,7 @@ describe('Label Decision Engine', () => {
 
       const metrics: PRMetrics = {
         totalAdditions: 120,
+        excludedAdditions: 0,
         files: [
           { path: '__tests__/foo.test.ts', size: 1000, lines: 50, additions: 120, deletions: 0 },
           { path: 'docs/guide.md', size: 500, lines: 20, additions: 30, deletions: 0 },
@@ -366,6 +374,7 @@ describe('Label Decision Engine', () => {
 
       const metrics: PRMetrics = {
         totalAdditions: 120,
+        excludedAdditions: 0,
         files: [{ path: 'src/critical.ts', size: 1000, lines: 50, additions: 120, deletions: 0 }],
       };
 
@@ -386,6 +395,7 @@ describe('Label Decision Engine', () => {
 
       const metrics: PRMetrics = {
         totalAdditions: 1200,
+        excludedAdditions: 0,
         files: [{ path: '__tests__/foo.test.ts', size: 1000, lines: 50, additions: 1200, deletions: 0 }],
         complexity: {
           maxComplexity: 99,

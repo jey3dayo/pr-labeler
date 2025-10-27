@@ -111,6 +111,7 @@ export const defaultComplexityMetrics: ComplexityMetrics = {
  */
 export const smallPRMetrics: PRMetrics = {
   totalAdditions: 150,
+  excludedAdditions: 0,
   files: [smallTsFile, mediumTestFile],
 };
 
@@ -119,6 +120,7 @@ export const smallPRMetrics: PRMetrics = {
  */
 export const mediumPRMetrics: PRMetrics = {
   totalAdditions: 350,
+  excludedAdditions: 0,
   files: [smallTsFile, mediumTestFile, largeDocFile],
 };
 
@@ -127,6 +129,7 @@ export const mediumPRMetrics: PRMetrics = {
  */
 export const largePRMetrics: PRMetrics = {
   totalAdditions: 750,
+  excludedAdditions: 0,
   files: [smallTsFile, mediumTestFile, largeDocFile, { ...largeDocFile, path: 'docs/api.md', additions: 400 }],
 };
 
@@ -135,6 +138,7 @@ export const largePRMetrics: PRMetrics = {
  */
 export const xlargePRMetrics: PRMetrics = {
   totalAdditions: 2000,
+  excludedAdditions: 0,
   files: [
     smallTsFile,
     mediumTestFile,
@@ -149,6 +153,7 @@ export const xlargePRMetrics: PRMetrics = {
  */
 export const xxlargePRMetrics: PRMetrics = {
   totalAdditions: 5000,
+  excludedAdditions: 0,
   files: [
     smallTsFile,
     mediumTestFile,

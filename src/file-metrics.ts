@@ -299,6 +299,7 @@ export async function analyzeFiles(
     metrics: {
       totalFiles: files.length,
       totalAdditions: 0,
+      excludedAdditions: 0,
       filesAnalyzed: [],
       filesExcluded: [],
       filesSkippedBinary: [],
@@ -321,11 +322,6 @@ export async function analyzeFiles(
   // Combine default and custom exclude patterns
   const excludePatterns = [...getDefaultExcludePatterns(), ...config.excludePatterns];
 
-  // Calculate total additions from ALL files (including excluded)
-  for (const file of files) {
-    result.metrics.totalAdditions += file.additions;
-  }
-
   // Process each file
   for (let i = 0; i < files.length; i++) {
     // Stop processing after maxFileCount (consistent with violation detection)
@@ -342,6 +338,7 @@ export async function analyzeFiles(
     // Check if file should be excluded
     if (isExcluded(file.filename, excludePatterns)) {
       result.metrics.filesExcluded.push(file.filename);
+      result.metrics.excludedAdditions += file.additions;
       continue;
     }
 
@@ -359,6 +356,7 @@ export async function analyzeFiles(
 
       if (sizeResult.isErr() || lineResult.isErr()) {
         result.metrics.filesWithErrors.push(file.filename);
+        result.metrics.excludedAdditions += file.additions;
         logWarning(`Failed to analyze file ${file.filename}`);
         continue;
       }
@@ -372,6 +370,7 @@ export async function analyzeFiles(
       };
 
       result.metrics.filesAnalyzed.push(metrics);
+      result.metrics.totalAdditions += file.additions;
 
       // Check for violations
       if (metrics.size > config.fileSizeLimit) {
@@ -399,6 +398,7 @@ export async function analyzeFiles(
       }
     } catch (error) {
       result.metrics.filesWithErrors.push(file.filename);
+      result.metrics.excludedAdditions += file.additions;
       logWarning(`Unexpected error analyzing file ${file.filename}: ${ensureError(error).message}`);
     }
   }
