@@ -16,11 +16,14 @@ interface RenderBasicMetricsOptions extends FormatBasicMetricsOptions {
   };
 }
 
-function renderBasicMetrics(
-  metrics: AnalysisResult['metrics'],
-  options: RenderBasicMetricsOptions,
-): string {
-  const { includeHeader = true, includeTimestamp = true, totalFilesLabel, totalFilesValue, filesAnalyzedLine } = options;
+function renderBasicMetrics(metrics: AnalysisResult['metrics'], options: RenderBasicMetricsOptions): string {
+  const {
+    includeHeader = true,
+    includeTimestamp = true,
+    totalFilesLabel,
+    totalFilesValue,
+    filesAnalyzedLine,
+  } = options;
   let output = '';
 
   if (includeHeader) {
@@ -68,7 +71,7 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
   });
 }
 
-export interface FormatSummaryBasicMetricsOptions extends FormatBasicMetricsOptions {}
+export type FormatSummaryBasicMetricsOptions = FormatBasicMetricsOptions;
 
 export function formatSummaryBasicMetrics(
   metrics: AnalysisResult['metrics'],

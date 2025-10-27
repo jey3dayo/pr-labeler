@@ -7,6 +7,7 @@ import type { ComplexityConfig, ComplexityMetrics } from '../src/labeler-types';
 import type { SummaryContext } from '../src/report-formatter';
 import {
   escapeMarkdown,
+  formatAppliedLabels,
   formatBasicMetrics,
   formatBestPractices,
   formatBytes,
@@ -16,7 +17,6 @@ import {
   formatImprovementActions,
   formatNumber,
   formatSummaryBasicMetrics,
-  formatAppliedLabels,
   formatViolations,
   generateComplexitySummary,
 } from '../src/report-formatter';

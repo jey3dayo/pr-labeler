@@ -125,7 +125,11 @@ describe('summary-writer', () => {
       baseAnalysis,
       { enableSummary: true },
       { metrics: complexityMetrics, config: complexityConfig, context: { owner: 'org', repo: 'repo', sha: 'abc' } },
-      { disabledFeatures: ['risk', 'category'], title: 'Custom Title', appliedLabels: ['size/large', 'auto/large-files'] },
+      {
+        disabledFeatures: ['risk', 'category'],
+        title: 'Custom Title',
+        appliedLabels: ['size/large', 'auto/large-files'],
+      },
     );
 
     expect(summaryResult.isOk()).toBe(true);

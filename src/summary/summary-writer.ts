@@ -11,12 +11,12 @@ import { ensureError } from '../errors/index.js';
 import { t } from '../i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from '../labeler-types';
 import {
+  formatAppliedLabels,
   formatBestPractices,
   formatExcludedFiles,
   formatFileDetails,
-  formatSummaryBasicMetrics,
-  formatAppliedLabels,
   formatImprovementActions,
+  formatSummaryBasicMetrics,
   formatViolations,
   generateComplexitySummary,
   type SummaryContext,
