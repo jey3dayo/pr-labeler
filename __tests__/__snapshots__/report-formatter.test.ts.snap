@@ -1,10 +1,20 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > applied-labels-en 1`] = `
+"### 🏷️ Applied Labels
+
+- \`size/large\`
+- \`complexity/medium\`
+
+"
+`;
+
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > basic-metrics-en 1`] = `
 "### 📈 Basic Metrics
 
 - Total Additions: **500**
-- Total Files Changed: **1**
+- Total Files Changed: **10**
+- Files Analyzed: **1**
 - Excluded Files: **2**
 - Binary files skipped: **2**
 - Analysis Time: 2025-10-18 15:30:00 (UTC)
@@ -41,6 +51,18 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
   - [processData](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L42): 15 (L42-58)
   - [validateInput](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L120): 8 (L120-135)
   </details>
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match English snapshot > excluded-files-en 1`] = `
+"<details>
+<summary>Excluded Files (2)</summary>
+
+- node\\_modules/package.json
+- dist/index.js
+
+</details>
+
 "
 `;
 
@@ -85,11 +107,21 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
 "
 `;
 
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > applied-labels-ja 1`] = `
+"### 🏷️ 適用されたラベル
+
+- \`size/large\`
+- \`complexity/medium\`
+
+"
+`;
+
 exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > basic-metrics-ja 1`] = `
 "### 📈 基本メトリクス
 
 - 総追加行数: **500**
-- 変更ファイル数: **1**
+- 変更ファイル数: **10**
+- 解析対象ファイル数: **1**
 - 除外ファイル数: **2**
 - バイナリファイルをスキップ: **2**
 - 分析時刻: 2025-10-18 15:30:00 (UTC)
@@ -126,6 +158,18 @@ exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should matc
   - [processData](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L42): 15 (L42-58)
   - [validateInput](https://github.com/test/repo/blob/abc123def456/src/complex.ts#L120): 8 (L120-135)
   </details>
+"
+`;
+
+exports[`ReportFormatter > Summary Output Snapshots (Multilingual) > should match Japanese snapshot > excluded-files-ja 1`] = `
+"<details>
+<summary>除外ファイル (2)</summary>
+
+- node\\_modules/package.json
+- dist/index.js
+
+</details>
+
 "
 `;
 

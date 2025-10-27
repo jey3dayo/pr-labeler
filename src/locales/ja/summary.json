@@ -11,7 +11,9 @@
     "title": "基本メトリクス",
     "totalAdditions": "総追加行数",
     "totalFiles": "変更ファイル数",
+    "filesAnalyzed": "解析対象ファイル数",
     "excludedFiles": "除外ファイル数",
+    "excludedFilesDetail": "除外ファイル ({{count}})",
     "binaryFilesSkipped": "バイナリファイルをスキップ",
     "filesWithErrors": "エラーのあるファイル",
     "analysisTime": "分析時刻"

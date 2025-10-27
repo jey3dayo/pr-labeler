@@ -7,12 +7,25 @@ export interface FormatBasicMetricsOptions {
   includeTimestamp?: boolean;
 }
 
-export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?: FormatBasicMetricsOptions): string {
-  const { includeHeader = true, includeTimestamp = true } = options || {};
+interface RenderBasicMetricsOptions extends FormatBasicMetricsOptions {
+  totalFilesLabel: string;
+  totalFilesValue: number;
+  filesAnalyzedLine?: {
+    label: string;
+    value: number;
+  };
+}
+
+function renderBasicMetrics(
+  metrics: AnalysisResult['metrics'],
+  options: RenderBasicMetricsOptions,
+): string {
+  const { includeHeader = true, includeTimestamp = true, totalFilesLabel, totalFilesValue, filesAnalyzedLine } = options;
   let output = '';
 
   if (includeHeader) {
-    output += `### 📈 ${t('summary', 'basicMetrics.title')}\n\n`;
+    output += `### 📈 ${t('summary', 'basicMetrics.title')}`;
+    output += '\n\n';
   }
 
   if (metrics.totalFiles === 0) {
@@ -21,7 +34,12 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
   }
 
   output += `- ${t('summary', 'basicMetrics.totalAdditions')}: **${formatNumber(metrics.totalAdditions)}**\n`;
-  output += `- ${t('summary', 'basicMetrics.totalFiles')}: **${metrics.filesAnalyzed.length}**\n`;
+  output += `- ${totalFilesLabel}: **${formatNumber(totalFilesValue)}**\n`;
+
+  if (filesAnalyzedLine) {
+    output += `- ${filesAnalyzedLine.label}: **${formatNumber(filesAnalyzedLine.value)}**\n`;
+  }
+
   output += `- ${t('summary', 'basicMetrics.excludedFiles')}: **${metrics.filesExcluded.length}**\n`;
   output += `- ${t('summary', 'basicMetrics.binaryFilesSkipped')}: **${metrics.filesSkippedBinary.length}**\n`;
 
@@ -30,7 +48,6 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
   }
 
   if (includeTimestamp) {
-    // Format: YYYY-MM-DD HH:MM (UTC)
     const now = new Date();
     const dateStr = now
       .toISOString()
@@ -41,4 +58,29 @@ export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?:
   output += '\n';
 
   return output;
+}
+
+export function formatBasicMetrics(metrics: AnalysisResult['metrics'], options?: FormatBasicMetricsOptions): string {
+  return renderBasicMetrics(metrics, {
+    ...options,
+    totalFilesLabel: t('summary', 'basicMetrics.totalFiles'),
+    totalFilesValue: metrics.filesAnalyzed.length,
+  });
+}
+
+export interface FormatSummaryBasicMetricsOptions extends FormatBasicMetricsOptions {}
+
+export function formatSummaryBasicMetrics(
+  metrics: AnalysisResult['metrics'],
+  options?: FormatSummaryBasicMetricsOptions,
+): string {
+  return renderBasicMetrics(metrics, {
+    ...options,
+    totalFilesLabel: t('summary', 'basicMetrics.totalFiles'),
+    totalFilesValue: metrics.totalFiles,
+    filesAnalyzedLine: {
+      label: t('summary', 'basicMetrics.filesAnalyzed'),
+      value: metrics.filesAnalyzed.length,
+    },
+  });
 }

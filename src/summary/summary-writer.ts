@@ -11,9 +11,11 @@ import { ensureError } from '../errors/index.js';
 import { t } from '../i18n.js';
 import type { ComplexityConfig, ComplexityMetrics } from '../labeler-types';
 import {
-  formatBasicMetrics,
   formatBestPractices,
+  formatExcludedFiles,
   formatFileDetails,
+  formatSummaryBasicMetrics,
+  formatAppliedLabels,
   formatImprovementActions,
   formatViolations,
   generateComplexitySummary,
@@ -42,6 +44,7 @@ export interface SummaryWriteResult {
 export interface SummaryWriteOptions {
   disabledFeatures?: string[];
   title?: string;
+  appliedLabels?: string[] | undefined;
 }
 
 /**
@@ -59,7 +62,15 @@ function buildSummaryMarkdown(
 
       let markdown = '';
       markdown += `# 📊 ${summaryTitle}\n\n`;
-      markdown += formatBasicMetrics(analysis.metrics);
+      markdown += formatSummaryBasicMetrics(analysis.metrics);
+
+      const excludedFilesSection = formatExcludedFiles(analysis.metrics.filesExcluded);
+      if (excludedFilesSection) {
+        markdown += excludedFilesSection;
+      }
+
+      const appliedLabelsSection = formatAppliedLabels(options?.appliedLabels);
+      markdown += appliedLabelsSection;
       markdown += formatViolations(analysis.violations);
 
       if (analysis.metrics.filesAnalyzed.length > 0) {

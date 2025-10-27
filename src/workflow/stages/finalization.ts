@@ -37,6 +37,12 @@ export async function finalizeAction(context: InitializationArtifacts, artifacts
     }
   }
 
+  const appliedLabels = await getCurrentPRLabels(token, {
+    owner: prContext.owner,
+    repo: prContext.repo,
+    pullNumber: prContext.pullNumber,
+  });
+
   if (config.enableSummary) {
     logInfoI18n('summary.writing');
 
@@ -72,6 +78,7 @@ export async function finalizeAction(context: InitializationArtifacts, artifacts
         : undefined,
       {
         disabledFeatures,
+        appliedLabels,
         ...(labelerConfig.summary?.title ? { title: labelerConfig.summary.title } : {}),
       },
     );
@@ -92,12 +99,6 @@ export async function finalizeAction(context: InitializationArtifacts, artifacts
     exceeds_additions: analysis.violations.exceedsAdditions.toString(),
     exceeds_file_count: analysis.violations.exceedsFileCount.toString(),
     has_violations: hasViolations.toString(),
-  });
-
-  const appliedLabels = await getCurrentPRLabels(token, {
-    owner: prContext.owner,
-    repo: prContext.repo,
-    pullNumber: prContext.pullNumber,
   });
 
   const failures = evaluatePRFailures({
