@@ -14,15 +14,17 @@ Streamline your PR review process with intelligent automation:
 
 - **📏 Smart Size Detection**: Automatically label PRs by size (small → xxlarge) to help reviewers prioritize
   - Example: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
-- **🏷️ Auto-Categorization**: Classify changes by type (tests, docs, CI/CD, dependencies) for quick filtering
-  - Example: `category/tests`, `category/documentation`, `category/ci-cd`, `category/dependencies`
+- **🏷️ Auto-Categorization**: Classify changes by type (tests, docs, CI/CD, config, specs, dependencies) for quick filtering
+  - Example: `category/tests`, `category/documentation`, `category/ci-cd`, `category/config`, `category/spec`
 - **⚠️ Risk Assessment**: Flag high-risk changes (core modifications without tests) before merge
   - Example: `risk/high` (core changes without test updates), `risk/medium` (config/infrastructure changes)
+- **🧠 Complexity Insights**: Measure ESLint complexity for changed files and surface `complexity/high` labels (opt-in)
 - **📁 Path-Based Labels**: Custom labels based on file paths using flexible glob patterns
   - Example: `frontend/**` → `team/frontend`, `backend/**` → `team/backend`
-- **🚦 Quality Gates**: Optional workflow failures for oversized PRs or policy violations
-  - Example: `fail_on_pr_size: "xlarge"` fails workflow for xlarge or larger PRs
-- **🌐 Multi-language**: Full support for English and Japanese output
+- **🏷️ Auto Label Provisioning**: Automatically create and sync labels with default metadata—no manual setup required
+- **🚦 Workflow Quality Gates**: Enforce policy with `fail_on_pr_size`, `fail_on_large_files`, and `fail_on_too_many_files`
+- **📝 GitHub Actions Summary**: Publish rich PR analytics, large file tables, and improvement suggestions to the Actions Summary page
+- **🌐 Multi-language Output**: Automatically switch between English and Japanese using the `language` input or `LANGUAGE/LANG` environment
 
 ## 🚀 Quick Start
 
@@ -64,10 +66,20 @@ Once configured, every PR automatically receives:
 - **Size labels**: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
 - **Category labels**: `category/tests`, `category/docs`, `category/ci-cd`, `category/dependencies`, etc.
 - **Risk labels**: `risk/high`, `risk/medium` (when applicable)
+- **Complexity labels**: `complexity/high` when ESLint complexity thresholds are exceeded (if enabled)
+- **GitHub Actions Summary**: Consolidated metrics, violation tables, and best-practice reminders directly in CI results
 
 ### 3. Customize (Optional)
 
-Want more control? Check these guides:
+Unlock advanced controls:
+
+- Selectively enable size, complexity, category, and risk labels per workflow run
+- Auto-create and maintain labels with consistent colors/descriptions
+- Fail workflows based on size, file count, additions, or label policy breaches
+- Publish GitHub Actions Summary entries featuring violation tables and best-practice reminders
+- Localize logs, summaries, and comments via `language` input or locale environment variables
+
+Need deeper guidance? Check these guides:
 
 - 📖 [Configuration Guide](docs/configuration.md) - All input parameters and thresholds
 - 🔧 [Advanced Usage](docs/advanced-usage.md) - Fork PRs, strict mode, custom workflows
@@ -123,6 +135,8 @@ When limits exceeded:
 
 - `auto/large-files` - Individual files too large
 - `auto/too-many-files` - Too many files changed
+- `auto:too-many-lines` - Individual files exceed configured line limits
+- `auto:excessive-changes` - Total additions exceed configured thresholds
 
 **Customize**: All thresholds and labels configurable. See [Configuration Guide](docs/configuration.md#label-thresholds-defaults).
 
@@ -150,9 +164,13 @@ When limits exceeded:
     # Quality Gates
     fail_on_pr_size: "xlarge"     # Fail if PR too large
     fail_on_large_files: "true"   # Fail if files exceed limits
+    fail_on_too_many_files: "true" # Fail if too many files are changed
+    enable_summary: "true"        # Publish GitHub Actions Summary
+    comment_on_pr: "auto"         # Auto-detect when to comment (auto/always/never)
 
     # Localization
     language: "en"                # Output language (en/ja)
+    # Fallback: LANGUAGE / LANG env vars are respected when input omitted
 ```
 
 ### Advanced Features
