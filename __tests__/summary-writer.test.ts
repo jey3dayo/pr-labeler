@@ -143,6 +143,11 @@ describe('summary-writer', () => {
     expect(markdown).toContain('size/large');
     expect(markdown).toContain('Disabled label types');
     expect(markdown).toContain(t('summary', 'complexity.title'));
+    const labelsIndex = markdown.indexOf('### 🏷️');
+    const excludedIndex = markdown.indexOf('<details>');
+    expect(labelsIndex).toBeGreaterThan(-1);
+    expect(excludedIndex).toBeGreaterThan(-1);
+    expect(labelsIndex).toBeLessThan(excludedIndex);
     expect(summaryResult.isOk() && summaryResult.value.bytesWritten).toBeGreaterThan(0);
   });
 

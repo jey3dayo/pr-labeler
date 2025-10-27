@@ -64,13 +64,15 @@ function buildSummaryMarkdown(
       markdown += `# 📊 ${summaryTitle}\n\n`;
       markdown += formatSummaryBasicMetrics(analysis.metrics);
 
+      const appliedLabelsSection = formatAppliedLabels(options?.appliedLabels);
+      if (appliedLabelsSection) {
+        markdown += appliedLabelsSection;
+      }
+
       const excludedFilesSection = formatExcludedFiles(analysis.metrics.filesExcluded);
       if (excludedFilesSection) {
         markdown += excludedFilesSection;
       }
-
-      const appliedLabelsSection = formatAppliedLabels(options?.appliedLabels);
-      markdown += appliedLabelsSection;
       markdown += formatViolations(analysis.violations);
 
       if (analysis.metrics.filesAnalyzed.length > 0) {
