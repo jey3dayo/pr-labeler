@@ -21,6 +21,7 @@
     "totalAdditions": "Total additions: {{count}}",
     "complexityAnalyzing": "Analyzing code complexity...",
     "complexityFilesToAnalyze": "Files to analyze: {{count}}",
+    "complexitySkipped": "No complexity-eligible files detected; skipping analysis.",
     "complexityResults": "Max complexity: {{max}}, Avg: {{avg}}, Files: {{files}}",
     "complexityFailed": "Failed to analyze code complexity: {{message}}"
   },

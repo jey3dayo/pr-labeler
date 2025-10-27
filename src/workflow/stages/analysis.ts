@@ -106,24 +106,27 @@ export async function analyzePullRequest(context: InitializationArtifacts): Prom
       });
 
     logInfoI18n('analysis.complexityFilesToAnalyze', { count: complexityFiles.length });
-
-    const complexityResult = await complexityAnalyzer.analyzeFiles(complexityFiles, {
-      extensions: labelerConfig.complexity.extensions,
-      exclude: labelerConfig.complexity.exclude,
-    });
-
-    if (complexityResult.isOk()) {
-      complexityMetrics = complexityResult.value;
-      logInfoI18n('analysis.complexityResults', {
-        max: complexityMetrics.maxComplexity,
-        avg: complexityMetrics.avgComplexity,
-        files: complexityMetrics.analyzedFiles,
-      });
-    } else if (labelerConfig.runtime.fail_on_error) {
-      logErrorI18n('completion.failed', { message: complexityResult.error.message });
-      setFailed('Complexity analysis failed');
+    if (complexityFiles.length === 0) {
+      logInfoI18n('analysis.complexitySkipped');
     } else {
-      logWarningI18n('analysis.complexityFailed', { message: complexityResult.error.message });
+      const complexityResult = await complexityAnalyzer.analyzeFiles(complexityFiles, {
+        extensions: labelerConfig.complexity.extensions,
+        exclude: labelerConfig.complexity.exclude,
+      });
+
+      if (complexityResult.isOk()) {
+        complexityMetrics = complexityResult.value;
+        logInfoI18n('analysis.complexityResults', {
+          max: complexityMetrics.maxComplexity,
+          avg: complexityMetrics.avgComplexity,
+          files: complexityMetrics.analyzedFiles,
+        });
+      } else if (labelerConfig.runtime.fail_on_error) {
+        logErrorI18n('completion.failed', { message: complexityResult.error.message });
+        setFailed('Complexity analysis failed');
+      } else {
+        logWarningI18n('analysis.complexityFailed', { message: complexityResult.error.message });
+      }
     }
   }
 
