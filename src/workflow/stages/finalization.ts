@@ -106,6 +106,7 @@ export async function finalizeAction(context: InitializationArtifacts, artifacts
     violations: analysis.violations,
     metrics: {
       totalAdditions: analysis.metrics.totalAdditions,
+      excludedAdditions: analysis.metrics.excludedAdditions,
     },
     sizeThresholds: config.sizeThresholdsV2,
   });

@@ -21,6 +21,7 @@ export async function applyLabelsStage(context: InitializationArtifacts, artifac
   logInfoI18n('labels.decidingLabels');
   const prMetrics = {
     totalAdditions: analysis.metrics.totalAdditions,
+    excludedAdditions: analysis.metrics.excludedAdditions,
     files: analysis.metrics.filesAnalyzed,
     ...(complexityMetrics && { complexity: complexityMetrics }),
   };

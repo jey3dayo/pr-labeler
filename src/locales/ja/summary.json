@@ -10,6 +10,7 @@
   "basicMetrics": {
     "title": "基本メトリクス",
     "totalAdditions": "総追加行数",
+    "excludedAdditions": "除外ファイルの追加行数",
     "totalFiles": "変更ファイル数",
     "excludedFiles": "除外ファイル数",
     "binaryFilesSkipped": "バイナリファイルをスキップ",

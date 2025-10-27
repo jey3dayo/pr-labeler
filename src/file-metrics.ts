@@ -299,6 +299,7 @@ export async function analyzeFiles(
     metrics: {
       totalFiles: files.length,
       totalAdditions: 0,
+      excludedAdditions: 0,
       filesAnalyzed: [],
       filesExcluded: [],
       filesSkippedBinary: [],

@@ -451,6 +451,7 @@ describe('LabelManager', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 150,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -507,6 +508,7 @@ describe('LabelManager', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 50,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -564,6 +566,7 @@ describe('LabelManager', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 50,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -612,6 +615,7 @@ describe('LabelManager', () => {
         metrics: {
           totalFiles: 2,
           totalAdditions: 5,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -668,6 +672,7 @@ describe('LabelManager', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 50,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
@@ -708,6 +713,7 @@ describe('LabelManager', () => {
         metrics: {
           totalFiles: 5,
           totalAdditions: 50,
+          excludedAdditions: 0,
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],

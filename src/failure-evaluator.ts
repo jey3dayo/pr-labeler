@@ -21,6 +21,7 @@ export interface FailureEvaluationInput {
   };
   metrics: {
     totalAdditions: number;
+    excludedAdditions: number;
   };
   sizeThresholds: SizeThresholdsV2;
 }
