@@ -1,10 +1,10 @@
 # Requirements Document
 
 ## Project Description (Input)
-"Summary出力の除外ファイル内訳と解析件数表示を改善する"
+"Summary出力の除外ファイル内訳と解析件数表示を改善し、適用ラベル情報も併載する"
 
 ## Introduction
-GitHub Actions Summary の Basic Metrics を拡張し、PR 全体の変更ファイル数と解析対象ファイル数の差異を明示します。また、除外ファイルが多いケースでも内訳を確認しやすいよう、折りたたみ表示を導入します。これによりレビュアーは数値の乖離理由を迅速に把握でき、除外 files の確認コストを削減できます。
+GitHub Actions Summary の Basic Metrics を拡張し、PR 全体の変更ファイル数と解析対象ファイル数の差異を明示します。また、除外ファイルが多いケースでも内訳を確認しやすいよう折りたたみ表示を導入し、さらに最終的に適用されたラベルを Summary からも確認できるようにします。これによりレビュアーは数値の乖離理由とラベリング結果を迅速に把握でき、デバッグやレビュー効率を高められます。
 
 ## Requirements
 
@@ -27,16 +27,25 @@ GitHub Actions Summary の Basic Metrics を拡張し、PR 全体の変更ファ
 4. WHEN `metrics.filesExcluded.length === 0` THEN Summary SHALL `<details>` ブロックを出力しない。
 5. WHEN Summary を生成する THEN Summary SHALL 除外ファイル一覧をコメント出力（PR コメント）へは影響を与えず、Summary のみで表示する。
 
-### Requirement 3: テストおよびスナップショット更新
+### Requirement 3: 適用ラベル情報の表示
+**Objective:** As a レビュアー, I want Summary で適用済みラベルの一覧を確認したい, so that コメントを開かなくても最終的なラベリング結果とデバッグ情報を把握できる。
+
+#### Acceptance Criteria
+1. IF `analysis.appliedLabels`（または同等のラベル配列）が 1 件以上存在する THEN Summary SHALL "Applied Labels" の見出しまたは行を追加し、ラベル名を一覧表示する。
+2. WHEN ラベル一覧を表示する THEN Summary SHALL 英語および日本語双方の表示文言を i18n で提供する。
+3. WHEN ラベルが存在しない場合 THEN Summary SHALL 当該セクションを出力しない、または "No labels applied" と翻訳済み文言を表示する（コメント出力と挙動を揃える）。
+4. WHEN Summary にラベルセクションを追加する THEN Summary SHALL 既存のコメント出力とラベル情報の整合性を保つ（差異が出ないようにする）。
+
+### Requirement 4: テストおよびスナップショット更新
 **Objective:** As a 開発者, I want 自動テストとスナップショットが新仕様を検証することを期待する, so that 既存機能との回帰が発生しない。
 
 #### Acceptance Criteria
 1. WHEN Summary の Basic Metrics 表示仕様を変更する THEN Tests SHALL report-formatter および summary-writer 関連の単体テスト／スナップショットを更新し、新しい行表示と i18n を検証する。
-2. IF コメント生成のスナップショットに影響が出る場合 THEN Tests SHALL 当該スナップショットを更新し、Summary 専用の差分がコメントに波及していないことを確認する。
-3. WHEN 新仕様を実装する THEN Tests SHALL 日本語・英語の両ロケールテストを最小 1 ケースずつ用意する。
+2. WHEN ラベル表示仕様を追加する THEN Tests SHALL ラベルセクションを検証する英語／日本語のスナップショットを追加・更新する。
+3. IF コメント生成のスナップショットに影響が出る場合 THEN Tests SHALL 当該スナップショットを更新し、Summary 専用の差分がコメントに波及していないことを確認する。
 4. WHEN テストを実行する THEN Tests SHALL `pnpm test`, `pnpm lint`, `pnpm type-check`, `pnpm build` が成功することを確認する。
 
-### Requirement 4: ログとドキュメントの整合性
+### Requirement 5: ログとドキュメントの整合性
 **Objective:** As a ユーザー, I want Summary の仕様変更が設定やログと整合していることを期待する, so that 操作手順や解析ログから新しいメトリクス表示を理解できる。
 
 #### Acceptance Criteria
@@ -53,3 +62,4 @@ GitHub Actions Summary の Basic Metrics を拡張し、PR 全体の変更ファ
 ## Open Questions
 - 除外ファイルリストの表示順（現在の metrics.filesExcluded の順序を維持するか、ソートするか）を要確認。
 - 除外ファイルが非常に長いパスのときの見切れ対策（幅調整など）が必要か要判断。
+- 適用ラベル一覧に色やカテゴリー情報を併載する必要があるか（テキストのみで足りるか）を検討。
