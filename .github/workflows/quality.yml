@@ -63,7 +63,37 @@ jobs:
             else
               # 通常のpushの場合
               echo "Using GitHub context: $before_sha..$current_sha"
-              changed_files=$(git diff --name-only $before_sha..$current_sha)
+
+              if ! git cat-file -e "$before_sha^{commit}" >/dev/null 2>&1; then
+                echo "Before SHA not present locally. Fetching from origin for fallback"
+                git fetch --no-tags --depth=1 origin $before_sha || true
+              fi
+
+              if git cat-file -e "$before_sha^{commit}" >/dev/null 2>&1; then
+                if ! changed_files=$(git diff --name-only $before_sha..$current_sha); then
+                  echo "Diff using GitHub context failed. Trying merge-base fallback"
+                  if ancestor=$(git merge-base $before_sha $current_sha 2>/dev/null); then
+                    echo "Using merge-base $ancestor"
+                    changed_files=$(git diff --name-only $ancestor..$current_sha)
+                  else
+                    echo "Merge-base unavailable. Falling back to parent commit"
+                    if git rev-parse --verify "HEAD^" >/dev/null 2>&1; then
+                      changed_files=$(git diff --name-only HEAD^..HEAD)
+                    else
+                      echo "No parent commit available, listing all files at HEAD"
+                      changed_files=$(git ls-tree -r --name-only $current_sha)
+                    fi
+                  fi
+                fi
+              else
+                echo "Before SHA not accessible after fetch. Using fallback"
+                if git rev-parse --verify "HEAD^" >/dev/null 2>&1; then
+                  changed_files=$(git diff --name-only HEAD^..HEAD)
+                else
+                  echo "No parent commit available, listing all files at HEAD"
+                  changed_files=$(git ls-tree -r --name-only $current_sha)
+                fi
+              fi
             fi
           fi
 
