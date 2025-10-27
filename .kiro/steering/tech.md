@@ -1,5 +1,7 @@
 # Technology Stack - PR Metrics Action
 
+> updated_at: 2024-11-24
+
 ## Architecture
 
 ### System Design
@@ -67,6 +69,26 @@ GitHub Event (PR) → Action Runner → dist/index.js
 - `configs/categories.ts`: デフォルトカテゴリ定義
 - `configs/index.ts`: 設定モジュールエクスポート
 
+**Config Layer Pattern（2024アップデート）**:
+
+- `config-builder.ts`: Action入力・YAML設定・環境変数を優先順位付きで統合し、`CompleteConfig`を生成
+- `config/`: `loaders/`がGitHub設定取得・YAMLパース・バリデーションを専門化、`transformers/`が設定整形を担当
+- `environment-loader.ts`: LANGUAGE/LANGとGitHubトークンを1カ所で読み込み、他モジュールからの直接`process.env`アクセスを排除
+
+**Workflow Pipeline（Stage Orchestration）**:
+
+- `workflow/`: `stages/`ディレクトリでinitialization→analysis→labeling→finalizationの順に処理を分割
+- `workflow/policy/pr-failure-evaluator.ts`: ラベル適用結果と解析メトリクスを突き合わせて失敗条件を算出
+- `pipeline.ts`: 各ステージの公開APIを束ね、上位レイヤーからの利用をシンプルにする
+
+**Internationalization Stack**:
+
+- `i18n.ts`: i18nextを初期化し、多言語ログ/サマリー/コメント向けの`t`関数を提供
+- `locales/{en,ja}/`: summary・logs・labels・errors・commonの5命名空間をJSONで管理し、nccバンドルに静的同梱
+- `scripts/generate-i18n-types.ts`: postinstallで`src/types/i18n.d.ts`を再生成し、翻訳キーと言語コードの型安全性を保証
+- `environment-loader.ts`＋`config-builder.ts`: language解決をAction入力→設定ファイル→環境変数の優先順位で正規化
+- `summary/`: formattersがGitHub Actions Summary出力を分割し、翻訳テキストを再利用
+
 ### Error Handling Architecture
 
 - **neverthrow**: Railway-Oriented Programming (ROP) パターンを採用
@@ -98,9 +120,10 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ### Package Manager
 
-- **Tool**: pnpm 10.18.3
+- **Tool**: pnpm 10.19.0
 - **Lock File**: `pnpm-lock.yaml`
 - **Workspaces**: 非使用（単一パッケージ）
+- 2024-11: packageManagerフィールドでpnpm 10.19.0を固定し、postinstallでi18n型生成スクリプトを走らせる
 
 ## Core Dependencies
 
@@ -138,10 +161,11 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ### Testing Framework
 
-- **Runner**: Vitest 3.2.4
+- **Runner**: Vitest 4.0.1
 - **Coverage**: @vitest/coverage-v8（93%以上）
 - **UI**: @vitest/ui（インタラクティブテストビュー）
 - **Test Pattern**: `__tests__/**/*.test.ts`
+- **tsconfig**: `tsconfig.test.json`でVitest用の型設定を分離
 - **Commands**:
   - `pnpm test`: 全テスト + lint + type-check
   - `pnpm test:vitest`: Vitestのみ実行
@@ -152,8 +176,8 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 #### ESLint
 
-- **Version**: 9.37.0 (Flat Config)
-- **Parser**: typescript-eslint v8.46.1
+- **Version**: 9.38.0 (Flat Config)
+- **Parser**: typescript-eslint v8.46.2
 - **Plugins**:
   - `eslint-plugin-import`: import文の整理
   - `eslint-plugin-neverthrow`: neverthrow使用時のベストプラクティス
@@ -171,12 +195,17 @@ GitHub Event (PR) → Action Runner → dist/index.js
 - **Type Check**: `tsc --noEmit`（型チェックのみ、ビルドはnccで実施）
 - **Strictness**: 最高レベル（全strictオプション有効）
 
+### Automation Scripts
+
+- `pnpm generate:i18n-types`: i18next翻訳JSONから`src/types/i18n.d.ts`を再生成（postinstallでも自動実行）
+- `scripts/generate-i18n-types.ts`: tsxランタイムで実行、翻訳リソースのimportにより型崩れを検知
+
 ## Development Environment
 
 ### Required Tools
 
 1. **Node.js**: v20以上（LTS推奨）
-2. **pnpm**: 10.18.3（`packageManager`フィールドで固定）
+2. **pnpm**: 10.19.0（`packageManager`フィールドで固定、postinstallでi18n型を再生成）
 3. **Git**: バージョン管理
 
 ### Optional Tools
@@ -226,6 +255,12 @@ pnpm check:all        # check + test:vitest
 pnpm fix              # lint:fix + format (all auto-fixes)
 ```
 
+### Utilities
+
+```bash
+pnpm generate:i18n-types  # 翻訳リソース更新時に型定義を再生成
+```
+
 ## Environment Variables
 
 ### GitHub Actions Context
@@ -237,6 +272,8 @@ GitHub Actionsランタイムから自動的に提供される環境変数を使
 - `GITHUB_REPOSITORY`: リポジトリ名（owner/repo）
 - `GITHUB_SHA`: コミットSHA
 - `GITHUB_REF`: ブランチ参照
+- `LANGUAGE` / `LANG`: デフォルト言語の解決に使用（config-builderで英語/日本語へ正規化）
+- `GH_TOKEN`: `GITHUB_TOKEN`が未指定の場合のフォールバック
 
 ### Action Inputs
 
@@ -246,8 +283,8 @@ GitHub Actionsランタイムから自動的に提供される環境変数を使
 - ラベル設定:
   - 選択的有効化: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
   - 閾値設定: `size_thresholds`, `complexity_thresholds`
-  - その他: `auto_remove_labels`, `large_files_label`, `too_many_files_label`
-- 動作設定: `skip_draft_pr`, `comment_on_pr`, `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`, `enable_summary`
+  - その他: `auto_remove_labels`, `large_files_label`, `too_many_files_label`, `too_many_lines_label`, `excessive_changes_label`
+- 動作設定: `skip_draft_pr`, `comment_on_pr`, `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`, `enable_summary`, `language`
 - 除外設定: `additional_exclude_patterns`
 
 ## Port Configuration

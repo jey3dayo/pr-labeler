@@ -14,15 +14,17 @@
 
 - **📏 スマートなサイズ検出**: PRサイズ（small → xxlarge）を自動ラベリングし、レビュー優先度の判断をサポート
   - 例: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
-- **🏷️ 自動カテゴリ分類**: 変更タイプ（テスト、ドキュメント、CI/CD、依存関係）を自動判定し、素早いフィルタリングを実現
-  - 例: `category/tests`, `category/documentation`, `category/ci-cd`, `category/dependencies`
+- **🏷️ 自動カテゴリ分類**: テスト、ドキュメント、CI/CD、設定、仕様、依存関係などを自動判定し、素早いフィルタリングを実現
+  - 例: `category/tests`, `category/documentation`, `category/ci-cd`, `category/config`, `category/spec`
 - **⚠️ リスク評価**: テストなしのコア変更を事前に検出し、マージ前に警告
   - 例: `risk/high`（テスト更新を伴わないコア変更）、`risk/medium`（設定・インフラ変更）
+- **🧠 複雑度インサイト**: 変更ファイルのESLint複雑度を測定し、条件超過時に `complexity/high` を付与（オプトイン）
 - **📁 パスベースラベル**: 柔軟なGlobパターンでファイルパスに基づくカスタムラベルを適用
   - 例: `frontend/**` → `team/frontend`, `backend/**` → `team/backend`
-- **🚦 品質ゲート**: 大きすぎるPRやポリシー違反時にワークフローを失敗させるオプション機能
-  - 例: `fail_on_pr_size: "xlarge"` で xlarge 以上のPRでワークフロー失敗
-- **🌐 多言語対応**: 英語・日本語の完全サポート
+- **🏷️ ラベル自動生成**: ラベルを自動作成してメタデータを同期し、事前準備なしで導入可能
+- **🚦 ワークフロー品質ゲート**: `fail_on_pr_size`, `fail_on_large_files`, `fail_on_too_many_files` でポリシー違反を検知して失敗制御
+- **📝 GitHub Actions Summary**: 大規模ファイル一覧や改善提案をActions Summaryページに集約表示
+- **🌐 多言語出力**: `language` inputや `LANGUAGE/LANG` 環境変数で英語・日本語を自動切り替え
 
 ## 🚀 クイックスタート
 
@@ -64,10 +66,20 @@ jobs:
 - **サイズラベル**: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
 - **カテゴリラベル**: `category/tests`, `category/docs`, `category/ci-cd`, `category/dependencies` など
 - **リスクラベル**: `risk/high`, `risk/medium`（リスク検出時のみ）
+- **複雑度ラベル**: ESLint複雑度が閾値を超えた場合に `complexity/high`（有効化時）
+- **GitHub Actions Summary**: CI結果ページにメトリクス・違反一覧・ベストプラクティスを表示
 
 ### 3. カスタマイズ（オプション）
 
-さらに詳細な制御が必要な場合:
+高度な制御も可能です:
+
+- ラベル種類（サイズ・複雑度・カテゴリ・リスク）をワークフロー単位で個別ON/OFF
+- 必要なラベルを自動作成し、色や説明文も一括管理
+- サイズ・ファイル数・追加行数・ラベル結果に基づいてワークフロー失敗を制御
+- Actions Summaryで違反テーブルやベストプラクティスを提示
+- `language` inputやロケール系環境変数でログ/コメント/サマリーをローカライズ
+
+より詳しいガイドはこちら:
 
 - 📖 [設定ガイド](docs/configuration.md) - 全入力パラメータと閾値設定
 - 🔧 [高度な使用例](docs/advanced-usage.md) - フォークPR、厳格モード、カスタムワークフロー
@@ -123,6 +135,8 @@ permissions:
 
 - `auto/large-files` - 個別ファイルが大きすぎる
 - `auto/too-many-files` - 変更ファイル数が多すぎる
+- `auto:too-many-lines` - 個別ファイルが設定行数を超過
+- `auto:excessive-changes` - 追加行数合計が閾値を超過
 
 **カスタマイズ**: すべての閾値とラベルは設定可能。詳細は [設定ガイド](docs/configuration.md#label-thresholds-defaults) を参照。
 
@@ -150,9 +164,13 @@ permissions:
     # 品質ゲート
     fail_on_pr_size: "xlarge"     # PRが大きすぎる場合に失敗
     fail_on_large_files: "true"   # ファイルが制限超過時に失敗
+    fail_on_too_many_files: "true" # 変更ファイル数が多すぎる場合に失敗
+    enable_summary: "true"        # GitHub Actions Summaryに出力
+    comment_on_pr: "auto"         # コメント投稿方針（auto/always/never）
 
     # ローカライズ
     language: "ja"                # 出力言語（en/ja）
+    # 入力省略時は LANGUAGE / LANG 環境変数を優先
 ```
 
 ### 高度な機能
