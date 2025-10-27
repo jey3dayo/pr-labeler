@@ -63,7 +63,19 @@ jobs:
             else
               # 通常のpushの場合
               echo "Using GitHub context: $before_sha..$current_sha"
-              changed_files=$(git diff --name-only $before_sha..$current_sha)
+
+              if git rev-parse --verify "$before_sha" >/dev/null 2>&1; then
+                changed_files=$(git diff --name-only $before_sha..$current_sha)
+              else
+                echo "Before SHA not accessible (likely force-push). Using fallback"
+
+                if git rev-parse --verify "HEAD^" >/dev/null 2>&1; then
+                  changed_files=$(git diff --name-only HEAD^..HEAD)
+                else
+                  echo "No parent commit available, listing all files at HEAD"
+                  changed_files=$(git ls-tree -r --name-only $current_sha)
+                fi
+              fi
             fi
           fi
 
