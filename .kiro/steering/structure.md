@@ -1,5 +1,7 @@
 # Project Structure - PR Labeler
 
+> updated_at: 2024-11-24
+
 ## Root Directory Organization
 
 ```
@@ -39,6 +41,14 @@ pr-labeler/
 ├── LICENSE               # MITライセンス
 └── README.md             # プロジェクトREADME
 ```
+
+### Root Additions (2024)
+
+- `README.ja.md`: 日本語版 README。英語版と同じ更新タイミングで同期させる
+- `_documentation-quality-report.md`: ドキュメント関連CIが生成するレポート。レビュー時の参照用で追跡は不要
+- `scripts/`: 補助スクリプト群（i18n型生成など）。pnpm postinstallから呼び出される点に注意
+- `knip.json`: 未使用コード検出（knip）の設定ファイル。大規模リファクタ時はこの設定を更新
+- `tsconfig.test.json`: Vitest専用のTypeScript設定。テスト環境向け型オプションを分離
 
 ## Subdirectory Structures
 
@@ -85,6 +95,18 @@ src/
     └── index.ts               # エクスポート
 ```
 
+#### 2024アップデート（`src/`）
+
+- `config/`: GitHub設定取得とYAMLバリデーションを`loaders/`・`transformers/`へ分割し、定義値を持つ`configs/`と役割を明確化
+- `config-builder.ts` + `environment-loader.ts`: language設定を含む全入力をマージし、`CompleteConfig`として呼び出し側から参照
+- `failure-evaluator.ts`: ラベルベースのワークフロー失敗制御を単機能モジュール化し、workflow/policyから利用
+- `size-comparison.ts`: PRサイズカテゴリー計算を共通化し、ラベル決定とFail判定双方で再利用
+- `summary/`: Summary出力を`summary-writer.ts`と`formatters/`で責務分割し、翻訳テキストを集中管理
+- `workflow/`: `stages/`で初期化→分析→ラベリング→終端処理を段階化。`pipeline.ts`が公開APIとして束ねる
+- `types/`: 分野ごとの型（analysis/config/directory-labeler/i18n）を整理。`i18n.d.ts`は自動生成ファイル（scripts/generate-i18n-types.ts）で手編集禁止
+- `locales/`: 英語・日本語の翻訳JSON（summary/errors/logs/labels/common）を保持し、nccバンドルに取り込む
+- `utils/`: namespace操作・パス整形・GitHubラベル整形などの横断ユーティリティを集約
+
 ### `__tests__/` - Test Files
 
 ```
@@ -118,6 +140,14 @@ __tests__/
     ├── complexity-sample.ts          # 複雑度テスト用サンプルコード
     └── syntax-error.ts               # 構文エラーテストケース
 ```
+
+#### 2024アップデート（`__tests__/`）
+
+- `config-builder.test.ts`・`environment-loader.test.ts`: Config Layerパターンの統合テストを追加、言語優先順位の回帰を防止
+- `failure-evaluator.test.ts`・`workflow/`配下: ラベルベース失敗制御とステージ遷移を個別検証
+- `i18n.test.ts`・`i18n-integrity.test.ts`・`error-factories-i18n.test.ts`: 翻訳キーと型定義の整合性をチェック
+- `summary-writer.test.ts`: Summary出力をformatters単位で検証し、翻訳済み文言の崩れを検出
+- `vitest.setup.ts`: テスト共通セットアップ（i18n Resetなど）を定義
 
 テストファイルは対応するソースファイルと1対1でマッピング。
 
@@ -165,6 +195,15 @@ docs/
 └── _review-codex.md          # コードレビュー基準
 ```
 
+#### 2024アップデート（`docs/`）
+
+- `configuration.md`: アクション入力とYAML設定のマッピングを詳細化（Config Layerパターンと揃える）
+- `advanced-usage.md`: Directory Labeler・リスク制御など高度機能の運用ガイド
+- `i18n-error-migration-guide.md`: 多言語化移行時のエラーメッセージ対応フロー
+- `troubleshooting.md`: 典型的な失敗パターンと対応策
+- README多言語化に合わせて`README.ja.md`を参照するセクションが追加
+- `_review-codex.md`: 旧レビューガイドは削除済み。レビュー基準は`documentation-guidelines.md`に集約
+
 ## Code Organization Patterns
 
 ### Module Responsibility
@@ -201,6 +240,22 @@ docs/
 1. **Error Handling** (`errors/`): 統一されたエラー生成・型ガード・ハンドリング
 2. **Configuration** (`configs/`): デフォルト設定値とカテゴリ定義の管理
 
+**Workflow Orchestration（2024）**:
+
+1. **Workflow Stages** (`workflow/stages/`): initialization→analysis→labeling→finalizationをフェーズごとに分離
+2. **Workflow Policy** (`workflow/policy/` + `failure-evaluator.ts`): ラベル結果と設定に基づくワークフロー失敗判定
+3. **Pipeline Export** (`workflow/pipeline.ts`): ステージの公開APIを一本化し、`index.ts`からの利用を単純化
+
+**Internationalization Stack**:
+
+1. **i18n Core** (`i18n.ts`): i18next初期化と`t`関数提供
+2. **Locales** (`locales/{en,ja}/`): summary/errors/logs/labels/commonの翻訳JSON
+3. **Types** (`types/i18n.d.ts`): translation resourcesの型（scripts/generate-i18n-types.tsで自動生成）
+
+**Automation Scripts**:
+
+1. **generate-i18n-types** (`scripts/`): 翻訳JSON変更時に型を再生成（postinstallで自動実行）
+
 ### Data Flow Pattern
 
 ```
@@ -236,6 +291,8 @@ Label Applicator (冪等性保証)          Label Applicator (namespace policy)
                  ↓
          Actions I/O (summary, outputs)
 ```
+
+2024年アップデート: 上記フローは`workflow/pipeline.ts`がステージ化して実行。`initializeAction()`で入力→Config Builder→i18n初期化を済ませ、`finalizeAction()`内で`failure-evaluator.ts`とSummary書き込みを一括管理する。
 
 ### Error Handling Pattern
 
@@ -278,6 +335,7 @@ core.info('Success!');
 
 - **Pattern**: `types.ts`（単一ファイルで集約）
 - **Export**: 名前付きエクスポート（`export interface Foo {}`）
+- **Directory**: `types/`配下にドメイン別の型を配置。`i18n.d.ts`は自動生成のため手動編集しない
 
 ### Configuration Files
 
