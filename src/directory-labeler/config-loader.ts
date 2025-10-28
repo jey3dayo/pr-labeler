@@ -6,10 +6,10 @@
 
 import fs from 'node:fs';
 
-import * as core from '@actions/core';
 import { load as yamlLoad } from 'js-yaml';
 
 import { createConfigurationError, createFileSystemError, ensureError, err, ok, type Result } from '../errors/index.js';
+import { validateConfigWithTransformer } from '../utils/config-validation-utils.js';
 import { parseDirectoryLabelerConfig } from './transformers/config-transformer.js';
 import {
   DEFAULT_NAMESPACES,
@@ -77,15 +77,7 @@ export function loadDirectoryLabelerConfig(
 export function validateDirectoryLabelerConfig(
   config: unknown,
 ): Result<DirectoryLabelerConfig, ReturnType<typeof createConfigurationError>> {
-  const transformResult = parseDirectoryLabelerConfig(config);
-  if (transformResult.isErr()) {
-    return err(transformResult.error);
-  }
-
-  const { config: validatedConfig, warnings } = transformResult.value;
-
-  warnings.forEach(message => core.warning(message));
-  return ok(validatedConfig);
+  return validateConfigWithTransformer(config, parseDirectoryLabelerConfig);
 }
 
 /**

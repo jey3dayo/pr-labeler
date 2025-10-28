@@ -3,15 +3,13 @@ import { err, ok, type Result } from 'neverthrow';
 import { type ConfigurationError, createConfigurationError } from '../../errors/index.js';
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
-import { validateMinimatchPattern } from '../../utils/pattern-validator.js';
 import {
-  isBoolean,
-  isConfigurationError,
-  isNumber,
-  isRecord,
-  isString,
-  isStringArray,
-} from '../../utils/type-guards.js';
+  collectUnknownKeys,
+  validateNumericThreshold,
+  validateObjectInput,
+} from '../../utils/config-transformer-utils.js';
+import { validateMinimatchPattern } from '../../utils/pattern-validator.js';
+import { isBoolean, isConfigurationError, isRecord, isString, isStringArray } from '../../utils/type-guards.js';
 
 const KNOWN_FIELD_NAMES = {
   LANGUAGE: 'language',
@@ -45,12 +43,12 @@ export interface LabelerConfigTransformResult {
 }
 
 export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransformResult, ConfigurationError> {
-  if (!isRecord(config)) {
-    return err(createConfigurationError('root', config, 'Configuration must be an object'));
+  const objectValidation = validateObjectInput(config, 'root');
+  if (objectValidation.isErr()) {
+    return err(objectValidation.error);
   }
 
-  // isRecord check ensures config is Record<string, unknown>
-  const source = config;
+  const source = objectValidation.value;
   const normalized: Partial<LabelerConfig> = {};
   const warnings: string[] = [];
 
@@ -116,55 +114,43 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
       const xlargeRaw = thresholdsRaw['xlarge'];
 
       if (smallRaw !== undefined) {
-        if (!isNumber(smallRaw) || smallRaw < 0 || !Number.isInteger(smallRaw)) {
-          return err(
-            createConfigurationError(
-              'size.thresholds.small',
-              smallRaw,
-              'size.thresholds.small must be a non-negative integer',
-            ),
-          );
+        const validated = validateNumericThreshold(smallRaw, 'size.thresholds.small', 0, Number.MAX_SAFE_INTEGER, {
+          integerOnly: true,
+        });
+        if (validated.isErr()) {
+          return err(validated.error);
         }
-        small = smallRaw;
+        small = validated.value;
       }
 
       if (mediumRaw !== undefined) {
-        if (!isNumber(mediumRaw) || mediumRaw < 0 || !Number.isInteger(mediumRaw)) {
-          return err(
-            createConfigurationError(
-              'size.thresholds.medium',
-              mediumRaw,
-              'size.thresholds.medium must be a non-negative integer',
-            ),
-          );
+        const validated = validateNumericThreshold(mediumRaw, 'size.thresholds.medium', 0, Number.MAX_SAFE_INTEGER, {
+          integerOnly: true,
+        });
+        if (validated.isErr()) {
+          return err(validated.error);
         }
-        medium = mediumRaw;
+        medium = validated.value;
       }
 
       if (largeRaw !== undefined) {
-        if (!isNumber(largeRaw) || largeRaw < 0 || !Number.isInteger(largeRaw)) {
-          return err(
-            createConfigurationError(
-              'size.thresholds.large',
-              largeRaw,
-              'size.thresholds.large must be a non-negative integer',
-            ),
-          );
+        const validated = validateNumericThreshold(largeRaw, 'size.thresholds.large', 0, Number.MAX_SAFE_INTEGER, {
+          integerOnly: true,
+        });
+        if (validated.isErr()) {
+          return err(validated.error);
         }
-        large = largeRaw;
+        large = validated.value;
       }
 
       if (xlargeRaw !== undefined) {
-        if (!isNumber(xlargeRaw) || xlargeRaw < 0 || !Number.isInteger(xlargeRaw)) {
-          return err(
-            createConfigurationError(
-              'size.thresholds.xlarge',
-              xlargeRaw,
-              'size.thresholds.xlarge must be a non-negative integer',
-            ),
-          );
+        const validated = validateNumericThreshold(xlargeRaw, 'size.thresholds.xlarge', 0, Number.MAX_SAFE_INTEGER, {
+          integerOnly: true,
+        });
+        if (validated.isErr()) {
+          return err(validated.error);
         }
-        xlarge = xlargeRaw;
+        xlarge = validated.value;
       }
 
       const finalSmall = small ?? DEFAULT_LABELER_CONFIG.size.thresholds.small;
@@ -228,29 +214,29 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
       const highRaw = thresholdsRaw['high'];
 
       if (mediumRaw !== undefined) {
-        if (!isNumber(mediumRaw) || mediumRaw < 0 || !Number.isInteger(mediumRaw)) {
-          return err(
-            createConfigurationError(
-              'complexity.thresholds.medium',
-              mediumRaw,
-              'complexity.thresholds.medium must be a non-negative integer',
-            ),
-          );
+        const validated = validateNumericThreshold(
+          mediumRaw,
+          'complexity.thresholds.medium',
+          0,
+          Number.MAX_SAFE_INTEGER,
+          {
+            integerOnly: true,
+          },
+        );
+        if (validated.isErr()) {
+          return err(validated.error);
         }
-        medium = mediumRaw;
+        medium = validated.value;
       }
 
       if (highRaw !== undefined) {
-        if (!isNumber(highRaw) || highRaw < 0 || !Number.isInteger(highRaw)) {
-          return err(
-            createConfigurationError(
-              'complexity.thresholds.high',
-              highRaw,
-              'complexity.thresholds.high must be a non-negative integer',
-            ),
-          );
+        const validated = validateNumericThreshold(highRaw, 'complexity.thresholds.high', 0, Number.MAX_SAFE_INTEGER, {
+          integerOnly: true,
+        });
+        if (validated.isErr()) {
+          return err(validated.error);
         }
-        high = highRaw;
+        high = validated.value;
       }
 
       const finalMedium = medium ?? DEFAULT_LABELER_CONFIG.complexity.thresholds.medium;
@@ -412,10 +398,8 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
     normalized.runtime = source[RUNTIME_FIELD] as LabelerConfig['runtime'];
   }
 
-  const unknownKeys = Object.keys(source).filter(key => !KNOWN_KEYS.includes(key as (typeof KNOWN_KEYS)[number]));
-  if (unknownKeys.length > 0) {
-    warnings.push(`Unknown configuration keys will be ignored: ${unknownKeys.join(', ')}`);
-  }
+  const unknownKeyWarnings = collectUnknownKeys(source, KNOWN_KEYS);
+  warnings.push(...unknownKeyWarnings);
 
   return ok({ config: normalized, warnings });
 }
