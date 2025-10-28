@@ -1,8 +1,8 @@
 import { getOctokit } from '@actions/github';
-import { err, ok } from 'neverthrow';
+import { err, errAsync, ok, okAsync } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { logDebugI18n, logErrorI18n, logInfoI18n, logWarning, logWarningI18n, setFailed } from '../../src/actions-io';
+import { logDebugI18n, logErrorI18n, logInfoI18n, logWarning, logWarningI18n } from '../../src/actions-io';
 import { getCIStatus } from '../../src/ci-status.js';
 import { loadDirectoryLabelerConfig } from '../../src/directory-labeler/config-loader.js';
 import { decideLabelsForFiles, filterByMaxLabels } from '../../src/directory-labeler/decision-engine.js';
@@ -23,7 +23,6 @@ vi.mock('../../src/actions-io', () => ({
   logErrorI18n: vi.fn(),
   logInfo: vi.fn(),
   logWarning: vi.fn(),
-  setFailed: vi.fn(),
 }));
 
 vi.mock('../../src/i18n.js', () => ({
@@ -179,10 +178,11 @@ describe('workflow/stages/labeling', () => {
     vi.mocked(logWarningI18n).mockReset();
     vi.mocked(logDebugI18n).mockReset();
     vi.mocked(logWarning).mockReset();
+    vi.mocked(getCIStatus).mockReturnValue(okAsync(null));
     context.config.enableDirectoryLabeling = true;
     context.labelerConfig.runtime.fail_on_error = false;
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: [], labelsToRemove: [], reasoning: [] }));
-    vi.mocked(applyLabels).mockResolvedValue(ok({ added: [], removed: [], apiCalls: 0 } as any));
+    vi.mocked(applyLabels).mockReturnValue(okAsync({ added: [], removed: [], apiCalls: 0 } as any));
     vi.mocked(loadDirectoryLabelerConfig).mockReturnValue(
       ok({ namespaces: baseNamespaces, useDefaultExcludes: true } as any),
     );
@@ -201,13 +201,17 @@ describe('workflow/stages/labeling', () => {
 
   it('applies labels and directory labels successfully', async () => {
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: ['size/L'], labelsToRemove: ['size/M'], reasoning: [] }));
-    vi.mocked(applyLabels).mockResolvedValue(ok({ added: ['size/L'], removed: ['size/M'], skipped: [], apiCalls: 1 }));
-    vi.mocked(getCIStatus).mockResolvedValue({
-      tests: 'passed',
-      typeCheck: 'passed',
-      build: 'pending',
-      lint: 'passed',
-    });
+    vi.mocked(applyLabels).mockReturnValue(
+      okAsync({ added: ['size/L'], removed: ['size/M'], skipped: [], apiCalls: 1 }),
+    );
+    vi.mocked(getCIStatus).mockReturnValue(
+      okAsync({
+        tests: 'passed',
+        typeCheck: 'passed',
+        build: 'pending',
+        lint: 'passed',
+      }),
+    );
     vi.mocked(loadDirectoryLabelerConfig).mockReturnValue(
       ok({ namespaces: { exclusive: ['size'], additive: ['scope'] }, useDefaultExcludes: false }),
     );
@@ -233,7 +237,8 @@ describe('workflow/stages/labeling', () => {
     const ctx = JSON.parse(JSON.stringify(context)) as InitializationArtifacts;
     const art = JSON.parse(JSON.stringify(artifacts)) as AnalysisArtifacts;
 
-    await applyLabelsStage(ctx, art);
+    const result = await applyLabelsStage(ctx, art);
+    expect(result.isOk()).toBe(true);
 
     expect(decideLabels).toHaveBeenCalled();
     expect(applyLabels).toHaveBeenCalled();
@@ -245,13 +250,14 @@ describe('workflow/stages/labeling', () => {
 
   it('logs permission warning when label application returns 403', async () => {
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: ['size/L'], labelsToRemove: [], reasoning: [] }));
-    vi.mocked(applyLabels).mockResolvedValue(err({ status: 403, message: 'forbidden' } as any));
-    vi.mocked(getCIStatus).mockResolvedValue(null);
+    vi.mocked(applyLabels).mockReturnValue(errAsync({ status: 403, message: 'forbidden' } as any));
+    vi.mocked(getCIStatus).mockReturnValue(okAsync(null));
     const ctx = JSON.parse(JSON.stringify(context)) as InitializationArtifacts;
     const art = JSON.parse(JSON.stringify(artifacts)) as AnalysisArtifacts;
     ctx.config.enableDirectoryLabeling = false;
 
-    await applyLabelsStage(ctx, art);
+    const result = await applyLabelsStage(ctx, art);
+    expect(result.isOk()).toBe(true);
 
     expect(logWarningI18n).toHaveBeenCalledWith('labels.skipped');
   });
@@ -259,7 +265,8 @@ describe('workflow/stages/labeling', () => {
   it('skips label application when decideLabels fails', async () => {
     vi.mocked(decideLabels).mockReturnValue(err(new Error('decide failed')));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+    expect(result.isOk()).toBe(true);
 
     expect(applyLabels).not.toHaveBeenCalled();
   });
@@ -267,23 +274,23 @@ describe('workflow/stages/labeling', () => {
   it('warns when applyLabels fails without failing the action', async () => {
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: ['scope/api'], labelsToRemove: [], reasoning: [] }));
     context.labelerConfig.runtime.fail_on_error = false;
-    vi.mocked(applyLabels).mockResolvedValue(err({ status: 500, message: 'boom' } as any));
+    vi.mocked(applyLabels).mockReturnValue(errAsync({ status: 500, message: 'boom' } as any));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+    expect(result.isOk()).toBe(true);
 
     expect(logWarningI18n).toHaveBeenCalledWith('labels.applyFailed', { message: 'boom' });
-    expect(setFailed).not.toHaveBeenCalled();
   });
 
   it('fails the action when applyLabels errors and fail_on_error is true', async () => {
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: ['scope/api'], labelsToRemove: [], reasoning: [] }));
     context.labelerConfig.runtime.fail_on_error = true;
-    vi.mocked(applyLabels).mockResolvedValue(err({ status: 500, message: 'fatal' } as any));
+    vi.mocked(applyLabels).mockReturnValue(errAsync({ status: 500, message: 'fatal' } as any));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
 
     expect(logErrorI18n).toHaveBeenCalledWith('labels.applyFailed', { message: 'fatal' });
-    expect(setFailed).toHaveBeenCalled();
+    expect(result.isErr()).toBe(true);
   });
 
   it('handles FileSystemError when loading directory config', async () => {
@@ -301,7 +308,9 @@ describe('workflow/stages/labeling', () => {
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: [], labelsToRemove: [], reasoning: [] }));
     vi.mocked(loadDirectoryLabelerConfig).mockReturnValue(err({ type: 'ValidationError', message: 'invalid' } as any));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+
+    expect(result.isOk()).toBe(true);
 
     expect(logWarningI18n).toHaveBeenCalledWith('directoryLabeling.configLoadFailed', { message: 'invalid' });
   });
@@ -313,7 +322,9 @@ describe('workflow/stages/labeling', () => {
     );
     vi.mocked(decideLabelsForFiles).mockReturnValue(err({ message: 'decide failed' } as any));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+
+    expect(result.isOk()).toBe(true);
 
     expect(logWarningI18n).toHaveBeenCalledWith('directoryLabeling.decideFailed', { message: 'decide failed' });
   });
@@ -325,9 +336,20 @@ describe('workflow/stages/labeling', () => {
     );
     vi.mocked(decideLabelsForFiles).mockReturnValue(ok([]));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+
+    expect(result.isOk()).toBe(true);
 
     expect(logInfoI18n).toHaveBeenCalledWith('directoryLabeling.noLabelsMatched');
+  });
+
+  it('continues when CI status retrieval fails', async () => {
+    vi.mocked(getCIStatus).mockReturnValue(errAsync({ type: 'GitHubAPIError', message: 'boom' } as any));
+
+    const result = await applyLabelsStage(context, artifacts);
+
+    expect(result.isOk()).toBe(true);
+    expect(logWarning).toHaveBeenCalledWith('CI status unavailable: boom');
   });
 
   it('handles applyDirectoryLabels permission errors', async () => {
@@ -342,7 +364,9 @@ describe('workflow/stages/labeling', () => {
     });
     vi.mocked(applyDirectoryLabels).mockResolvedValue(err({ type: 'PermissionError', message: 'no perms' } as any));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+
+    expect(result.isOk()).toBe(true);
 
     expect(logWarningI18n).toHaveBeenCalledWith('directoryLabeling.permissionError', { message: 'no perms' });
   });
@@ -359,7 +383,9 @@ describe('workflow/stages/labeling', () => {
     });
     vi.mocked(applyDirectoryLabels).mockResolvedValue(err({ type: 'GitHubAPIError', message: 'boom' } as any));
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+
+    expect(result.isOk()).toBe(true);
 
     expect(logWarningI18n).toHaveBeenCalledWith('directoryLabeling.applyFailed', { message: 'boom' });
   });
@@ -378,7 +404,9 @@ describe('workflow/stages/labeling', () => {
       ok({ applied: [], skipped: [], removed: [], failed: [{ label: 'scope/api', reason: 'failed' }] }),
     );
 
-    await applyLabelsStage(context, artifacts);
+    const result = await applyLabelsStage(context, artifacts);
+
+    expect(result.isOk()).toBe(true);
 
     expect(logWarningI18n).toHaveBeenCalledWith('directoryLabeling.failedDetail', {
       label: 'scope/api',

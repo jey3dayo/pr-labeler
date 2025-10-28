@@ -84,6 +84,7 @@ export interface PRMetrics {
   totalAdditions: number;
   excludedAdditions: number;
   files: FileMetrics[];
+  allFiles: string[]; // カテゴリラベル判定用の全ファイルパス（除外前）
   complexity?: ComplexityMetrics; // 複雑度分析が無効の場合はundefined
 }
 

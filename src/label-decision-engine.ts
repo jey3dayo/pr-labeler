@@ -56,10 +56,9 @@ export function decideLabels(
 
   // 3. Decide category labels (if enabled)
   if (config.categoryLabeling.enabled) {
-    const categoryLabels = decideCategoryLabels(
-      metrics.files.map(f => f.path),
-      config.categories,
-    );
+    // カテゴリラベル判定には全ファイル（除外前）を使用
+    // これにより .kiro/ などの除外ファイルもカテゴリとして認識される
+    const categoryLabels = decideCategoryLabels(metrics.allFiles, config.categories);
     labelsToAdd.push(...categoryLabels);
     for (const label of categoryLabels) {
       reasoning.push({

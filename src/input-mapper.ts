@@ -8,6 +8,7 @@ import type { ActionInputs } from './actions-io';
 import type { ConfigurationError, ParseError } from './errors/index.js';
 import { createConfigurationError, createParseError } from './errors/index.js';
 import { parseSize } from './parsers/size-parser';
+import { hasProperty, isObject } from './utils/type-guards.js';
 
 /**
  * Size threshold configuration (v0.x format: S/M/L with additions + files)
@@ -131,6 +132,35 @@ export function parseExcludePatterns(value: string): string[] {
 }
 
 /**
+ * Type guard to check if parsed value is a valid SizeThresholds
+ */
+function isSizeThresholds(value: unknown): value is SizeThresholds {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  const sizes = ['S', 'M', 'L'] as const;
+
+  for (const size of sizes) {
+    if (!hasProperty(value, size)) {
+      return false;
+    }
+    const sizeObj = value[size];
+    if (!isObject(sizeObj)) {
+      return false;
+    }
+    if (!hasProperty(sizeObj, 'additions') || !hasProperty(sizeObj, 'files')) {
+      return false;
+    }
+    if (typeof sizeObj.additions !== 'number' || typeof sizeObj.files !== 'number') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
  * Parse size thresholds from JSON string (v0.x の形式: S/M/L with additions + files)
  */
 export function parseSizeThresholds(value: string): Result<SizeThresholds, ParseError> {
@@ -161,7 +191,12 @@ export function parseSizeThresholds(value: string): Result<SizeThresholds, Parse
       return err(createParseError(value, 'Size thresholds must be monotonic (S ≤ M ≤ L for files)'));
     }
 
-    return ok(parsed as SizeThresholds);
+    // Type guard ensures type safety without assertion
+    if (!isSizeThresholds(parsed)) {
+      return err(createParseError(value, 'Invalid size thresholds structure'));
+    }
+
+    return ok(parsed);
   } catch (_error) {
     return err(createParseError(value, 'Invalid JSON for size thresholds'));
   }

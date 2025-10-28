@@ -4,7 +4,14 @@ import { type ConfigurationError, createConfigurationError } from '../../errors/
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
 import { validateMinimatchPattern } from '../../utils/pattern-validator.js';
-import { isBoolean, isNumber, isRecord, isString, isStringArray } from '../../utils/type-guards.js';
+import {
+  isBoolean,
+  isConfigurationError,
+  isNumber,
+  isRecord,
+  isString,
+  isStringArray,
+} from '../../utils/type-guards.js';
 
 const KNOWN_FIELD_NAMES = {
   LANGUAGE: 'language',
@@ -42,7 +49,8 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
     return err(createConfigurationError('root', config, 'Configuration must be an object'));
   }
 
-  const source = config as Record<string, unknown>;
+  // isRecord check ensures config is Record<string, unknown>
+  const source = config;
   const normalized: Partial<LabelerConfig> = {};
   const warnings: string[] = [];
 
@@ -75,8 +83,7 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
       return err(createConfigurationError(SUMMARY_FIELD, rawSummary, 'summary must be an object'));
     }
 
-    const summaryRecord = rawSummary as Record<string, unknown>;
-    const title = summaryRecord['title'];
+    const title = rawSummary['title'];
     if (title !== undefined) {
       if (!isString(title)) {
         return err(createConfigurationError('summary.title', title, 'summary.title must be a string'));
@@ -91,8 +98,7 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
       return err(createConfigurationError(SIZE_FIELD, rawSize, 'size must be an object'));
     }
 
-    const sizeRecord = rawSize as Record<string, unknown>;
-    const thresholdsRaw = sizeRecord['thresholds'];
+    const thresholdsRaw = rawSize['thresholds'];
 
     let small: number | undefined;
     let medium: number | undefined;
@@ -104,11 +110,10 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
         return err(createConfigurationError('size.thresholds', thresholdsRaw, 'size.thresholds must be an object'));
       }
 
-      const thresholds = thresholdsRaw as Record<string, unknown>;
-      const smallRaw = thresholds['small'];
-      const mediumRaw = thresholds['medium'];
-      const largeRaw = thresholds['large'];
-      const xlargeRaw = thresholds['xlarge'];
+      const smallRaw = thresholdsRaw['small'];
+      const mediumRaw = thresholdsRaw['medium'];
+      const largeRaw = thresholdsRaw['large'];
+      const xlargeRaw = thresholdsRaw['xlarge'];
 
       if (smallRaw !== undefined) {
         if (!isNumber(smallRaw) || smallRaw < 0 || !Number.isInteger(smallRaw)) {
@@ -207,8 +212,7 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
       return err(createConfigurationError(COMPLEXITY_FIELD, rawComplexity, 'complexity must be an object'));
     }
 
-    const complexityRecord = rawComplexity as Record<string, unknown>;
-    const thresholdsRaw = complexityRecord['thresholds'];
+    const thresholdsRaw = rawComplexity['thresholds'];
 
     let medium: number | undefined;
     let high: number | undefined;
@@ -220,9 +224,8 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
         );
       }
 
-      const thresholds = thresholdsRaw as Record<string, unknown>;
-      const mediumRaw = thresholds['medium'];
-      const highRaw = thresholds['high'];
+      const mediumRaw = thresholdsRaw['medium'];
+      const highRaw = thresholdsRaw['high'];
 
       if (mediumRaw !== undefined) {
         if (!isNumber(mediumRaw) || mediumRaw < 0 || !Number.isInteger(mediumRaw)) {
@@ -279,10 +282,9 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
           throw createConfigurationError(`categories[${index}]`, category, 'Category config must be an object');
         }
 
-        const cat = category as Record<string, unknown>;
-        const label = cat['label'];
-        const patterns = cat['patterns'];
-        const displayName = cat['display_name'];
+        const label = category['label'];
+        const patterns = category['patterns'];
+        const displayName = category['display_name'];
 
         if (!isString(label)) {
           throw createConfigurationError(`categories[${index}].label`, label, 'Category label must be a string');
@@ -330,9 +332,8 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
             );
           }
 
-          const displayNameRecord = displayName as Record<string, unknown>;
-          const en = displayNameRecord['en'];
-          const ja = displayNameRecord['ja'];
+          const en = displayName['en'];
+          const ja = displayName['ja'];
 
           if (!isString(en)) {
             throw createConfigurationError(
@@ -353,8 +354,8 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
           normalizedCategory.display_name = { en, ja };
         }
 
-        if ('exclude' in cat) {
-          const exclude = cat['exclude'];
+        if ('exclude' in category) {
+          const exclude = category['exclude'];
           if (exclude !== undefined) {
             if (!isStringArray(exclude)) {
               throw createConfigurationError(
@@ -372,7 +373,12 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
 
       normalized.categories = normalizedCategories;
     } catch (error) {
-      return err(error as ConfigurationError);
+      // Type guard for ConfigurationError
+      if (isConfigurationError(error)) {
+        return err(error);
+      }
+      // Unexpected error - convert to ConfigurationError
+      return err(createConfigurationError('categories', error, 'Unexpected error during category validation'));
     }
   }
 
@@ -386,8 +392,7 @@ export function parseLabelerConfig(config: unknown): Result<LabelerConfigTransfo
       return err(createConfigurationError(RISK_FIELD, rawRisk, 'risk must be an object'));
     }
 
-    const riskRecord = rawRisk as Record<string, unknown>;
-    const useCiStatus = riskRecord['use_ci_status'];
+    const useCiStatus = rawRisk['use_ci_status'];
     if (useCiStatus !== undefined && !isBoolean(useCiStatus)) {
       return err(createConfigurationError('risk.use_ci_status', useCiStatus, 'risk.use_ci_status must be a boolean'));
     }

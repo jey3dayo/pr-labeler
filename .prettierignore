@@ -27,6 +27,8 @@ __tests__/__tests__/
 .claude/
 .codex/
 .kiro/
+sessions/
+sessions/**
 
 # Specify
 .specify/templates/

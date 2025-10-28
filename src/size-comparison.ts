@@ -16,6 +16,19 @@ export const SIZE_ORDER = ['small', 'medium', 'large', 'xlarge', 'xxlarge'] as c
 export type SizeValue = (typeof SIZE_ORDER)[number];
 
 /**
+ * Type guard to check if a string is a valid SizeValue
+ * Uses explicit iteration to avoid type assertion
+ */
+function isSizeValue(value: string): value is SizeValue {
+  for (const size of SIZE_ORDER) {
+    if (size === value) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Compare PR size label with threshold
  * Returns true if appliedSize >= threshold
  *
@@ -32,13 +45,13 @@ export function compareSizeThreshold(appliedSize: string, threshold: string): bo
   // Remove "size/" prefix if present
   const sizeValue = appliedSize.startsWith('size/') ? appliedSize.replace('size/', '') : appliedSize;
 
-  const appliedIndex = SIZE_ORDER.indexOf(sizeValue as SizeValue);
-  const thresholdIndex = SIZE_ORDER.indexOf(threshold as SizeValue);
-
-  // Invalid size values return false
-  if (appliedIndex === -1 || thresholdIndex === -1) {
+  // Validate size values using type guard
+  if (!isSizeValue(sizeValue) || !isSizeValue(threshold)) {
     return false;
   }
+
+  const appliedIndex = SIZE_ORDER.indexOf(sizeValue);
+  const thresholdIndex = SIZE_ORDER.indexOf(threshold);
 
   return appliedIndex >= thresholdIndex;
 }
