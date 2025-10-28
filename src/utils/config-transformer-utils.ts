@@ -17,37 +17,6 @@ export function validateObjectInput(
 }
 
 /**
- * 配列フィールドのバリデーション
- * フィールドが配列であることを確認し、各要素を検証
- */
-export function validateArrayField<T>(
-  source: Record<string, unknown>,
-  fieldName: string,
-  fieldPath: string,
-  elementValidator: (element: unknown, index: number) => Result<T, ConfigurationError>,
-): Result<T[] | undefined, ConfigurationError> {
-  if (!(fieldName in source)) {
-    return ok(undefined);
-  }
-
-  const value = source[fieldName];
-  if (!Array.isArray(value)) {
-    return err(createConfigurationError(fieldPath, value, `${fieldName} must be an array`));
-  }
-
-  const validated: T[] = [];
-  for (let i = 0; i < value.length; i++) {
-    const elementResult = elementValidator(value[i], i);
-    if (elementResult.isErr()) {
-      return err(elementResult.error);
-    }
-    validated.push(elementResult.value);
-  }
-
-  return ok(validated);
-}
-
-/**
  * 数値閾値のバリデーション
  * 数値が指定された範囲内にあることを確認
  */
