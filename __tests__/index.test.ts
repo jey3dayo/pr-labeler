@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { err, ok } from 'neverthrow';
+import { err, errAsync, ok, okAsync } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { logErrorI18n, logInfoI18n, logWarningI18n, setFailed } from '../src/actions-io';
@@ -207,8 +207,8 @@ describe('PR Labeler', () => {
     } as any;
 
     it('skips draft PR and writes summary', async () => {
-      vi.mocked(initializeAction).mockResolvedValue({ ...baseContext });
-      vi.mocked(writeSummary).mockResolvedValue(ok(undefined));
+      vi.mocked(initializeAction).mockReturnValue(okAsync({ ...baseContext }));
+      vi.mocked(writeSummary).mockReturnValue(okAsync(undefined));
 
       await run();
 
@@ -218,8 +218,8 @@ describe('PR Labeler', () => {
     });
 
     it('logs warning when summary write fails', async () => {
-      vi.mocked(initializeAction).mockResolvedValue({ ...baseContext });
-      vi.mocked(writeSummary).mockResolvedValue(err(new Error('summary failed')));
+      vi.mocked(initializeAction).mockReturnValue(okAsync({ ...baseContext }));
+      vi.mocked(writeSummary).mockReturnValue(errAsync(new Error('summary failed')));
 
       await run();
 
@@ -251,10 +251,10 @@ describe('PR Labeler', () => {
         hasViolations: false,
       } as any;
 
-      vi.mocked(initializeAction).mockResolvedValue(context);
-      vi.mocked(analyzePullRequest).mockResolvedValue(artifacts);
-      vi.mocked(applyLabelsStage).mockResolvedValue(undefined);
-      vi.mocked(finalizeAction).mockResolvedValue(undefined);
+      vi.mocked(initializeAction).mockReturnValue(okAsync(context));
+      vi.mocked(analyzePullRequest).mockReturnValue(okAsync(artifacts));
+      vi.mocked(applyLabelsStage).mockReturnValue(okAsync(undefined));
+      vi.mocked(finalizeAction).mockReturnValue(okAsync(undefined));
 
       await run();
 
@@ -263,8 +263,8 @@ describe('PR Labeler', () => {
       expect(finalizeAction).toHaveBeenCalledWith(context, artifacts);
     });
 
-    it('formats configuration errors with type information', async () => {
-      vi.mocked(initializeAction).mockRejectedValue({ type: 'UnexpectedError', message: 'boom' });
+    it('formats unexpected errors with type information', async () => {
+      vi.mocked(initializeAction).mockReturnValue(errAsync({ type: 'UnexpectedError', message: 'boom' } as any));
 
       await run();
 
@@ -272,22 +272,17 @@ describe('PR Labeler', () => {
       expect(setFailed).toHaveBeenCalledWith('[UnexpectedError] boom');
     });
 
-    it('handles standard Error instances', async () => {
-      vi.mocked(initializeAction).mockRejectedValue(new Error('standard failure'));
+    it('formats GitHub API errors with status', async () => {
+      vi.mocked(initializeAction).mockReturnValue(
+        errAsync({ type: 'GitHubAPIError', message: 'GitHub API error: failure', status: 500 } as any),
+      );
 
       await run();
 
-      expect(logErrorI18n).toHaveBeenCalledWith('completion.failed', { message: 'standard failure' });
-      expect(setFailed).toHaveBeenCalledWith('standard failure');
-    });
-
-    it('handles non-error rejection values', async () => {
-      vi.mocked(initializeAction).mockRejectedValue('string failure');
-
-      await run();
-
-      expect(logErrorI18n).toHaveBeenCalledWith('completion.failed', { message: 'string failure' });
-      expect(setFailed).toHaveBeenCalledWith('string failure');
+      expect(logErrorI18n).toHaveBeenCalledWith('completion.failed', {
+        message: '[GitHubAPIError (status 500)] GitHub API error: failure',
+      });
+      expect(setFailed).toHaveBeenCalledWith('[GitHubAPIError (status 500)] GitHub API error: failure');
     });
   });
 

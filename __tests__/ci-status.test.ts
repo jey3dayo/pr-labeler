@@ -16,9 +16,10 @@ describe('ci-status utilities', () => {
       rest: { checks: { listForRef: vi.fn() } },
     } as any;
 
-    const status = await getCIStatus(octokit, 'owner', 'repo', 'sha');
+    const statusResult = await getCIStatus(octokit, 'owner', 'repo', 'sha');
 
-    expect(status).toEqual({
+    expect(statusResult.isOk()).toBe(true);
+    expect(statusResult._unsafeUnwrap()).toEqual({
       tests: 'passed',
       typeCheck: 'failed',
       build: 'unknown',
@@ -32,18 +33,20 @@ describe('ci-status utilities', () => {
       rest: { checks: { listForRef: vi.fn() } },
     } as any;
 
-    const status = await getCIStatus(octokit, 'owner', 'repo', 'sha');
-    expect(status).toBeNull();
+    const statusResult = await getCIStatus(octokit, 'owner', 'repo', 'sha');
+    expect(statusResult.isOk()).toBe(true);
+    expect(statusResult._unsafeUnwrap()).toBeNull();
   });
 
-  it('returns null when API call fails', async () => {
+  it('returns error when API call fails', async () => {
     const octokit = {
       paginate: vi.fn().mockRejectedValue(new Error('network error')),
       rest: { checks: { listForRef: vi.fn() } },
     } as any;
 
-    const status = await getCIStatus(octokit, 'owner', 'repo', 'sha');
-    expect(status).toBeNull();
+    const statusResult = await getCIStatus(octokit, 'owner', 'repo', 'sha');
+    expect(statusResult.isErr()).toBe(true);
+    expect(statusResult._unsafeUnwrapErr().type).toBe('GitHubAPIError');
   });
 
   it('evaluates consolidated CI results', () => {

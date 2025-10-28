@@ -1,7 +1,7 @@
 import { err, ok } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { logErrorI18n, logWarningI18n, setFailed } from '../../src/actions-io';
+import { logErrorI18n, logWarningI18n } from '../../src/actions-io';
 import { getDiffFiles } from '../../src/diff-strategy';
 import { analyzeFiles } from '../../src/file-metrics';
 import { analyzePullRequest } from '../../src/workflow/stages/analysis';
@@ -14,7 +14,6 @@ vi.mock('../../src/actions-io', () => ({
   logInfoI18n: vi.fn(),
   logWarning: vi.fn(),
   logWarningI18n: vi.fn(),
-  setFailed: vi.fn(),
 }));
 
 vi.mock('../../src/i18n.js', () => ({
@@ -115,7 +114,6 @@ describe('workflow/stages/analysis', () => {
     complexityAnalyzeMock.mockReset();
     vi.mocked(logErrorI18n).mockReset();
     vi.mocked(logWarningI18n).mockReset();
-    vi.mocked(setFailed).mockReset();
   });
 
   it('returns analysis artifacts with complexity metrics', async () => {
@@ -165,8 +163,10 @@ describe('workflow/stages/analysis', () => {
       }),
     );
 
-    const artifacts = (await analyzePullRequest(baseContext)) as AnalysisArtifacts;
+    const result = await analyzePullRequest(baseContext);
 
+    expect(result.isOk()).toBe(true);
+    const artifacts = result._unsafeUnwrap();
     expect(artifacts.analysis.metrics.totalFiles).toBe(1);
     expect(artifacts.complexityMetrics).toBeDefined();
     expect(artifacts.hasViolations).toBe(false);
@@ -174,9 +174,12 @@ describe('workflow/stages/analysis', () => {
   });
 
   it('propagates diff retrieval errors', async () => {
-    getDiffFilesMock.mockResolvedValue(err(new Error('diff failed')) as any);
+    getDiffFilesMock.mockResolvedValue(err({ type: 'DiffError', message: 'diff failed', source: 'local-git' }) as any);
 
-    await expect(analyzePullRequest(baseContext)).rejects.toThrow('diff failed');
+    const result = await analyzePullRequest(baseContext);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toMatchObject({ type: 'DiffError', message: 'diff failed' });
   });
 
   it('fails action when complexity analyzer errors and fail_on_error is true', async () => {
@@ -217,10 +220,10 @@ describe('workflow/stages/analysis', () => {
 
     complexityAnalyzeMock.mockResolvedValue(err(new Error('complexity failed')));
 
-    const artifacts = await analyzePullRequest(context);
+    const result = await analyzePullRequest(context);
 
-    expect(artifacts.complexityMetrics).toBeUndefined();
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr().type).toBe('UnexpectedError');
     expect(logErrorI18n).toHaveBeenCalled();
-    expect(setFailed).toHaveBeenCalledWith('Complexity analysis failed');
   });
 });

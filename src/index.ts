@@ -4,7 +4,9 @@
  */
 
 import { logErrorI18n, logInfoI18n, logWarningI18n, setFailed } from './actions-io';
-import { isErrorWithMessage, isErrorWithTypeAndMessage } from './errors/index.js';
+import { formatAppError, ResultAsync, toAppError } from './errors/index.js';
+import type { AppError } from './errors/index.js';
+import type { InitializationArtifacts } from './workflow/types';
 import { t } from './i18n.js';
 import { writeSummary } from './summary/summary-writer';
 import { analyzePullRequest, applyLabelsStage, finalizeAction, initializeAction } from './workflow/pipeline';
@@ -13,10 +15,32 @@ import { analyzePullRequest, applyLabelsStage, finalizeAction, initializeAction 
  * Main action function orchestrating the workflow pipeline
  */
 async function run(): Promise<void> {
-  try {
-    const context = await initializeAction();
+  const result = await executeAction();
 
+  if (result.isErr()) {
+    const formatted = formatAppError(result.error);
+    logErrorI18n('completion.failed', { message: formatted });
+    setFailed(formatted);
+  }
+}
+
+function executeAction(): ResultAsync<void, AppError> {
+  return initializeAction().andThen(context => {
     if (context.skipDraft) {
+      return handleDraft(context);
+    }
+
+    return analyzePullRequest(context)
+      .andThen(artifacts =>
+        applyLabelsStage(context, artifacts).map(() => artifacts),
+      )
+      .andThen(artifacts => finalizeAction(context, artifacts));
+  });
+}
+
+function handleDraft(context: InitializationArtifacts): ResultAsync<void, AppError> {
+  return ResultAsync.fromPromise(
+    (async () => {
       logInfoI18n('draft.skipping');
 
       if (context.config.enableSummary) {
@@ -31,30 +55,9 @@ async function run(): Promise<void> {
       }
 
       logInfoI18n('completion.skippedDraft');
-      return;
-    }
-
-    const analysisArtifacts = await analyzePullRequest(context);
-    await applyLabelsStage(context, analysisArtifacts);
-    await finalizeAction(context, analysisArtifacts);
-  } catch (error) {
-    const errorMessage = getErrorMessage(error);
-    logErrorI18n('completion.failed', { message: errorMessage });
-    setFailed(errorMessage);
-  }
-}
-
-/**
- * Extract error message from various error types
- */
-function getErrorMessage(error: unknown): string {
-  if (isErrorWithTypeAndMessage(error)) {
-    return `[${error.type}] ${error.message}`;
-  }
-  if (isErrorWithMessage(error)) {
-    return error.message;
-  }
-  return String(error);
+    })(),
+    toAppError,
+  ).map(() => undefined);
 }
 
 // Run the action if this is the main module
@@ -63,4 +66,4 @@ if (require.main === module) {
 }
 
 // Export for testing
-export { run };
+export { executeAction, run };

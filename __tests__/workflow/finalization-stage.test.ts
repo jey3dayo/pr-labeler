@@ -1,7 +1,7 @@
-import { err, ok } from 'neverthrow';
+import { err, errAsync, ok, okAsync } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { logInfoI18n, logWarningI18n, setActionOutputs, setFailed } from '../../src/actions-io';
+import { logInfoI18n, logWarningI18n, setActionOutputs } from '../../src/actions-io';
 import { manageComment } from '../../src/comment-manager';
 import { getCurrentPRLabels } from '../../src/label-manager.js';
 import { writeSummaryWithAnalysis } from '../../src/summary/summary-writer';
@@ -13,7 +13,6 @@ vi.mock('../../src/actions-io', () => ({
   logInfoI18n: vi.fn(),
   logWarningI18n: vi.fn(),
   setActionOutputs: vi.fn(),
-  setFailed: vi.fn(),
 }));
 
 vi.mock('../../src/comment-manager', () => ({
@@ -147,33 +146,35 @@ describe('workflow/stages/finalization', () => {
     vi.mocked(logInfoI18n).mockReset();
     vi.mocked(logWarningI18n).mockReset();
     vi.mocked(setActionOutputs).mockReset();
-    vi.mocked(setFailed).mockReset();
   });
 
   it('writes summary and comment successfully', async () => {
     vi.mocked(manageComment).mockResolvedValue(ok({ action: 'updated' }));
-    vi.mocked(writeSummaryWithAnalysis).mockResolvedValue(ok({ action: 'written', bytesWritten: 256 }));
+    vi.mocked(writeSummaryWithAnalysis).mockReturnValue(okAsync({ action: 'written', bytesWritten: 256 }));
     vi.mocked(getCurrentPRLabels).mockResolvedValue(['size/L']);
     vi.mocked(evaluatePRFailures).mockReturnValue([]);
 
-    await finalizeAction(context, artifacts);
+    const result = await finalizeAction(context, artifacts);
 
     expect(manageComment).toHaveBeenCalled();
     expect(writeSummaryWithAnalysis).toHaveBeenCalled();
     expect(logInfoI18n).toHaveBeenCalledWith('summary.written', { bytes: 256 });
     expect(setActionOutputs).toHaveBeenCalled();
-    expect(setFailed).not.toHaveBeenCalled();
+    expect(result.isOk()).toBe(true);
   });
 
   it('handles summary write errors via warnings and failure evaluation', async () => {
     vi.mocked(manageComment).mockResolvedValue(ok({ action: 'updated' }));
-    vi.mocked(writeSummaryWithAnalysis).mockResolvedValue(err(new Error('summary failed')));
+    vi.mocked(writeSummaryWithAnalysis).mockReturnValue(errAsync(new Error('summary failed')));
     vi.mocked(getCurrentPRLabels).mockResolvedValue(['risk/high']);
     vi.mocked(evaluatePRFailures).mockReturnValue(['too risky']);
 
-    await finalizeAction(context, artifacts);
+    const result = await finalizeAction(context, artifacts);
 
     expect(logWarningI18n).toHaveBeenCalledWith('summary.writeFailed', { message: 'summary failed' });
-    expect(setFailed).toHaveBeenCalledWith(expect.stringContaining('too risky'));
+    expect(result.isErr()).toBe(true);
+    const error = result._unsafeUnwrapErr();
+    expect(error.type).toBe('ViolationError');
+    expect(error.message).toContain('too risky');
   });
 });
