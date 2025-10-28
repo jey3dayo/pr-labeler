@@ -8,6 +8,7 @@ import type { getOctokit } from '@actions/github';
 import type { AppError } from './errors/index.js';
 import { createGitHubAPIError, ensureError, extractErrorStatus, ResultAsync } from './errors/index.js';
 import type { CICheckStatus, CIStatus } from './types';
+import { hasProperty, isNonEmptyString, isObject } from './utils/type-guards.js';
 
 type Octokit = ReturnType<typeof getOctokit>;
 
@@ -17,6 +18,13 @@ type Octokit = ReturnType<typeof getOctokit>;
 interface CheckRun {
   name: string;
   conclusion: string | null;
+}
+
+/**
+ * Type guard to check if a value is a valid CheckRun
+ */
+function isValidCheckRun(run: unknown): run is CheckRun {
+  return isObject(run) && hasProperty(run, 'name') && isNonEmptyString(run.name);
 }
 
 /**
@@ -101,7 +109,7 @@ export function getCIStatus(
         response => response.data.check_runs,
       );
 
-      const checkRuns: CheckRun[] = allCheckRuns.map(run => ({
+      const checkRuns: CheckRun[] = allCheckRuns.filter(isValidCheckRun).map(run => ({
         name: run.name,
         conclusion: run.conclusion,
       }));
