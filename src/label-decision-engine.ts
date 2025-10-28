@@ -7,6 +7,7 @@ import { minimatch } from 'minimatch';
 import { ok, Result } from 'neverthrow';
 
 import { allCIPassed, anyCIFailed } from './ci-status.js';
+import { COMPLEXITY_LABELS, RISK_LABELS } from './configs/label-defaults.js';
 import type { LabelDecisions, LabelerConfig, LabelReasoning, PRMetrics } from './labeler-types.js';
 import type { ChangeType, PRContext } from './types.js';
 import type { RiskConfig } from './types/config.js';
@@ -124,10 +125,10 @@ export function decideSizeLabel(
  */
 export function decideComplexityLabel(complexity: number, thresholds: { medium: number; high: number }): string | null {
   if (complexity >= thresholds.high) {
-    return 'complexity/high';
+    return COMPLEXITY_LABELS.high;
   }
   if (complexity >= thresholds.medium) {
-    return 'complexity/medium';
+    return COMPLEXITY_LABELS.medium;
   }
   return null; // 低複雑度はラベルなし
 }
@@ -266,7 +267,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     // High risk: CI checks failed
     if (anyCIFailed(ciStatus)) {
       return {
-        label: 'risk/high',
+        label: RISK_LABELS.high,
         reason: 'CI checks failed (tests, type-check, build, or lint)',
       };
     }
@@ -285,7 +286,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     // High risk: Feature addition without test files + core changes
     if (changeType === 'feature' && !hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
       return {
-        label: 'risk/high',
+        label: RISK_LABELS.high,
         reason: 'new feature in core functionality without test files',
       };
     }
@@ -295,7 +296,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
   // High risk: No tests + core changes
   if (!hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
     return {
-      label: 'risk/high',
+      label: RISK_LABELS.high,
       reason: 'core functionality changed without test files',
     };
   }
@@ -303,7 +304,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
   // Medium risk: Config file changes
   if (hasConfigChanges) {
     return {
-      label: 'risk/medium',
+      label: RISK_LABELS.medium,
       reason: 'configuration files changed',
     };
   }
