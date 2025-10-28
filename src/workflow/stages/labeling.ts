@@ -37,6 +37,7 @@ export function applyLabelsStage(
         totalAdditions: analysis.metrics.totalAdditions,
         excludedAdditions: analysis.metrics.excludedAdditions,
         files: analysis.metrics.filesAnalyzed,
+        allFiles: analysis.metrics.allFiles, // カテゴリラベル判定用の全ファイルパス
         ...(complexityMetrics && { complexity: complexityMetrics }),
       };
 

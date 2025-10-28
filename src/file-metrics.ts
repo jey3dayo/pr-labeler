@@ -304,6 +304,7 @@ export async function analyzeFiles(
       filesExcluded: [],
       filesSkippedBinary: [],
       filesWithErrors: [],
+      allFiles: files.map(f => f.filename), // カテゴリラベル判定用の全ファイルパス
     },
     violations: {
       largeFiles: [],

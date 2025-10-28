@@ -26,6 +26,7 @@ export interface Metrics {
   filesExcluded: string[];
   filesSkippedBinary: string[];
   filesWithErrors: string[];
+  allFiles: string[]; // カテゴリラベル判定用の全ファイルパス（除外前）
 }
 
 /**
