@@ -7,6 +7,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
+import { VIOLATION_LABELS } from './configs/label-defaults.js';
 import type { ConfigurationError } from './errors/index.js';
 import { createConfigurationError } from './errors/index.js';
 import { isInitialized, t } from './i18n.js';
@@ -119,10 +120,10 @@ export function getActionInputs(): ActionInputs {
     complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 15, "high": 30}',
     category_enabled: core.getInput('category_enabled') || 'true',
     risk_enabled: core.getInput('risk_enabled') || 'true',
-    large_files_label: core.getInput('large_files_label') || 'auto/large-files',
-    too_many_files_label: core.getInput('too_many_files_label') || 'auto/too-many-files',
-    too_many_lines_label: core.getInput('too_many_lines_label') || 'auto/too-many-lines',
-    excessive_changes_label: core.getInput('excessive_changes_label') || 'auto/excessive-changes',
+    large_files_label: core.getInput('large_files_label') || VIOLATION_LABELS.largeFiles,
+    too_many_files_label: core.getInput('too_many_files_label') || VIOLATION_LABELS.tooManyFiles,
+    too_many_lines_label: core.getInput('too_many_lines_label') || VIOLATION_LABELS.tooManyLines,
+    excessive_changes_label: core.getInput('excessive_changes_label') || VIOLATION_LABELS.excessiveChanges,
     skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
     comment_on_pr: core.getInput('comment_on_pr') || 'auto',
     // Label-Based Workflow Failure Control
