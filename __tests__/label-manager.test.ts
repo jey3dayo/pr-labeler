@@ -14,7 +14,6 @@ import {
   addLabels,
   getCurrentLabels,
   getDetailLabels,
-  getSizeLabel,
   LabelConfig,
   removeLabels,
   updateLabels,
@@ -68,61 +67,6 @@ describe('LabelManager', () => {
 
   afterEach(() => {
     vi.resetAllMocks();
-  });
-
-  describe('getSizeLabel', () => {
-    const defaultThresholds = {
-      small: 10,
-      medium: 100,
-      large: 500,
-      xlarge: 1000,
-    };
-
-    it('should return size:S for small PRs', () => {
-      expect(getSizeLabel(5, defaultThresholds)).toBe('size:S');
-      expect(getSizeLabel(10, defaultThresholds)).toBe('size:S');
-    });
-
-    it('should return size:M for medium PRs', () => {
-      expect(getSizeLabel(11, defaultThresholds)).toBe('size:M');
-      expect(getSizeLabel(50, defaultThresholds)).toBe('size:M');
-      expect(getSizeLabel(100, defaultThresholds)).toBe('size:M');
-    });
-
-    it('should return size:L for large PRs', () => {
-      expect(getSizeLabel(101, defaultThresholds)).toBe('size:L');
-      expect(getSizeLabel(300, defaultThresholds)).toBe('size:L');
-      expect(getSizeLabel(500, defaultThresholds)).toBe('size:L');
-    });
-
-    it('should return size:XL for xlarge PRs', () => {
-      expect(getSizeLabel(501, defaultThresholds)).toBe('size:XL');
-      expect(getSizeLabel(1000, defaultThresholds)).toBe('size:XL');
-    });
-
-    it('should return size:XXL for huge PRs', () => {
-      expect(getSizeLabel(1001, defaultThresholds)).toBe('size:XXL');
-      expect(getSizeLabel(5000, defaultThresholds)).toBe('size:XXL');
-    });
-
-    it('should handle 0 additions', () => {
-      expect(getSizeLabel(0, defaultThresholds)).toBe('size:S');
-    });
-
-    it('should handle custom thresholds', () => {
-      const customThresholds = {
-        small: 5,
-        medium: 20,
-        large: 50,
-        xlarge: 100,
-      };
-
-      expect(getSizeLabel(4, customThresholds)).toBe('size:S');
-      expect(getSizeLabel(10, customThresholds)).toBe('size:M');
-      expect(getSizeLabel(30, customThresholds)).toBe('size:L');
-      expect(getSizeLabel(80, customThresholds)).toBe('size:XL');
-      expect(getSizeLabel(200, customThresholds)).toBe('size:XXL');
-    });
   });
 
   describe('getDetailLabels', () => {
@@ -283,7 +227,7 @@ describe('LabelManager', () => {
   describe('getCurrentLabels', () => {
     it('should get current labels from PR', async () => {
       mockListLabels.mockResolvedValue({
-        data: [{ name: 'bug' }, { name: 'feature' }, { name: 'size:M' }],
+        data: [{ name: 'bug' }, { name: 'feature' }, { name: 'size/medium' }],
       });
 
       const result = await getCurrentLabels('token', {
@@ -294,7 +238,7 @@ describe('LabelManager', () => {
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
-        expect(result.value).toEqual(['bug', 'feature', 'size:M']);
+        expect(result.value).toEqual(['bug', 'feature', 'size/medium']);
       }
       expect(mockListLabels).toHaveBeenCalledWith({
         owner: 'owner',
@@ -339,10 +283,10 @@ describe('LabelManager', () => {
   describe('addLabels', () => {
     it('should add new labels to PR', async () => {
       mockAddLabels.mockResolvedValue({
-        data: [{ name: 'size:L' }, { name: 'auto/large-files' }],
+        data: [{ name: 'size/large' }, { name: 'auto/large-files' }],
       });
 
-      const result = await addLabels(['size:L', 'auto/large-files'], 'token', {
+      const result = await addLabels(['size/large', 'auto/large-files'], 'token', {
         owner: 'owner',
         repo: 'repo',
         pullNumber: 123,
@@ -353,7 +297,7 @@ describe('LabelManager', () => {
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
-        labels: ['size:L', 'auto/large-files'],
+        labels: ['size/large', 'auto/large-files'],
       });
     });
 
@@ -371,7 +315,7 @@ describe('LabelManager', () => {
     it('should return GitHubAPIError on failure', async () => {
       mockAddLabels.mockRejectedValue(new Error('Permission denied'));
 
-      const result = await addLabels(['size:L'], 'token', {
+      const result = await addLabels(['size/large'], 'token', {
         owner: 'owner',
         repo: 'repo',
         pullNumber: 123,
@@ -389,7 +333,7 @@ describe('LabelManager', () => {
     it('should remove labels from PR', async () => {
       mockRemoveLabel.mockResolvedValue({});
 
-      const result = await removeLabels(['size:S', 'auto/old'], 'token', {
+      const result = await removeLabels(['size/small', 'auto/old'], 'token', {
         owner: 'owner',
         repo: 'repo',
         pullNumber: 123,
@@ -401,7 +345,7 @@ describe('LabelManager', () => {
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
-        name: 'size:S',
+        name: 'size/small',
       });
       expect(mockRemoveLabel).toHaveBeenCalledWith({
         owner: 'owner',
@@ -425,7 +369,7 @@ describe('LabelManager', () => {
     it('should continue removing even if one fails', async () => {
       mockRemoveLabel.mockRejectedValueOnce(new Error('Label not found')).mockResolvedValueOnce({});
 
-      const result = await removeLabels(['nonexistent', 'size:M'], 'token', {
+      const result = await removeLabels(['nonexistent', 'size/medium'], 'token', {
         owner: 'owner',
         repo: 'repo',
         pullNumber: 123,
@@ -467,7 +411,7 @@ describe('LabelManager', () => {
 
       // Current labels on PR
       mockListLabels.mockResolvedValue({
-        data: [{ name: 'bug' }, { name: 'size:S' }, { name: 'auto/old-violation' }],
+        data: [{ name: 'bug' }, { name: 'size/small' }, { name: 'auto/old-violation' }],
       });
 
       // Adding new labels
@@ -486,11 +430,11 @@ describe('LabelManager', () => {
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
-        expect(result.value.added).toContain('size:L'); // 150 additions = Large
-        expect(result.value.removed).toContain('size:S'); // Old size label
+        expect(result.value.added).toContain('size/large'); // 150 additions: 100 < 150 < 500
+        expect(result.value.removed).toContain('size/small'); // Old size label
         expect(result.value.removed).toContain('auto/old-violation'); // Old auto label
         expect(result.value.current).toContain('bug'); // Preserved
-        expect(result.value.current).toContain('size:L'); // New size
+        expect(result.value.current).toContain('size/large'); // New size
       }
     });
 
@@ -546,7 +490,7 @@ describe('LabelManager', () => {
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
-        expect(result.value.added).toContain('size:M'); // 50 additions
+        expect(result.value.added).toContain('size/medium'); // 50 additions: 10 < 50 < 100
         expect(result.value.added).toContain('auto/large-files');
         expect(result.value.added).toContain('auto/excessive-changes');
       }
@@ -582,7 +526,7 @@ describe('LabelManager', () => {
 
       // Current labels already correct
       mockListLabels.mockResolvedValue({
-        data: [{ name: 'size:M' }],
+        data: [{ name: 'size/medium' }],
       });
 
       const result = await updateLabels(analysisResult, config, 'token', {
@@ -595,7 +539,7 @@ describe('LabelManager', () => {
       if (result.isOk()) {
         expect(result.value.added).toHaveLength(0);
         expect(result.value.removed).toHaveLength(0);
-        expect(result.value.current).toEqual(['size:M']);
+        expect(result.value.current).toEqual(['size/medium']);
       }
       expect(mockAddLabels).not.toHaveBeenCalled();
       expect(mockRemoveLabel).not.toHaveBeenCalled();
@@ -631,7 +575,7 @@ describe('LabelManager', () => {
 
       mockListLabels.mockResolvedValue({
         data: [
-          { name: 'size:L' },
+          { name: 'size/large' },
           { name: 'auto/large-files' },
           { name: 'auto/excessive-changes' },
           { name: 'feature' },
@@ -649,8 +593,8 @@ describe('LabelManager', () => {
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
-        expect(result.value.added).toContain('size:S'); // 5 additions = Small
-        expect(result.value.removed).toContain('size:L');
+        expect(result.value.added).toContain('size/small'); // 5 additions = Small
+        expect(result.value.removed).toContain('size/large');
         expect(result.value.removed).toContain('auto/large-files');
         expect(result.value.removed).toContain('auto/excessive-changes');
         expect(result.value.current).toContain('feature'); // Preserved
