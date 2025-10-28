@@ -1,24 +1,18 @@
-import * as core from '@actions/core';
-import { errAsync, okAsync, ResultAsync } from 'neverthrow';
+import { ResultAsync } from 'neverthrow';
 
 import { type ConfigurationError } from '../../errors/index.js';
 import type { LabelerConfig } from '../../labeler-types.js';
 import { DEFAULT_LABELER_CONFIG } from '../../labeler-types.js';
+import { validateConfigWithTransformerAsync } from '../../utils/config-validation-utils.js';
 import { parseLabelerConfig } from '../transformers/labeler-config-transformer.js';
 
 /**
  * Validate and sanitize labeler configuration via transformer layer
  */
 export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfig, ConfigurationError> {
-  const parsedResult = parseLabelerConfig(config);
-  if (parsedResult.isErr()) {
-    return errAsync(parsedResult.error);
-  }
-
-  const { config: normalizedConfig, warnings } = parsedResult.value;
-  warnings.forEach(message => core.warning(message));
-
-  return okAsync(mergeWithDefaults(normalizedConfig));
+  return validateConfigWithTransformerAsync(config, parseLabelerConfig).map(normalizedConfig =>
+    mergeWithDefaults(normalizedConfig),
+  );
 }
 
 export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerConfig {
