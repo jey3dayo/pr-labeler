@@ -67,3 +67,21 @@ export function hasProperty<TKey extends PropertyKey>(
 export function isPromise<T = unknown>(value: unknown): value is Promise<T> {
   return isObject(value) && hasProperty(value, 'then') && typeof value.then === 'function';
 }
+
+/**
+ * Checks whether a value is a ConfigurationError
+ */
+export function isConfigurationError(
+  value: unknown,
+): value is { type: 'ConfigurationError'; field: string; value: unknown; message: string } {
+  return (
+    isObject(value) &&
+    hasProperty(value, 'type') &&
+    value.type === 'ConfigurationError' &&
+    hasProperty(value, 'field') &&
+    isString(value.field) &&
+    hasProperty(value, 'value') &&
+    hasProperty(value, 'message') &&
+    isString(value.message)
+  );
+}
