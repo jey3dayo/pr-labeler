@@ -22,6 +22,7 @@ import labelsJa from './locales/ja/labels.json';
 import logsJa from './locales/ja/logs.json';
 import summaryJa from './locales/ja/summary.json';
 import type { LanguageCode, Namespace } from './types/i18n.js';
+import { isPromise } from './utils/type-guards.js';
 
 /**
  * i18next初期化済みフラグ
@@ -30,6 +31,12 @@ let isI18nInitialized = false;
 
 /**
  * 翻訳関数のキャッシュ
+ */
+/**
+ * BoundTFunction type represents a simplified translation function signature.
+ * Note: Type assertion `as BoundTFunction` is used when binding i18next.t
+ * due to i18next's complex method overloading that makes type inference difficult.
+ * This is a technical constraint of the i18next library's type definitions.
  */
 type BoundTFunction = (key: string, options?: TOptions) => string;
 
@@ -232,7 +239,8 @@ export function changeLanguage(lang: LanguageCode): void {
   const result = i18next.changeLanguage(lang, () => {
     cachedTFunction = i18next.t.bind(i18next) as BoundTFunction;
   });
-  if (result && typeof (result as unknown as Promise<unknown>).then === 'function') {
+  // Check if result is a Promise using type guard
+  if (result && isPromise(result)) {
     // No await here by design; immediate reads already see lang above.
   }
 }

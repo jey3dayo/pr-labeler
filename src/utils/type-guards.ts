@@ -60,3 +60,10 @@ export function hasProperty<TKey extends PropertyKey>(
 ): value is Record<TKey, unknown> & Record<PropertyKey, unknown> {
   return isObject(value) && key in value;
 }
+
+/**
+ * Checks whether a value is a Promise
+ */
+export function isPromise<T = unknown>(value: unknown): value is Promise<T> {
+  return isObject(value) && hasProperty(value, 'then') && typeof value.then === 'function';
+}
