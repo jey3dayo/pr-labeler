@@ -7,12 +7,13 @@ import * as github from '@actions/github';
 import { err, ok, Result } from 'neverthrow';
 
 import { logDebug, logInfo, logWarning } from './actions-io';
-import { AUTO_LABEL_PREFIX, SIZE_LABEL_PREFIX, SIZE_LABELS, VIOLATION_LABELS } from './configs/label-defaults.js';
+import { AUTO_LABEL_PREFIX, VIOLATION_LABELS } from './configs/label-defaults.js';
 import type { ConfigurationError, GitHubAPIError, Violations } from './errors/index.js';
 import { createConfigurationError, createGitHubAPIError, ensureError } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
 import { getCurrentLabels as fetchCurrentLabels, getCurrentLabelsGraceful } from './utils/github-label-utils.js';
+import { calculateSizeLabel } from './utils/size-label-utils.js';
 
 /**
  * Label configuration
@@ -70,23 +71,6 @@ function validateSizeLabelThresholds(thresholds: LabelConfig['sizeLabelThreshold
   }
 
   return ok(undefined);
-}
-
-/**
- * Determine the size label based on total additions
- */
-export function getSizeLabel(totalAdditions: number, thresholds: LabelConfig['sizeLabelThresholds']): string {
-  if (totalAdditions <= thresholds.small) {
-    return SIZE_LABELS.S;
-  } else if (totalAdditions <= thresholds.medium) {
-    return SIZE_LABELS.M;
-  } else if (totalAdditions <= thresholds.large) {
-    return SIZE_LABELS.L;
-  } else if (totalAdditions <= thresholds.xlarge) {
-    return SIZE_LABELS.XL;
-  } else {
-    return SIZE_LABELS.XXL;
-  }
 }
 
 /**
@@ -270,7 +254,7 @@ export async function updateLabels(
 
   // Determine new size label (only if applySizeLabels is true)
   const newSizeLabel = applySizeLabels
-    ? getSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds)
+    ? calculateSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds)
     : null;
 
   // Determine new violation labels with custom names
@@ -293,7 +277,8 @@ export async function updateLabels(
     // Remove old size labels (only if applySizeLabels is true)
     if (applySizeLabels) {
       for (const label of currentLabels) {
-        if (label.startsWith(SIZE_LABEL_PREFIX) && label !== newSizeLabel) {
+        // Support both old (size:) and new (size/) formats
+        if ((label.startsWith('size:') || label.startsWith('size/')) && label !== newSizeLabel) {
           labelsToRemove.push(label);
         }
       }
