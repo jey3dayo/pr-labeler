@@ -201,14 +201,16 @@ describe('workflow/stages/labeling', () => {
 
   it('applies labels and directory labels successfully', async () => {
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: ['size/L'], labelsToRemove: ['size/M'], reasoning: [] }));
-    vi.mocked(applyLabels).mockReturnValue(okAsync({ added: ['size/L'], removed: ['size/M'], skipped: [], apiCalls: 1 }));
+    vi.mocked(applyLabels).mockReturnValue(
+      okAsync({ added: ['size/L'], removed: ['size/M'], skipped: [], apiCalls: 1 }),
+    );
     vi.mocked(getCIStatus).mockReturnValue(
       okAsync({
-      tests: 'passed',
-      typeCheck: 'passed',
-      build: 'pending',
-      lint: 'passed',
-    }),
+        tests: 'passed',
+        typeCheck: 'passed',
+        build: 'pending',
+        lint: 'passed',
+      }),
     );
     vi.mocked(loadDirectoryLabelerConfig).mockReturnValue(
       ok({ namespaces: { exclusive: ['size'], additive: ['scope'] }, useDefaultExcludes: false }),

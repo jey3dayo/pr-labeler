@@ -5,7 +5,7 @@ import { logErrorI18n, logWarningI18n } from '../../src/actions-io';
 import { getDiffFiles } from '../../src/diff-strategy';
 import { analyzeFiles } from '../../src/file-metrics';
 import { analyzePullRequest } from '../../src/workflow/stages/analysis';
-import type { AnalysisArtifacts, InitializationArtifacts } from '../../src/workflow/types';
+import type { InitializationArtifacts } from '../../src/workflow/types';
 
 vi.mock('../../src/actions-io', () => ({
   logDebug: vi.fn(),

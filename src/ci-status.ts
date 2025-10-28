@@ -5,11 +5,19 @@
 
 import type { getOctokit } from '@actions/github';
 
-import type { CICheckStatus, CIStatus } from './types';
-import { createGitHubAPIError, ensureError, extractErrorStatus, ResultAsync } from './errors/index.js';
 import type { AppError } from './errors/index.js';
+import { createGitHubAPIError, ensureError, extractErrorStatus, ResultAsync } from './errors/index.js';
+import type { CICheckStatus, CIStatus } from './types';
 
 type Octokit = ReturnType<typeof getOctokit>;
+
+/**
+ * Represents a GitHub check run object
+ */
+interface CheckRun {
+  name: string;
+  conclusion: string | null;
+}
 
 /**
  * Maps check run conclusion to CICheckStatus
@@ -82,14 +90,18 @@ export function getCIStatus(
 ): ResultAsync<CIStatus | null, AppError> {
   return ResultAsync.fromPromise(
     (async () => {
-      const allCheckRuns = await octokit.paginate(octokit.rest.checks.listForRef, {
-        owner,
-        repo,
-        ref: headSha,
-        per_page: 100,
-      });
+      const allCheckRuns = await octokit.paginate(
+        octokit.rest.checks.listForRef,
+        {
+          owner,
+          repo,
+          ref: headSha,
+          per_page: 100,
+        },
+        response => response.data.check_runs,
+      );
 
-      const checkRuns = allCheckRuns.map(run => ({
+      const checkRuns: CheckRun[] = allCheckRuns.map(run => ({
         name: run.name,
         conclusion: run.conclusion,
       }));

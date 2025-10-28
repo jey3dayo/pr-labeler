@@ -5,25 +5,28 @@ import { getCIStatus } from '../../ci-status.js';
 import { loadDirectoryLabelerConfig } from '../../directory-labeler/config-loader.js';
 import { decideLabelsForFiles, filterByMaxLabels } from '../../directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from '../../directory-labeler/label-applicator.js';
-import { applyLabels } from '../../label-applicator';
-import { decideLabels } from '../../label-decision-engine';
+import type { AppError } from '../../errors/index.js';
 import {
-  ResultAsync,
   createGitHubAPIError,
   createRateLimitError,
   ensureError,
   extractErrorStatus,
+  ResultAsync,
   toAppError,
 } from '../../errors/index.js';
-import type { AppError } from '../../errors/index.js';
-import { hasProperty, isNumber, isObject, isRecord, isString } from '../../utils/type-guards.js';
+import { applyLabels } from '../../label-applicator';
+import { decideLabels } from '../../label-decision-engine';
 import type { PRContext } from '../../types';
+import { hasProperty, isNumber, isObject, isRecord, isString } from '../../utils/type-guards.js';
 import type { AnalysisArtifacts, InitializationArtifacts } from '../types';
 
 /**
  * Apply PR labels including directory-based labeling
  */
-export function applyLabelsStage(context: InitializationArtifacts, artifacts: AnalysisArtifacts): ResultAsync<void, AppError> {
+export function applyLabelsStage(
+  context: InitializationArtifacts,
+  artifacts: AnalysisArtifacts,
+): ResultAsync<void, AppError> {
   return ResultAsync.fromPromise(
     (async () => {
       const { token, prContext, config, labelerConfig } = context;
@@ -66,7 +69,12 @@ export function applyLabelsStage(context: InitializationArtifacts, artifacts: An
           logWarning(`CI status unavailable: ${ciStatusResult.error.message}`);
         }
 
-        const commitMessagesResult = await fetchCommitMessages(octokit, prContext.owner, prContext.repo, prContext.pullNumber);
+        const commitMessagesResult = await fetchCommitMessages(
+          octokit,
+          prContext.owner,
+          prContext.repo,
+          prContext.pullNumber,
+        );
         if (commitMessagesResult.isOk()) {
           const messages = commitMessagesResult.value;
           extendedPRContext.commitMessages = messages;
@@ -216,12 +224,16 @@ function fetchCommitMessages(
 ): ResultAsync<string[], AppError> {
   return ResultAsync.fromPromise(
     (async () => {
-      const commits = await octokit.paginate(octokit.rest.pulls.listCommits, {
-        owner,
-        repo,
-        pull_number: pullNumber,
-        per_page: 100,
-      });
+      const commits = await octokit.paginate(
+        octokit.rest.pulls.listCommits,
+        {
+          owner,
+          repo,
+          pull_number: pullNumber,
+          per_page: 100,
+        },
+        response => response.data,
+      );
 
       const messages: string[] = [];
       for (const commit of commits) {

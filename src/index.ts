@@ -4,12 +4,12 @@
  */
 
 import { logErrorI18n, logInfoI18n, logWarningI18n, setFailed } from './actions-io';
-import { formatAppError, ResultAsync, toAppError } from './errors/index.js';
 import type { AppError } from './errors/index.js';
-import type { InitializationArtifacts } from './workflow/types';
+import { formatAppError, ResultAsync, toAppError } from './errors/index.js';
 import { t } from './i18n.js';
 import { writeSummary } from './summary/summary-writer';
 import { analyzePullRequest, applyLabelsStage, finalizeAction, initializeAction } from './workflow/pipeline';
+import type { InitializationArtifacts } from './workflow/types';
 
 /**
  * Main action function orchestrating the workflow pipeline
@@ -31,9 +31,7 @@ function executeAction(): ResultAsync<void, AppError> {
     }
 
     return analyzePullRequest(context)
-      .andThen(artifacts =>
-        applyLabelsStage(context, artifacts).map(() => artifacts),
-      )
+      .andThen(artifacts => applyLabelsStage(context, artifacts).map(() => artifacts))
       .andThen(artifacts => finalizeAction(context, artifacts));
   });
 }

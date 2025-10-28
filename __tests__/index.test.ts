@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { err, errAsync, ok, okAsync } from 'neverthrow';
+import { errAsync, okAsync } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { logErrorI18n, logInfoI18n, logWarningI18n, setFailed } from '../src/actions-io';

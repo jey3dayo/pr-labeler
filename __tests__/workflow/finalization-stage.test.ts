@@ -1,4 +1,4 @@
-import { err, errAsync, ok, okAsync } from 'neverthrow';
+import { errAsync, ok, okAsync } from 'neverthrow';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { logInfoI18n, logWarningI18n, setActionOutputs } from '../../src/actions-io';

@@ -1,15 +1,23 @@
+import { isNumber } from '../utils/type-guards.js';
 import { createUnexpectedError } from './factories.js';
+import { isErrorWithTypeAndMessage } from './guards.js';
 import { ensureError } from './helpers.js';
-import type { AppError, ConfigurationError, FileAnalysisError, FileSystemError, GitHubAPIError, ParseError } from './types.js';
-import { hasProperty, isNumber, isObject, isString } from '../utils/type-guards.js';
+import type {
+  AppError,
+  ConfigurationError,
+  FileAnalysisError,
+  FileSystemError,
+  GitHubAPIError,
+  ParseError,
+} from './types.js';
 
+/**
+ * Type guard to check if a value is an AppError
+ * Verifies that the value has both `type` and `message` string properties,
+ * and that `type` ends with "Error"
+ */
 function isAppError(value: unknown): value is AppError {
-  return (
-    isObject(value) &&
-    hasProperty(value, 'type') &&
-    isString(value.type) &&
-    value.type.endsWith('Error')
-  );
+  return isErrorWithTypeAndMessage(value) && value.type.endsWith('Error');
 }
 
 function formatGitHubApiError(error: GitHubAPIError): string {
