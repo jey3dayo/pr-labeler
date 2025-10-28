@@ -1,6 +1,7 @@
 import { err, ok, type Result } from 'neverthrow';
 
 import { createConfigurationError } from '../../errors/index.js';
+import { validateObjectInput } from '../../utils/config-transformer-utils.js';
 import {
   isBoolean,
   isNonEmptyStringArray,
@@ -19,11 +20,12 @@ export interface DirectoryLabelerConfigTransformResult {
 export function parseDirectoryLabelerConfig(
   config: unknown,
 ): Result<DirectoryLabelerConfigTransformResult, ReturnType<typeof createConfigurationError>> {
-  if (!isRecord(config)) {
-    return err(createConfigurationError('config', config, 'Configuration must be an object'));
+  const objectValidation = validateObjectInput(config, 'config');
+  if (objectValidation.isErr()) {
+    return err(objectValidation.error);
   }
 
-  const cfg = config as Record<string, unknown>;
+  const cfg = objectValidation.value;
   const warnings: string[] = [];
 
   if (!('version' in cfg)) {
