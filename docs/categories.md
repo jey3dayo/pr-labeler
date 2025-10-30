@@ -281,7 +281,7 @@ PR Labeler provides 9 default categories:
 - `k8s/deployment.yaml`
 - `.mise.toml`
 
-**Note**: `.github/workflows/**` is classified as `category/ci-cd` instead.
+**Note**: `.github/workflows/**` also matches `category/ci-cd` and will receive both labels.
 
 ### category/security
 
