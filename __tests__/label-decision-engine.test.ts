@@ -505,12 +505,7 @@ describe('Label Decision Engine', () => {
 
     describe('Multiple categories integration', () => {
       it('should apply multiple categories when multiple patterns match', () => {
-        const files = [
-          'src/features/auth.ts',
-          '.github/workflows/ci.yml',
-          'src/utils/jwt.ts',
-          'docs/README.md',
-        ];
+        const files = ['src/features/auth.ts', '.github/workflows/ci.yml', 'src/utils/jwt.ts', 'docs/README.md'];
         const result = decideCategoryLabels(files, categories);
         expect(result).toContain('category/feature');
         expect(result).toContain('category/infrastructure');

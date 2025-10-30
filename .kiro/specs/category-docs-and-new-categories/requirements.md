@@ -50,6 +50,7 @@ pr-labelerは現在6種類のデフォルトカテゴリラベル（tests, ci-cd
 #### 受け入れ基準
 
 1. WHEN 開発者が`src/configs/categories.ts`を更新するとき THEN PR Labelerは以下の型定義に従うこと：
+
    ```typescript
    interface CategoryConfig {
      label: string;
@@ -58,6 +59,7 @@ pr-labelerは現在6種類のデフォルトカテゴリラベル（tests, ci-cd
      display_name?: DisplayName;
    }
    ```
+
 2. WHEN `category/feature`が定義されるとき THEN PR Labelerは以下のパターンを含むこと：
    - `src/features/**`
    - `features/**`

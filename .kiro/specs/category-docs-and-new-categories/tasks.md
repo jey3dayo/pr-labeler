@@ -18,7 +18,7 @@
 
 - [ ] 1.3 category/securityの定義を追加
   - セキュリティ関連変更を示すカテゴリを定義
-  - パターン: **/auth**/**, **/*jwt*.ts, .env*, secrets/**, 等
+  - パターン: `**/auth*/**`, `**/*jwt*.ts`, `.env*`, `secrets/**`, 等
   - 多言語表示名（Security / セキュリティ）を追加
   - _Requirements: 2.5, 2.6, 3.4_
 
