@@ -18,10 +18,7 @@ depends = ["pnpm:format", "docs:fix"]
 run = "pnpm format"
 
 [tasks.lint]
-description = "コードとドキュメントのlint"
-depends = ["pnpm:lint", "docs:lint"]
-
-[tasks."pnpm:lint"]
+description = "コード品質チェック（ESLint + TypeScript + Prettier）"
 run = "pnpm lint"
 
 [tasks.test]
