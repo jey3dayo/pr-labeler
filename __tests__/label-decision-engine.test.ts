@@ -7,9 +7,10 @@ import {
   decideRiskLabel,
   decideSizeLabel,
 } from '../src/label-decision-engine';
-import { DEFAULT_LABELER_CONFIG } from '../src/labeler-types';
+import { DEFAULT_LABELER_CONFIG, type PRMetrics } from '../src/labeler-types';
 import {
   ciCdCategory,
+  defaultCategories,
   defaultComplexityThresholds,
   defaultRiskConfig,
   defaultSizeThresholds,
@@ -423,6 +424,123 @@ describe('Label Decision Engine', () => {
       const decisions = result._unsafeUnwrap();
       expect(decisions.labelsToAdd).toEqual([]);
       expect(decisions.reasoning).toEqual([]);
+    });
+  });
+
+  describe('decideCategoryLabels - New Categories', () => {
+    const categories = defaultCategories;
+
+    describe('category/feature', () => {
+      it('should apply category/feature for feature files', () => {
+        const files = ['src/features/auth.ts'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/feature');
+      });
+
+      it('should apply category/feature for component files', () => {
+        const files = ['src/components/Button.tsx'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/feature');
+      });
+
+      it('should not apply category/feature for test files', () => {
+        const files = ['src/components/Button.test.tsx'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).not.toContain('category/feature');
+        expect(result).toContain('category/tests');
+      });
+    });
+
+    describe('category/infrastructure', () => {
+      it('should apply category/infrastructure for GitHub workflows', () => {
+        const files = ['.github/workflows/ci.yml'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/infrastructure');
+      });
+
+      it('should apply category/infrastructure for Dockerfile', () => {
+        const files = ['Dockerfile'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/infrastructure');
+      });
+
+      it('should apply category/infrastructure for terraform files', () => {
+        const files = ['terraform/main.tf'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/infrastructure');
+      });
+
+      it('should apply category/infrastructure for k8s files', () => {
+        const files = ['k8s/deployment.yaml'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/infrastructure');
+      });
+    });
+
+    describe('category/security', () => {
+      it('should apply category/security for auth middleware', () => {
+        const files = ['src/lib/auth/middleware.ts'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/security');
+      });
+
+      it('should apply category/security for JWT utils', () => {
+        const files = ['src/utils/jwt.ts'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/security');
+      });
+
+      it('should apply category/security for .env files', () => {
+        const files = ['.env.local'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/security');
+      });
+
+      it('should apply category/security for secrets directory', () => {
+        const files = ['secrets/api-keys.json'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/security');
+      });
+    });
+
+    describe('Multiple categories integration', () => {
+      it('should apply multiple categories when multiple patterns match', () => {
+        const files = ['src/features/auth.ts', '.github/workflows/ci.yml', 'src/utils/jwt.ts', 'docs/README.md'];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/feature');
+        expect(result).toContain('category/infrastructure');
+        expect(result).toContain('category/security');
+        expect(result).toContain('category/documentation');
+        expect(result.length).toBeGreaterThanOrEqual(4);
+      });
+
+      it('should preserve existing category labels behavior', () => {
+        const files = [
+          '__tests__/foo.test.ts',
+          '.github/workflows/ci.yml',
+          'docs/README.md',
+          'package.json',
+          'tsconfig.json',
+          '.kiro/specs/feature.md',
+        ];
+        const result = decideCategoryLabels(files, categories);
+        expect(result).toContain('category/tests');
+        expect(result).toContain('category/ci-cd');
+        expect(result).toContain('category/documentation');
+        expect(result).toContain('category/dependencies');
+        expect(result).toContain('category/config');
+        expect(result).toContain('category/spec');
+      });
+
+      it('should follow additive policy - categories do not conflict', () => {
+        const files = ['src/features/profile.ts', '.github/workflows/deploy.yml'];
+        const result = decideCategoryLabels(files, categories);
+        // Both categories should be applied (additive policy)
+        expect(result).toContain('category/feature');
+        expect(result).toContain('category/infrastructure');
+        expect(result).toContain('category/ci-cd'); // .github/workflows/** matches both infrastructure and ci-cd
+        expect(result.length).toBe(3);
+      });
     });
   });
 });

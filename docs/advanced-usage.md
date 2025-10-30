@@ -317,6 +317,9 @@ size:
     xlarge: 1500   # Extra large PR threshold (default: 3000)
 
 # Category label settings
+
+See the [Category Guide](categories.md) for detailed information about default categories and custom category examples.
+
 categories:
   # Built-in categories (customizable)
   - label: "category/tests"

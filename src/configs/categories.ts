@@ -77,4 +77,50 @@ export const DEFAULT_CATEGORIES: CategoryConfig[] = [
       '**/Gemfile.lock',
     ],
   },
+  {
+    label: 'category/feature',
+    patterns: ['src/features/**', 'features/**', 'src/components/**'],
+    exclude: ['**/*.test.*', '**/*.spec.*', '**/__tests__/**'],
+    display_name: {
+      en: 'Feature',
+      ja: '新機能',
+    },
+  },
+  {
+    label: 'category/infrastructure',
+    patterns: [
+      '.github/**',
+      'Dockerfile*',
+      'docker-compose*',
+      'terraform/**',
+      '.mise.toml',
+      'mise.toml',
+      '.tool-versions',
+      'k8s/**',
+      'kubernetes/**',
+      'helm/**',
+      'ansible/**',
+    ],
+    display_name: {
+      en: 'Infrastructure',
+      ja: 'インフラ',
+    },
+  },
+  {
+    label: 'category/security',
+    patterns: [
+      '**/auth*/**',
+      '**/*auth*.ts',
+      '**/*auth*.js',
+      '**/*jwt*.ts',
+      '**/*session*.ts',
+      '**/*security*',
+      '.env*',
+      'secrets/**',
+    ],
+    display_name: {
+      en: 'Security',
+      ja: 'セキュリティ',
+    },
+  },
 ];

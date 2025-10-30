@@ -116,14 +116,19 @@ permissions:
 
 Automatically detect change types:
 
-| Label                    | Matches        | Example                |
-| ------------------------ | -------------- | ---------------------- |
-| `category/tests`         | Test files     | `**/*.test.ts`         |
-| `category/ci-cd`         | CI/CD configs  | `.github/workflows/**` |
-| `category/documentation` | Docs           | `docs/**`, `*.md`      |
-| `category/config`        | Config files   | `*.config.js`, `.env`  |
-| `category/spec`          | Specifications | `.kiro/specs/**`       |
-| `category/dependencies`  | Lock files     | `package-lock.json`    |
+| Label                     | Matches        | Example                    |
+| ------------------------- | -------------- | -------------------------- |
+| `category/tests`          | Test files     | `**/*.test.ts`             |
+| `category/ci-cd`          | CI/CD configs  | `.github/workflows/**`     |
+| `category/documentation`  | Docs           | `docs/**`, `*.md`          |
+| `category/config`         | Config files   | `*.config.js`, `.env`      |
+| `category/spec`           | Specifications | `.kiro/specs/**`           |
+| `category/dependencies`   | Lock files     | `package-lock.json`        |
+| `category/feature`        | New features   | `src/features/**`          |
+| `category/infrastructure` | Infrastructure | `Dockerfile`, `.github/**` |
+| `category/security`       | Security       | `**/auth*/**`, `.env*`     |
+
+See the [Category Guide](docs/categories.md) for detailed information about category labels.
 
 ### Risk Labels
 

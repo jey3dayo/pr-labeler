@@ -116,14 +116,19 @@ permissions:
 
 変更タイプを自動検出:
 
-| ラベル                   | マッチ対象     | 例                     |
-| ------------------------ | -------------- | ---------------------- |
-| `category/tests`         | テストファイル | `**/*.test.ts`         |
-| `category/ci-cd`         | CI/CD設定      | `.github/workflows/**` |
-| `category/documentation` | ドキュメント   | `docs/**`, `*.md`      |
-| `category/config`        | 設定ファイル   | `*.config.js`, `.env`  |
-| `category/spec`          | 仕様書         | `.kiro/specs/**`       |
-| `category/dependencies`  | ロックファイル | `package-lock.json`    |
+| ラベル                    | マッチ対象     | 例                         |
+| ------------------------- | -------------- | -------------------------- |
+| `category/tests`          | テストファイル | `**/*.test.ts`             |
+| `category/ci-cd`          | CI/CD設定      | `.github/workflows/**`     |
+| `category/documentation`  | ドキュメント   | `docs/**`, `*.md`          |
+| `category/config`         | 設定ファイル   | `*.config.js`, `.env`      |
+| `category/spec`           | 仕様書         | `.kiro/specs/**`           |
+| `category/dependencies`   | ロックファイル | `package-lock.json`        |
+| `category/feature`        | 新機能         | `src/features/**`          |
+| `category/infrastructure` | インフラ       | `Dockerfile`, `.github/**` |
+| `category/security`       | セキュリティ   | `**/auth*/**`, `.env*`     |
+
+カテゴリラベルの詳細については[カテゴリガイド](docs/categories.md)を参照してください。
 
 ### リスクラベル
 
