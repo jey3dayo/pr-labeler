@@ -381,7 +381,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run PR Labeler (self-check)
-        uses: jey3dayo/pr-labeler@main
+        uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           file_size_limit: "100KB"
