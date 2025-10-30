@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-10-30
+
+### Added
+
+- **Category Documentation**: Add comprehensive category guide (`docs/categories.md`)
+  - 9 categories overview table with patterns and descriptions
+  - Detailed explanation for each category
+  - Custom category creation guide with YAML examples
+  - Additive labeling policy explanation
+- **New Default Categories**: Add 3 new categories based on ASTA project experience
+  - `category/feature`: Detect feature files (`src/features/**`, `src/components/**`)
+  - `category/infrastructure`: Detect infrastructure files (`.github/**`, `Dockerfile`, `terraform/**`, `k8s/**`, etc.)
+  - `category/security`: Detect security-related files (`**/auth*/**`, `**/*jwt*.ts`, `.env*`, `secrets/**`, etc.)
+- **Cross-references**: Add links to category guide from existing documentation
+  - README.md, README.ja.md: Category labels section
+  - docs/configuration.md: Category configuration section
+  - docs/advanced-usage.md: Custom category section
+
+### Changed
+
+- Expand default categories from 6 to 9 types
+- Improve documentation structure with centralized category information
+
+### Fixed
+
+- Run self-check against current branch (#80)
+
 ## [1.1.0] - TBD
 
 ### Documentation
