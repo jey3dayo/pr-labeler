@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Violations } from '../src/errors';
 import type { AnalysisResult, FileMetrics } from '../src/file-metrics';
 import { changeLanguage, initializeI18n, resetI18n } from '../src/i18n';
-import type { ComplexityConfig, ComplexityMetrics } from '../src/labeler-types';
+import type { ComplexityConfig, ComplexityMetrics, LabelReasoning } from '../src/labeler-types';
 import type { SummaryContext } from '../src/report-formatter';
 import {
   escapeMarkdown,
@@ -15,6 +15,7 @@ import {
   formatFileAnalysis,
   formatFileDetails,
   formatImprovementActions,
+  formatLabelFileGroups,
   formatNumber,
   formatSummaryBasicMetrics,
   formatViolations,
@@ -1392,6 +1393,247 @@ describe('ReportFormatter', () => {
 
       // Reset to English for other tests
       changeLanguage('en');
+    });
+  });
+
+  describe('formatLabelFileGroups', () => {
+    const createFileMetrics = (): FileMetrics[] => [
+      { path: 'src/index.ts', size: 5000, lines: 150, additions: 100, deletions: 20 },
+      { path: 'src/utils.ts', size: 3000, lines: 80, additions: 50, deletions: 10 },
+      { path: '__tests__/test.ts', size: 2000, lines: 60, additions: 40, deletions: 5 },
+    ];
+
+    const createComplexityMetrics = (): ComplexityMetrics => ({
+      maxComplexity: 25,
+      avgComplexity: 15,
+      analyzedFiles: 2,
+      files: [
+        { path: 'src/index.ts', complexity: 25, functions: [] },
+        { path: 'src/utils.ts', complexity: 10, functions: [] },
+      ],
+      skippedFiles: [],
+      syntaxErrorFiles: [],
+      truncated: false,
+      hasTsconfig: true,
+    });
+
+    beforeEach(() => {
+      initializeI18n('en');
+      changeLanguage('en');
+    });
+
+    it('should return empty string when no reasoning provided', () => {
+      const result = formatLabelFileGroups([], createFileMetrics());
+      expect(result).toBe('');
+    });
+
+    it('should format category labels with matched files', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'category/tests',
+          reason: 'file patterns match category/tests category',
+          category: 'category',
+          matchedFiles: ['__tests__/test.ts'],
+        },
+        {
+          label: 'category/documentation',
+          reason: 'file patterns match category/documentation category',
+          category: 'category',
+          matchedFiles: ['docs/README.md', 'docs/guide.md'],
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics());
+
+      expect(result).toContain('### 🏷️ Applied Labels and Files');
+      expect(result).toContain('<details>');
+      expect(result).toContain('category/tests');
+      expect(result).toContain('1 file');
+      expect(result).toContain('`\\_\\_tests\\_\\_/test.ts`'); // Escaped underscores
+      expect(result).toContain('category/documentation');
+      expect(result).toContain('2 files');
+      expect(result).toContain('`docs/README.md`');
+      expect(result).toContain('`docs/guide.md`');
+    });
+
+    it('should format risk labels with reason and affected files', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'risk/high',
+          reason: 'core functionality changed without test files',
+          category: 'risk',
+          matchedFiles: ['src/index.ts', 'src/utils.ts'],
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics());
+
+      expect(result).toContain('risk/high');
+      expect(result).toContain('Reason');
+      expect(result).toContain('core functionality changed without test files');
+      expect(result).toContain('Affected Files');
+      expect(result).toContain('`src/index.ts`');
+      expect(result).toContain('`src/utils.ts`');
+    });
+
+    it('should format complexity labels with file complexity scores', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'complexity/high',
+          reason: 'max complexity (25) exceeds high threshold',
+          category: 'complexity',
+          matchedFiles: ['src/index.ts', 'src/utils.ts'],
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics(), createComplexityMetrics());
+
+      expect(result).toContain('complexity/high');
+      expect(result).toContain('High Complexity Files');
+      expect(result).toContain('src/index.ts');
+      expect(result).toContain('25');
+      expect(result).toContain('src/utils.ts');
+      expect(result).toContain('10');
+    });
+
+    it('should format size labels with total additions and top files', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'size/large',
+          reason: 'additions (500) falls in size/large range',
+          category: 'size',
+          matchedFiles: ['src/index.ts', 'src/utils.ts', '__tests__/test.ts'],
+        },
+      ];
+
+      const fileMetrics: FileMetrics[] = [
+        { path: 'src/index.ts', size: 5000, lines: 150, additions: 250, deletions: 20 },
+        { path: 'src/utils.ts', size: 3000, lines: 80, additions: 200, deletions: 10 },
+        { path: '__tests__/test.ts', size: 2000, lines: 60, additions: 50, deletions: 5 },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, fileMetrics);
+
+      expect(result).toContain('size/large');
+      expect(result).toContain('Total Additions');
+      expect(result).toContain('500');
+      expect(result).toContain('Analyzed Files');
+      expect(result).toContain('src/index.ts');
+      expect(result).toContain('+250');
+      expect(result).toContain('src/utils.ts');
+      expect(result).toContain('+200');
+    });
+
+    it('should handle labels without matchedFiles gracefully', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'category/tests',
+          reason: 'file patterns match category/tests category',
+          category: 'category',
+          // matchedFiles is undefined
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics());
+
+      expect(result).toContain('### 🏷️ Applied Labels and Files');
+      expect(result).not.toContain('category/tests'); // Should not render if no matchedFiles
+    });
+
+    it('should handle empty matchedFiles array', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'category/tests',
+          reason: 'file patterns match category/tests category',
+          category: 'category',
+          matchedFiles: [],
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics());
+
+      expect(result).toContain('### 🏷️ Applied Labels and Files');
+      expect(result).not.toContain('category/tests'); // Should not render if matchedFiles is empty
+    });
+
+    it('should group labels by category', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'size/medium',
+          reason: 'additions (250) falls in size/medium range',
+          category: 'size',
+          matchedFiles: ['src/index.ts'],
+        },
+        {
+          label: 'category/tests',
+          reason: 'file patterns match category/tests category',
+          category: 'category',
+          matchedFiles: ['__tests__/test.ts'],
+        },
+        {
+          label: 'complexity/high',
+          reason: 'max complexity (25) exceeds high threshold',
+          category: 'complexity',
+          matchedFiles: ['src/index.ts'],
+        },
+        {
+          label: 'risk/medium',
+          reason: 'configuration files changed',
+          category: 'risk',
+          matchedFiles: ['package.json'],
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics(), createComplexityMetrics());
+
+      // Check that all categories are present in order
+      const categoryIndex = result.indexOf('category/tests');
+      const riskIndex = result.indexOf('risk/medium');
+      const complexityIndex = result.indexOf('complexity/high');
+      const sizeIndex = result.indexOf('size/medium');
+
+      expect(categoryIndex).toBeGreaterThan(-1);
+      expect(riskIndex).toBeGreaterThan(-1);
+      expect(complexityIndex).toBeGreaterThan(-1);
+      expect(sizeIndex).toBeGreaterThan(-1);
+    });
+
+    it('should support Japanese localization', () => {
+      changeLanguage('ja');
+
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'category/tests',
+          reason: 'ファイルパターンが category/tests カテゴリに一致',
+          category: 'category',
+          matchedFiles: ['__tests__/test.ts'],
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics());
+
+      expect(result).toContain('適用されたラベルとファイル');
+      expect(result).toContain('category/tests');
+      expect(result).toContain('`\\_\\_tests\\_\\_/test.ts`'); // Escaped underscores
+
+      // Reset to English
+      changeLanguage('en');
+    });
+
+    it('should escape markdown special characters in file paths', () => {
+      const reasoning: LabelReasoning[] = [
+        {
+          label: 'category/tests',
+          reason: 'file patterns match category/tests category',
+          category: 'category',
+          matchedFiles: ['__tests__/special_file.test.ts', 'tests/[bracket].ts'],
+        },
+      ];
+
+      const result = formatLabelFileGroups(reasoning, createFileMetrics());
+
+      expect(result).toContain('special\\_file.test.ts');
+      expect(result).toContain('\\[bracket\\].ts');
     });
   });
 });

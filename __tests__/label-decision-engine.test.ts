@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   decideCategoryLabels,
+  decideCategoryLabelsWithFiles,
   decideComplexityLabel,
   decideLabels,
   decideRiskLabel,
@@ -543,6 +544,165 @@ describe('Label Decision Engine', () => {
         expect(result).not.toContain('category/infrastructure'); // .github/** removed from infrastructure
         expect(result.length).toBe(2);
       });
+    });
+  });
+
+  describe('decideCategoryLabelsWithFiles', () => {
+    const categories = [testCategory, ciCdCategory, docsCategory];
+
+    it('should return empty array for no matches', () => {
+      const files = ['src/index.ts', 'src/utils.ts'];
+      expect(decideCategoryLabelsWithFiles(files, categories)).toEqual([]);
+    });
+
+    it('should return single category label with matched files', () => {
+      const files = ['__tests__/foo.test.ts', '__tests__/bar.test.ts'];
+      const result = decideCategoryLabelsWithFiles(files, categories);
+      expect(result).toHaveLength(1);
+      expect(result[0]?.label).toBe('category/tests');
+      expect(result[0]?.matchedFiles).toEqual(['__tests__/foo.test.ts', '__tests__/bar.test.ts']);
+    });
+
+    it('should return multiple category labels with matched files', () => {
+      const files = ['__tests__/foo.test.ts', 'docs/README.md', '.github/workflows/ci.yml', 'src/index.ts'];
+      const result = decideCategoryLabelsWithFiles(files, categories);
+
+      expect(result).toHaveLength(3);
+
+      const testsResult = result.find(r => r.label === 'category/tests');
+      expect(testsResult?.matchedFiles).toEqual(['__tests__/foo.test.ts']);
+
+      const ciCdResult = result.find(r => r.label === 'category/ci-cd');
+      expect(ciCdResult?.matchedFiles).toEqual(['.github/workflows/ci.yml']);
+
+      const docsResult = result.find(r => r.label === 'category/documentation');
+      expect(docsResult?.matchedFiles).toEqual(['docs/README.md']);
+    });
+
+    it('should match glob patterns correctly', () => {
+      const files = ['src/components/Button.test.ts', 'src/utils/format.test.ts'];
+      const result = decideCategoryLabelsWithFiles(files, categories);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.label).toBe('category/tests');
+      expect(result[0]?.matchedFiles).toEqual(['src/components/Button.test.ts', 'src/utils/format.test.ts']);
+    });
+
+    it('should respect exclude patterns', () => {
+      const categoriesWithExclude = [
+        {
+          label: 'category/source',
+          patterns: ['src/**/*.ts'],
+          exclude: ['**/*.test.ts'],
+        },
+      ];
+
+      const files = ['src/index.ts', 'src/utils.test.ts', 'src/components/Button.ts'];
+      const result = decideCategoryLabelsWithFiles(files, categoriesWithExclude);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.label).toBe('category/source');
+      expect(result[0]?.matchedFiles).toEqual(['src/index.ts', 'src/components/Button.ts']);
+      expect(result[0]?.matchedFiles).not.toContain('src/utils.test.ts');
+    });
+
+    it('should handle multiple files matching the same category', () => {
+      const files = ['docs/README.md', 'docs/guide.md', 'docs/api/index.md'];
+      const result = decideCategoryLabelsWithFiles(files, categories);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.label).toBe('category/documentation');
+      expect(result[0]?.matchedFiles).toEqual(['docs/README.md', 'docs/guide.md', 'docs/api/index.md']);
+    });
+  });
+
+  describe('decideLabels - matchedFiles validation', () => {
+    const config = DEFAULT_LABELER_CONFIG;
+
+    it('should include matchedFiles for size label', () => {
+      const metrics: PRMetrics = {
+        totalAdditions: 250,
+        excludedAdditions: 0,
+        files: [
+          { path: 'src/file1.ts', size: 5000, lines: 150, additions: 150, deletions: 20 },
+          { path: 'src/file2.ts', size: 3000, lines: 80, additions: 100, deletions: 10 },
+        ],
+        allFiles: ['src/file1.ts', 'src/file2.ts'],
+      };
+
+      const result = decideLabels(metrics, config);
+      const decisions = result._unsafeUnwrap();
+
+      const sizeReasoning = decisions.reasoning.find(r => r.category === 'size');
+      expect(sizeReasoning).toBeDefined();
+      expect(sizeReasoning?.matchedFiles).toEqual(['src/file1.ts', 'src/file2.ts']);
+    });
+
+    it('should include matchedFiles for complexity label', () => {
+      const metrics: PRMetrics = {
+        totalAdditions: 120,
+        excludedAdditions: 0,
+        files: [{ path: 'src/complex.ts', size: 5000, lines: 150, additions: 120, deletions: 10 }],
+        allFiles: ['src/complex.ts'],
+        complexity: {
+          maxComplexity: 25,
+          avgComplexity: 25,
+          analyzedFiles: 1,
+          files: [{ path: 'src/complex.ts', complexity: 25, functions: [] }],
+          skippedFiles: [],
+          syntaxErrorFiles: [],
+          truncated: false,
+          hasTsconfig: true,
+        },
+      };
+
+      const result = decideLabels(metrics, config);
+      const decisions = result._unsafeUnwrap();
+
+      const complexityReasoning = decisions.reasoning.find(r => r.category === 'complexity');
+      expect(complexityReasoning).toBeDefined();
+      expect(complexityReasoning?.matchedFiles).toContain('src/complex.ts');
+    });
+
+    it('should include matchedFiles for category labels', () => {
+      const metrics: PRMetrics = {
+        totalAdditions: 100,
+        excludedAdditions: 0,
+        files: [{ path: '__tests__/test.test.ts', size: 3000, lines: 80, additions: 100, deletions: 10 }],
+        allFiles: ['__tests__/test.test.ts', 'docs/README.md'],
+      };
+
+      const result = decideLabels(metrics, config);
+      const decisions = result._unsafeUnwrap();
+
+      const categoryReasoning = decisions.reasoning.filter(r => r.category === 'category');
+      expect(categoryReasoning.length).toBeGreaterThan(0);
+
+      const testsReasoning = categoryReasoning.find(r => r.label === 'category/tests');
+      expect(testsReasoning?.matchedFiles).toEqual(['__tests__/test.test.ts']);
+
+      const docsReasoning = categoryReasoning.find(r => r.label === 'category/documentation');
+      expect(docsReasoning?.matchedFiles).toEqual(['docs/README.md']);
+    });
+
+    it('should include matchedFiles for risk label', () => {
+      const metrics: PRMetrics = {
+        totalAdditions: 100,
+        excludedAdditions: 0,
+        files: [
+          { path: 'src/core.ts', size: 5000, lines: 150, additions: 80, deletions: 10 },
+          { path: 'package.json', size: 2000, lines: 50, additions: 20, deletions: 5 },
+        ],
+        allFiles: ['src/core.ts', 'package.json'],
+      };
+
+      const result = decideLabels(metrics, config);
+      const decisions = result._unsafeUnwrap();
+
+      const riskReasoning = decisions.reasoning.find(r => r.category === 'risk');
+      expect(riskReasoning).toBeDefined();
+      expect(riskReasoning?.matchedFiles).toContain('src/core.ts');
+      expect(riskReasoning?.matchedFiles).toContain('package.json');
     });
   });
 });
