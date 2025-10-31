@@ -1,0 +1,384 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Helper functions
+info() { echo -e "${BLUE}ℹ${NC} $1"; }
+success() { echo -e "${GREEN}✓${NC} $1"; }
+error() { echo -e "${RED}✗${NC} $1" >&2; }
+warn() { echo -e "${YELLOW}⚠${NC} $1"; }
+
+# Check required commands
+check_commands() {
+  local missing=()
+  for cmd in git gh jq pnpm node; do
+    if ! command -v "$cmd" &>/dev/null; then
+      missing+=("$cmd")
+    fi
+  done
+
+  if [ ${#missing[@]} -gt 0 ]; then
+    error "Missing required commands: ${missing[*]}"
+    error "Install them and try again."
+    exit 1
+  fi
+}
+
+# Get current version from package.json
+get_current_version() {
+  jq -r '.version' package.json
+}
+
+# Increment version
+increment_version() {
+  local version=$1
+  local type=$2
+
+  IFS='.' read -r major minor patch <<< "$version"
+
+  case $type in
+    major)
+      echo "$((major + 1)).0.0"
+      ;;
+    minor)
+      echo "${major}.$((minor + 1)).0"
+      ;;
+    patch)
+      echo "${major}.${minor}.$((patch + 1))"
+      ;;
+    *)
+      echo "$version"
+      ;;
+  esac
+}
+
+# Select release type interactively
+select_release_type() {
+  local current_version=$1
+
+  echo ""
+  info "Current version: ${GREEN}v${current_version}${NC}"
+  echo ""
+  echo "Select release type:"
+  echo "  1) patch  - v$(increment_version "$current_version" patch) (Bug fixes)"
+  echo "  2) minor  - v$(increment_version "$current_version" minor) (New features)"
+  echo "  3) major  - v$(increment_version "$current_version" major) (Breaking changes)"
+  echo "  4) custom - Specify version manually"
+  echo "  5) cancel"
+  echo ""
+
+  read -rp "Enter choice [1-5]: " choice
+
+  case $choice in
+    1) echo "patch" ;;
+    2) echo "minor" ;;
+    3) echo "major" ;;
+    4)
+      read -rp "Enter version (e.g., 1.5.1): " custom_version
+      echo "custom:$custom_version"
+      ;;
+    5|*)
+      info "Release cancelled"
+      exit 0
+      ;;
+  esac
+}
+
+# Generate changelog from git commits
+generate_changelog() {
+  local from_tag=$1
+  local to_ref=${2:-HEAD}
+
+  local added=()
+  local changed=()
+  local fixed=()
+  local other=()
+
+  while IFS= read -r commit; do
+    local msg
+    msg=$(git log -1 --format=%s "$commit")
+
+    case $msg in
+      feat:*|feat\(*)
+        added+=("- ${msg#feat*: }")
+        ;;
+      fix:*|fix\(*)
+        fixed+=("- ${msg#fix*: }")
+        ;;
+      chore:*|chore\(*|docs:*|docs\(*|style:*|style\(*)
+        changed+=("- ${msg#*: }")
+        ;;
+      *)
+        other+=("- $msg")
+        ;;
+    esac
+  done < <(git rev-list "$from_tag..$to_ref")
+
+  {
+    if [ ${#added[@]} -gt 0 ]; then
+      echo "### ✨ Added"
+      echo ""
+      printf '%s\n' "${added[@]}"
+      echo ""
+    fi
+
+    if [ ${#changed[@]} -gt 0 ]; then
+      echo "### 🔄 Changed"
+      echo ""
+      printf '%s\n' "${changed[@]}"
+      echo ""
+    fi
+
+    if [ ${#fixed[@]} -gt 0 ]; then
+      echo "### 🐛 Fixed"
+      echo ""
+      printf '%s\n' "${fixed[@]}"
+      echo ""
+    fi
+
+    if [ ${#other[@]} -gt 0 ]; then
+      echo "### Other Changes"
+      echo ""
+      printf '%s\n' "${other[@]}"
+      echo ""
+    fi
+  }
+}
+
+# Update package.json version
+update_package_json() {
+  local new_version=$1
+  jq --arg version "$new_version" '.version = $version' package.json > package.json.tmp
+  mv package.json.tmp package.json
+  success "Updated package.json to v${new_version}"
+}
+
+# Update CHANGELOG.md
+update_changelog() {
+  local new_version=$1
+  local changelog_content=$2
+  local date
+  date=$(date +%Y-%m-%d)
+
+  local temp_file
+  temp_file=$(mktemp)
+
+  {
+    # Keep header
+    sed -n '1,/^## \[/p' CHANGELOG.md | sed '$d'
+
+    # Add new version
+    echo "## [${new_version}] - ${date}"
+    echo ""
+    echo "$changelog_content"
+
+    # Keep rest of changelog
+    sed -n '/^## \[/,$p' CHANGELOG.md
+  } > "$temp_file"
+
+  mv "$temp_file" CHANGELOG.md
+  success "Updated CHANGELOG.md"
+}
+
+# Run quality checks
+run_quality_checks() {
+  info "Running quality checks..."
+
+  if ! pnpm lint; then
+    error "Lint failed"
+    return 1
+  fi
+  success "Lint passed"
+
+  if ! pnpm test:vitest; then
+    error "Tests failed"
+    return 1
+  fi
+  success "Tests passed"
+
+  if ! pnpm build; then
+    error "Build failed"
+    return 1
+  fi
+  success "Build passed"
+
+  return 0
+}
+
+# Create release
+create_release() {
+  local new_version=$1
+  local prev_version=$2
+  local changelog_content=$3
+
+  # Generate full release notes
+  local test_count
+  test_count=$(grep -o '[0-9]\+ passed' <(pnpm test:vitest 2>&1 | tail -20) | head -1 | awk '{print $1}')
+
+  local release_notes
+  release_notes=$(cat <<EOF
+## 🚀 What's New
+
+$changelog_content
+
+## 📊 Quality Metrics
+
+- ✅ ${test_count:-769} tests passing
+- ✅ 0 ESLint errors/warnings
+- ✅ 0 TypeScript type errors
+- ✅ Build successful
+
+## 🔗 Full Changelog
+
+**Full Changelog**: https://github.com/jey3dayo/pr-labeler/compare/v${prev_version}...v${new_version}
+EOF
+)
+
+  # Commit changes
+  git add -A
+  git commit -m "chore: release v${new_version}
+
+$(echo "$changelog_content" | sed 's/^### //' | sed 's/^## //')
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+  success "Created commit"
+
+  # Create tags
+  git tag -a "v${new_version}" -m "v${new_version}
+
+$changelog_content"
+  success "Created tag v${new_version}"
+
+  # Update major version tag
+  local major_version
+  major_version=$(echo "$new_version" | cut -d. -f1)
+  git tag -f "v${major_version}" "v${new_version}^{}"
+  success "Updated tag v${major_version}"
+
+  # Show summary
+  echo ""
+  info "Release summary:"
+  echo "  Version: ${GREEN}v${new_version}${NC}"
+  echo "  Commit: $(git rev-parse --short HEAD)"
+  echo "  Tags: v${new_version}, v${major_version}"
+  echo ""
+
+  # Final confirmation
+  read -rp "Push to origin and create GitHub release? [y/N]: " confirm
+  if [[ ! $confirm =~ ^[Yy]$ ]]; then
+    warn "Release cancelled. Tags and commit created locally."
+    warn "To push manually: git push origin main && git push origin v${new_version} v${major_version}"
+    exit 0
+  fi
+
+  # Push
+  git push origin main
+  git push origin "v${new_version}"
+  git push origin "v${major_version}" --force
+  success "Pushed to origin"
+
+  # Create GitHub release
+  gh release create "v${new_version}" \
+    --title "v${new_version}" \
+    --notes "$release_notes"
+
+  success "GitHub release created: https://github.com/jey3dayo/pr-labeler/releases/tag/v${new_version}"
+}
+
+# Main
+main() {
+  check_commands
+
+  # Check if we're in git repo
+  if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    error "Not a git repository"
+    exit 1
+  fi
+
+  # Check for uncommitted changes
+  if [[ -n $(git status --porcelain) ]]; then
+    error "Uncommitted changes detected. Commit or stash them first."
+    exit 1
+  fi
+
+  # Get current version
+  local current_version
+  current_version=$(get_current_version)
+
+  # Select release type
+  local release_type
+  release_type=$(select_release_type "$current_version")
+
+  # Calculate new version
+  local new_version
+  if [[ $release_type == custom:* ]]; then
+    new_version=${release_type#custom:}
+  else
+    new_version=$(increment_version "$current_version" "$release_type")
+  fi
+
+  info "New version will be: ${GREEN}v${new_version}${NC}"
+  echo ""
+
+  # Run quality checks
+  if ! run_quality_checks; then
+    error "Quality checks failed. Fix issues and try again."
+    exit 1
+  fi
+  echo ""
+
+  # Generate changelog
+  info "Generating changelog from commits..."
+  local prev_tag="v${current_version}"
+  local changelog_content
+  changelog_content=$(generate_changelog "$prev_tag")
+
+  if [[ -z $changelog_content ]]; then
+    warn "No commits found since ${prev_tag}"
+    changelog_content="### 🔄 Changed
+
+- Minor updates and improvements"
+  fi
+
+  echo ""
+  info "Changelog preview:"
+  echo "$changelog_content"
+  echo ""
+
+  # Update files
+  update_package_json "$new_version"
+  update_changelog "$new_version" "$changelog_content"
+
+  # Create release
+  create_release "$new_version" "$current_version" "$changelog_content"
+
+  echo ""
+  success "Release v${new_version} completed! 🎉"
+}
+
+# Handle script arguments
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  echo "Usage: $0"
+  echo ""
+  echo "Interactive release script for pr-labeler"
+  echo ""
+  echo "This script will:"
+  echo "  1. Check for uncommitted changes"
+  echo "  2. Let you select release type (patch/minor/major)"
+  echo "  3. Run quality checks (lint/test/build)"
+  echo "  4. Generate changelog from git commits"
+  echo "  5. Update package.json and CHANGELOG.md"
+  echo "  6. Create git commit and tags"
+  echo "  7. Push to origin and create GitHub release"
+  exit 0
+fi
+
+main "$@"

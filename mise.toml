@@ -107,3 +107,12 @@ run = ['rm -rf node_modules', 'rm -f pnpm-lock.yaml']
 [tasks."pre-commit"]
 description = "コミット前の自動チェックと修正"
 depends = ["format", "quick"]
+
+# === リリース ===
+[tasks.release]
+description = "対話的リリースプロセス実行（バージョン選択、品質チェック、タグ作成、GitHub Release）"
+run = "bash scripts/release.sh"
+
+[tasks."release:help"]
+description = "リリーススクリプトのヘルプを表示"
+run = "bash scripts/release.sh --help"

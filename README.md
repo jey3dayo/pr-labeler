@@ -217,8 +217,32 @@ When limits exceeded:
 Contributions welcome! Please:
 
 1. Open an issue for major changes
-2. Ensure all tests pass
+2. Ensure all tests pass (`pnpm test`)
 3. Follow existing code style
+
+### For Maintainers: Releasing
+
+Use the automated release script:
+
+```bash
+# Interactive release with version selection
+mise release
+
+# Or directly
+bash scripts/release.sh
+```
+
+The script will:
+
+1. Check for uncommitted changes
+2. Let you select release type (patch/minor/major)
+3. Run quality checks (lint/test/build)
+4. Generate changelog from git commits
+5. Update package.json and CHANGELOG.md
+6. Create git commit and tags
+7. Push to origin and create GitHub release
+
+See [Release Process](docs/release-process.md) for details.
 
 ## 📄 License
 
