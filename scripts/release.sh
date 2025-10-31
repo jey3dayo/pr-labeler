@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Helper functions
-info() { printf "${BLUE}ℹ${NC} %s\n" "$1"; }
-success() { printf "${GREEN}✓${NC} %s\n" "$1"; }
-error() { printf "${RED}✗${NC} %s\n" "$1" >&2; }
-warn() { printf "${YELLOW}⚠${NC} %s\n" "$1"; }
+# Helper functions (no colors for compatibility)
+info() { echo "ℹ $1"; }
+success() { echo "✓ $1"; }
+error() { echo "✗ $1" >&2; }
+warn() { echo "⚠ $1"; }
 
 # Check required commands
 check_commands() {
@@ -62,16 +55,16 @@ increment_version() {
 select_release_type() {
   local current_version=$1
 
-  printf "\n"
-  printf "${BLUE}ℹ${NC} Current version: ${GREEN}v%s${NC}\n" "$current_version"
-  printf "\n"
-  printf "Select release type:\n"
-  printf "  1) patch  - v%s (Bug fixes)\n" "$(increment_version "$current_version" patch)"
-  printf "  2) minor  - v%s (New features)\n" "$(increment_version "$current_version" minor)"
-  printf "  3) major  - v%s (Breaking changes)\n" "$(increment_version "$current_version" major)"
-  printf "  4) custom - Specify version manually\n"
-  printf "  5) cancel\n"
-  printf "\n"
+  echo ""
+  echo "ℹ Current version: v${current_version}"
+  echo ""
+  echo "Select release type:"
+  echo "  1) patch  - v$(increment_version "$current_version" patch) (Bug fixes)"
+  echo "  2) minor  - v$(increment_version "$current_version" minor) (New features)"
+  echo "  3) major  - v$(increment_version "$current_version" major) (Breaking changes)"
+  echo "  4) custom - Specify version manually"
+  echo "  5) cancel"
+  echo ""
 
   read -rp "Enter choice [1-5]: " choice
 
@@ -266,7 +259,7 @@ $changelog_content"
   # Show summary
   echo ""
   info "Release summary:"
-  echo "  Version: ${GREEN}v${new_version}${NC}"
+  echo "  Version: v${new_version}"
   echo "  Commit: $(git rev-parse --short HEAD)"
   echo "  Tags: v${new_version}, v${major_version}"
   echo ""
@@ -325,7 +318,7 @@ main() {
     new_version=$(increment_version "$current_version" "$release_type")
   fi
 
-  info "New version will be: ${GREEN}v${new_version}${NC}"
+  info "New version will be: v${new_version}"
   echo ""
 
   # Run quality checks
