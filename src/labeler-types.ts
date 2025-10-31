@@ -108,6 +108,7 @@ export interface LabelReasoning {
   label: string;
   reason: string; // 例: "additions (1234) exceeds large threshold (1000)"
   category: 'size' | 'complexity' | 'category' | 'risk';
+  matchedFiles?: string[]; // ラベルに対応するファイルリスト
 }
 
 /**

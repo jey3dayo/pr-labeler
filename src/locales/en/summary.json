@@ -119,6 +119,14 @@
     "applied": "Applied Labels",
     "noLabels": "No labels applied"
   },
+  "labelFileGroups": {
+    "title": "Applied Labels and Files",
+    "reason": "Reason",
+    "affectedFiles": "Affected Files",
+    "totalAdditions": "Total Additions",
+    "analyzedFiles": "Analyzed Files",
+    "highComplexityFiles": "High Complexity Files"
+  },
   "improvementActions": {
     "title": "Improvement Actions",
     "intro": "Here are some ways to reduce your PR size:",

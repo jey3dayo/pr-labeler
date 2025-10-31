@@ -1,6 +1,6 @@
 import type { CompleteConfig } from '../config-builder.js';
 import type { DiffFile } from '../diff-strategy';
-import type { ComplexityMetrics, LabelerConfig } from '../labeler-types';
+import type { ComplexityMetrics, LabelDecisions, LabelerConfig } from '../labeler-types';
 import type { AnalysisResult } from '../types/analysis.js';
 
 /**
@@ -34,4 +34,5 @@ export interface AnalysisArtifacts {
   analysis: AnalysisResult;
   hasViolations: boolean;
   complexityMetrics?: ComplexityMetrics;
+  labelDecisions?: LabelDecisions;
 }

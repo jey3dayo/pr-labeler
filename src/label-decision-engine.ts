@@ -39,6 +39,7 @@ export function decideLabels(
       label: sizeLabel,
       reason: `additions (${metrics.totalAdditions}) falls in ${sizeLabel} range`,
       category: 'size',
+      matchedFiles: metrics.files.map(f => f.path),
     });
   }
 
@@ -51,6 +52,9 @@ export function decideLabels(
         label: complexityLabel,
         reason: `max complexity (${metrics.complexity.maxComplexity}) exceeds ${complexityLabel.split('/')[1]} threshold`,
         category: 'complexity',
+        matchedFiles: metrics.complexity.files
+          .filter(f => f.complexity >= config.complexity.thresholds.medium)
+          .map(f => f.path),
       });
     }
   }
@@ -59,35 +63,30 @@ export function decideLabels(
   if (config.categoryLabeling.enabled) {
     // カテゴリラベル判定には全ファイル（除外前）を使用
     // これにより .kiro/ などの除外ファイルもカテゴリとして認識される
-    const categoryLabels = decideCategoryLabels(metrics.allFiles, config.categories);
-    labelsToAdd.push(...categoryLabels);
-    for (const label of categoryLabels) {
+    const categoryResults = decideCategoryLabelsWithFiles(metrics.allFiles, config.categories);
+    labelsToAdd.push(...categoryResults.map(r => r.label));
+    for (const result of categoryResults) {
       reasoning.push({
-        label,
-        reason: `file patterns match ${label} category`,
+        label: result.label,
+        reason: `file patterns match ${result.label} category`,
         category: 'category',
+        matchedFiles: result.matchedFiles,
       });
     }
   }
 
   // 4. Decide risk label (if enabled)
   if (config.risk.enabled) {
-    const riskLabel = decideRiskLabel(
-      metrics.files.map(f => f.path),
-      config.risk,
-      prContext,
-    );
+    const files = metrics.files.map(f => f.path);
+    const riskLabel = decideRiskLabel(files, config.risk, prContext);
     if (riskLabel) {
       labelsToAdd.push(riskLabel);
+      const riskFiles = getRiskAffectedFiles(files, config.risk);
       reasoning.push({
         label: riskLabel,
-        reason: getRiskReason(
-          metrics.files.map(f => f.path),
-          config.risk,
-          riskLabel,
-          prContext,
-        ),
+        reason: getRiskReason(files, config.risk, riskLabel, prContext),
         category: 'risk',
+        matchedFiles: riskFiles,
       });
     }
   }
@@ -170,6 +169,45 @@ export function decideCategoryLabels(
   }
 
   return matchedLabels;
+}
+
+/**
+ * Decide category labels with matched files
+ *
+ * @param files - List of changed file paths
+ * @param categories - Category configuration
+ * @returns List of category labels with matched files
+ */
+export function decideCategoryLabelsWithFiles(
+  files: string[],
+  categories: Array<{ label: string; patterns: string[]; exclude?: string[] }>,
+): Array<{ label: string; matchedFiles: string[] }> {
+  const results: Array<{ label: string; matchedFiles: string[] }> = [];
+
+  for (const category of categories) {
+    const matchedFiles = files.filter(file => {
+      // パターンにマッチするかチェック
+      const matchesPattern = category.patterns.some(pattern => minimatch(file, pattern));
+      if (!matchesPattern) {
+        return false;
+      }
+
+      // 除外パターンがある場合、除外パターンにマッチしないことを確認
+      if (category.exclude) {
+        const matchesExclude = category.exclude.some(pattern => minimatch(file, pattern));
+        if (matchesExclude) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+    if (matchedFiles.length > 0) {
+      results.push({ label: category.label, matchedFiles });
+    }
+  }
+
+  return results;
 }
 
 /**
@@ -360,6 +398,28 @@ function getRiskReason(files: string[], config: RiskEvaluationConfig, label: str
   }
 
   return 'unknown risk condition';
+}
+
+/**
+ * Get files affected by risk factors
+ *
+ * @param files - List of changed file paths
+ * @param config - Risk configuration (core_paths and config_files)
+ * @returns List of files that contributed to risk assessment
+ */
+function getRiskAffectedFiles(files: string[], config: { core_paths: string[]; config_files: string[] }): string[] {
+  const affectedFiles: string[] = [];
+
+  // Core files
+  const coreFiles = files.filter(f => config.core_paths.some(pattern => minimatch(f, pattern)));
+  affectedFiles.push(...coreFiles);
+
+  // Config files
+  const configFiles = files.filter(f => config.config_files.some(pattern => minimatch(f, pattern)));
+  affectedFiles.push(...configFiles);
+
+  // Remove duplicates and return
+  return Array.from(new Set(affectedFiles));
 }
 
 /**
