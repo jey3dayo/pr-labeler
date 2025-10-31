@@ -132,10 +132,22 @@ permissions:
 
 ### リスクラベル
 
-潜在的な問題を警告:
+PR変更の潜在的な影響と安全性を評価:
 
-- `risk/high` - テスト更新を伴わないコア変更
-- `risk/medium` - 設定やインフラの変更
+- `risk/high` - 慎重なレビューが必要な高リスク変更
+  - CIチェック失敗（tests、type-check、build、lint）
+  - テストファイルを含まないコア機能の新規追加
+- `risk/medium` - 注意が必要な中リスク変更
+  - 設定ファイルの変更（`.github/workflows/**`、`package.json`、`tsconfig.json`）
+  - インフラやデプロイメント関連の変更
+
+**リスクラベルなし** (安全な変更):
+
+- 全CIチェックが成功したリファクタリング
+- ドキュメント専用の変更
+- テスト専用の変更
+
+詳細な評価ロジックとFAQは [リスクラベル詳細](docs/configuration.md#risk-labels) を参照してください。
 
 ### 違反ラベル
 
@@ -143,8 +155,8 @@ permissions:
 
 - `auto/large-files` - 個別ファイルが大きすぎる
 - `auto/too-many-files` - 変更ファイル数が多すぎる
-- `auto:too-many-lines` - 個別ファイルが設定行数を超過
-- `auto:excessive-changes` - 追加行数合計が閾値を超過
+- `auto/too-many-lines` - 個別ファイルが設定行数を超過
+- `auto/excessive-changes` - 追加行数合計が閾値を超過
 
 **カスタマイズ**: すべての閾値とラベルは設定可能。詳細は [設定ガイド](docs/configuration.md#label-thresholds-defaults) を参照。
 

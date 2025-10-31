@@ -118,7 +118,7 @@ graph TB
 ```yaml
 # 削除前(lines 31-34)
 apply_labels:
-  description: "Apply labels to PR (auto: prefixed labels)"
+  description: "Apply labels to PR (auto/ prefixed labels)"
   required: false
   default: "true"
 ```

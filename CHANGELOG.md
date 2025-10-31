@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-31
+
+### Added
+
+- **DEFAULT_CATEGORIES Fallback**: Automatically use 9 default categories when `.github/directory-labeler.yml` is missing
+  - Converts `CategoryConfig[]` to `DirectoryLabelerConfig` format
+  - Includes: tests, ci-cd, documentation, config, spec, dependencies, feature, infrastructure, security
+  - New conversion function: `convertCategoriesToDirectoryConfig()`
+- **Risk Assessment Documentation**: Comprehensive risk label evaluation guide
+  - Detailed label application rules in `docs/configuration.md`
+  - FAQ section explaining `risk/medium` for config changes
+  - Enhanced README.md and README.ja.md with risk criteria
+  - Inline code comments in `src/label-decision-engine.ts`
+- **Test Coverage**: New test file for conversion function with 7 test cases
+
+### Changed
+
+- **Directory-Based Labeling**: Enable by default (`enable_directory_labeling: true`)
+  - Previously required explicit opt-in
+  - Now works out-of-the-box with default categories
+- **Label Prefix Unification**: Standardize all auto labels to use `/` separator
+  - `auto:large-files` → `auto/large-files`
+  - `auto:too-many-files` → `auto/too-many-files`
+  - `auto:too-many-lines` → `auto/too-many-lines`
+  - `auto:excessive-changes` → `auto/excessive-changes`
+  - Updated in action.yml defaults and all documentation
+
+### Fixed
+
+- Import order in `src/workflow/stages/labeling.ts` (ESLint)
+
 ## [1.4.0] - 2025-10-30
 
 ### Added

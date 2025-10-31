@@ -42,6 +42,7 @@
   "directoryLabeling": {
     "starting": "Starting Directory-Based Labeling...",
     "configNotFound": "Configuration file not found: {{path}}",
+    "usingDefaultCategories": "Using default categories as fallback",
     "skipped": "Skipping directory-based labeling",
     "configLoadFailed": "Failed to load configuration: {{message}}",
     "decideFailed": "Failed to decide labels: {{message}}",

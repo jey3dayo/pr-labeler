@@ -132,10 +132,22 @@ See the [Category Guide](docs/categories.md) for detailed information about cate
 
 ### Risk Labels
 
-Flag potential issues:
+Assess the potential impact and safety of PR changes:
 
-- `risk/high` - Core changes without corresponding test updates
-- `risk/medium` - Configuration or infrastructure changes
+- `risk/high` - High-risk changes requiring careful review
+  - CI checks failed (tests, type-check, build, or lint)
+  - New features in core code without test files
+- `risk/medium` - Medium-risk changes requiring attention
+  - Configuration file changes (`.github/workflows/**`, `package.json`, `tsconfig.json`)
+  - Infrastructure or deployment changes
+
+**No risk label** applied for safe changes:
+
+- Refactoring with all CI checks passing
+- Documentation-only changes
+- Test-only changes
+
+See [Risk Label Details](docs/configuration.md#risk-labels) for complete evaluation logic and FAQ.
 
 ### Violation Labels
 
@@ -143,8 +155,8 @@ When limits exceeded:
 
 - `auto/large-files` - Individual files too large
 - `auto/too-many-files` - Too many files changed
-- `auto:too-many-lines` - Individual files exceed configured line limits
-- `auto:excessive-changes` - Total additions exceed configured thresholds
+- `auto/too-many-lines` - Individual files exceed configured line limits
+- `auto/excessive-changes` - Total additions exceed configured thresholds
 
 **Customize**: All thresholds and labels configurable. See [Configuration Guide](docs/configuration.md#label-thresholds-defaults).
 

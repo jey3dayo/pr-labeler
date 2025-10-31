@@ -2,6 +2,8 @@ import * as github from '@actions/github';
 
 import { logDebugI18n, logErrorI18n, logInfoI18n, logWarning, logWarningI18n } from '../../actions-io';
 import { getCIStatus } from '../../ci-status.js';
+import { DEFAULT_CATEGORIES } from '../../configs/categories.js';
+import { convertCategoriesToDirectoryConfig } from '../../directory-labeler/category-to-directory-config.js';
 import { loadDirectoryLabelerConfig } from '../../directory-labeler/config-loader.js';
 import { decideLabelsForFiles, filterByMaxLabels } from '../../directory-labeler/decision-engine.js';
 import { applyDirectoryLabels } from '../../directory-labeler/label-applicator.js';
@@ -131,18 +133,21 @@ export function applyLabelsStage(
       logInfoI18n('directoryLabeling.starting');
       const dirConfigResult = loadDirectoryLabelerConfig(config.directoryLabelerConfigPath);
 
+      let dirConfig;
       if (dirConfigResult.isErr()) {
         if (dirConfigResult.error.type === 'FileSystemError') {
+          // Configuration file not found, use DEFAULT_CATEGORIES as fallback
           logInfoI18n('directoryLabeling.configNotFound', { path: config.directoryLabelerConfigPath });
-          logInfoI18n('directoryLabeling.skipped');
+          logInfoI18n('directoryLabeling.usingDefaultCategories');
+          dirConfig = convertCategoriesToDirectoryConfig(DEFAULT_CATEGORIES);
         } else {
           logWarningI18n('directoryLabeling.configLoadFailed', { message: dirConfigResult.error.message });
           logInfoI18n('directoryLabeling.skipped');
+          return;
         }
-        return;
+      } else {
+        dirConfig = dirConfigResult.value;
       }
-
-      const dirConfig = dirConfigResult.value;
       dirConfig.useDefaultExcludes = config.useDefaultExcludes;
 
       const fileList = files.map(file => file.filename);

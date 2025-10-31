@@ -251,6 +251,16 @@ type RiskEvaluationConfig = Pick<
  * Evaluate risk based on file changes, CI status, and commit messages
  * Combines label decision and reason generation
  *
+ * Risk evaluation logic:
+ * 1. CI Status-based evaluation (when available):
+ *    - risk/high: CI checks failed
+ *    - No label: Refactoring with all CI passed
+ *    - risk/high: New feature without tests in core paths
+ * 2. Fallback evaluation (no CI status):
+ *    - risk/high: Core changes without test files
+ *    - risk/medium: Configuration file changes (.github/workflows/**, package.json, etc.)
+ *    - No label: Safe changes (docs, tests, refactoring)
+ *
  * @param files - List of changed file paths
  * @param config - Risk configuration
  * @param prContext - Optional PR context with CI status and commit messages
@@ -265,6 +275,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     const ciStatus = prContext.ciStatus;
 
     // High risk: CI checks failed
+    // Any CI failure (tests, type-check, build, lint) indicates potential issues
     if (anyCIFailed(ciStatus)) {
       return {
         label: RISK_LABELS.high,
@@ -272,10 +283,11 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
       };
     }
 
-    // Detect change type from commit messages
+    // Detect change type from commit messages (feat:, refactor:, docs:, etc.)
     const changeType = prContext.commitMessages ? detectChangeType(prContext.commitMessages) : 'unknown';
 
     // Low risk: Refactoring with all CI passed
+    // Safe refactoring is indicated by all CI passing + refactor: commit prefix
     if (changeType === 'refactor' && allCIPassed(ciStatus)) {
       return {
         label: null,
@@ -284,6 +296,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     }
 
     // High risk: Feature addition without test files + core changes
+    // New features in core paths should include test files
     if (changeType === 'feature' && !hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
       return {
         label: RISK_LABELS.high,
@@ -302,6 +315,8 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
   }
 
   // Medium risk: Config file changes
+  // Configuration changes are inherently risky as they affect the entire project
+  // Default config_files: .github/workflows/**, package.json, tsconfig.json
   if (hasConfigChanges) {
     return {
       label: RISK_LABELS.medium,
@@ -309,6 +324,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     };
   }
 
+  // No risk label: Safe changes (documentation, tests, style, etc.)
   return {
     label: null,
     reason: '',

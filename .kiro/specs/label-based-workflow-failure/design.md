@@ -300,7 +300,7 @@ inputs:
 
   # 🔧 新規追加: デフォルト値を空文字列("")に設定
   fail_on_large_files:
-    description: "Fail workflow if large files are detected (labeled with auto/large-files or auto:too-many-lines)"
+    description: "Fail workflow if large files are detected (labeled with auto/large-files or auto/too-many-lines)"
     required: false
     default: ""  # 空文字列 = 未指定
 
@@ -485,8 +485,8 @@ interface FailureEvaluationInput {
   appliedLabels: string[] | undefined; // ラベル取得失敗時はundefined
   violations: {
     largeFiles: ViolationDetail[];         // ファイルサイズ超過リスト
-    exceedsFileLines: ViolationDetail[];   // 🔧 追加: per-file行数超過リスト（auto:too-many-lines）
-    exceedsAdditions: boolean;             // 🔧 追加: PR追加行数超過フラグ（auto:excessive-changes）
+    exceedsFileLines: ViolationDetail[];   // 🔧 追加: per-file行数超過リスト（auto/too-many-lines）
+    exceedsAdditions: boolean;             // 🔧 追加: PR追加行数超過フラグ（auto/excessive-changes）
     exceedsFileCount: boolean;             // PRファイル数超過フラグ
   };
   metrics: {
@@ -524,7 +524,7 @@ function evaluateFailureConditions(
 
   // 🔧 追加: fail_on_large_files が有効な場合、per-file行数超過もチェック
   if (config.failOnLargeFiles) {
-    const hasTooManyLinesLabel = appliedLabels?.includes('auto:too-many-lines') ?? false;
+    const hasTooManyLinesLabel = appliedLabels?.includes('auto/too-many-lines') ?? false;
     const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
     if (hasTooManyLinesLabel || hasTooManyLinesViolation) {
       // 🔧 FIX: tooManyLinesは独立した違反理由なので、largeFilesとは別に追加
@@ -538,7 +538,7 @@ function evaluateFailureConditions(
 
   // 🔧 追加: fail_on_pr_size が設定されている場合、PR追加行数超過もチェック
   if (config.failOnPrSize !== '') {
-    const hasExcessiveChangesLabel = appliedLabels?.includes('auto:excessive-changes') ?? false;
+    const hasExcessiveChangesLabel = appliedLabels?.includes('auto/excessive-changes') ?? false;
     const hasExcessiveChangesViolation = violations.exceedsAdditions;
     if (hasExcessiveChangesLabel || hasExcessiveChangesViolation) {
       // 🔧 FIX: excessiveChangesは独立した違反理由なので、prSizeとは別に追加
@@ -813,8 +813,8 @@ export interface FailureEvaluationInput {
   appliedLabels: string[] | undefined; // ラベル取得失敗時はundefined
   violations: {
     largeFiles: ViolationDetail[];         // ファイルサイズ超過リスト
-    exceedsFileLines: ViolationDetail[];   // 🔧 追加: per-file行数超過リスト（auto:too-many-lines）
-    exceedsAdditions: boolean;             // 🔧 追加: PR追加行数超過フラグ（auto:excessive-changes）
+    exceedsFileLines: ViolationDetail[];   // 🔧 追加: per-file行数超過リスト（auto/too-many-lines）
+    exceedsAdditions: boolean;             // 🔧 追加: PR追加行数超過フラグ（auto/excessive-changes）
     exceedsFileCount: boolean;             // PRファイル数超過フラグ
   };
   metrics: {

@@ -293,15 +293,26 @@ describe('workflow/stages/labeling', () => {
     expect(result.isErr()).toBe(true);
   });
 
-  it('handles FileSystemError when loading directory config', async () => {
+  it('handles FileSystemError when loading directory config and uses DEFAULT_CATEGORIES fallback', async () => {
     vi.mocked(decideLabels).mockReturnValue(ok({ labelsToAdd: [], labelsToRemove: [], reasoning: [] }));
     vi.mocked(loadDirectoryLabelerConfig).mockReturnValue(err({ type: 'FileSystemError', message: 'missing' } as any));
+    vi.mocked(decideLabelsForFiles).mockReturnValue(ok([{ label: 'category/tests', reason: 'match', priority: 1 }]));
+    vi.mocked(filterByMaxLabels).mockReturnValue({
+      selected: [{ label: 'category/tests', reason: 'match', priority: 1 }],
+      rejected: [],
+    });
+    vi.mocked(applyDirectoryLabels).mockResolvedValue(
+      ok({ applied: ['category/tests'], skipped: [], removed: [], failed: [] }),
+    );
 
     await applyLabelsStage(context, artifacts);
 
     expect(logInfoI18n).toHaveBeenCalledWith('directoryLabeling.configNotFound', {
       path: context.config.directoryLabelerConfigPath,
     });
+    expect(logInfoI18n).toHaveBeenCalledWith('directoryLabeling.usingDefaultCategories');
+    expect(decideLabelsForFiles).toHaveBeenCalled();
+    expect(applyDirectoryLabels).toHaveBeenCalled();
   });
 
   it('handles validation errors when loading directory config', async () => {

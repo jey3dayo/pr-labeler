@@ -42,6 +42,7 @@
   "directoryLabeling": {
     "starting": "ディレクトリベースラベリングを開始...",
     "configNotFound": "設定ファイルが見つかりません: {{path}}",
+    "usingDefaultCategories": "デフォルトカテゴリをフォールバックとして使用します",
     "skipped": "ディレクトリベースラベリングをスキップします",
     "configLoadFailed": "設定の読み込みに失敗しました: {{message}}",
     "decideFailed": "ラベル決定に失敗しました: {{message}}",

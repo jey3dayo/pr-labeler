@@ -49,8 +49,8 @@ Complete reference for all input parameters, output variables, and configuration
 | `auto_remove_labels`      | ❌       | `true`                   | Remove labels when limits are no longer exceeded       |
 | `large_files_label`       | ❌       | `auto/large-files`       | Label for files exceeding size or line limits          |
 | `too_many_files_label`    | ❌       | `auto/too-many-files`    | Label for PRs with too many files                      |
-| `too_many_lines_label`    | ❌       | `auto:too-many-lines`    | Label for files exceeding line count limits            |
-| `excessive_changes_label` | ❌       | `auto:excessive-changes` | Label for PRs with excessive changes (total additions) |
+| `too_many_lines_label`    | ❌       | `auto/too-many-lines`    | Label for files exceeding line count limits            |
+| `excessive_changes_label` | ❌       | `auto/excessive-changes` | Label for PRs with excessive changes (total additions) |
 
 **Examples:**
 
@@ -261,6 +261,88 @@ complexity_thresholds: '{"medium": 10, "high": 20}'
 ```
 
 **Note:** Complexity labels are **disabled by default** (`complexity_enabled: "false"`). Enable them explicitly if needed.
+
+### Risk Labels
+
+Risk labels assess the potential impact and safety of PR changes. The evaluation considers:
+
+1. **CI Status** (when available)
+2. **File Change Patterns**
+3. **Commit Message Analysis**
+
+#### Label Application Rules
+
+**`risk/high`** is applied when:
+
+- **CI checks failed** (tests, type-check, build, or lint)
+- **New feature in core functionality without test files**
+  - Detected by commit messages starting with `feat:`, `feat(`, `feature:`, or `feature(`
+  - Changes in `core_paths` (default: `src/**`)
+  - No test files added (`*.test.ts`, `*.spec.ts`, `__tests__/**`)
+
+**`risk/medium`** is applied when:
+
+- **Configuration files changed**
+  - `.github/workflows/**` (CI/CD pipeline changes)
+  - `package.json` (dependency changes)
+  - `tsconfig.json` (TypeScript configuration)
+  - Any file matching `config_files` patterns
+
+**No risk label** (safe PR) when:
+
+- **Refactoring with all CI passed**
+  - Detected by commit messages starting with `refactor:` or `refactor(`
+  - All CI checks succeeded
+- **Documentation-only changes**
+  - Detected by commit messages starting with `docs:` or `docs(`
+- **Test-only changes**
+  - Detected by commit messages starting with `test:` or `test(`
+
+#### Default Risk Configuration
+
+```yaml
+risk:
+  enabled: true                    # Enable risk assessment
+  high_if_no_tests_for_core: true  # Require tests for core changes
+  use_ci_status: true              # Consider CI check results
+  core_paths:
+    - "src/**"
+  config_files:
+    - ".github/workflows/**"
+    - "package.json"
+    - "tsconfig.json"
+```
+
+#### FAQ: Why Does My PR Get `risk/medium`?
+
+**Q: I only changed `.github/workflows/ci.yml`. Why `risk/medium`?**
+
+**A:** CI/CD workflow changes are inherently risky because they affect the entire build and deployment pipeline. Even small syntax errors can break builds or deployments for all developers.
+
+**Q: Can I customize which files trigger `risk/medium`?**
+
+**A:** Yes, customize via `.github/pr-labeler.yml`:
+
+```yaml
+risk:
+  config_files:
+    - ".github/workflows/**"
+    - "package.json"
+    - "tsconfig.json"
+    - "Dockerfile"           # Add custom patterns
+    - "docker-compose.yml"
+```
+
+**Q: How do I avoid `risk/high` for new features?**
+
+**A:** Add test files in the same PR:
+
+```yaml
+# This will not get risk/high
+files:
+  - src/features/new-feature.ts      # New feature
+  - src/features/new-feature.test.ts # Test file added ✅
+```
 
 ## GitHub Actions Summary Output
 
