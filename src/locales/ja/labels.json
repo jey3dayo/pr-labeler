@@ -20,5 +20,15 @@
   "risk": {
     "high": "リスク: 高",
     "medium": "リスク: 中"
+  },
+  "reasoning": {
+    "size": "追加行数 ({{additions}}) が {{label}} の範囲内",
+    "complexity": "最大複雑度 ({{maxComplexity}}) が {{level}} 閾値を超過",
+    "category": "ファイルパターンが {{label}} カテゴリに一致",
+    "riskCIFailed": "CIチェック失敗 (tests, type-check, build, lint のいずれか)",
+    "riskRefactoringSafe": "リファクタリング - すべてのCIチェックが成功",
+    "riskFeatureNoTests": "テストファイルなしでコア機能に新機能を追加",
+    "riskCoreNoTests": "テストファイルなしでコア機能を変更",
+    "riskConfigChanged": "設定ファイルが変更されました"
   }
 }

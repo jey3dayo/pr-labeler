@@ -20,5 +20,15 @@
   "risk": {
     "high": "Risk: High",
     "medium": "Risk: Medium"
+  },
+  "reasoning": {
+    "size": "additions ({{additions}}) falls in {{label}} range",
+    "complexity": "max complexity ({{maxComplexity}}) exceeds {{level}} threshold",
+    "category": "file patterns match {{label}} category",
+    "riskCIFailed": "CI checks failed (tests, type-check, build, or lint)",
+    "riskRefactoringSafe": "refactoring with all CI checks passed",
+    "riskFeatureNoTests": "new feature in core functionality without test files",
+    "riskCoreNoTests": "core functionality changed without test files",
+    "riskConfigChanged": "configuration files changed"
   }
 }

@@ -8,6 +8,7 @@ import { ok, Result } from 'neverthrow';
 
 import { allCIPassed, anyCIFailed } from './ci-status.js';
 import { COMPLEXITY_LABELS, RISK_LABELS } from './configs/label-defaults.js';
+import { t } from './i18n.js';
 import type { LabelDecisions, LabelerConfig, LabelReasoning, PRMetrics } from './labeler-types.js';
 import type { ChangeType, PRContext } from './types.js';
 import type { RiskConfig } from './types/config.js';
@@ -37,7 +38,7 @@ export function decideLabels(
     labelsToAdd.push(sizeLabel);
     reasoning.push({
       label: sizeLabel,
-      reason: `additions (${metrics.totalAdditions}) falls in ${sizeLabel} range`,
+      reason: t('labels', 'reasoning.size', { additions: metrics.totalAdditions, label: sizeLabel }),
       category: 'size',
       matchedFiles: metrics.files.map(f => f.path),
     });
@@ -48,9 +49,10 @@ export function decideLabels(
     const complexityLabel = decideComplexityLabel(metrics.complexity.maxComplexity, config.complexity.thresholds);
     if (complexityLabel) {
       labelsToAdd.push(complexityLabel);
+      const level = complexityLabel.split('/')[1]; // "high" or "medium"
       reasoning.push({
         label: complexityLabel,
-        reason: `max complexity (${metrics.complexity.maxComplexity}) exceeds ${complexityLabel.split('/')[1]} threshold`,
+        reason: t('labels', 'reasoning.complexity', { maxComplexity: metrics.complexity.maxComplexity, level }),
         category: 'complexity',
         matchedFiles: metrics.complexity.files
           .filter(f => f.complexity >= config.complexity.thresholds.medium)
@@ -68,7 +70,7 @@ export function decideLabels(
     for (const result of categoryResults) {
       reasoning.push({
         label: result.label,
-        reason: `file patterns match ${result.label} category`,
+        reason: t('labels', 'reasoning.category', { label: result.label }),
         category: 'category',
         matchedFiles: result.matchedFiles,
       });
@@ -317,7 +319,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     if (anyCIFailed(ciStatus)) {
       return {
         label: RISK_LABELS.high,
-        reason: 'CI checks failed (tests, type-check, build, or lint)',
+        reason: t('labels', 'reasoning.riskCIFailed'),
       };
     }
 
@@ -329,7 +331,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     if (changeType === 'refactor' && allCIPassed(ciStatus)) {
       return {
         label: null,
-        reason: 'refactoring with all CI checks passed',
+        reason: t('labels', 'reasoning.riskRefactoringSafe'),
       };
     }
 
@@ -338,7 +340,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     if (changeType === 'feature' && !hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
       return {
         label: RISK_LABELS.high,
-        reason: 'new feature in core functionality without test files',
+        reason: t('labels', 'reasoning.riskFeatureNoTests'),
       };
     }
   }
@@ -348,7 +350,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
   if (!hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
     return {
       label: RISK_LABELS.high,
-      reason: 'core functionality changed without test files',
+      reason: t('labels', 'reasoning.riskCoreNoTests'),
     };
   }
 
@@ -358,7 +360,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
   if (hasConfigChanges) {
     return {
       label: RISK_LABELS.medium,
-      reason: 'configuration files changed',
+      reason: t('labels', 'reasoning.riskConfigChanged'),
     };
   }
 
