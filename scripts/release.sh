@@ -237,11 +237,7 @@ EOF
   git add -A
   git commit -m "chore: release v${new_version}
 
-$(echo "$changelog_content" | sed 's/^### //' | sed 's/^## //')
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+$(echo "$changelog_content" | sed 's/^### //' | sed 's/^## //')"
   success "Created commit"
 
   # Create tags
