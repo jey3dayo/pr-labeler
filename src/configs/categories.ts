@@ -14,7 +14,15 @@ export const DEFAULT_CATEGORIES: CategoryConfig[] = [
   },
   {
     label: 'category/ci-cd',
-    patterns: ['.github/workflows/**'],
+    patterns: [
+      '.github/workflows/**',
+      '.gitlab-ci.yml',
+      '.circleci/**',
+      'Jenkinsfile',
+      '.travis.yml',
+      'azure-pipelines.yml',
+      '.buildkite/**',
+    ],
   },
   {
     label: 'category/documentation',
@@ -89,7 +97,6 @@ export const DEFAULT_CATEGORIES: CategoryConfig[] = [
   {
     label: 'category/infrastructure',
     patterns: [
-      '.github/**',
       'Dockerfile*',
       'docker-compose*',
       'terraform/**',

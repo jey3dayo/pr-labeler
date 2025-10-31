@@ -452,10 +452,11 @@ describe('Label Decision Engine', () => {
     });
 
     describe('category/infrastructure', () => {
-      it('should apply category/infrastructure for GitHub workflows', () => {
+      it('should apply category/ci-cd (not infrastructure) for GitHub workflows', () => {
         const files = ['.github/workflows/ci.yml'];
         const result = decideCategoryLabels(files, categories);
-        expect(result).toContain('category/infrastructure');
+        expect(result).toContain('category/ci-cd');
+        expect(result).not.toContain('category/infrastructure');
       });
 
       it('should apply category/infrastructure for Dockerfile', () => {
@@ -508,9 +509,10 @@ describe('Label Decision Engine', () => {
         const files = ['src/features/auth.ts', '.github/workflows/ci.yml', 'src/utils/jwt.ts', 'docs/README.md'];
         const result = decideCategoryLabels(files, categories);
         expect(result).toContain('category/feature');
-        expect(result).toContain('category/infrastructure');
+        expect(result).toContain('category/ci-cd');
         expect(result).toContain('category/security');
         expect(result).toContain('category/documentation');
+        expect(result).not.toContain('category/infrastructure');
         expect(result.length).toBeGreaterThanOrEqual(4);
       });
 
@@ -537,9 +539,9 @@ describe('Label Decision Engine', () => {
         const result = decideCategoryLabels(files, categories);
         // Both categories should be applied (additive policy)
         expect(result).toContain('category/feature');
-        expect(result).toContain('category/infrastructure');
-        expect(result).toContain('category/ci-cd'); // .github/workflows/** matches both infrastructure and ci-cd
-        expect(result.length).toBe(3);
+        expect(result).toContain('category/ci-cd'); // .github/workflows/** matches ci-cd only
+        expect(result).not.toContain('category/infrastructure'); // .github/** removed from infrastructure
+        expect(result.length).toBe(2);
       });
     });
   });
