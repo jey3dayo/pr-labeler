@@ -119,6 +119,14 @@
     "applied": "適用されたラベル",
     "noLabels": "ラベルは適用されていません"
   },
+  "labelFileGroups": {
+    "title": "適用されたラベルとファイル",
+    "reason": "理由",
+    "affectedFiles": "影響を受けたファイル",
+    "totalAdditions": "総追加行数",
+    "analyzedFiles": "解析対象ファイル",
+    "highComplexityFiles": "高複雑度ファイル"
+  },
   "improvementActions": {
     "title": "改善アクション",
     "intro": "PRサイズを削減する方法をいくつか紹介します：",

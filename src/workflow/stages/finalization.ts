@@ -20,7 +20,7 @@ export function finalizeAction(
   return ResultAsync.fromPromise(
     (async () => {
       const { token, prContext, config, labelerConfig } = context;
-      const { analysis, hasViolations, complexityMetrics } = artifacts;
+      const { analysis, hasViolations, complexityMetrics, labelDecisions } = artifacts;
 
       if (config.commentOnPr !== 'never') {
         logInfoI18n('comment.managing');
@@ -86,6 +86,7 @@ export function finalizeAction(
           {
             disabledFeatures,
             appliedLabels,
+            ...(labelDecisions?.reasoning ? { reasoning: labelDecisions.reasoning } : {}),
             ...(labelerConfig.summary?.title ? { title: labelerConfig.summary.title } : {}),
           },
         );

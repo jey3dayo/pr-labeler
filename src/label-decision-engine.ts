@@ -8,6 +8,7 @@ import { ok, Result } from 'neverthrow';
 
 import { allCIPassed, anyCIFailed } from './ci-status.js';
 import { COMPLEXITY_LABELS, RISK_LABELS } from './configs/label-defaults.js';
+import { t } from './i18n.js';
 import type { LabelDecisions, LabelerConfig, LabelReasoning, PRMetrics } from './labeler-types.js';
 import type { ChangeType, PRContext } from './types.js';
 import type { RiskConfig } from './types/config.js';
@@ -37,8 +38,9 @@ export function decideLabels(
     labelsToAdd.push(sizeLabel);
     reasoning.push({
       label: sizeLabel,
-      reason: `additions (${metrics.totalAdditions}) falls in ${sizeLabel} range`,
+      reason: t('labels', 'reasoning.size', { additions: metrics.totalAdditions, label: sizeLabel }),
       category: 'size',
+      matchedFiles: metrics.files.map(f => f.path),
     });
   }
 
@@ -47,10 +49,14 @@ export function decideLabels(
     const complexityLabel = decideComplexityLabel(metrics.complexity.maxComplexity, config.complexity.thresholds);
     if (complexityLabel) {
       labelsToAdd.push(complexityLabel);
+      const level = complexityLabel.split('/')[1]; // "high" or "medium"
       reasoning.push({
         label: complexityLabel,
-        reason: `max complexity (${metrics.complexity.maxComplexity}) exceeds ${complexityLabel.split('/')[1]} threshold`,
+        reason: t('labels', 'reasoning.complexity', { maxComplexity: metrics.complexity.maxComplexity, level }),
         category: 'complexity',
+        matchedFiles: metrics.complexity.files
+          .filter(f => f.complexity >= config.complexity.thresholds.medium)
+          .map(f => f.path),
       });
     }
   }
@@ -59,35 +65,30 @@ export function decideLabels(
   if (config.categoryLabeling.enabled) {
     // カテゴリラベル判定には全ファイル（除外前）を使用
     // これにより .kiro/ などの除外ファイルもカテゴリとして認識される
-    const categoryLabels = decideCategoryLabels(metrics.allFiles, config.categories);
-    labelsToAdd.push(...categoryLabels);
-    for (const label of categoryLabels) {
+    const categoryResults = decideCategoryLabelsWithFiles(metrics.allFiles, config.categories);
+    labelsToAdd.push(...categoryResults.map(r => r.label));
+    for (const result of categoryResults) {
       reasoning.push({
-        label,
-        reason: `file patterns match ${label} category`,
+        label: result.label,
+        reason: t('labels', 'reasoning.category', { label: result.label }),
         category: 'category',
+        matchedFiles: result.matchedFiles,
       });
     }
   }
 
   // 4. Decide risk label (if enabled)
   if (config.risk.enabled) {
-    const riskLabel = decideRiskLabel(
-      metrics.files.map(f => f.path),
-      config.risk,
-      prContext,
-    );
+    const files = metrics.files.map(f => f.path);
+    const riskLabel = decideRiskLabel(files, config.risk, prContext);
     if (riskLabel) {
       labelsToAdd.push(riskLabel);
+      const riskFiles = getRiskAffectedFiles(files, config.risk);
       reasoning.push({
         label: riskLabel,
-        reason: getRiskReason(
-          metrics.files.map(f => f.path),
-          config.risk,
-          riskLabel,
-          prContext,
-        ),
+        reason: getRiskReason(files, config.risk, riskLabel, prContext),
         category: 'risk',
+        matchedFiles: riskFiles,
       });
     }
   }
@@ -170,6 +171,45 @@ export function decideCategoryLabels(
   }
 
   return matchedLabels;
+}
+
+/**
+ * Decide category labels with matched files
+ *
+ * @param files - List of changed file paths
+ * @param categories - Category configuration
+ * @returns List of category labels with matched files
+ */
+export function decideCategoryLabelsWithFiles(
+  files: string[],
+  categories: Array<{ label: string; patterns: string[]; exclude?: string[] }>,
+): Array<{ label: string; matchedFiles: string[] }> {
+  const results: Array<{ label: string; matchedFiles: string[] }> = [];
+
+  for (const category of categories) {
+    const matchedFiles = files.filter(file => {
+      // パターンにマッチするかチェック
+      const matchesPattern = category.patterns.some(pattern => minimatch(file, pattern));
+      if (!matchesPattern) {
+        return false;
+      }
+
+      // 除外パターンがある場合、除外パターンにマッチしないことを確認
+      if (category.exclude) {
+        const matchesExclude = category.exclude.some(pattern => minimatch(file, pattern));
+        if (matchesExclude) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+    if (matchedFiles.length > 0) {
+      results.push({ label: category.label, matchedFiles });
+    }
+  }
+
+  return results;
 }
 
 /**
@@ -279,7 +319,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     if (anyCIFailed(ciStatus)) {
       return {
         label: RISK_LABELS.high,
-        reason: 'CI checks failed (tests, type-check, build, or lint)',
+        reason: t('labels', 'reasoning.riskCIFailed'),
       };
     }
 
@@ -291,7 +331,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     if (changeType === 'refactor' && allCIPassed(ciStatus)) {
       return {
         label: null,
-        reason: 'refactoring with all CI checks passed',
+        reason: t('labels', 'reasoning.riskRefactoringSafe'),
       };
     }
 
@@ -300,7 +340,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
     if (changeType === 'feature' && !hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
       return {
         label: RISK_LABELS.high,
-        reason: 'new feature in core functionality without test files',
+        reason: t('labels', 'reasoning.riskFeatureNoTests'),
       };
     }
   }
@@ -310,7 +350,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
   if (!hasTestFiles && hasCoreChanges && config.high_if_no_tests_for_core) {
     return {
       label: RISK_LABELS.high,
-      reason: 'core functionality changed without test files',
+      reason: t('labels', 'reasoning.riskCoreNoTests'),
     };
   }
 
@@ -320,7 +360,7 @@ function evaluateRisk(files: string[], config: RiskEvaluationConfig, prContext?:
   if (hasConfigChanges) {
     return {
       label: RISK_LABELS.medium,
-      reason: 'configuration files changed',
+      reason: t('labels', 'reasoning.riskConfigChanged'),
     };
   }
 
@@ -360,6 +400,28 @@ function getRiskReason(files: string[], config: RiskEvaluationConfig, label: str
   }
 
   return 'unknown risk condition';
+}
+
+/**
+ * Get files affected by risk factors
+ *
+ * @param files - List of changed file paths
+ * @param config - Risk configuration (core_paths and config_files)
+ * @returns List of files that contributed to risk assessment
+ */
+function getRiskAffectedFiles(files: string[], config: { core_paths: string[]; config_files: string[] }): string[] {
+  const affectedFiles: string[] = [];
+
+  // Core files
+  const coreFiles = files.filter(f => config.core_paths.some(pattern => minimatch(f, pattern)));
+  affectedFiles.push(...coreFiles);
+
+  // Config files
+  const configFiles = files.filter(f => config.config_files.some(pattern => minimatch(f, pattern)));
+  affectedFiles.push(...configFiles);
+
+  // Remove duplicates and return
+  return Array.from(new Set(affectedFiles));
 }
 
 /**

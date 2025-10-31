@@ -28,7 +28,7 @@ import type { AnalysisArtifacts, InitializationArtifacts } from '../types';
 export function applyLabelsStage(
   context: InitializationArtifacts,
   artifacts: AnalysisArtifacts,
-): ResultAsync<void, AppError> {
+): ResultAsync<AnalysisArtifacts, AppError> {
   return ResultAsync.fromPromise(
     (async () => {
       const { token, prContext, config, labelerConfig } = context;
@@ -94,6 +94,9 @@ export function applyLabelsStage(
         logInfoI18n('labels.labelsToAdd', { labels: decisions.labelsToAdd.join(', ') || 'none' });
         logInfoI18n('labels.labelsToRemove', { labels: decisions.labelsToRemove.join(', ') || 'none' });
 
+        // Store label decisions in artifacts for Summary generation
+        artifacts.labelDecisions = decisions;
+
         if (labelerConfig.runtime.dry_run) {
           logInfoI18n('labels.dryRun');
         } else {
@@ -127,7 +130,7 @@ export function applyLabelsStage(
       }
 
       if (!config.enableDirectoryLabeling) {
-        return;
+        return artifacts;
       }
 
       logInfoI18n('directoryLabeling.starting');
@@ -143,7 +146,7 @@ export function applyLabelsStage(
         } else {
           logWarningI18n('directoryLabeling.configLoadFailed', { message: dirConfigResult.error.message });
           logInfoI18n('directoryLabeling.skipped');
-          return;
+          return artifacts;
         }
       } else {
         dirConfig = dirConfigResult.value;
@@ -155,14 +158,14 @@ export function applyLabelsStage(
 
       if (directoryDecisionsResult.isErr()) {
         logWarningI18n('directoryLabeling.decideFailed', { message: directoryDecisionsResult.error.message });
-        return;
+        return artifacts;
       }
 
       const directoryDecisions = directoryDecisionsResult.value;
 
       if (directoryDecisions.length === 0) {
         logInfoI18n('directoryLabeling.noLabelsMatched');
-        return;
+        return artifacts;
       }
 
       logInfoI18n('directoryLabeling.decided', { count: directoryDecisions.length });
@@ -201,7 +204,7 @@ export function applyLabelsStage(
         } else {
           logWarningI18n('directoryLabeling.applyFailed', { message: applyDirectoryResult.error.message });
         }
-        return;
+        return artifacts;
       }
 
       const result = applyDirectoryResult.value;
@@ -217,9 +220,11 @@ export function applyLabelsStage(
           logWarningI18n('directoryLabeling.failedDetail', { label: failed.label, reason: failed.reason });
         }
       }
+
+      return artifacts;
     })(),
     toAppError,
-  ).map(() => undefined);
+  );
 }
 
 function fetchCommitMessages(

@@ -16,6 +16,7 @@ import {
   formatExcludedFiles,
   formatFileDetails,
   formatImprovementActions,
+  formatLabelFileGroups,
   formatSummaryBasicMetrics,
   formatViolations,
   generateComplexitySummary,
@@ -45,6 +46,7 @@ export interface SummaryWriteOptions {
   disabledFeatures?: string[];
   title?: string;
   appliedLabels?: string[] | undefined;
+  reasoning?: import('../labeler-types').LabelReasoning[];
 }
 
 /**
@@ -64,9 +66,22 @@ function buildSummaryMarkdown(
       markdown += `# 📊 ${summaryTitle}\n\n`;
       markdown += formatSummaryBasicMetrics(analysis.metrics);
 
-      const appliedLabelsSection = formatAppliedLabels(options?.appliedLabels);
-      if (appliedLabelsSection) {
-        markdown += appliedLabelsSection;
+      // Use new label-file groups formatter if reasoning is provided
+      if (options?.reasoning && options.reasoning.length > 0) {
+        const labelFileGroupsSection = formatLabelFileGroups(
+          options.reasoning,
+          analysis.metrics.filesAnalyzed,
+          complexity?.metrics,
+        );
+        if (labelFileGroupsSection) {
+          markdown += labelFileGroupsSection;
+        }
+      } else {
+        // Fallback to old label format if reasoning is not available
+        const appliedLabelsSection = formatAppliedLabels(options?.appliedLabels);
+        if (appliedLabelsSection) {
+          markdown += appliedLabelsSection;
+        }
       }
 
       const excludedFilesSection = formatExcludedFiles(analysis.metrics.filesExcluded);
