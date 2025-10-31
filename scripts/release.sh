@@ -55,18 +55,18 @@ increment_version() {
 select_release_type() {
   local current_version=$1
 
-  echo ""
-  echo "ℹ Current version: v${current_version}"
-  echo ""
-  echo "Select release type:"
-  echo "  1) patch  - v$(increment_version "$current_version" patch) (Bug fixes)"
-  echo "  2) minor  - v$(increment_version "$current_version" minor) (New features)"
-  echo "  3) major  - v$(increment_version "$current_version" major) (Breaking changes)"
-  echo "  4) custom - Specify version manually"
-  echo "  5) cancel"
-  echo ""
+  echo "" >&2
+  echo "ℹ Current version: v${current_version}" >&2
+  echo "" >&2
+  echo "Select release type:" >&2
+  echo "  1) patch  - v$(increment_version "$current_version" patch) (Bug fixes)" >&2
+  echo "  2) minor  - v$(increment_version "$current_version" minor) (New features)" >&2
+  echo "  3) major  - v$(increment_version "$current_version" major) (Breaking changes)" >&2
+  echo "  4) custom - Specify version manually" >&2
+  echo "  5) cancel" >&2
+  echo "" >&2
 
-  read -rp "Enter choice [1-5]: " choice
+  read -rp "Enter choice [1-5]: " choice <&0 >&2
 
   case $choice in
     1) echo "patch" ;;
