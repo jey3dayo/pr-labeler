@@ -232,7 +232,51 @@ git push origin v1 --force
 
 ## GitHub Releaseの作成
 
-### Web UIでの作成（推奨）
+### リリースノートのテンプレート
+
+リリースノートは統一されたフォーマットに従ってください。詳細は [.github/RELEASE_TEMPLATE.md](../.github/RELEASE_TEMPLATE.md) を参照してください。
+
+**標準フォーマット:**
+
+```markdown
+## 🚀 What's New
+
+### ✨ Added
+- 新機能の説明
+
+### 🔄 Changed
+- 変更内容の説明
+
+### 🐛 Fixed
+- バグ修正の説明
+
+## 📊 Quality Metrics
+
+- ✅ [N] tests passing
+- ✅ 0 ESLint errors/warnings
+- ✅ 0 TypeScript type errors
+- ✅ Build successful
+
+## 🔗 Full Changelog
+
+**Full Changelog**: https://github.com/jey3dayo/pr-labeler/compare/v[PREVIOUS]...v[CURRENT]
+```
+
+**参考例**: [v1.5.0 Release](https://github.com/jey3dayo/pr-labeler/releases/tag/v1.5.0)
+
+### 自動化スクリプト使用時
+
+`scripts/release.sh` を使用する場合、リリースノートは自動的にテンプレート形式で生成されます：
+
+```bash
+# インタラクティブリリース（推奨）
+./scripts/release.sh
+
+# または /release コマンド
+/release patch
+```
+
+### Web UIでの作成（手動）
 
 1. GitHubリポジトリページにアクセス
 2. 「Releases」タブをクリック
@@ -240,7 +284,7 @@ git push origin v1 --force
 4. 以下の情報を入力：
    - **Tag version**: `v1.0.0`（既存のタグを選択）
    - **Release title**: `v1.0.0`
-   - **Description**: `CHANGELOG.md`の該当バージョンセクションをコピー
+   - **Description**: [.github/RELEASE_TEMPLATE.md](../.github/RELEASE_TEMPLATE.md) のフォーマットに従って記述
 5. 「Publish release」をクリック
 
 ### CLIでの作成（GitHub CLI使用）
@@ -252,10 +296,13 @@ brew install gh
 # 認証
 gh auth login
 
-# リリース作成
+# テンプレートに従ってリリースノートを作成
+# 1. CHANGELOG.mdから内容を取得
+# 2. .github/RELEASE_TEMPLATE.mdのフォーマットに変換
+# 3. リリース作成
 gh release create v1.0.0 \
   --title "v1.0.0" \
-  --notes-file <(sed -n '/## \[1.0.0\]/,/^## /p' CHANGELOG.md | head -n -1)
+  --notes "$(cat release-notes.md)"  # テンプレートに従った内容
 ```
 
 ---

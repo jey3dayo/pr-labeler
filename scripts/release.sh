@@ -205,12 +205,13 @@ run_quality_checks() {
 }
 
 # Create release
+# Release notes follow the template in .github/RELEASE_TEMPLATE.md
 create_release() {
   local new_version=$1
   local prev_version=$2
   local changelog_content=$3
 
-  # Generate full release notes
+  # Generate full release notes following .github/RELEASE_TEMPLATE.md format
   local test_count
   test_count=$(grep -o '[0-9]\+ passed' <(pnpm test:vitest 2>&1 | tail -20) | head -1 | awk '{print $1}')
 
