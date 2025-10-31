@@ -7,6 +7,12 @@ on:
       - develop
       - "feat/**"
     types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to apply labels"
+        required: true
+        type: number
 
 permissions:
   contents: read
@@ -23,10 +29,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout PR branch (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: gh pr checkout ${{ inputs.pr_number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run PR Labeler (Basic)
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           # Use @test tag for testing unreleased features
           # This allows testing without affecting production users
           file_size_limit: "100KB"
@@ -51,10 +64,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout PR branch (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: gh pr checkout ${{ inputs.pr_number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run PR Labeler (Size Labels)
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           size_enabled: "true"
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 3000}'
           complexity_enabled: "false"
@@ -72,12 +92,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout PR branch (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: gh pr checkout ${{ inputs.pr_number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run PR Labeler (Failure Control)
         uses: ./
         continue-on-error: true
         id: pr-labeler
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           # Test new workflow failure control inputs
           fail_on_large_files: "true"
           fail_on_too_many_files: "true"
@@ -105,10 +132,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout PR branch (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: gh pr checkout ${{ inputs.pr_number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run PR Labeler (All Features)
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           # Basic limits
           file_size_limit: "100KB"
           file_lines_limit: "500"
@@ -144,9 +178,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout PR branch (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: gh pr checkout ${{ inputs.pr_number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run PR Labeler (Minimal)
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           # Only required parameter - all others use defaults
           enable_summary: "true"
