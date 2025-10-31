@@ -9,10 +9,10 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Helper functions
-info() { echo -e "${BLUE}ℹ${NC} $1"; }
-success() { echo -e "${GREEN}✓${NC} $1"; }
-error() { echo -e "${RED}✗${NC} $1" >&2; }
-warn() { echo -e "${YELLOW}⚠${NC} $1"; }
+info() { printf "${BLUE}ℹ${NC} %s\n" "$1"; }
+success() { printf "${GREEN}✓${NC} %s\n" "$1"; }
+error() { printf "${RED}✗${NC} %s\n" "$1" >&2; }
+warn() { printf "${YELLOW}⚠${NC} %s\n" "$1"; }
 
 # Check required commands
 check_commands() {
@@ -62,16 +62,16 @@ increment_version() {
 select_release_type() {
   local current_version=$1
 
-  echo ""
-  info "Current version: ${GREEN}v${current_version}${NC}"
-  echo ""
-  echo "Select release type:"
-  echo "  1) patch  - v$(increment_version "$current_version" patch) (Bug fixes)"
-  echo "  2) minor  - v$(increment_version "$current_version" minor) (New features)"
-  echo "  3) major  - v$(increment_version "$current_version" major) (Breaking changes)"
-  echo "  4) custom - Specify version manually"
-  echo "  5) cancel"
-  echo ""
+  printf "\n"
+  printf "${BLUE}ℹ${NC} Current version: ${GREEN}v%s${NC}\n" "$current_version"
+  printf "\n"
+  printf "Select release type:\n"
+  printf "  1) patch  - v%s (Bug fixes)\n" "$(increment_version "$current_version" patch)"
+  printf "  2) minor  - v%s (New features)\n" "$(increment_version "$current_version" minor)"
+  printf "  3) major  - v%s (Breaking changes)\n" "$(increment_version "$current_version" major)"
+  printf "  4) custom - Specify version manually\n"
+  printf "  5) cancel\n"
+  printf "\n"
 
   read -rp "Enter choice [1-5]: " choice
 
