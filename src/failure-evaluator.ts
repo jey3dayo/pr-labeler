@@ -53,7 +53,7 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
   }
 
   // fail_on_too_many_files: Check for too many files (auto/too-many-files label or violation)
-  if (config.failOnTooManyFiles) {
+  if (config.failOnTooManyFiles && config.prFilesLimitEnabled) {
     const hasTooManyFilesLabel = appliedLabels?.includes(config.tooManyFilesLabel) ?? false;
     const hasTooManyFilesViolation = violations.exceedsFileCount;
     if (hasTooManyFilesLabel || hasTooManyFilesViolation) {

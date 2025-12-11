@@ -49,6 +49,7 @@ export function parseActionInputs(): Result<ParsedInputs, ConfigurationError | P
     file_lines_limit_enabled: core.getInput('file_lines_limit_enabled'),
     pr_additions_limit: core.getInput('pr_additions_limit'),
     pr_files_limit: core.getInput('pr_files_limit'),
+    pr_files_limit_enabled: core.getInput('pr_files_limit_enabled'),
     auto_remove_labels: core.getInput('auto_remove_labels'),
     size_enabled: core.getInput('size_enabled'),
     size_thresholds: core.getInput('size_thresholds'),

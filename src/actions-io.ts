@@ -22,6 +22,7 @@ export interface ActionInputs {
   file_lines_limit_enabled: string;
   pr_additions_limit: string;
   pr_files_limit: string;
+  pr_files_limit_enabled: string;
   auto_remove_labels: string;
   // PR Insights Labeler - Selective Label Enabling
   size_enabled: string;
@@ -114,6 +115,7 @@ export function getActionInputs(): ActionInputs {
     file_lines_limit_enabled: core.getInput('file_lines_limit_enabled') || 'true',
     pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
     pr_files_limit: core.getInput('pr_files_limit') || '50',
+    pr_files_limit_enabled: core.getInput('pr_files_limit_enabled') || 'true',
     auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
     // PR Insights Labeler - Selective Label Enabling
     size_enabled: core.getInput('size_enabled') || 'true',

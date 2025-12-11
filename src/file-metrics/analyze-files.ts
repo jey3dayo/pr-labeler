@@ -149,14 +149,15 @@ export async function analyzeFiles(
   logInfo(`Analyzing ${files.length} files`);
 
   const state = createInitialState(files, config);
+  const maxFileCount = config.fileCountLimitEnabled ? config.maxFileCount : Number.POSITIVE_INFINITY;
 
-  if (files.length > config.maxFileCount) {
+  if (config.fileCountLimitEnabled && files.length > config.maxFileCount) {
     state.result.violations.exceedsFileCount = true;
     logWarning(`File count ${files.length} exceeds limit ${config.maxFileCount}`);
   }
 
   for (let i = 0; i < files.length; i++) {
-    if (i >= config.maxFileCount) {
+    if (i >= maxFileCount) {
       logWarning(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
       break;
     }

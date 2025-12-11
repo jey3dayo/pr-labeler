@@ -87,6 +87,18 @@ PR Insights Labelerの詳細なAPI仕様書です。
   pr_files_limit: "100"
   ```
 
+#### `pr_files_limit_enabled`
+
+- **型**: `string` (boolean)
+- **必須**: ❌
+- **デフォルト**: `"true"`
+- **説明**: PR内のファイル数チェックの有効／無効を切り替え（`"false"` で `pr_files_limit` による違反検出・ラベル付与をスキップ）
+- **使用例**:
+
+  ```yaml
+  pr_files_limit_enabled: "false" # ファイル数チェックを無効化
+  ```
+
 ---
 
 ### ラベル設定パラメータ

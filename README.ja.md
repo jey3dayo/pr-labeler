@@ -154,7 +154,7 @@ PR変更の潜在的な影響と安全性を評価:
 制限超過時:
 
 - `auto/large-files` - 個別ファイルが大きすぎる
-- `auto/too-many-files` - 変更ファイル数が多すぎる
+- `auto/too-many-files` - 変更ファイル数が多すぎる（`pr_files_limit_enabled: "false"` で無効化）
 - `auto/too-many-lines` - 個別ファイルが設定行数を超過（`file_lines_limit_enabled: "false"` で無効化）
 - `auto/excessive-changes` - 追加行数合計が閾値を超過
 
@@ -175,6 +175,7 @@ PR変更の潜在的な影響と安全性を評価:
     file_lines_limit_enabled: "true" # falseにすると行数チェックとラベル付与をスキップ
     pr_additions_limit: "5000"    # 最大追加行数合計
     pr_files_limit: "50"          # 最大変更ファイル数
+    pr_files_limit_enabled: "true"  # falseでファイル数チェックとラベル付与をスキップ
 
     # ラベル制御
     size_enabled: "true"          # サイズラベル有効化

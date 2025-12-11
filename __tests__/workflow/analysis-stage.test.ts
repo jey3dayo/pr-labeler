@@ -58,6 +58,7 @@ describe('workflow/stages/analysis', () => {
       fileLinesLimitEnabled: true,
       prAdditionsLimit: 400,
       prFilesLimit: 20,
+      prFilesLimitEnabled: true,
       sizeEnabled: true,
       sizeThresholds: { small: 50, medium: 150, large: 300, xlarge: 600 },
       complexityEnabled: true,

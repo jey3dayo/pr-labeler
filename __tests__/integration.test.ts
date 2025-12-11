@@ -66,6 +66,7 @@ describe('Integration Tests', () => {
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
+        pr_files_limit_enabled: 'true',
         auto_remove_labels: 'true',
         apply_size_labels: 'true',
         size_label_thresholds:
@@ -283,6 +284,7 @@ describe('Integration Tests', () => {
           file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
           pr_files_limit: '50',
+          pr_files_limit_enabled: 'true',
           auto_remove_labels: 'true',
           large_files_label: 'auto/large-files',
           too_many_files_label: 'auto/too-many-files',
@@ -356,6 +358,7 @@ describe('Integration Tests', () => {
           file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
           pr_files_limit: '50',
+          pr_files_limit_enabled: 'true',
           auto_remove_labels: 'true',
           large_files_label: 'auto/large-files',
           too_many_files_label: 'auto/too-many-files',

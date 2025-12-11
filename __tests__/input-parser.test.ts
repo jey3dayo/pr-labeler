@@ -27,6 +27,7 @@ describe('parseActionInputs', () => {
       file_lines_limit_enabled: 'true',
       pr_additions_limit: '5000',
       pr_files_limit: '100',
+      pr_files_limit_enabled: 'true',
       auto_remove_labels: 'true',
       size_enabled: 'true',
       size_thresholds: defaultSizeThresholds,
@@ -81,6 +82,7 @@ describe('parseActionInputs', () => {
       expect(parsed.fileSizeLimit).toBe(102400); // 100KB
       expect(parsed.fileLinesLimit).toBe(1000);
       expect(parsed.fileLinesLimitEnabled).toBe(true);
+      expect(parsed.prFilesLimitEnabled).toBe(true);
       expect(parsed.sizeEnabled).toBe(true);
       expect(parsed.complexityEnabled).toBe(false);
     });
@@ -96,6 +98,7 @@ describe('parseActionInputs', () => {
           file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}',
           complexity_enabled: 'false',
@@ -127,6 +130,18 @@ describe('parseActionInputs', () => {
       expect(result.value.fileLinesLimitEnabled).toBe(false);
     });
 
+    it('should parse pr_files_limit_enabled as boolean', () => {
+      mockGetInput.mockImplementation(buildInputs({ pr_files_limit_enabled: 'false' }));
+
+      const result = parseActionInputs();
+
+      expect(result.isOk()).toBe(true);
+      if (result.isErr()) {
+        return;
+      }
+      expect(result.value.prFilesLimitEnabled).toBe(false);
+    });
+
     it('should preserve non-empty language value', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'language') {
@@ -149,6 +164,9 @@ describe('parseActionInputs', () => {
         }
         if (name === 'pr_files_limit') {
           return '100';
+        }
+        if (name === 'pr_files_limit_enabled') {
+          return 'true';
         }
         if (name === 'size_enabled') {
           return 'true';
@@ -208,6 +226,7 @@ describe('parseActionInputs', () => {
           file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{"small": 1000, "medium": 500, "large": 100, "xlarge": 2000}',
           complexity_enabled: 'false',
@@ -236,6 +255,7 @@ describe('parseActionInputs', () => {
           file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'invalid',
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}',
           complexity_enabled: 'false',
@@ -264,6 +284,7 @@ describe('parseActionInputs', () => {
           file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{invalid json}',
           complexity_enabled: 'false',
@@ -294,6 +315,7 @@ describe('parseActionInputs', () => {
           file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}',
           complexity_enabled: 'false',

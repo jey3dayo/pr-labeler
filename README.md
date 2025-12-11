@@ -154,7 +154,7 @@ See [Risk Label Details](docs/en/configuration.md#risk-labels) for complete eval
 When limits exceeded:
 
 - `auto/large-files` - Individual files too large
-- `auto/too-many-files` - Too many files changed
+- `auto/too-many-files` - Too many files changed (disable with `pr_files_limit_enabled: "false"`)
 - `auto/too-many-lines` - Individual files exceed configured line limits (disable with `file_lines_limit_enabled: "false"`)
 - `auto/excessive-changes` - Total additions exceed configured thresholds
 
@@ -175,6 +175,7 @@ When limits exceeded:
     file_lines_limit_enabled: "true" # Disable to skip per-file line checks/labels
     pr_additions_limit: "5000"    # Max total additions
     pr_files_limit: "50"          # Max changed files
+    pr_files_limit_enabled: "true" # Disable to skip file-count checks/labels
 
     # Label Control
     size_enabled: "true"          # Enable size labels

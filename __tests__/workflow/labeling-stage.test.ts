@@ -73,6 +73,7 @@ describe('workflow/stages/labeling', () => {
       fileLinesLimitEnabled: true,
       prAdditionsLimit: 300,
       prFilesLimit: 20,
+      prFilesLimitEnabled: true,
       sizeEnabled: true,
       sizeThresholds: { small: 50, medium: 150, large: 250, xlarge: 500 },
       complexityEnabled: true,

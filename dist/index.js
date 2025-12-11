@@ -271364,6 +271364,7 @@ function getActionInputs() {
         file_lines_limit_enabled: core.getInput('file_lines_limit_enabled') || 'true',
         pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
         pr_files_limit: core.getInput('pr_files_limit') || '50',
+        pr_files_limit_enabled: core.getInput('pr_files_limit_enabled') || 'true',
         auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
         size_enabled: core.getInput('size_enabled') || 'true',
         size_thresholds: core.getInput('size_thresholds') || '{"small": 100, "medium": 500, "large": 1000}',
@@ -272094,6 +272095,7 @@ function buildCompleteConfig(parsedInputs, labelerConfig, envConfig) {
         fileSizeLimit: parsedInputs.fileSizeLimit,
         fileLinesLimit: parsedInputs.fileLinesLimit,
         fileLinesLimitEnabled: parsedInputs.fileLinesLimitEnabled,
+        prFilesLimitEnabled: parsedInputs.prFilesLimitEnabled,
         prAdditionsLimit: parsedInputs.prAdditionsLimit,
         prFilesLimit: parsedInputs.prFilesLimit,
         sizeEnabled: parsedInputs.sizeEnabled,
@@ -274479,7 +274481,7 @@ function evaluateFailureConditions(input) {
             }
         }
     }
-    if (config.failOnTooManyFiles) {
+    if (config.failOnTooManyFiles && config.prFilesLimitEnabled) {
         const hasTooManyFilesLabel = appliedLabels?.includes(config.tooManyFilesLabel) ?? false;
         const hasTooManyFilesViolation = violations.exceedsFileCount;
         if (hasTooManyFilesLabel || hasTooManyFilesViolation) {
@@ -274634,12 +274636,13 @@ async function processFile(state, file, config, token, context) {
 async function analyzeFiles(files, config, token, context) {
     (0, actions_io_js_1.logInfo)(`Analyzing ${files.length} files`);
     const state = createInitialState(files, config);
-    if (files.length > config.maxFileCount) {
+    const maxFileCount = config.fileCountLimitEnabled ? config.maxFileCount : Number.POSITIVE_INFINITY;
+    if (config.fileCountLimitEnabled && files.length > config.maxFileCount) {
         state.result.violations.exceedsFileCount = true;
         (0, actions_io_js_1.logWarning)(`File count ${files.length} exceeds limit ${config.maxFileCount}`);
     }
     for (let i = 0; i < files.length; i++) {
-        if (i >= config.maxFileCount) {
+        if (i >= maxFileCount) {
             (0, actions_io_js_1.logWarning)(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
             break;
         }
@@ -275331,6 +275334,7 @@ function parseActionInputs() {
         file_lines_limit_enabled: core.getInput('file_lines_limit_enabled'),
         pr_additions_limit: core.getInput('pr_additions_limit'),
         pr_files_limit: core.getInput('pr_files_limit'),
+        pr_files_limit_enabled: core.getInput('pr_files_limit_enabled'),
         auto_remove_labels: core.getInput('auto_remove_labels'),
         size_enabled: core.getInput('size_enabled'),
         size_thresholds: core.getInput('size_thresholds'),
@@ -275409,6 +275413,10 @@ function normalizeActionInputStrings(inputs) {
     if (isNaN(prFilesLimit)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
     }
+    const prFilesLimitEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.pr_files_limit_enabled);
+    if (prFilesLimitEnabledResult.isErr()) {
+        return (0, neverthrow_1.err)(prFilesLimitEnabledResult.error);
+    }
     const sizeEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.size_enabled);
     if (sizeEnabledResult.isErr()) {
         return (0, neverthrow_1.err)(sizeEnabledResult.error);
@@ -275460,6 +275468,7 @@ function normalizeActionInputStrings(inputs) {
         fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
         prAdditionsLimit,
         prFilesLimit,
+        prFilesLimitEnabled: prFilesLimitEnabledResult.value,
         autoRemoveLabels: (0, action_input_parsers_js_1.parseBoolean)(inputs.auto_remove_labels),
         sizeEnabled: sizeEnabledResult.value,
         sizeThresholds: sizeThresholdsResult.value,
@@ -277754,6 +277763,7 @@ function analyzePullRequest(context) {
             fileSizeLimit: config.fileSizeLimit,
             fileLineLimit: config.fileLinesLimit,
             fileLineLimitEnabled: config.fileLinesLimitEnabled,
+            fileCountLimitEnabled: config.prFilesLimitEnabled,
             maxAddedLines: config.prAdditionsLimit,
             maxFileCount: config.prFilesLimit,
             excludePatterns: config.additionalExcludePatterns,

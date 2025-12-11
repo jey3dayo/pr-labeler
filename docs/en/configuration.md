@@ -36,6 +36,7 @@ Complete reference for all input parameters, output variables, and configuration
 | `file_lines_limit_enabled` | ❌ | `true` | Enable per-file line count checks (set to `false` to skip line-limit violations and labels) |
 | `pr_additions_limit` | ❌ | `5000` | Maximum added lines for entire PR (diff-based) |
 | `pr_files_limit` | ❌ | `50` | Maximum number of files in PR (excluding removed files) |
+| `pr_files_limit_enabled` | ❌ | `true` | Enable per-PR file count checks (set to `false` to skip file-count violations and labels) |
 
 **Examples:**
 
@@ -48,6 +49,7 @@ Complete reference for all input parameters, output variables, and configuration
     file_lines_limit_enabled: "false"  # Skip per-file line limit checks
     pr_additions_limit: "2000"    # 2000 added lines
     pr_files_limit: "30"          # 30 files maximum
+    pr_files_limit_enabled: "false"    # Skip per-PR file count checks
 ```
 
 ### Label Settings

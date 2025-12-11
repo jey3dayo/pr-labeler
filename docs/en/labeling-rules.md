@@ -67,7 +67,7 @@ All families can be individually enabled via workflow inputs (see `size_enabled`
 
 - Guardrails for workflow policies. Examples include:
   - `auto/large-files` – a single file exceeds `file_size_limit`.
-  - `auto/too-many-files` – changed file count exceeds `pr_files_limit`.
+  - `auto/too-many-files` – changed file count exceeds `pr_files_limit` (set `pr_files_limit_enabled: "false"` to skip).
   - `auto/too-many-lines` – a file breaks `file_lines_limit` (set `file_lines_limit_enabled: "false"` to skip).
   - `auto/excessive-changes` – total additions exceed `pr_additions_limit`.
 - Combine with `fail_on_*` inputs to stop workflows when these labels appear.

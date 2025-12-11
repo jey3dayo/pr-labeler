@@ -28,6 +28,7 @@ describe('buildCompleteConfig', () => {
       fileSizeLimit: 102400,
       fileLinesLimit: 1000,
       fileLinesLimitEnabled: true,
+      prFilesLimitEnabled: true,
       prAdditionsLimit: 5000,
       prFilesLimit: 100,
       sizeEnabled: true,

@@ -33,6 +33,7 @@ export interface NormalizedActionInputs {
   fileLinesLimitEnabled: boolean;
   prAdditionsLimit: number;
   prFilesLimit: number;
+  prFilesLimitEnabled: boolean;
   autoRemoveLabels: boolean;
   sizeEnabled: boolean;
   sizeThresholds: SizeThresholds;
@@ -92,6 +93,11 @@ export function normalizeActionInputStrings(
   const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
   if (isNaN(prFilesLimit)) {
     return err(createConfigurationError('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
+  }
+
+  const prFilesLimitEnabledResult = parseBooleanStrict(inputs.pr_files_limit_enabled);
+  if (prFilesLimitEnabledResult.isErr()) {
+    return err(prFilesLimitEnabledResult.error);
   }
 
   const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
@@ -165,6 +171,7 @@ export function normalizeActionInputStrings(
     fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
     prAdditionsLimit,
     prFilesLimit,
+    prFilesLimitEnabled: prFilesLimitEnabledResult.value,
     autoRemoveLabels: parseBoolean(inputs.auto_remove_labels),
     sizeEnabled: sizeEnabledResult.value,
     sizeThresholds: sizeThresholdsResult.value,

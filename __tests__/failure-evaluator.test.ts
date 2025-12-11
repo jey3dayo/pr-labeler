@@ -21,6 +21,7 @@ describe('FailureEvaluator', () => {
     fileSizeLimit: 100000,
     fileLinesLimit: 500,
     fileLinesLimitEnabled: true,
+    prFilesLimitEnabled: true,
     prAdditionsLimit: 5000,
     prFilesLimit: 50,
     autoRemoveLabels: true,
@@ -318,6 +319,28 @@ describe('FailureEvaluator', () => {
             exceedsFileCount: true,
           },
           metrics: { totalAdditions: 100 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
+      });
+
+      it('should ignore too many files when file count check is disabled', () => {
+        const config = createBaseConfig();
+        config.failOnTooManyFiles = true;
+        config.prFilesLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/too-many-files'],
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: true,
+          },
+          metrics: { totalAdditions: 100, excludedAdditions: 0 },
           sizeThresholds: config.sizeThresholds,
         };
 

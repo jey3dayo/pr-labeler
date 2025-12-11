@@ -19,6 +19,7 @@ export interface AnalysisConfig {
   fileSizeLimit: number;
   fileLineLimit: number;
   fileLineLimitEnabled: boolean;
+  fileCountLimitEnabled: boolean;
   maxAddedLines: number;
   maxFileCount: number;
   excludePatterns: string[];

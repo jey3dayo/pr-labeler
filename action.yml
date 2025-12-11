@@ -32,6 +32,11 @@ inputs:
     required: false
     default: "50"
 
+  pr_files_limit_enabled:
+    description: "Enable per-PR file count checks (set to false to skip file-count violations)"
+    required: false
+    default: "true"
+
   # ラベル設定
   auto_remove_labels:
     description: "Remove labels when limits are no longer exceeded"

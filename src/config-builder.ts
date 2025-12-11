@@ -75,6 +75,7 @@ export function buildCompleteConfig(
     fileSizeLimit: parsedInputs.fileSizeLimit,
     fileLinesLimit: parsedInputs.fileLinesLimit,
     fileLinesLimitEnabled: parsedInputs.fileLinesLimitEnabled,
+    prFilesLimitEnabled: parsedInputs.prFilesLimitEnabled,
     prAdditionsLimit: parsedInputs.prAdditionsLimit,
     prFilesLimit: parsedInputs.prFilesLimit,
     sizeEnabled: parsedInputs.sizeEnabled,
