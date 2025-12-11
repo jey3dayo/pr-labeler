@@ -65,7 +65,6 @@ describe('workflow/stages/analysis', () => {
       complexityThresholdsV2: { medium: 10, high: 20 },
       categoryEnabled: true,
       riskEnabled: true,
-      autoRemoveLabels: true,
       largeFilesLabel: 'large',
       tooManyFilesLabel: 'many',
       tooManyLinesLabel: 'lines',

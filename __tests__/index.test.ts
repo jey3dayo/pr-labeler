@@ -54,7 +54,6 @@ describe('PR Insights Labeler', () => {
         file_lines_limit: '500',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
         apply_size_labels: 'true',
         size_label_thresholds: '',
         large_files_label: 'auto/large-files',

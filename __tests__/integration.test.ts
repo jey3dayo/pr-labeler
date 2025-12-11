@@ -67,7 +67,6 @@ describe('Integration Tests', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         apply_size_labels: 'true',
         size_label_thresholds:
           '{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}',
@@ -285,7 +284,6 @@ describe('Integration Tests', () => {
           pr_additions_limit: '5000',
           pr_files_limit: '50',
           pr_files_limit_enabled: 'true',
-          auto_remove_labels: 'true',
           large_files_label: 'auto/large-files',
           too_many_files_label: 'auto/too-many-files',
           skip_draft_pr: 'true',
@@ -359,7 +357,6 @@ describe('Integration Tests', () => {
           pr_additions_limit: '5000',
           pr_files_limit: '50',
           pr_files_limit_enabled: 'true',
-          auto_remove_labels: 'true',
           large_files_label: 'auto/large-files',
           too_many_files_label: 'auto/too-many-files',
           skip_draft_pr: 'true',

@@ -162,7 +162,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: 'invalid-json', // Invalid JSON
         complexity_enabled: 'true',
@@ -195,7 +194,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": -100, "medium": 500, "large": 1000, "xlarge": 3000}', // Negative value
         complexity_enabled: 'true',
@@ -228,7 +226,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 1000, "medium": 500, "large": 100, "xlarge": 3000}', // Incorrect order
         complexity_enabled: 'true',
@@ -263,7 +260,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
@@ -296,7 +292,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
@@ -329,7 +324,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
@@ -364,7 +358,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto/large-files',
         too_many_files_label: 'auto/too-many-files',
@@ -384,7 +377,6 @@ describe('InputMapper', () => {
         expect(config.fileLinesLimitEnabled).toBe(true);
         expect(config.prAdditionsLimit).toBe(5000);
         expect(config.prFilesLimit).toBe(50);
-        expect(config.autoRemoveLabels).toBe(true);
         // PR Insights Labeler - Selective Label Enabling
         expect(config.sizeEnabled).toBe(true);
         expect(config.sizeThresholds.small).toBe(200);
@@ -412,7 +404,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto/large-files',
         too_many_files_label: 'auto/too-many-files',
@@ -439,7 +430,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: 'invalid json', // Invalid JSON for testing
         complexity_enabled: 'true',
@@ -471,7 +461,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto/large-files',
         too_many_files_label: 'auto/too-many-files',
@@ -503,7 +492,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'false', // デフォルト値
@@ -539,7 +527,6 @@ describe('InputMapper', () => {
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
-        auto_remove_labels: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'false',

@@ -34,7 +34,6 @@ export interface NormalizedActionInputs {
   prAdditionsLimit: number;
   prFilesLimit: number;
   prFilesLimitEnabled: boolean;
-  autoRemoveLabels: boolean;
   sizeEnabled: boolean;
   sizeThresholds: SizeThresholds;
   complexityEnabled: boolean;
@@ -172,7 +171,6 @@ export function normalizeActionInputStrings(
     prAdditionsLimit,
     prFilesLimit,
     prFilesLimitEnabled: prFilesLimitEnabledResult.value,
-    autoRemoveLabels: parseBoolean(inputs.auto_remove_labels),
     sizeEnabled: sizeEnabledResult.value,
     sizeThresholds: sizeThresholdsResult.value,
     complexityEnabled: complexityEnabledResult.value,

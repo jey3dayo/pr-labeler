@@ -28,7 +28,6 @@ describe('parseActionInputs', () => {
       pr_additions_limit: '5000',
       pr_files_limit: '100',
       pr_files_limit_enabled: 'true',
-      auto_remove_labels: 'true',
       size_enabled: 'true',
       size_thresholds: defaultSizeThresholds,
       complexity_enabled: 'false',

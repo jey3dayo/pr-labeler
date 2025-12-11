@@ -84,7 +84,6 @@ export function buildCompleteConfig(
     complexityThresholdsV2: parsedInputs.complexityThresholdsV2,
     categoryEnabled: parsedInputs.categoryEnabled,
     riskEnabled: parsedInputs.riskEnabled,
-    autoRemoveLabels: parsedInputs.autoRemoveLabels,
     largeFilesLabel: parsedInputs.largeFilesLabel,
     tooManyFilesLabel: parsedInputs.tooManyFilesLabel,
     tooManyLinesLabel: parsedInputs.tooManyLinesLabel,

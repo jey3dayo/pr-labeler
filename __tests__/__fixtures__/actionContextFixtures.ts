@@ -162,7 +162,6 @@ export const DEFAULT_ACTION_INPUTS = {
   pr_files_limit: '50',
   size_thresholds_v2: '200,500,1000,3000',
   complexity_thresholds_v2: '10,20',
-  auto_remove_labels: 'true',
   skip_draft_pr: 'false',
   comment_on_pr: 'auto',
   enable_summary: 'true',

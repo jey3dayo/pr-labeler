@@ -103,18 +103,6 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
 ### ラベル設定パラメータ
 
-#### `auto_remove_labels`
-
-- **型**: `string` (boolean)
-- **必須**: ❌
-- **デフォルト**: `"true"`
-- **説明**: 制限違反が解消された際に自動的にラベルを削除
-- **使用例**:
-
-  ```yaml
-  auto_remove_labels: "true"
-  ```
-
 #### `apply_size_labels`
 
 - **型**: `string` (boolean)

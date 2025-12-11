@@ -37,12 +37,6 @@ inputs:
     required: false
     default: "true"
 
-  # ラベル設定
-  auto_remove_labels:
-    description: "Remove labels when limits are no longer exceeded"
-    required: false
-    default: "true"
-
   # PR Insights Labeler - ラベル種別の選択的有効化
   size_enabled:
     description: "Enable size labels (size/small, size/medium, size/large, size/xlarge, size/xxlarge)"

@@ -56,7 +56,6 @@ Complete reference for all input parameters, output variables, and configuration
 
 | Parameter | Required | Default | Description |
 | ------------------------- | -------- | ------------------------ | ------------------------------------------------------ |
-| `auto_remove_labels` | ❌ | `true` | Remove labels when limits are no longer exceeded |
 | `large_files_label` | ❌ | `auto/large-files` | Label for files exceeding size or line limits |
 | `too_many_files_label` | ❌ | `auto/too-many-files` | Label for PRs with too many files |
 | `too_many_lines_label` | ❌ | `auto/too-many-lines` | Label for files exceeding line count limits |
@@ -67,7 +66,6 @@ Complete reference for all input parameters, output variables, and configuration
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
   with:
-    auto_remove_labels: "true"
     large_files_label: "violations/large-files"
     too_many_files_label: "violations/too-many-files"
     excessive_changes_label: "violations/excessive-changes"

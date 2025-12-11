@@ -176,6 +176,7 @@ PR変更の潜在的な影響と安全性を評価:
     pr_additions_limit: "5000"    # 最大追加行数合計
     pr_files_limit: "50"          # 最大変更ファイル数
     pr_files_limit_enabled: "true"  # falseでファイル数チェックとラベル付与をスキップ
+    pr_files_limit_enabled: "true"  # falseでファイル数チェックとラベル付与をスキップ
 
     # ラベル制御
     size_enabled: "true"          # サイズラベル有効化

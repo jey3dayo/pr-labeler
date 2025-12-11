@@ -37,7 +37,6 @@ describe('buildCompleteConfig', () => {
       riskEnabled: true,
       sizeThresholds: { small: 100, medium: 500, large: 1000, xlarge: 2000 },
       complexityThresholdsV2: { medium: 10, high: 20 },
-      autoRemoveLabels: true,
       largeFilesLabel: 'auto/large-files',
       tooManyFilesLabel: 'auto/too-many-files',
       tooManyLinesLabel: 'auto/too-many-lines',

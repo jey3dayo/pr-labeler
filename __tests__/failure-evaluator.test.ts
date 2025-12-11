@@ -24,7 +24,6 @@ describe('FailureEvaluator', () => {
     prFilesLimitEnabled: true,
     prAdditionsLimit: 5000,
     prFilesLimit: 50,
-    autoRemoveLabels: true,
     sizeEnabled: true,
     sizeThresholds: { small: 200, medium: 500, large: 1000, xlarge: 3000 },
     complexityEnabled: false,

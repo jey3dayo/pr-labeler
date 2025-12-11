@@ -23,7 +23,6 @@ export interface ActionInputs {
   pr_additions_limit: string;
   pr_files_limit: string;
   pr_files_limit_enabled: string;
-  auto_remove_labels: string;
   // PR Insights Labeler - Selective Label Enabling
   size_enabled: string;
   size_thresholds: string;
@@ -116,7 +115,6 @@ export function getActionInputs(): ActionInputs {
     pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
     pr_files_limit: core.getInput('pr_files_limit') || '50',
     pr_files_limit_enabled: core.getInput('pr_files_limit_enabled') || 'true',
-    auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
     // PR Insights Labeler - Selective Label Enabling
     size_enabled: core.getInput('size_enabled') || 'true',
     size_thresholds: core.getInput('size_thresholds') || '{"small": 100, "medium": 500, "large": 1000}',

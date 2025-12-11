@@ -175,6 +175,7 @@ When limits exceeded:
     file_lines_limit_enabled: "true" # Disable to skip per-file line checks/labels
     pr_additions_limit: "5000"    # Max total additions
     pr_files_limit: "50"          # Max changed files
+    pr_files_limit_enabled: "true"  # Disable to skip file-count checks/labels
     pr_files_limit_enabled: "true" # Disable to skip file-count checks/labels
 
     # Label Control
@@ -254,6 +255,6 @@ MIT License - see repository for details.
 ## 🙏 Built With
 
 - [neverthrow](https://github.com/supermacro/neverthrow) - Type-safe error handling
-- [minimatch](https://github.com/isaacs/minimatch) - Glob pattern matching
+- [minimatch](https://www.npmjs.com/package/minimatch) - Glob pattern matching
 - [bytes](https://github.com/visionmedia/bytes.js) - Size parsing utilities
 - [@actions/toolkit](https://github.com/actions/toolkit) - GitHub Actions SDK
