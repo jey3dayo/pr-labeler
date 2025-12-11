@@ -77,8 +77,8 @@ graph TB
     Trouble --> Solutions[Problem → Cause → Solution]
 
     README --> Existing[Existing Docs]
-    Existing --> API[docs/en/API.md]
-    Existing --> Release[docs/en/release-process.md]
+    Existing --> API[docs/ja/API.md]
+    Existing --> Release[docs/ja/release-process.md]
     Existing --> Guidelines[docs/ja/documentation-guidelines.md]
 
     style README fill:#e1f5ff
@@ -332,8 +332,8 @@ flowchart LR
 - [Configuration Guide](docs/en/configuration.md)
 - [Advanced Usage](docs/en/advanced-usage.md)
 - [Troubleshooting](docs/en/troubleshooting.md)
-- [API Documentation](docs/en/API.md)
-- [Release Process](docs/en/release-process.md)
+- [API Documentation](docs/ja/API.md)
+- [Release Process](docs/ja/release-process.md)
 
 ## 🤝 Contributing
 ## 📄 License
@@ -425,8 +425,8 @@ For real-world examples and advanced scenarios, see [Advanced Usage Guide](docs/
 - [Configuration Guide](docs/en/configuration.md) - All input parameters and defaults
 - [Advanced Usage](docs/en/advanced-usage.md) - Real-world workflow examples
 - [Troubleshooting](docs/en/troubleshooting.md) - Common issues and solutions
-- [API Documentation](docs/en/API.md) - Programmatic usage
-- [Release Process](docs/en/release-process.md) - Version management
+- [API Documentation](docs/ja/API.md) - Programmatic usage (canonical, JA-only)
+- [Release Process](docs/ja/release-process.md) - Version management (canonical, JA-only)
 
 ## 🤝 Contributing
 

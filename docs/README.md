@@ -19,8 +19,6 @@ Project documentation is now organized by language. Use the links below to jump 
 - [Labeling Rules Quick Reference](./en/labeling-rules.md)
 - [Category Labels](./en/categories.md)
 - [Troubleshooting Guide](./en/troubleshooting.md)
-- [API Reference (stub, translation pending)](./en/API.md)
-- [Release Process (stub, translation pending)](./en/release-process.md)
 
 ## 日本語ドキュメント
 

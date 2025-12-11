@@ -199,10 +199,10 @@ SerenaはMCP（Model Context Protocol）ベースのAI開発支援ツール。
 
 ```
 docs/
-├── API.md                    # API仕様
-├── release-process.md        # リリースプロセス
-├── documentation-guidelines.md # ドキュメント作成ガイドライン
-└── _review-codex.md          # コードレビュー基準
+├── ja/API.md                    # API仕様（正典、英語版は未整備）
+├── ja/release-process.md        # リリースプロセス
+├── ja/documentation-guidelines.md # ドキュメント作成ガイドライン
+└── en/*                         # 英語版ドキュメント（一部未整備）
 ```
 
 #### 2024アップデート（`docs/`）
@@ -498,7 +498,7 @@ git push --follow-tags
 # 5. GitHub Release作成
 ```
 
-詳細は`docs/en/release-process.md`を参照。
+詳細は`docs/ja/release-process.md`を参照。
 
 ## Best Practices
 

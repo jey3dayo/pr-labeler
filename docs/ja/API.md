@@ -4,7 +4,7 @@
 **対象**: 開発者
 **タグ**: `category/api`, `audience/developer`, `environment/development`
 
-**言語**: [English](../en/API.md) | 日本語
+**言語**: 日本語（英語版は未整備）
 
 PR Insights Labelerの詳細なAPI仕様書です。
 
