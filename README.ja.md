@@ -153,10 +153,10 @@ PR変更の潜在的な影響と安全性を評価:
 
 制限超過時:
 
-- `auto/large-files` - 個別ファイルが大きすぎる
+- `auto/large-files` - 個別ファイルが大きすぎる（`file_size_limit_enabled: "false"` で無効化）
 - `auto/too-many-files` - 変更ファイル数が多すぎる（`pr_files_limit_enabled: "false"` で無効化）
 - `auto/too-many-lines` - 個別ファイルが設定行数を超過（`file_lines_limit_enabled: "false"` で無効化）
-- `auto/excessive-changes` - 追加行数合計が閾値を超過
+- `auto/excessive-changes` - 追加行数合計が閾値を超過（`pr_additions_limit_enabled: "false"` で無効化）
 
 **カスタマイズ**: すべての閾値とラベルは設定可能。詳細は [設定ガイド](docs/en/configuration.md#label-thresholds-defaults) を参照。
 
@@ -171,11 +171,12 @@ PR変更の潜在的な影響と安全性を評価:
 
     # サイズ制限
     file_size_limit: "100KB"      # 最大ファイルサイズ
+    file_size_limit_enabled: "true" # falseでサイズチェックとラベル付与をスキップ
     file_lines_limit: "500"       # 最大行数/ファイル
     file_lines_limit_enabled: "true" # falseにすると行数チェックとラベル付与をスキップ
     pr_additions_limit: "5000"    # 最大追加行数合計
+    pr_additions_limit_enabled: "true" # falseで追加行数チェックとラベル付与をスキップ
     pr_files_limit: "50"          # 最大変更ファイル数
-    pr_files_limit_enabled: "true"  # falseでファイル数チェックとラベル付与をスキップ
     pr_files_limit_enabled: "true"  # falseでファイル数チェックとラベル付与をスキップ
 
     # ラベル制御

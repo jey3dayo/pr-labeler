@@ -73,8 +73,10 @@ export function buildCompleteConfig(
     // ParsedInputs から型安全に取得
     githubToken: parsedInputs.githubToken,
     fileSizeLimit: parsedInputs.fileSizeLimit,
+    fileSizeLimitEnabled: parsedInputs.fileSizeLimitEnabled,
     fileLinesLimit: parsedInputs.fileLinesLimit,
     fileLinesLimitEnabled: parsedInputs.fileLinesLimitEnabled,
+    prAdditionsLimitEnabled: parsedInputs.prAdditionsLimitEnabled,
     prFilesLimitEnabled: parsedInputs.prFilesLimitEnabled,
     prAdditionsLimit: parsedInputs.prAdditionsLimit,
     prFilesLimit: parsedInputs.prFilesLimit,

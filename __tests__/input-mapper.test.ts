@@ -14,6 +14,8 @@ vi.mock('@actions/core');
 
 // デフォルトのDirectory-Based Labeling入力値を持つヘルパー
 const getDefaultDirectoryLabelingInputs = () => ({
+  file_size_limit_enabled: 'true',
+  pr_additions_limit_enabled: 'true',
   enable_directory_labeling: 'false',
   directory_labeler_config_path: '.github/directory-labeler.yml',
   auto_create_labels: 'false',
@@ -31,6 +33,8 @@ const getDefaultPRLabelerInputs = () => ({
   complexity_thresholds: '{"medium": 15, "high": 30}',
   category_enabled: 'true',
   risk_enabled: 'true',
+  file_size_limit_enabled: 'true',
+  pr_additions_limit_enabled: 'true',
   pr_files_limit_enabled: 'true',
   // Label-Based Workflow Failure Control
   fail_on_large_files: '',
@@ -157,9 +161,11 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
         size_enabled: 'true',
@@ -189,9 +195,11 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
         size_enabled: 'true',
@@ -221,9 +229,11 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
         size_enabled: 'true',
@@ -255,9 +265,11 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
         size_enabled: 'true',
@@ -287,9 +299,11 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
         size_enabled: 'true',
@@ -319,9 +333,11 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
         size_enabled: 'true',
@@ -353,9 +369,11 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
         file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
         pr_files_limit_enabled: 'true',
         ...getDefaultPRLabelerInputs(),
@@ -373,9 +391,11 @@ describe('InputMapper', () => {
       if (result.isOk()) {
         const config = result.value;
         expect(config.fileSizeLimit).toBe(102400); // 100KB in bytes
+        expect(config.fileSizeLimitEnabled).toBe(true);
         expect(config.fileLinesLimit).toBe(500);
         expect(config.fileLinesLimitEnabled).toBe(true);
         expect(config.prAdditionsLimit).toBe(5000);
+        expect(config.prAdditionsLimitEnabled).toBe(true);
         expect(config.prFilesLimit).toBe(50);
         // PR Insights Labeler - Selective Label Enabling
         expect(config.sizeEnabled).toBe(true);

@@ -31,6 +31,18 @@ PR Insights Labelerの詳細なAPI仕様書です。
   file_size_limit: "500000"   # 500,000バイト
   ```
 
+#### `file_size_limit_enabled`
+
+- **型**: `string` (boolean)
+- **必須**: ❌
+- **デフォルト**: `"true"`
+- **説明**: ファイルサイズチェックの有効／無効を切り替え（`"false"` で `file_size_limit` による違反検出・ラベル付与をスキップ）
+- **使用例**:
+
+  ```yaml
+  file_size_limit_enabled: "false"  # サイズ違反を無効化
+  ```
+
 #### `file_lines_limit`
 
 - **型**: `string`
@@ -71,6 +83,18 @@ PR Insights Labelerの詳細なAPI仕様書です。
   ```yaml
   pr_additions_limit: "5000"
   pr_additions_limit: "1000"
+  ```
+
+#### `pr_additions_limit_enabled`
+
+- **型**: `string` (boolean)
+- **必須**: ❌
+- **デフォルト**: `"true"`
+- **説明**: PR全体の追加行数チェックの有効／無効を切り替え（`"false"` で `pr_additions_limit` による違反検出・ラベル付与をスキップ）
+- **使用例**:
+
+  ```yaml
+  pr_additions_limit_enabled: "false" # 追加行数チェックを無効化
   ```
 
 #### `pr_files_limit`

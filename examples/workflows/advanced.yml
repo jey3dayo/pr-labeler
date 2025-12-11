@@ -31,9 +31,11 @@ jobs:
 
           # Size Limits
           file_size_limit: "100KB" # Maximum file size
+          file_size_limit_enabled: "true" # Disable to skip per-file size checks/labels
           file_lines_limit: "500" # Maximum lines per file
           file_lines_limit_enabled: "true" # Disable to skip per-file line checks/labels
           pr_additions_limit: "5000" # Maximum total additions
+          pr_additions_limit_enabled: "true" # Disable to skip additions-limit checks/labels
           pr_files_limit: "50" # Maximum changed files
           pr_files_limit_enabled: "true" # Disable to skip file-count checks/labels
 

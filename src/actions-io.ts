@@ -18,9 +18,11 @@ import { isInitialized, t } from './i18n.js';
 export interface ActionInputs {
   github_token: string;
   file_size_limit: string;
+  file_size_limit_enabled: string;
   file_lines_limit: string;
   file_lines_limit_enabled: string;
   pr_additions_limit: string;
+  pr_additions_limit_enabled: string;
   pr_files_limit: string;
   pr_files_limit_enabled: string;
   // PR Insights Labeler - Selective Label Enabling
@@ -110,9 +112,11 @@ export function getActionInputs(): ActionInputs {
   return {
     github_token: resolveTokenValue() || '',
     file_size_limit: core.getInput('file_size_limit') || '100KB',
+    file_size_limit_enabled: core.getInput('file_size_limit_enabled') || 'true',
     file_lines_limit: core.getInput('file_lines_limit') || '500',
     file_lines_limit_enabled: core.getInput('file_lines_limit_enabled') || 'true',
     pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
+    pr_additions_limit_enabled: core.getInput('pr_additions_limit_enabled') || 'true',
     pr_files_limit: core.getInput('pr_files_limit') || '50',
     pr_files_limit_enabled: core.getInput('pr_files_limit_enabled') || 'true',
     // PR Insights Labeler - Selective Label Enabling

@@ -19,8 +19,10 @@ describe('FailureEvaluator', () => {
 
   const createBaseConfig = (): Config => ({
     fileSizeLimit: 100000,
+    fileSizeLimitEnabled: true,
     fileLinesLimit: 500,
     fileLinesLimitEnabled: true,
+    prAdditionsLimitEnabled: true,
     prFilesLimitEnabled: true,
     prAdditionsLimit: 5000,
     prFilesLimit: 50,
@@ -154,6 +156,36 @@ describe('FailureEvaluator', () => {
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(1);
         expect(failures[0]).toContain('Files with too many lines detected');
+      });
+
+      it('should ignore large-files when file size checks are disabled', () => {
+        const config = createBaseConfig();
+        config.failOnLargeFiles = true;
+        config.fileSizeLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/large-files'],
+          violations: {
+            largeFiles: [
+              {
+                file: 'large-file.ts',
+                violationType: 'size',
+                severity: 'critical',
+                actualValue: 999999,
+                limit: 100000,
+              },
+            ],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+          metrics: { totalAdditions: 100 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
       });
 
       it('should skip too-many-lines when line limit checks are disabled', () => {
@@ -416,6 +448,28 @@ describe('FailureEvaluator', () => {
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(1);
         expect(failures[0]).toContain('PR additions exceed limit');
+      });
+
+      it('should ignore excessive changes when additions limit is disabled', () => {
+        const config = createBaseConfig();
+        config.failOnPrSize = 'large';
+        config.prAdditionsLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/excessive-changes'],
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: true,
+            exceedsFileCount: false,
+          },
+          metrics: { totalAdditions: 100 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
       });
 
       it('should detect excessive changes from violation', () => {

@@ -26,8 +26,10 @@ describe('buildCompleteConfig', () => {
       language: undefined,
       githubToken: 'test-token',
       fileSizeLimit: 102400,
+      fileSizeLimitEnabled: true,
       fileLinesLimit: 1000,
       fileLinesLimitEnabled: true,
+      prAdditionsLimitEnabled: true,
       prFilesLimitEnabled: true,
       prAdditionsLimit: 5000,
       prFilesLimit: 100,
@@ -122,9 +124,11 @@ describe('buildCompleteConfig', () => {
 
       expect(config.githubToken).toBe('test-token');
       expect(config.fileSizeLimit).toBe(102400);
+      expect(config.fileSizeLimitEnabled).toBe(true);
       expect(config.sizeEnabled).toBe(true);
       expect(config.complexityEnabled).toBe(false);
       expect(config.sizeThresholds).toEqual({ small: 100, medium: 500, large: 1000, xlarge: 2000 });
+      expect(config.prAdditionsLimitEnabled).toBe(true);
       expect(config.skipDraftPr).toBe(true);
       expect(config.commentOnPr).toBe('auto');
     });

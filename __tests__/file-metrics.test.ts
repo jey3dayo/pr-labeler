@@ -315,8 +315,10 @@ describe('FileMetrics', () => {
   describe('analyzeFiles', () => {
     const config = {
       fileSizeLimit: 1000000, // 1MB
+      fileSizeLimitEnabled: true,
       fileLineLimit: 1000,
       fileLineLimitEnabled: true,
+      prAdditionsLimitEnabled: true,
       fileCountLimitEnabled: true,
       maxAddedLines: 5000,
       maxFileCount: 100,
@@ -474,6 +476,61 @@ describe('FileMetrics', () => {
         expect(result.value.violations.exceedsFileLines).toHaveLength(1);
         expect(result.value.violations.exceedsAdditions).toBe(true); // 1100 > 500
         expect(result.value.violations.exceedsFileCount).toBe(false);
+      }
+    });
+
+    it('should skip file size violations when disabled', async () => {
+      const files: DiffFile[] = [{ filename: 'src/huge.ts', additions: 10, deletions: 0, status: 'modified' }];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(5_000_000)); // 5MB
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     100 src/huge.ts',
+        stderr: '',
+      });
+
+      const disabledConfig = {
+        ...config,
+        fileSizeLimit: 100000, // 100KB
+        fileSizeLimitEnabled: false,
+      };
+
+      const result = await analyzeFiles(files, disabledConfig, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.violations.largeFiles).toHaveLength(0);
+      }
+    });
+
+    it('should skip additions violations when disabled', async () => {
+      const files: DiffFile[] = [
+        { filename: 'src/changes.ts', additions: 1200, deletions: 10, status: 'modified' },
+        { filename: 'src/more.ts', additions: 900, deletions: 5, status: 'modified' },
+      ];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(10_000));
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          return Promise.resolve({
+            stdout: `     50 ${args[1]}`,
+            stderr: '',
+          });
+        }
+        return Promise.reject(new Error('Unknown command'));
+      });
+
+      const disabledConfig = {
+        ...config,
+        maxAddedLines: 1000,
+        prAdditionsLimitEnabled: false,
+      };
+
+      const result = await analyzeFiles(files, disabledConfig, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.violations.exceedsAdditions).toBe(false);
       }
     });
 

@@ -111,7 +111,7 @@ async function processFile(
   result.metrics.filesAnalyzed.push(metrics);
   result.metrics.totalAdditions += file.additions;
 
-  if (metrics.size > config.fileSizeLimit) {
+  if (config.fileSizeLimitEnabled && metrics.size > config.fileSizeLimit) {
     recordViolation(
       result.violations.largeFiles,
       {
@@ -176,7 +176,7 @@ export async function analyzeFiles(
     }
   }
 
-  if (state.result.metrics.totalAdditions > config.maxAddedLines) {
+  if (config.prAdditionsLimitEnabled && state.result.metrics.totalAdditions > config.maxAddedLines) {
     state.result.violations.exceedsAdditions = true;
     logWarning(`Total additions ${state.result.metrics.totalAdditions} exceeds limit ${config.maxAddedLines}`);
   }

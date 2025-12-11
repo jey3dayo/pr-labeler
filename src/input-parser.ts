@@ -45,9 +45,11 @@ export function parseActionInputs(): Result<ParsedInputs, ConfigurationError | P
 
   const rawInputs: ActionInputStrings = {
     file_size_limit: core.getInput('file_size_limit'),
+    file_size_limit_enabled: core.getInput('file_size_limit_enabled'),
     file_lines_limit: core.getInput('file_lines_limit'),
     file_lines_limit_enabled: core.getInput('file_lines_limit_enabled'),
     pr_additions_limit: core.getInput('pr_additions_limit'),
+    pr_additions_limit_enabled: core.getInput('pr_additions_limit_enabled'),
     pr_files_limit: core.getInput('pr_files_limit'),
     pr_files_limit_enabled: core.getInput('pr_files_limit_enabled'),
     size_enabled: core.getInput('size_enabled'),

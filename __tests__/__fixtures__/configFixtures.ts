@@ -24,8 +24,10 @@ export const defaultParsedInputs: ParsedInputs = {
   language: 'en',
   githubToken: 'test-github-token',
   fileSizeLimit: 100000,
+  fileSizeLimitEnabled: true,
   fileLinesLimit: 500,
   fileLinesLimitEnabled: true,
+  prAdditionsLimitEnabled: true,
   prFilesLimitEnabled: true,
   prAdditionsLimit: 5000,
   prFilesLimit: 50,
@@ -75,17 +77,7 @@ export const defaultEnvironmentConfig: EnvironmentConfig = {
  * Default Config for testing
  */
 export const defaultConfig: Config = {
-  language: 'en',
-  enableSize: true,
-  sizeSmall: 200,
-  sizeMedium: 500,
-  sizeLarge: 1000,
-  sizeXlarge: 3000,
-  enableComplexity: false,
-  complexityMedium: 10,
-  complexityHigh: 20,
-  enableCategory: true,
-  enableRisk: true,
+  ...defaultParsedInputs,
 };
 
 // ============================================================================
