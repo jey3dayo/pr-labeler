@@ -23,10 +23,13 @@ describe('parseActionInputs', () => {
       language: '',
       github_token: 'test-token',
       file_size_limit: '100KB',
+      file_size_limit_enabled: 'true',
       file_lines_limit: '1000',
+      file_lines_limit_enabled: 'true',
       pr_additions_limit: '5000',
+      pr_additions_limit_enabled: 'true',
       pr_files_limit: '100',
-      auto_remove_labels: 'true',
+      pr_files_limit_enabled: 'true',
       size_enabled: 'true',
       size_thresholds: defaultSizeThresholds,
       complexity_enabled: 'false',
@@ -78,7 +81,11 @@ describe('parseActionInputs', () => {
       expect(parsed.language).toBeUndefined(); // 空文字列 → undefined
       expect(parsed.githubToken).toBe('test-token');
       expect(parsed.fileSizeLimit).toBe(102400); // 100KB
+      expect(parsed.fileSizeLimitEnabled).toBe(true);
       expect(parsed.fileLinesLimit).toBe(1000);
+      expect(parsed.fileLinesLimitEnabled).toBe(true);
+      expect(parsed.prAdditionsLimitEnabled).toBe(true);
+      expect(parsed.prFilesLimitEnabled).toBe(true);
       expect(parsed.sizeEnabled).toBe(true);
       expect(parsed.complexityEnabled).toBe(false);
     });
@@ -90,9 +97,13 @@ describe('parseActionInputs', () => {
           language: '',
           github_token: 'test-token',
           file_size_limit: '100KB',
+          file_size_limit_enabled: 'true',
           file_lines_limit: '1000',
+          file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
+          pr_additions_limit_enabled: 'true',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}',
           complexity_enabled: 'false',
@@ -112,6 +123,54 @@ describe('parseActionInputs', () => {
       expect(result.value.language).toBeUndefined();
     });
 
+    it('should parse file_lines_limit_enabled as boolean', () => {
+      mockGetInput.mockImplementation(buildInputs({ file_lines_limit_enabled: 'false' }));
+
+      const result = parseActionInputs();
+
+      expect(result.isOk()).toBe(true);
+      if (result.isErr()) {
+        return;
+      }
+      expect(result.value.fileLinesLimitEnabled).toBe(false);
+    });
+
+    it('should parse file_size_limit_enabled as boolean', () => {
+      mockGetInput.mockImplementation(buildInputs({ file_size_limit_enabled: 'false' }));
+
+      const result = parseActionInputs();
+
+      expect(result.isOk()).toBe(true);
+      if (result.isErr()) {
+        return;
+      }
+      expect(result.value.fileSizeLimitEnabled).toBe(false);
+    });
+
+    it('should parse pr_additions_limit_enabled as boolean', () => {
+      mockGetInput.mockImplementation(buildInputs({ pr_additions_limit_enabled: 'false' }));
+
+      const result = parseActionInputs();
+
+      expect(result.isOk()).toBe(true);
+      if (result.isErr()) {
+        return;
+      }
+      expect(result.value.prAdditionsLimitEnabled).toBe(false);
+    });
+
+    it('should parse pr_files_limit_enabled as boolean', () => {
+      mockGetInput.mockImplementation(buildInputs({ pr_files_limit_enabled: 'false' }));
+
+      const result = parseActionInputs();
+
+      expect(result.isOk()).toBe(true);
+      if (result.isErr()) {
+        return;
+      }
+      expect(result.value.prFilesLimitEnabled).toBe(false);
+    });
+
     it('should preserve non-empty language value', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'language') {
@@ -123,14 +182,26 @@ describe('parseActionInputs', () => {
         if (name === 'file_size_limit') {
           return '100KB';
         }
+        if (name === 'file_size_limit_enabled') {
+          return 'true';
+        }
         if (name === 'file_lines_limit') {
           return '1000';
+        }
+        if (name === 'file_lines_limit_enabled') {
+          return 'true';
         }
         if (name === 'pr_additions_limit') {
           return '5000';
         }
+        if (name === 'pr_additions_limit_enabled') {
+          return 'true';
+        }
         if (name === 'pr_files_limit') {
           return '100';
+        }
+        if (name === 'pr_files_limit_enabled') {
+          return 'true';
         }
         if (name === 'size_enabled') {
           return 'true';
@@ -186,9 +257,13 @@ describe('parseActionInputs', () => {
         const defaults: Record<string, string> = {
           github_token: 'test-token',
           file_size_limit: '100KB',
+          file_size_limit_enabled: 'true',
           file_lines_limit: '1000',
+          file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
+          pr_additions_limit_enabled: 'true',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{"small": 1000, "medium": 500, "large": 100, "xlarge": 2000}',
           complexity_enabled: 'false',
@@ -213,9 +288,13 @@ describe('parseActionInputs', () => {
         const defaults: Record<string, string> = {
           github_token: 'test-token',
           file_size_limit: '100KB',
+          file_size_limit_enabled: 'true',
           file_lines_limit: '1000',
+          file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
+          pr_additions_limit_enabled: 'true',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'invalid',
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}',
           complexity_enabled: 'false',
@@ -240,9 +319,13 @@ describe('parseActionInputs', () => {
         const defaults: Record<string, string> = {
           github_token: 'test-token',
           file_size_limit: '100KB',
+          file_size_limit_enabled: 'true',
           file_lines_limit: '1000',
+          file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
+          pr_additions_limit_enabled: 'true',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{invalid json}',
           complexity_enabled: 'false',
@@ -269,9 +352,13 @@ describe('parseActionInputs', () => {
         const defaults: Record<string, string> = {
           github_token: 'test-token',
           file_size_limit: '1MB',
+          file_size_limit_enabled: 'true',
           file_lines_limit: '1000',
+          file_lines_limit_enabled: 'true',
           pr_additions_limit: '5000',
+          pr_additions_limit_enabled: 'true',
           pr_files_limit: '100',
+          pr_files_limit_enabled: 'true',
           size_enabled: 'true',
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 2000}',
           complexity_enabled: 'false',

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - add `/add-exclude-files` Claude Code command for automating exclusion pattern management (#122)
 - add 4 configuration files to DEFAULT_EXCLUDES: dependency-cruiser, dockerignore, coderabbit, actionlint (#122)
+- add `file_size_limit_enabled` and `pr_additions_limit_enabled` inputs to toggle size/additions violations
 
 ### 📝 Documentation
 

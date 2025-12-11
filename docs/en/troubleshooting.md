@@ -504,9 +504,9 @@ If you encounter issues not covered in this guide:
 
 Report bugs, request features, or ask questions:
 
-**🐛 Bug Report**: [Create an issue](https://github.com/jey3dayo/pr-insights-labeler/issues/new)
+**🐛 Bug Report**: [Create an issue](https://github.com/jey3dayo/pr-insights-labeler/issues)
 
-**✨ Feature Request**: [Create an issue](https://github.com/jey3dayo/pr-insights-labeler/issues/new)
+**✨ Feature Request**: [Create an issue](https://github.com/jey3dayo/pr-insights-labeler/issues)
 
 **💬 Questions**: [View existing issues](https://github.com/jey3dayo/pr-insights-labeler/issues)
 

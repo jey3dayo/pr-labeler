@@ -315,7 +315,11 @@ describe('FileMetrics', () => {
   describe('analyzeFiles', () => {
     const config = {
       fileSizeLimit: 1000000, // 1MB
+      fileSizeLimitEnabled: true,
       fileLineLimit: 1000,
+      fileLineLimitEnabled: true,
+      prAdditionsLimitEnabled: true,
+      fileCountLimitEnabled: true,
       maxAddedLines: 5000,
       maxFileCount: 100,
       excludePatterns: ['*.lock', 'node_modules/**'],
@@ -457,6 +461,8 @@ describe('FileMetrics', () => {
         ...config,
         fileSizeLimit: 1000000, // 1MB
         fileLineLimit: 1000,
+        fileLineLimitEnabled: true,
+        fileCountLimitEnabled: true,
         maxAddedLines: 500, // Will be exceeded
       };
 
@@ -470,6 +476,90 @@ describe('FileMetrics', () => {
         expect(result.value.violations.exceedsFileLines).toHaveLength(1);
         expect(result.value.violations.exceedsAdditions).toBe(true); // 1100 > 500
         expect(result.value.violations.exceedsFileCount).toBe(false);
+      }
+    });
+
+    it('should skip file size violations when disabled', async () => {
+      const files: DiffFile[] = [{ filename: 'src/huge.ts', additions: 10, deletions: 0, status: 'modified' }];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(5_000_000)); // 5MB
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     100 src/huge.ts',
+        stderr: '',
+      });
+
+      const disabledConfig = {
+        ...config,
+        fileSizeLimit: 100000, // 100KB
+        fileSizeLimitEnabled: false,
+      };
+
+      const result = await analyzeFiles(files, disabledConfig, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.violations.largeFiles).toHaveLength(0);
+      }
+    });
+
+    it('should skip additions violations when disabled', async () => {
+      const files: DiffFile[] = [
+        { filename: 'src/changes.ts', additions: 1200, deletions: 10, status: 'modified' },
+        { filename: 'src/more.ts', additions: 900, deletions: 5, status: 'modified' },
+      ];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(10_000));
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          return Promise.resolve({
+            stdout: `     50 ${args[1]}`,
+            stderr: '',
+          });
+        }
+        return Promise.reject(new Error('Unknown command'));
+      });
+
+      const disabledConfig = {
+        ...config,
+        maxAddedLines: 1000,
+        prAdditionsLimitEnabled: false,
+      };
+
+      const result = await analyzeFiles(files, disabledConfig, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.violations.exceedsAdditions).toBe(false);
+      }
+    });
+
+    it('should skip line count violations when disabled', async () => {
+      const files: DiffFile[] = [{ filename: 'src/long.ts', additions: 10, deletions: 0, status: 'modified' }];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          return Promise.resolve({
+            stdout: '     2000 src/long.ts',
+            stderr: '',
+          });
+        }
+        return Promise.reject(new Error('Unknown command'));
+      });
+
+      const disabledConfig = {
+        ...config,
+        fileLineLimit: 500,
+        fileLineLimitEnabled: false,
+      };
+
+      const result = await analyzeFiles(files, disabledConfig, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.violations.exceedsFileLines).toHaveLength(0);
       }
     });
 
@@ -546,6 +636,30 @@ describe('FileMetrics', () => {
         expect(result.value.violations.exceedsFileCount).toBe(true);
         // Should still analyze up to maxFileCount
         expect(result.value.metrics.filesAnalyzed.length).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it('should skip file count violations when disabled', async () => {
+      const manyFiles: DiffFile[] = Array.from({ length: 120 }, (_, i) => ({
+        filename: `src/file${i}.ts`,
+        additions: 5,
+        deletions: 1,
+        status: 'modified' as const,
+      }));
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     10 file',
+        stderr: '',
+      });
+
+      const result = await analyzeFiles(manyFiles, { ...config, fileCountLimitEnabled: false }, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.violations.exceedsFileCount).toBe(false);
+        expect(result.value.metrics.filesAnalyzed.length).toBe(120);
       }
     });
   });

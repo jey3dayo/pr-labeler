@@ -66,10 +66,10 @@ All families can be individually enabled via workflow inputs (see `size_enabled`
 ## Policy Violation Labels (`auto/*`)
 
 - Guardrails for workflow policies. Examples include:
-  - `auto/large-files` – a single file exceeds `file_size_limit`.
-  - `auto/too-many-files` – changed file count exceeds `pr_files_limit`.
-  - `auto/too-many-lines` – a file breaks `file_lines_limit`.
-  - `auto/excessive-changes` – total additions exceed `pr_additions_limit`.
+  - `auto/large-files` – a single file exceeds `file_size_limit` (set `file_size_limit_enabled: "false"` to skip).
+  - `auto/too-many-files` – changed file count exceeds `pr_files_limit` (set `pr_files_limit_enabled: "false"` to skip).
+  - `auto/too-many-lines` – a file breaks `file_lines_limit` (set `file_lines_limit_enabled: "false"` to skip).
+  - `auto/excessive-changes` – total additions exceed `pr_additions_limit` (set `pr_additions_limit_enabled: "false"` to skip).
 - Combine with `fail_on_*` inputs to stop workflows when these labels appear.
 
 ## Label Auto-Creation

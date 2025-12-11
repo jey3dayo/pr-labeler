@@ -42,7 +42,11 @@ export function analyzePullRequest(context: InitializationArtifacts): ResultAsyn
         files,
         {
           fileSizeLimit: config.fileSizeLimit,
+          fileSizeLimitEnabled: config.fileSizeLimitEnabled,
           fileLineLimit: config.fileLinesLimit,
+          fileLineLimitEnabled: config.fileLinesLimitEnabled,
+          prAdditionsLimitEnabled: config.prAdditionsLimitEnabled,
+          fileCountLimitEnabled: config.prFilesLimitEnabled,
           maxAddedLines: config.prAdditionsLimit,
           maxFileCount: config.prFilesLimit,
           excludePatterns: config.additionalExcludePatterns,

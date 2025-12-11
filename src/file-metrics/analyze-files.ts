@@ -52,7 +52,10 @@ async function collectFileMetrics(
   context: RepoContext,
 ): Promise<FileMetrics | undefined> {
   const sizeResult = await getFileSize(file.filename, token, context);
-  const lineResult = await getFileLineCount(file.filename, config.fileLineLimit + 1);
+  const lineResult = await getFileLineCount(
+    file.filename,
+    config.fileLineLimitEnabled ? config.fileLineLimit + 1 : undefined,
+  );
 
   if (sizeResult.isErr() || lineResult.isErr()) {
     return undefined;
@@ -108,7 +111,7 @@ async function processFile(
   result.metrics.filesAnalyzed.push(metrics);
   result.metrics.totalAdditions += file.additions;
 
-  if (metrics.size > config.fileSizeLimit) {
+  if (config.fileSizeLimitEnabled && metrics.size > config.fileSizeLimit) {
     recordViolation(
       result.violations.largeFiles,
       {
@@ -122,7 +125,7 @@ async function processFile(
     );
   }
 
-  if (metrics.lines > config.fileLineLimit) {
+  if (config.fileLineLimitEnabled && metrics.lines > config.fileLineLimit) {
     recordViolation(
       result.violations.exceedsFileLines,
       {
@@ -146,14 +149,15 @@ export async function analyzeFiles(
   logInfo(`Analyzing ${files.length} files`);
 
   const state = createInitialState(files, config);
+  const maxFileCount = config.fileCountLimitEnabled ? config.maxFileCount : Number.POSITIVE_INFINITY;
 
-  if (files.length > config.maxFileCount) {
+  if (config.fileCountLimitEnabled && files.length > config.maxFileCount) {
     state.result.violations.exceedsFileCount = true;
     logWarning(`File count ${files.length} exceeds limit ${config.maxFileCount}`);
   }
 
   for (let i = 0; i < files.length; i++) {
-    if (i >= config.maxFileCount) {
+    if (i >= maxFileCount) {
       logWarning(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
       break;
     }
@@ -172,7 +176,7 @@ export async function analyzeFiles(
     }
   }
 
-  if (state.result.metrics.totalAdditions > config.maxAddedLines) {
+  if (config.prAdditionsLimitEnabled && state.result.metrics.totalAdditions > config.maxAddedLines) {
     state.result.violations.exceedsAdditions = true;
     logWarning(`Total additions ${state.result.metrics.totalAdditions} exceeds limit ${config.maxAddedLines}`);
   }

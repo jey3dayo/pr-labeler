@@ -24,7 +24,11 @@ export const defaultParsedInputs: ParsedInputs = {
   language: 'en',
   githubToken: 'test-github-token',
   fileSizeLimit: 100000,
+  fileSizeLimitEnabled: true,
   fileLinesLimit: 500,
+  fileLinesLimitEnabled: true,
+  prAdditionsLimitEnabled: true,
+  prFilesLimitEnabled: true,
   prAdditionsLimit: 5000,
   prFilesLimit: 50,
   sizeEnabled: true,
@@ -33,7 +37,6 @@ export const defaultParsedInputs: ParsedInputs = {
   riskEnabled: true,
   sizeThresholds: { small: 200, medium: 500, large: 1000, xlarge: 3000 },
   complexityThresholdsV2: { medium: 10, high: 20 },
-  autoRemoveLabels: true,
   largeFilesLabel: 'large-files',
   tooManyFilesLabel: 'too-many-files',
   tooManyLinesLabel: 'too-many-lines',
@@ -74,17 +77,7 @@ export const defaultEnvironmentConfig: EnvironmentConfig = {
  * Default Config for testing
  */
 export const defaultConfig: Config = {
-  language: 'en',
-  enableSize: true,
-  sizeSmall: 200,
-  sizeMedium: 500,
-  sizeLarge: 1000,
-  sizeXlarge: 3000,
-  enableComplexity: false,
-  complexityMedium: 10,
-  complexityHigh: 20,
-  enableCategory: true,
-  enableRisk: true,
+  ...defaultParsedInputs,
 };
 
 // ============================================================================

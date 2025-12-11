@@ -283,7 +283,7 @@ GitHub Actionsランタイムから自動的に提供される環境変数を使
 - ラベル設定:
   - 選択的有効化: `size_enabled`, `complexity_enabled`, `category_enabled`, `risk_enabled`
   - 閾値設定: `size_thresholds`, `complexity_thresholds`
-  - その他: `auto_remove_labels`, `large_files_label`, `too_many_files_label`, `too_many_lines_label`, `excessive_changes_label`
+  - その他: `large_files_label`, `too_many_files_label`, `too_many_lines_label`, `excessive_changes_label`
 - 動作設定: `skip_draft_pr`, `comment_on_pr`, `fail_on_large_files`, `fail_on_too_many_files`, `fail_on_pr_size`, `enable_summary`, `language`
 - 除外設定: `additional_exclude_patterns`
 

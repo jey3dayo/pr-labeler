@@ -17,7 +17,11 @@ export interface RepoContext {
  */
 export interface AnalysisConfig {
   fileSizeLimit: number;
+  fileSizeLimitEnabled: boolean;
   fileLineLimit: number;
+  fileLineLimitEnabled: boolean;
+  prAdditionsLimitEnabled: boolean;
+  fileCountLimitEnabled: boolean;
   maxAddedLines: number;
   maxFileCount: number;
   excludePatterns: string[];

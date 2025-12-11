@@ -29,10 +29,13 @@ export {
  */
 export interface NormalizedActionInputs {
   fileSizeLimit: number;
+  fileSizeLimitEnabled: boolean;
   fileLinesLimit: number;
+  fileLinesLimitEnabled: boolean;
   prAdditionsLimit: number;
+  prAdditionsLimitEnabled: boolean;
   prFilesLimit: number;
-  autoRemoveLabels: boolean;
+  prFilesLimitEnabled: boolean;
   sizeEnabled: boolean;
   sizeThresholds: SizeThresholds;
   complexityEnabled: boolean;
@@ -69,11 +72,21 @@ export function normalizeActionInputStrings(
     return err(fileSizeLimitResult.error);
   }
 
+  const fileSizeLimitEnabledResult = parseBooleanStrict(inputs.file_size_limit_enabled);
+  if (fileSizeLimitEnabledResult.isErr()) {
+    return err(fileSizeLimitEnabledResult.error);
+  }
+
   const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
   if (isNaN(fileLinesLimit)) {
     return err(
       createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'),
     );
+  }
+
+  const fileLinesLimitEnabledResult = parseBooleanStrict(inputs.file_lines_limit_enabled);
+  if (fileLinesLimitEnabledResult.isErr()) {
+    return err(fileLinesLimitEnabledResult.error);
   }
 
   const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
@@ -83,9 +96,19 @@ export function normalizeActionInputStrings(
     );
   }
 
+  const prAdditionsLimitEnabledResult = parseBooleanStrict(inputs.pr_additions_limit_enabled);
+  if (prAdditionsLimitEnabledResult.isErr()) {
+    return err(prAdditionsLimitEnabledResult.error);
+  }
+
   const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
   if (isNaN(prFilesLimit)) {
     return err(createConfigurationError('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
+  }
+
+  const prFilesLimitEnabledResult = parseBooleanStrict(inputs.pr_files_limit_enabled);
+  if (prFilesLimitEnabledResult.isErr()) {
+    return err(prFilesLimitEnabledResult.error);
   }
 
   const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
@@ -155,10 +178,13 @@ export function normalizeActionInputStrings(
 
   return ok({
     fileSizeLimit: fileSizeLimitResult.value,
+    fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
     fileLinesLimit,
+    fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
     prAdditionsLimit,
+    prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
     prFilesLimit,
-    autoRemoveLabels: parseBoolean(inputs.auto_remove_labels),
+    prFilesLimitEnabled: prFilesLimitEnabledResult.value,
     sizeEnabled: sizeEnabledResult.value,
     sizeThresholds: sizeThresholdsResult.value,
     complexityEnabled: complexityEnabledResult.value,

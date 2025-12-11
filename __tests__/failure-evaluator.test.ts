@@ -19,10 +19,13 @@ describe('FailureEvaluator', () => {
 
   const createBaseConfig = (): Config => ({
     fileSizeLimit: 100000,
+    fileSizeLimitEnabled: true,
     fileLinesLimit: 500,
+    fileLinesLimitEnabled: true,
+    prAdditionsLimitEnabled: true,
+    prFilesLimitEnabled: true,
     prAdditionsLimit: 5000,
     prFilesLimit: 50,
-    autoRemoveLabels: true,
     sizeEnabled: true,
     sizeThresholds: { small: 200, medium: 500, large: 1000, xlarge: 3000 },
     complexityEnabled: false,
@@ -137,11 +140,10 @@ describe('FailureEvaluator', () => {
             exceedsFileLines: [
               {
                 file: 'long-file.ts',
-                reason: 'lines',
-                size: 50000,
-                lines: 1000,
-                additions: 100,
-                deletions: 50,
+                violationType: 'lines',
+                severity: 'warning',
+                actualValue: 1000,
+                limit: 500,
               },
             ],
             exceedsAdditions: false,
@@ -154,6 +156,66 @@ describe('FailureEvaluator', () => {
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(1);
         expect(failures[0]).toContain('Files with too many lines detected');
+      });
+
+      it('should ignore large-files when file size checks are disabled', () => {
+        const config = createBaseConfig();
+        config.failOnLargeFiles = true;
+        config.fileSizeLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/large-files'],
+          violations: {
+            largeFiles: [
+              {
+                file: 'large-file.ts',
+                violationType: 'size',
+                severity: 'critical',
+                actualValue: 999999,
+                limit: 100000,
+              },
+            ],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+          metrics: { totalAdditions: 100 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
+      });
+
+      it('should skip too-many-lines when line limit checks are disabled', () => {
+        const config = createBaseConfig();
+        config.failOnLargeFiles = true;
+        config.fileLinesLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/too-many-lines'],
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [
+              {
+                file: 'long-file.ts',
+                violationType: 'lines',
+                severity: 'warning',
+                actualValue: 1200,
+                limit: 500,
+              },
+            ],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+          metrics: { totalAdditions: 100 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
       });
 
       it('should handle both largeFiles and tooManyLines simultaneously (no duplication)', () => {
@@ -294,6 +356,28 @@ describe('FailureEvaluator', () => {
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(0);
       });
+
+      it('should ignore too many files when file count check is disabled', () => {
+        const config = createBaseConfig();
+        config.failOnTooManyFiles = true;
+        config.prFilesLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/too-many-files'],
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: false,
+            exceedsFileCount: true,
+          },
+          metrics: { totalAdditions: 100, excludedAdditions: 0 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
+      });
     });
 
     describe('fail_on_pr_size', () => {
@@ -364,6 +448,28 @@ describe('FailureEvaluator', () => {
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(1);
         expect(failures[0]).toContain('PR additions exceed limit');
+      });
+
+      it('should ignore excessive changes when additions limit is disabled', () => {
+        const config = createBaseConfig();
+        config.failOnPrSize = 'large';
+        config.prAdditionsLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/excessive-changes'],
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [],
+            exceedsAdditions: true,
+            exceedsFileCount: false,
+          },
+          metrics: { totalAdditions: 100 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
       });
 
       it('should detect excessive changes from violation', () => {

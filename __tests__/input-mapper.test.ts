@@ -14,6 +14,8 @@ vi.mock('@actions/core');
 
 // デフォルトのDirectory-Based Labeling入力値を持つヘルパー
 const getDefaultDirectoryLabelingInputs = () => ({
+  file_size_limit_enabled: 'true',
+  pr_additions_limit_enabled: 'true',
   enable_directory_labeling: 'false',
   directory_labeler_config_path: '.github/directory-labeler.yml',
   auto_create_labels: 'false',
@@ -31,6 +33,9 @@ const getDefaultPRLabelerInputs = () => ({
   complexity_thresholds: '{"medium": 15, "high": 30}',
   category_enabled: 'true',
   risk_enabled: 'true',
+  file_size_limit_enabled: 'true',
+  pr_additions_limit_enabled: 'true',
+  pr_files_limit_enabled: 'true',
   // Label-Based Workflow Failure Control
   fail_on_large_files: '',
   fail_on_too_many_files: '',
@@ -156,10 +161,13 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: 'invalid-json', // Invalid JSON
         complexity_enabled: 'true',
@@ -187,10 +195,13 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": -100, "medium": 500, "large": 1000, "xlarge": 3000}', // Negative value
         complexity_enabled: 'true',
@@ -218,10 +229,13 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 1000, "medium": 500, "large": 100, "xlarge": 3000}', // Incorrect order
         complexity_enabled: 'true',
@@ -251,10 +265,13 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
@@ -282,10 +299,13 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
@@ -313,10 +333,13 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'true',
@@ -346,10 +369,13 @@ describe('InputMapper', () => {
       const inputs: ActionInputs = {
         github_token: 'test-token',
         file_size_limit: '100KB',
+        file_size_limit_enabled: 'true',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
+        pr_additions_limit_enabled: 'true',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto/large-files',
         too_many_files_label: 'auto/too-many-files',
@@ -365,10 +391,12 @@ describe('InputMapper', () => {
       if (result.isOk()) {
         const config = result.value;
         expect(config.fileSizeLimit).toBe(102400); // 100KB in bytes
+        expect(config.fileSizeLimitEnabled).toBe(true);
         expect(config.fileLinesLimit).toBe(500);
+        expect(config.fileLinesLimitEnabled).toBe(true);
         expect(config.prAdditionsLimit).toBe(5000);
+        expect(config.prAdditionsLimitEnabled).toBe(true);
         expect(config.prFilesLimit).toBe(50);
-        expect(config.autoRemoveLabels).toBe(true);
         // PR Insights Labeler - Selective Label Enabling
         expect(config.sizeEnabled).toBe(true);
         expect(config.sizeThresholds.small).toBe(200);
@@ -392,9 +420,10 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: 'invalid',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto/large-files',
         too_many_files_label: 'auto/too-many-files',
@@ -417,9 +446,10 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: 'invalid json', // Invalid JSON for testing
         complexity_enabled: 'true',
@@ -447,9 +477,10 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: 'not-a-number',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         ...getDefaultPRLabelerInputs(),
         large_files_label: 'auto/large-files',
         too_many_files_label: 'auto/too-many-files',
@@ -477,9 +508,10 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'false', // デフォルト値
@@ -511,9 +543,10 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
-        auto_remove_labels: 'true',
+        pr_files_limit_enabled: 'true',
         size_enabled: 'true',
         size_thresholds: '{"small": 200, "medium": 500, "large": 1000, "xlarge": 3000}',
         complexity_enabled: 'false',

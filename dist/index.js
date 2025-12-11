@@ -271360,10 +271360,13 @@ function getActionInputs() {
     return {
         github_token: resolveTokenValue() || '',
         file_size_limit: core.getInput('file_size_limit') || '100KB',
+        file_size_limit_enabled: core.getInput('file_size_limit_enabled') || 'true',
         file_lines_limit: core.getInput('file_lines_limit') || '500',
+        file_lines_limit_enabled: core.getInput('file_lines_limit_enabled') || 'true',
         pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
+        pr_additions_limit_enabled: core.getInput('pr_additions_limit_enabled') || 'true',
         pr_files_limit: core.getInput('pr_files_limit') || '50',
-        auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
+        pr_files_limit_enabled: core.getInput('pr_files_limit_enabled') || 'true',
         size_enabled: core.getInput('size_enabled') || 'true',
         size_thresholds: core.getInput('size_thresholds') || '{"small": 100, "medium": 500, "large": 1000}',
         complexity_enabled: core.getInput('complexity_enabled') || 'false',
@@ -272091,7 +272094,11 @@ function buildCompleteConfig(parsedInputs, labelerConfig, envConfig) {
         language: language.value,
         githubToken: parsedInputs.githubToken,
         fileSizeLimit: parsedInputs.fileSizeLimit,
+        fileSizeLimitEnabled: parsedInputs.fileSizeLimitEnabled,
         fileLinesLimit: parsedInputs.fileLinesLimit,
+        fileLinesLimitEnabled: parsedInputs.fileLinesLimitEnabled,
+        prAdditionsLimitEnabled: parsedInputs.prAdditionsLimitEnabled,
+        prFilesLimitEnabled: parsedInputs.prFilesLimitEnabled,
         prAdditionsLimit: parsedInputs.prAdditionsLimit,
         prFilesLimit: parsedInputs.prFilesLimit,
         sizeEnabled: parsedInputs.sizeEnabled,
@@ -272100,7 +272107,6 @@ function buildCompleteConfig(parsedInputs, labelerConfig, envConfig) {
         complexityThresholdsV2: parsedInputs.complexityThresholdsV2,
         categoryEnabled: parsedInputs.categoryEnabled,
         riskEnabled: parsedInputs.riskEnabled,
-        autoRemoveLabels: parsedInputs.autoRemoveLabels,
         largeFilesLabel: parsedInputs.largeFilesLabel,
         tooManyFilesLabel: parsedInputs.tooManyFilesLabel,
         tooManyLinesLabel: parsedInputs.tooManyLinesLabel,
@@ -274468,16 +274474,18 @@ function evaluateFailureConditions(input) {
     const failures = [];
     const failureKeys = new Set();
     if (config.failOnLargeFiles) {
-        const hasLargeFilesLabel = appliedLabels?.includes(config.largeFilesLabel) ?? false;
-        const hasLargeFilesViolation = violations.largeFiles.length > 0;
-        if (hasLargeFilesLabel || hasLargeFilesViolation) {
-            if (!failureKeys.has('largeFiles')) {
-                failureKeys.add('largeFiles');
-                failures.push((0, i18n_js_1.t)('logs', 'failures.largeFiles'));
+        if (config.fileSizeLimitEnabled) {
+            const hasLargeFilesLabel = appliedLabels?.includes(config.largeFilesLabel) ?? false;
+            const hasLargeFilesViolation = violations.largeFiles.length > 0;
+            if (hasLargeFilesLabel || hasLargeFilesViolation) {
+                if (!failureKeys.has('largeFiles')) {
+                    failureKeys.add('largeFiles');
+                    failures.push((0, i18n_js_1.t)('logs', 'failures.largeFiles'));
+                }
             }
         }
     }
-    if (config.failOnTooManyFiles) {
+    if (config.failOnTooManyFiles && config.prFilesLimitEnabled) {
         const hasTooManyFilesLabel = appliedLabels?.includes(config.tooManyFilesLabel) ?? false;
         const hasTooManyFilesViolation = violations.exceedsFileCount;
         if (hasTooManyFilesLabel || hasTooManyFilesViolation) {
@@ -274487,7 +274495,7 @@ function evaluateFailureConditions(input) {
             }
         }
     }
-    if (config.failOnLargeFiles) {
+    if (config.failOnLargeFiles && config.fileLinesLimitEnabled) {
         const hasTooManyLinesLabel = appliedLabels?.includes(config.tooManyLinesLabel) ?? false;
         const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
         if (hasTooManyLinesLabel || hasTooManyLinesViolation) {
@@ -274497,7 +274505,7 @@ function evaluateFailureConditions(input) {
             }
         }
     }
-    if (config.failOnPrSize !== '') {
+    if (config.failOnPrSize !== '' && config.prAdditionsLimitEnabled) {
         const hasExcessiveChangesLabel = appliedLabels?.includes(config.excessiveChangesLabel) ?? false;
         const hasExcessiveChangesViolation = violations.exceedsAdditions;
         if (hasExcessiveChangesLabel || hasExcessiveChangesViolation) {
@@ -274572,7 +274580,7 @@ function recordViolation(list, violation, message) {
 }
 async function collectFileMetrics(file, config, token, context) {
     const sizeResult = await (0, file_size_service_js_1.getFileSize)(file.filename, token, context);
-    const lineResult = await (0, line_counter_js_1.getFileLineCount)(file.filename, config.fileLineLimit + 1);
+    const lineResult = await (0, line_counter_js_1.getFileLineCount)(file.filename, config.fileLineLimitEnabled ? config.fileLineLimit + 1 : undefined);
     if (sizeResult.isErr() || lineResult.isErr()) {
         return undefined;
     }
@@ -274610,7 +274618,7 @@ async function processFile(state, file, config, token, context) {
     }
     result.metrics.filesAnalyzed.push(metrics);
     result.metrics.totalAdditions += file.additions;
-    if (metrics.size > config.fileSizeLimit) {
+    if (config.fileSizeLimitEnabled && metrics.size > config.fileSizeLimit) {
         recordViolation(result.violations.largeFiles, {
             file: file.filename,
             actualValue: metrics.size,
@@ -274619,7 +274627,7 @@ async function processFile(state, file, config, token, context) {
             severity: 'critical',
         }, `File ${file.filename} exceeds size limit: ${metrics.size} > ${config.fileSizeLimit}`);
     }
-    if (metrics.lines > config.fileLineLimit) {
+    if (config.fileLineLimitEnabled && metrics.lines > config.fileLineLimit) {
         recordViolation(result.violations.exceedsFileLines, {
             file: file.filename,
             actualValue: metrics.lines,
@@ -274632,12 +274640,13 @@ async function processFile(state, file, config, token, context) {
 async function analyzeFiles(files, config, token, context) {
     (0, actions_io_js_1.logInfo)(`Analyzing ${files.length} files`);
     const state = createInitialState(files, config);
-    if (files.length > config.maxFileCount) {
+    const maxFileCount = config.fileCountLimitEnabled ? config.maxFileCount : Number.POSITIVE_INFINITY;
+    if (config.fileCountLimitEnabled && files.length > config.maxFileCount) {
         state.result.violations.exceedsFileCount = true;
         (0, actions_io_js_1.logWarning)(`File count ${files.length} exceeds limit ${config.maxFileCount}`);
     }
     for (let i = 0; i < files.length; i++) {
-        if (i >= config.maxFileCount) {
+        if (i >= maxFileCount) {
             (0, actions_io_js_1.logWarning)(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
             break;
         }
@@ -274654,7 +274663,7 @@ async function analyzeFiles(files, config, token, context) {
             (0, actions_io_js_1.logWarning)(`Unexpected error analyzing file ${file.filename}: ${(0, index_js_1.ensureError)(error).message}`);
         }
     }
-    if (state.result.metrics.totalAdditions > config.maxAddedLines) {
+    if (config.prAdditionsLimitEnabled && state.result.metrics.totalAdditions > config.maxAddedLines) {
         state.result.violations.exceedsAdditions = true;
         (0, actions_io_js_1.logWarning)(`Total additions ${state.result.metrics.totalAdditions} exceeds limit ${config.maxAddedLines}`);
     }
@@ -275325,10 +275334,13 @@ function parseActionInputs() {
     }
     const rawInputs = {
         file_size_limit: core.getInput('file_size_limit'),
+        file_size_limit_enabled: core.getInput('file_size_limit_enabled'),
         file_lines_limit: core.getInput('file_lines_limit'),
+        file_lines_limit_enabled: core.getInput('file_lines_limit_enabled'),
         pr_additions_limit: core.getInput('pr_additions_limit'),
+        pr_additions_limit_enabled: core.getInput('pr_additions_limit_enabled'),
         pr_files_limit: core.getInput('pr_files_limit'),
-        auto_remove_labels: core.getInput('auto_remove_labels'),
+        pr_files_limit_enabled: core.getInput('pr_files_limit_enabled'),
         size_enabled: core.getInput('size_enabled'),
         size_thresholds: core.getInput('size_thresholds'),
         complexity_enabled: core.getInput('complexity_enabled'),
@@ -275390,17 +275402,33 @@ function normalizeActionInputStrings(inputs) {
     if (fileSizeLimitResult.isErr()) {
         return (0, neverthrow_1.err)(fileSizeLimitResult.error);
     }
+    const fileSizeLimitEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.file_size_limit_enabled);
+    if (fileSizeLimitEnabledResult.isErr()) {
+        return (0, neverthrow_1.err)(fileSizeLimitEnabledResult.error);
+    }
     const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
     if (isNaN(fileLinesLimit)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'));
+    }
+    const fileLinesLimitEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.file_lines_limit_enabled);
+    if (fileLinesLimitEnabledResult.isErr()) {
+        return (0, neverthrow_1.err)(fileLinesLimitEnabledResult.error);
     }
     const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
     if (isNaN(prAdditionsLimit)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
     }
+    const prAdditionsLimitEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.pr_additions_limit_enabled);
+    if (prAdditionsLimitEnabledResult.isErr()) {
+        return (0, neverthrow_1.err)(prAdditionsLimitEnabledResult.error);
+    }
     const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
     if (isNaN(prFilesLimit)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
+    }
+    const prFilesLimitEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.pr_files_limit_enabled);
+    if (prFilesLimitEnabledResult.isErr()) {
+        return (0, neverthrow_1.err)(prFilesLimitEnabledResult.error);
     }
     const sizeEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.size_enabled);
     if (sizeEnabledResult.isErr()) {
@@ -275449,10 +275477,13 @@ function normalizeActionInputStrings(inputs) {
     }
     return (0, neverthrow_1.ok)({
         fileSizeLimit: fileSizeLimitResult.value,
+        fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
         fileLinesLimit,
+        fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
         prAdditionsLimit,
+        prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
         prFilesLimit,
-        autoRemoveLabels: (0, action_input_parsers_js_1.parseBoolean)(inputs.auto_remove_labels),
+        prFilesLimitEnabled: prFilesLimitEnabledResult.value,
         sizeEnabled: sizeEnabledResult.value,
         sizeThresholds: sizeThresholdsResult.value,
         complexityEnabled: complexityEnabledResult.value,
@@ -277744,7 +277775,11 @@ function analyzePullRequest(context) {
         (0, actions_io_1.logInfoI18n)('analysis.analyzingFiles');
         const analysisResult = await (0, file_metrics_1.analyzeFiles)(files, {
             fileSizeLimit: config.fileSizeLimit,
+            fileSizeLimitEnabled: config.fileSizeLimitEnabled,
             fileLineLimit: config.fileLinesLimit,
+            fileLineLimitEnabled: config.fileLinesLimitEnabled,
+            prAdditionsLimitEnabled: config.prAdditionsLimitEnabled,
+            fileCountLimitEnabled: config.prFilesLimitEnabled,
             maxAddedLines: config.prAdditionsLimit,
             maxFileCount: config.prFilesLimit,
             excludePatterns: config.additionalExcludePatterns,

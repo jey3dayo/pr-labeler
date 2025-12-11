@@ -42,18 +42,20 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
 
   // fail_on_large_files: Check for large files (auto/large-files label or violation)
   if (config.failOnLargeFiles) {
-    const hasLargeFilesLabel = appliedLabels?.includes(config.largeFilesLabel) ?? false;
-    const hasLargeFilesViolation = violations.largeFiles.length > 0;
-    if (hasLargeFilesLabel || hasLargeFilesViolation) {
-      if (!failureKeys.has('largeFiles')) {
-        failureKeys.add('largeFiles');
-        failures.push(t('logs', 'failures.largeFiles'));
+    if (config.fileSizeLimitEnabled) {
+      const hasLargeFilesLabel = appliedLabels?.includes(config.largeFilesLabel) ?? false;
+      const hasLargeFilesViolation = violations.largeFiles.length > 0;
+      if (hasLargeFilesLabel || hasLargeFilesViolation) {
+        if (!failureKeys.has('largeFiles')) {
+          failureKeys.add('largeFiles');
+          failures.push(t('logs', 'failures.largeFiles'));
+        }
       }
     }
   }
 
   // fail_on_too_many_files: Check for too many files (auto/too-many-files label or violation)
-  if (config.failOnTooManyFiles) {
+  if (config.failOnTooManyFiles && config.prFilesLimitEnabled) {
     const hasTooManyFilesLabel = appliedLabels?.includes(config.tooManyFilesLabel) ?? false;
     const hasTooManyFilesViolation = violations.exceedsFileCount;
     if (hasTooManyFilesLabel || hasTooManyFilesViolation) {
@@ -65,7 +67,7 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
   }
 
   // Additional check: fail_on_large_files also covers per-file line count violations
-  if (config.failOnLargeFiles) {
+  if (config.failOnLargeFiles && config.fileLinesLimitEnabled) {
     const hasTooManyLinesLabel = appliedLabels?.includes(config.tooManyLinesLabel) ?? false;
     const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
     if (hasTooManyLinesLabel || hasTooManyLinesViolation) {
@@ -77,7 +79,7 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
   }
 
   // Additional check: fail_on_pr_size also covers PR additions limit (excessive changes label)
-  if (config.failOnPrSize !== '') {
+  if (config.failOnPrSize !== '' && config.prAdditionsLimitEnabled) {
     const hasExcessiveChangesLabel = appliedLabels?.includes(config.excessiveChangesLabel) ?? false;
     const hasExcessiveChangesViolation = violations.exceedsAdditions;
     if (hasExcessiveChangesLabel || hasExcessiveChangesViolation) {
