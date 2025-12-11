@@ -98,14 +98,15 @@ function formatCategoryLabel(item: LabelReasoning): string {
     return '';
   }
 
-  let output = '<details>\n';
-  output += `<summary><strong>${escapeMarkdown(item.label)}</strong> (${files.length} ${files.length === 1 ? 'file' : 'files'})</summary>\n\n`;
+  let output = openDetails(
+    `<strong>${escapeMarkdown(item.label)}</strong> (${files.length} ${files.length === 1 ? 'file' : 'files'})`,
+  );
 
   for (const file of files) {
     output += `- \`${file}\`\n`;
   }
 
-  output += '\n</details>\n\n';
+  output += closeDetails();
   return output;
 }
 
@@ -115,20 +116,17 @@ function formatCategoryLabel(item: LabelReasoning): string {
 function formatRiskLabel(item: LabelReasoning): string {
   const files = item.matchedFiles || [];
 
-  let output = '<details>\n';
-  output += `<summary><strong>${escapeMarkdown(item.label)}</strong></summary>\n\n`;
-
-  output += `**${t('summary', 'labelFileGroups.reason')}:** ${escapeMarkdown(item.reason)}\n\n`;
-
-  if (files.length > 0) {
-    output += `**${t('summary', 'labelFileGroups.affectedFiles')}:**\n`;
-    for (const file of files) {
-      output += `- \`${file}\`\n`;
+  return formatReasonSection(item, files, (list: string[]) => {
+    if (list.length === 0) {
+      return '';
     }
-  }
 
-  output += '\n</details>\n\n';
-  return output;
+    let body = `**${t('summary', 'labelFileGroups.affectedFiles')}:**\n`;
+    for (const file of list) {
+      body += `- \`${file}\`\n`;
+    }
+    return body;
+  });
 }
 
 /**
@@ -137,25 +135,22 @@ function formatRiskLabel(item: LabelReasoning): string {
 function formatComplexityLabel(item: LabelReasoning, complexityMetrics?: ComplexityMetrics): string {
   const files = item.matchedFiles || [];
 
-  let output = '<details>\n';
-  output += `<summary><strong>${escapeMarkdown(item.label)}</strong></summary>\n\n`;
+  return formatReasonSection(item, files, (list: string[]) => {
+    if (list.length === 0 || !complexityMetrics) {
+      return '';
+    }
 
-  output += `**${t('summary', 'labelFileGroups.reason')}:** ${escapeMarkdown(item.reason)}\n\n`;
-
-  if (files.length > 0 && complexityMetrics) {
-    output += `**${t('summary', 'labelFileGroups.highComplexityFiles')}:**\n`;
-    for (const file of files) {
+    let body = `**${t('summary', 'labelFileGroups.highComplexityFiles')}:**\n`;
+    for (const file of list) {
       const fileComplexity = complexityMetrics.files.find(f => f.path === file);
       if (fileComplexity) {
-        output += `- \`${file}\` (complexity: ${fileComplexity.complexity})\n`;
+        body += `- \`${file}\` (complexity: ${fileComplexity.complexity})\n`;
       } else {
-        output += `- \`${file}\`\n`;
+        body += `- \`${file}\`\n`;
       }
     }
-  }
-
-  output += '\n</details>\n\n';
-  return output;
+    return body;
+  });
 }
 
 /**
@@ -165,8 +160,7 @@ function formatSizeLabel(item: LabelReasoning, fileMetrics: FileMetrics[], exclu
   const files = item.matchedFiles || [];
   const totalAdditions = fileMetrics.reduce((sum, f) => sum + f.additions, 0);
 
-  let output = '<details>\n';
-  output += `<summary><strong>${escapeMarkdown(item.label)}</strong></summary>\n\n`;
+  let output = openDetails(`<strong>${escapeMarkdown(item.label)}</strong>`);
 
   output += `**${t('summary', 'labelFileGroups.totalAdditions')}:** ${totalAdditions} lines`;
   if (excludedAdditions > 0) {
@@ -192,7 +186,25 @@ function formatSizeLabel(item: LabelReasoning, fileMetrics: FileMetrics[], exclu
     }
   }
 
-  output += '\n</details>\n\n';
+  output += closeDetails();
+  return output;
+}
+
+function openDetails(summary: string): string {
+  return `<details>\n<summary>${summary}</summary>\n\n`;
+}
+
+function closeDetails(): string {
+  return '\n</details>\n\n';
+}
+
+function formatReasonSection(item: LabelReasoning, files: string[], renderFiles: (files: string[]) => string): string {
+  let output = openDetails(`<strong>${escapeMarkdown(item.label)}</strong>`);
+
+  output += `**${t('summary', 'labelFileGroups.reason')}:** ${escapeMarkdown(item.reason)}\n\n`;
+  output += renderFiles(files);
+  output += closeDetails();
+
   return output;
 }
 
