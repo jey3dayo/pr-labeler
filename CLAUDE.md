@@ -170,7 +170,7 @@ gh release create v1.0.1 \
   --notes "リリースノート"
 ```
 
-詳細: [docs/en/release-process.md](docs/en/release-process.md)
+詳細: [docs/ja/release-process.md](docs/ja/release-process.md)
 
 ## Development Rules
 

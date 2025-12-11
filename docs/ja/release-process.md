@@ -4,7 +4,7 @@
 **対象**: メンテナー
 **タグ**: `category/deployment`, `audience/maintainer`
 
-**言語**: [English](../en/release-process.md) | 日本語
+**言語**: 日本語（英語版は未整備）
 
 このドキュメントは、PR Insights Labelerの新バージョンをリリースする手順を説明します。
 

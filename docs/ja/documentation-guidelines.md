@@ -88,8 +88,7 @@ pr-labeler/
 │   │   ├── labeling-rules.md
 │   │   ├── categories.md
 │   │   ├── troubleshooting.md
-│   │   ├── API.md           # 翻訳準備中のスタブ
-│   │   └── release-process.md # 翻訳準備中のスタブ
+│   │   └── ...              # 一部英語版未整備（API/ReleaseはJAが正典）
 │   └── ja/                  # 日本語ドキュメント
 │       ├── advanced-usage.md
 │       ├── labeling-rules.md
@@ -125,8 +124,6 @@ pr-labeler/
 | docs/en/labeling-rules.md | EN | `category/documentation`, `audience/developer`, `audience/contributor` | ラベル判定サマリ（英語） | ✅ 作成済 |
 | docs/en/categories.md | EN | `category/documentation`, `audience/developer`, `audience/maintainer` | カテゴリラベル詳細 | ✅ 作成済 |
 | docs/en/troubleshooting.md | EN | `category/operations`, `audience/user`, `audience/developer` | トラブルシューティング（英語） | ✅ 作成済 |
-| docs/en/API.md | EN | `category/api`, `audience/developer`, `environment/development` | API参照（翻訳準備中スタブ） | 📝 翻訳準備中 |
-| docs/en/release-process.md | EN | `category/deployment`, `audience/maintainer` | リリース手順（翻訳準備中スタブ） | 📝 翻訳準備中 |
 | docs/ja/advanced-usage.md | JA | `category/action`, `audience/developer` | 高度な使用例（日本語） | ✅ 作成済 |
 | docs/ja/labeling-rules.md | JA | `category/documentation`, `audience/developer`, `audience/contributor` | ラベル判定サマリ（日本語） | ✅ 作成済 |
 | docs/ja/API.md | JA | `category/api`, `audience/developer`, `environment/development` | API仕様書 | ✅ 作成済 |

@@ -210,8 +210,8 @@ When limits exceeded:
 | [Configuration Guide](docs/en/configuration.md) | All inputs, outputs, and defaults |
 | [Advanced Usage](docs/en/advanced-usage.md)     | Real-world examples and patterns  |
 | [Troubleshooting](docs/en/troubleshooting.md)   | Common issues and solutions       |
-| [API Reference](docs/en/API.md)                 | Internal API documentation        |
-| [Release Process](docs/en/release-process.md)   | Version management                |
+| [API仕様書 (JA)](docs/ja/API.md)                | Canonical API documentation       |
+| [リリース手順 (JA)](docs/ja/release-process.md) | Release management (canonical)    |
 
 ## 🤝 Contributing
 
@@ -243,7 +243,7 @@ The script will:
 6. Create git commit and tags
 7. Push to origin and create GitHub release
 
-See [Release Process](docs/en/release-process.md) for details.
+See [リリース手順 (JA)](docs/ja/release-process.md) for details.
 
 ## 📄 License
 

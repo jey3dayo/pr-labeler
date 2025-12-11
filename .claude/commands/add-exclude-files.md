@@ -55,6 +55,7 @@
 各入力ファイルに対して:
 
 1. **パターン正規化**:
+
    ```typescript
    // 例: .eslintrc.js → **/.eslintrc.js
    if (!file.startsWith('**/') && !file.includes('*')) {
@@ -79,6 +80,7 @@
    - 存在する場合: 最後のエントリの後に追加
 
 2. **新しい配列エントリを生成**:
+
    ```typescript
    // 新規グループの場合
    `  '**/Thumbs.db',
@@ -100,21 +102,26 @@
 ### Phase 5: 検証
 
 1. **型チェック実行**:
+
    ```bash
    pnpm type-check
    ```
+
    - エラーがある場合: エラーメッセージを表示して停止
 
 2. **テスト実行（オプション）**:
+
    ```bash
    # --testフラグが指定されている場合のみ
    pnpm test
    ```
+
    - テスト失敗時: 結果を表示して確認を求める
 
 ### Phase 6: 結果報告
 
 成功時のメッセージ例:
+
 ```
 ✅ 除外パターンを追加しました:
   - **/.eslintrc.js
@@ -130,6 +137,7 @@
 ## エラーハンドリング
 
 ### 引数エラー
+
 ```
 ❌ エラー: ファイルパスが指定されていません
 
@@ -139,6 +147,7 @@
 ```
 
 ### 重複パターン
+
 ```
 ⚠️  スキップ: 以下のパターンは既に除外リストに含まれています
   - **/.eslintrc.js (既存パターン: **/.eslintrc.js)
@@ -148,6 +157,7 @@
 ```
 
 ### 型チェックエラー
+
 ```
 ❌ 型チェックに失敗しました:
 
@@ -157,6 +167,7 @@ src/configs/directory-labeler-defaults.ts:52:3 - error TS1005: ',' expected.
 ```
 
 ### テスト失敗
+
 ```
 ❌ テストに失敗しました:
 
@@ -169,6 +180,7 @@ FAIL __tests__/directory-labeler/pattern-matcher.test.ts
 ## 実装例
 
 ### 例1: 単一ファイル追加
+
 ```
 入力: /add-exclude-files .eslintrc.js
 
@@ -187,6 +199,7 @@ FAIL __tests__/directory-labeler/pattern-matcher.test.ts
 ```
 
 ### 例2: 複数ファイル＋重複あり
+
 ```
 入力: /add-exclude-files .dockerignore .prettierrc
 
@@ -204,6 +217,7 @@ FAIL __tests__/directory-labeler/pattern-matcher.test.ts
 ```
 
 ### 例3: ドライラン
+
 ```
 入力: /add-exclude-files --dry-run .editorconfig
 
