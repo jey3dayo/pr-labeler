@@ -17,6 +17,11 @@ inputs:
     required: false
     default: "500"
 
+  file_lines_limit_enabled:
+    description: "Enable per-file line count checks (set to false to skip line limit violations)"
+    required: false
+    default: "true"
+
   pr_additions_limit:
     description: "Maximum added lines for entire PR (diff-based)"
     required: false

@@ -316,6 +316,7 @@ describe('FileMetrics', () => {
     const config = {
       fileSizeLimit: 1000000, // 1MB
       fileLineLimit: 1000,
+      fileLineLimitEnabled: true,
       maxAddedLines: 5000,
       maxFileCount: 100,
       excludePatterns: ['*.lock', 'node_modules/**'],
@@ -457,6 +458,7 @@ describe('FileMetrics', () => {
         ...config,
         fileSizeLimit: 1000000, // 1MB
         fileLineLimit: 1000,
+        fileLineLimitEnabled: true,
         maxAddedLines: 500, // Will be exceeded
       };
 
@@ -470,6 +472,35 @@ describe('FileMetrics', () => {
         expect(result.value.violations.exceedsFileLines).toHaveLength(1);
         expect(result.value.violations.exceedsAdditions).toBe(true); // 1100 > 500
         expect(result.value.violations.exceedsFileCount).toBe(false);
+      }
+    });
+
+    it('should skip line count violations when disabled', async () => {
+      const files: DiffFile[] = [{ filename: 'src/long.ts', additions: 10, deletions: 0, status: 'modified' }];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockImplementation((command: string, args?: readonly string[]) => {
+        if (command === 'wc' && args?.[0] === '-l') {
+          return Promise.resolve({
+            stdout: '     2000 src/long.ts',
+            stderr: '',
+          });
+        }
+        return Promise.reject(new Error('Unknown command'));
+      });
+
+      const disabledConfig = {
+        ...config,
+        fileLineLimit: 500,
+        fileLineLimitEnabled: false,
+      };
+
+      const result = await analyzeFiles(files, disabledConfig, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.violations.exceedsFileLines).toHaveLength(0);
       }
     });
 

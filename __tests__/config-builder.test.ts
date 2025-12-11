@@ -27,6 +27,7 @@ describe('buildCompleteConfig', () => {
       githubToken: 'test-token',
       fileSizeLimit: 102400,
       fileLinesLimit: 1000,
+      fileLinesLimitEnabled: true,
       prAdditionsLimit: 5000,
       prFilesLimit: 100,
       sizeEnabled: true,

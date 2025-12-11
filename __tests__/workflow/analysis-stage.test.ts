@@ -55,6 +55,7 @@ describe('workflow/stages/analysis', () => {
       githubToken: 'token',
       fileSizeLimit: 1024,
       fileLinesLimit: 500,
+      fileLinesLimitEnabled: true,
       prAdditionsLimit: 400,
       prFilesLimit: 20,
       sizeEnabled: true,

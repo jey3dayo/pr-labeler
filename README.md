@@ -155,7 +155,7 @@ When limits exceeded:
 
 - `auto/large-files` - Individual files too large
 - `auto/too-many-files` - Too many files changed
-- `auto/too-many-lines` - Individual files exceed configured line limits
+- `auto/too-many-lines` - Individual files exceed configured line limits (disable with `file_lines_limit_enabled: "false"`)
 - `auto/excessive-changes` - Total additions exceed configured thresholds
 
 **Customize**: All thresholds and labels configurable. See [Configuration Guide](docs/en/configuration.md#label-thresholds-defaults).
@@ -172,6 +172,7 @@ When limits exceeded:
     # Size Limits
     file_size_limit: "100KB"      # Max file size
     file_lines_limit: "500"       # Max lines per file
+    file_lines_limit_enabled: "true" # Disable to skip per-file line checks/labels
     pr_additions_limit: "5000"    # Max total additions
     pr_files_limit: "50"          # Max changed files
 

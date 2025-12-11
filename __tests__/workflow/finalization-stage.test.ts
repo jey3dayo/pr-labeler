@@ -47,6 +47,7 @@ describe('workflow/stages/finalization', () => {
       githubToken: 'token',
       fileSizeLimit: 1024,
       fileLinesLimit: 400,
+      fileLinesLimitEnabled: true,
       prAdditionsLimit: 300,
       prFilesLimit: 20,
       sizeEnabled: true,

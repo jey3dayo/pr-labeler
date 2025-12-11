@@ -20,6 +20,7 @@ describe('FailureEvaluator', () => {
   const createBaseConfig = (): Config => ({
     fileSizeLimit: 100000,
     fileLinesLimit: 500,
+    fileLinesLimitEnabled: true,
     prAdditionsLimit: 5000,
     prFilesLimit: 50,
     autoRemoveLabels: true,
@@ -137,11 +138,10 @@ describe('FailureEvaluator', () => {
             exceedsFileLines: [
               {
                 file: 'long-file.ts',
-                reason: 'lines',
-                size: 50000,
-                lines: 1000,
-                additions: 100,
-                deletions: 50,
+                violationType: 'lines',
+                severity: 'warning',
+                actualValue: 1000,
+                limit: 500,
               },
             ],
             exceedsAdditions: false,
@@ -154,6 +154,36 @@ describe('FailureEvaluator', () => {
         const failures = evaluateFailureConditions(input);
         expect(failures).toHaveLength(1);
         expect(failures[0]).toContain('Files with too many lines detected');
+      });
+
+      it('should skip too-many-lines when line limit checks are disabled', () => {
+        const config = createBaseConfig();
+        config.failOnLargeFiles = true;
+        config.fileLinesLimitEnabled = false;
+
+        const input: FailureEvaluationInput = {
+          config,
+          appliedLabels: ['auto/too-many-lines'],
+          violations: {
+            largeFiles: [],
+            exceedsFileLines: [
+              {
+                file: 'long-file.ts',
+                violationType: 'lines',
+                severity: 'warning',
+                actualValue: 1200,
+                limit: 500,
+              },
+            ],
+            exceedsAdditions: false,
+            exceedsFileCount: false,
+          },
+          metrics: { totalAdditions: 100 },
+          sizeThresholds: config.sizeThresholds,
+        };
+
+        const failures = evaluateFailureConditions(input);
+        expect(failures).toHaveLength(0);
       });
 
       it('should handle both largeFiles and tooManyLines simultaneously (no duplication)', () => {

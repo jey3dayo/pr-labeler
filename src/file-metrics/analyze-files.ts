@@ -52,7 +52,10 @@ async function collectFileMetrics(
   context: RepoContext,
 ): Promise<FileMetrics | undefined> {
   const sizeResult = await getFileSize(file.filename, token, context);
-  const lineResult = await getFileLineCount(file.filename, config.fileLineLimit + 1);
+  const lineResult = await getFileLineCount(
+    file.filename,
+    config.fileLineLimitEnabled ? config.fileLineLimit + 1 : undefined,
+  );
 
   if (sizeResult.isErr() || lineResult.isErr()) {
     return undefined;
@@ -122,7 +125,7 @@ async function processFile(
     );
   }
 
-  if (metrics.lines > config.fileLineLimit) {
+  if (config.fileLineLimitEnabled && metrics.lines > config.fileLineLimit) {
     recordViolation(
       result.violations.exceedsFileLines,
       {

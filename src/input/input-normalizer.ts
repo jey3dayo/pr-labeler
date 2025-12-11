@@ -30,6 +30,7 @@ export {
 export interface NormalizedActionInputs {
   fileSizeLimit: number;
   fileLinesLimit: number;
+  fileLinesLimitEnabled: boolean;
   prAdditionsLimit: number;
   prFilesLimit: number;
   autoRemoveLabels: boolean;
@@ -74,6 +75,11 @@ export function normalizeActionInputStrings(
     return err(
       createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'),
     );
+  }
+
+  const fileLinesLimitEnabledResult = parseBooleanStrict(inputs.file_lines_limit_enabled);
+  if (fileLinesLimitEnabledResult.isErr()) {
+    return err(fileLinesLimitEnabledResult.error);
   }
 
   const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
@@ -156,6 +162,7 @@ export function normalizeActionInputStrings(
   return ok({
     fileSizeLimit: fileSizeLimitResult.value,
     fileLinesLimit,
+    fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
     prAdditionsLimit,
     prFilesLimit,
     autoRemoveLabels: parseBoolean(inputs.auto_remove_labels),

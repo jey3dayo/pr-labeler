@@ -157,6 +157,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -188,6 +189,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -219,6 +221,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -252,6 +255,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -283,6 +287,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -314,6 +319,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -347,6 +353,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -366,6 +373,7 @@ describe('InputMapper', () => {
         const config = result.value;
         expect(config.fileSizeLimit).toBe(102400); // 100KB in bytes
         expect(config.fileLinesLimit).toBe(500);
+        expect(config.fileLinesLimitEnabled).toBe(true);
         expect(config.prAdditionsLimit).toBe(5000);
         expect(config.prFilesLimit).toBe(50);
         expect(config.autoRemoveLabels).toBe(true);
@@ -392,6 +400,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: 'invalid',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -417,6 +426,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -447,6 +457,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: 'not-a-number',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -477,6 +488,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',
@@ -511,6 +523,7 @@ describe('InputMapper', () => {
         github_token: 'test-token',
         file_size_limit: '100KB',
         file_lines_limit: '500',
+        file_lines_limit_enabled: 'true',
         pr_additions_limit: '5000',
         pr_files_limit: '50',
         auto_remove_labels: 'true',

@@ -74,6 +74,7 @@ export function buildCompleteConfig(
     githubToken: parsedInputs.githubToken,
     fileSizeLimit: parsedInputs.fileSizeLimit,
     fileLinesLimit: parsedInputs.fileLinesLimit,
+    fileLinesLimitEnabled: parsedInputs.fileLinesLimitEnabled,
     prAdditionsLimit: parsedInputs.prAdditionsLimit,
     prFilesLimit: parsedInputs.prFilesLimit,
     sizeEnabled: parsedInputs.sizeEnabled,

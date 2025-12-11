@@ -47,6 +47,18 @@ PR Insights Labelerの詳細なAPI仕様書です。
   file_lines_limit: "1000"
   ```
 
+#### `file_lines_limit_enabled`
+
+- **型**: `string` (boolean)
+- **必須**: ❌
+- **デフォルト**: `"true"`
+- **説明**: ファイル行数チェックの有効／無効を切り替え（`"false"` で `file_lines_limit` による違反検出・ラベル付与をスキップ）
+- **使用例**:
+
+  ```yaml
+  file_lines_limit_enabled: "false"  # 行数違反を無効化
+  ```
+
 #### `pr_additions_limit`
 
 - **型**: `string`

@@ -33,6 +33,7 @@ Complete reference for all input parameters, output variables, and configuration
 | `github_token` | ✅ | - | GitHub token for API access (`${{ secrets.GITHUB_TOKEN }}`) |
 | `file_size_limit` | ❌ | `100KB` | Maximum file size (e.g., `100KB`, `1.5MB`, `500000`) |
 | `file_lines_limit` | ❌ | `500` | Maximum lines per file (current file total lines, not diff additions) |
+| `file_lines_limit_enabled` | ❌ | `true` | Enable per-file line count checks (set to `false` to skip line-limit violations and labels) |
 | `pr_additions_limit` | ❌ | `5000` | Maximum added lines for entire PR (diff-based) |
 | `pr_files_limit` | ❌ | `50` | Maximum number of files in PR (excluding removed files) |
 
@@ -44,6 +45,7 @@ Complete reference for all input parameters, output variables, and configuration
     github_token: ${{ secrets.GITHUB_TOKEN }}
     file_size_limit: "500KB"      # 500 kilobytes
     file_lines_limit: "1000"      # 1000 lines
+    file_lines_limit_enabled: "false"  # Skip per-file line limit checks
     pr_additions_limit: "2000"    # 2000 added lines
     pr_files_limit: "30"          # 30 files maximum
 ```

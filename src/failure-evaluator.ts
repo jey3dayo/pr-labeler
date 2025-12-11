@@ -65,7 +65,7 @@ export function evaluateFailureConditions(input: FailureEvaluationInput): string
   }
 
   // Additional check: fail_on_large_files also covers per-file line count violations
-  if (config.failOnLargeFiles) {
+  if (config.failOnLargeFiles && config.fileLinesLimitEnabled) {
     const hasTooManyLinesLabel = appliedLabels?.includes(config.tooManyLinesLabel) ?? false;
     const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
     if (hasTooManyLinesLabel || hasTooManyLinesViolation) {

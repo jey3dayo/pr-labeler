@@ -25,6 +25,7 @@ export const defaultParsedInputs: ParsedInputs = {
   githubToken: 'test-github-token',
   fileSizeLimit: 100000,
   fileLinesLimit: 500,
+  fileLinesLimitEnabled: true,
   prAdditionsLimit: 5000,
   prFilesLimit: 50,
   sizeEnabled: true,

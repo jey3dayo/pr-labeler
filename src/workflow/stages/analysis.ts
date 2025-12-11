@@ -43,6 +43,7 @@ export function analyzePullRequest(context: InitializationArtifacts): ResultAsyn
         {
           fileSizeLimit: config.fileSizeLimit,
           fileLineLimit: config.fileLinesLimit,
+          fileLineLimitEnabled: config.fileLinesLimitEnabled,
           maxAddedLines: config.prAdditionsLimit,
           maxFileCount: config.prFilesLimit,
           excludePatterns: config.additionalExcludePatterns,

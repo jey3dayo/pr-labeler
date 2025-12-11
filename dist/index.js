@@ -271361,6 +271361,7 @@ function getActionInputs() {
         github_token: resolveTokenValue() || '',
         file_size_limit: core.getInput('file_size_limit') || '100KB',
         file_lines_limit: core.getInput('file_lines_limit') || '500',
+        file_lines_limit_enabled: core.getInput('file_lines_limit_enabled') || 'true',
         pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
         pr_files_limit: core.getInput('pr_files_limit') || '50',
         auto_remove_labels: core.getInput('auto_remove_labels') || 'true',
@@ -272092,6 +272093,7 @@ function buildCompleteConfig(parsedInputs, labelerConfig, envConfig) {
         githubToken: parsedInputs.githubToken,
         fileSizeLimit: parsedInputs.fileSizeLimit,
         fileLinesLimit: parsedInputs.fileLinesLimit,
+        fileLinesLimitEnabled: parsedInputs.fileLinesLimitEnabled,
         prAdditionsLimit: parsedInputs.prAdditionsLimit,
         prFilesLimit: parsedInputs.prFilesLimit,
         sizeEnabled: parsedInputs.sizeEnabled,
@@ -274487,7 +274489,7 @@ function evaluateFailureConditions(input) {
             }
         }
     }
-    if (config.failOnLargeFiles) {
+    if (config.failOnLargeFiles && config.fileLinesLimitEnabled) {
         const hasTooManyLinesLabel = appliedLabels?.includes(config.tooManyLinesLabel) ?? false;
         const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
         if (hasTooManyLinesLabel || hasTooManyLinesViolation) {
@@ -274572,7 +274574,7 @@ function recordViolation(list, violation, message) {
 }
 async function collectFileMetrics(file, config, token, context) {
     const sizeResult = await (0, file_size_service_js_1.getFileSize)(file.filename, token, context);
-    const lineResult = await (0, line_counter_js_1.getFileLineCount)(file.filename, config.fileLineLimit + 1);
+    const lineResult = await (0, line_counter_js_1.getFileLineCount)(file.filename, config.fileLineLimitEnabled ? config.fileLineLimit + 1 : undefined);
     if (sizeResult.isErr() || lineResult.isErr()) {
         return undefined;
     }
@@ -274619,7 +274621,7 @@ async function processFile(state, file, config, token, context) {
             severity: 'critical',
         }, `File ${file.filename} exceeds size limit: ${metrics.size} > ${config.fileSizeLimit}`);
     }
-    if (metrics.lines > config.fileLineLimit) {
+    if (config.fileLineLimitEnabled && metrics.lines > config.fileLineLimit) {
         recordViolation(result.violations.exceedsFileLines, {
             file: file.filename,
             actualValue: metrics.lines,
@@ -275326,6 +275328,7 @@ function parseActionInputs() {
     const rawInputs = {
         file_size_limit: core.getInput('file_size_limit'),
         file_lines_limit: core.getInput('file_lines_limit'),
+        file_lines_limit_enabled: core.getInput('file_lines_limit_enabled'),
         pr_additions_limit: core.getInput('pr_additions_limit'),
         pr_files_limit: core.getInput('pr_files_limit'),
         auto_remove_labels: core.getInput('auto_remove_labels'),
@@ -275394,6 +275397,10 @@ function normalizeActionInputStrings(inputs) {
     if (isNaN(fileLinesLimit)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'));
     }
+    const fileLinesLimitEnabledResult = (0, action_input_parsers_js_1.parseBooleanStrict)(inputs.file_lines_limit_enabled);
+    if (fileLinesLimitEnabledResult.isErr()) {
+        return (0, neverthrow_1.err)(fileLinesLimitEnabledResult.error);
+    }
     const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
     if (isNaN(prAdditionsLimit)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
@@ -275450,6 +275457,7 @@ function normalizeActionInputStrings(inputs) {
     return (0, neverthrow_1.ok)({
         fileSizeLimit: fileSizeLimitResult.value,
         fileLinesLimit,
+        fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
         prAdditionsLimit,
         prFilesLimit,
         autoRemoveLabels: (0, action_input_parsers_js_1.parseBoolean)(inputs.auto_remove_labels),
@@ -277745,6 +277753,7 @@ function analyzePullRequest(context) {
         const analysisResult = await (0, file_metrics_1.analyzeFiles)(files, {
             fileSizeLimit: config.fileSizeLimit,
             fileLineLimit: config.fileLinesLimit,
+            fileLineLimitEnabled: config.fileLinesLimitEnabled,
             maxAddedLines: config.prAdditionsLimit,
             maxFileCount: config.prFilesLimit,
             excludePatterns: config.additionalExcludePatterns,

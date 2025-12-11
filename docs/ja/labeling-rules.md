@@ -74,7 +74,7 @@ PR Insights Labeler が各ラベル種別をどのように判定するかを簡
 - ワークフローで定義したガードを超えた場合に付与。
   - `auto/large-files` – 単一ファイルが `file_size_limit` を超過
   - `auto/too-many-files` – 変更ファイル数が `pr_files_limit` を超過
-  - `auto/too-many-lines` – 1ファイルの行数が `file_lines_limit` を超過
+  - `auto/too-many-lines` – 1ファイルの行数が `file_lines_limit` を超過（`file_lines_limit_enabled: "false"` で無効化）
   - `auto/excessive-changes` – 追加行数が `pr_additions_limit` を超過
 - `fail_on_*` 入力と組み合わせると、違反ラベル発生時にCI失敗へ切り替え可能。
 
