@@ -39,6 +39,22 @@ interface ThresholdComparisonSpec<K extends string> {
   createMessage: (params: { smallerValue: number; largerValue: number }) => string;
 }
 
+function ensureOptionalRecord(
+  rawValue: unknown,
+  fieldName: string,
+  errorMessage: string,
+): Result<Record<string, unknown> | undefined, ConfigurationError> {
+  if (rawValue === undefined) {
+    return ok(undefined);
+  }
+
+  if (!isRecord(rawValue)) {
+    return err(createConfigurationError(fieldName, rawValue, errorMessage));
+  }
+
+  return ok(rawValue);
+}
+
 function validateThresholdGroup<K extends string>(
   thresholdsRaw: unknown,
   options: {
@@ -112,15 +128,17 @@ function parseThresholdDrivenField<TResult, K extends string>(
     };
   },
 ): Result<TResult | undefined, ConfigurationError> {
-  if (rawValue === undefined) {
+  const recordResult = ensureOptionalRecord(rawValue, options.fieldName, `${options.fieldName} must be an object`);
+  if (recordResult.isErr()) {
+    return err(recordResult.error);
+  }
+
+  const recordValue = recordResult.value;
+  if (recordValue === undefined) {
     return ok(undefined);
   }
 
-  if (!isRecord(rawValue)) {
-    return err(createConfigurationError(options.fieldName, rawValue, `${options.fieldName} must be an object`));
-  }
-
-  const thresholdsRaw = rawValue['thresholds'];
+  const thresholdsRaw = recordValue['thresholds'];
   if (thresholdsRaw !== undefined) {
     const validation = validateThresholdGroup(thresholdsRaw, options.thresholds);
     if (validation.isErr()) {
@@ -128,7 +146,7 @@ function parseThresholdDrivenField<TResult, K extends string>(
     }
   }
 
-  return ok(rawValue as unknown as TResult);
+  return ok(recordValue as unknown as TResult);
 }
 
 export function parseLanguageField(
@@ -162,15 +180,17 @@ export function parseLanguageField(
 export function parseSummaryField(
   rawSummary: unknown,
 ): Result<LabelerConfig['summary'] | undefined, ConfigurationError> {
-  if (rawSummary === undefined) {
+  const summaryResult = ensureOptionalRecord(rawSummary, SUMMARY_FIELD, 'summary must be an object');
+  if (summaryResult.isErr()) {
+    return err(summaryResult.error);
+  }
+
+  const summaryRecord = summaryResult.value;
+  if (summaryRecord === undefined) {
     return ok(undefined);
   }
 
-  if (!isRecord(rawSummary)) {
-    return err(createConfigurationError(SUMMARY_FIELD, rawSummary, 'summary must be an object'));
-  }
-
-  const title = rawSummary['title'];
+  const title = summaryRecord['title'];
   if (title === undefined) {
     return ok(undefined);
   }
@@ -358,20 +378,22 @@ export function parseCategoriesField(
 }
 
 export function parseRiskField(rawRisk: unknown): Result<LabelerConfig['risk'] | undefined, ConfigurationError> {
-  if (rawRisk === undefined) {
+  const riskResult = ensureOptionalRecord(rawRisk, RISK_FIELD, 'risk must be an object');
+  if (riskResult.isErr()) {
+    return err(riskResult.error);
+  }
+
+  const riskRecord = riskResult.value;
+  if (riskRecord === undefined) {
     return ok(undefined);
   }
 
-  if (!isRecord(rawRisk)) {
-    return err(createConfigurationError(RISK_FIELD, rawRisk, 'risk must be an object'));
-  }
-
-  const useCiStatus = rawRisk['use_ci_status'];
+  const useCiStatus = riskRecord['use_ci_status'];
   if (useCiStatus !== undefined && !isBoolean(useCiStatus)) {
     return err(createConfigurationError('risk.use_ci_status', useCiStatus, 'risk.use_ci_status must be a boolean'));
   }
 
-  return ok(rawRisk as unknown as LabelerConfig['risk']);
+  return ok(riskRecord as unknown as LabelerConfig['risk']);
 }
 
 export function getOptionalField<T>(source: Record<string, unknown>, fieldName: string): T | undefined {

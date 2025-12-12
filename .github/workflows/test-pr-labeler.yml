@@ -19,6 +19,11 @@ permissions:
   pull-requests: write
   issues: write
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  REPO: ${{ github.repository }}
+  PR_NUMBER: ${{ inputs.pr_number }}
+
 jobs:
   test-basic:
     name: Test - Basic Features
@@ -32,14 +37,23 @@ jobs:
       - name: Checkout PR branch (manual trigger)
         if: github.event_name == 'workflow_dispatch'
         run: gh pr checkout ${{ inputs.pr_number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Populate pull_request payload for workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          pr_payload="$(mktemp)"
+          gh api repos/"$REPO"/pulls/"$PR_NUMBER" > "$pr_payload"
+
+          event_payload="$(mktemp)"
+          jq '{pull_request: .}' "$pr_payload" > "$event_payload"
+
+          echo "GITHUB_EVENT_NAME=pull_request" >> "$GITHUB_ENV"
+          echo "GITHUB_EVENT_PATH=$event_payload" >> "$GITHUB_ENV"
 
       - name: Run PR Insights Labeler (Basic)
         uses: ./
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
+          github_token: ${{ env.GH_TOKEN }}
           # Use @test tag for testing unreleased features
           # This allows testing without affecting production users
           file_size_limit: "100KB"
@@ -66,14 +80,23 @@ jobs:
       - name: Checkout PR branch (manual trigger)
         if: github.event_name == 'workflow_dispatch'
         run: gh pr checkout ${{ inputs.pr_number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Populate pull_request payload for workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          pr_payload="$(mktemp)"
+          gh api repos/"$REPO"/pulls/"$PR_NUMBER" > "$pr_payload"
+
+          event_payload="$(mktemp)"
+          jq '{pull_request: .}' "$pr_payload" > "$event_payload"
+
+          echo "GITHUB_EVENT_NAME=pull_request" >> "$GITHUB_ENV"
+          echo "GITHUB_EVENT_PATH=$event_payload" >> "$GITHUB_ENV"
 
       - name: Run PR Insights Labeler (Size Labels)
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           size_enabled: "true"
           size_thresholds: '{"small": 100, "medium": 500, "large": 1000, "xlarge": 3000}'
           complexity_enabled: "false"
@@ -94,8 +117,18 @@ jobs:
       - name: Checkout PR branch (manual trigger)
         if: github.event_name == 'workflow_dispatch'
         run: gh pr checkout ${{ inputs.pr_number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Populate pull_request payload for workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          pr_payload="$(mktemp)"
+          gh api repos/"$REPO"/pulls/"$PR_NUMBER" > "$pr_payload"
+
+          event_payload="$(mktemp)"
+          jq '{pull_request: .}' "$pr_payload" > "$event_payload"
+
+          echo "GITHUB_EVENT_NAME=pull_request" >> "$GITHUB_ENV"
+          echo "GITHUB_EVENT_PATH=$event_payload" >> "$GITHUB_ENV"
 
       - name: Run PR Insights Labeler (Failure Control)
         uses: ./
@@ -103,7 +136,6 @@ jobs:
         id: pr-labeler
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           # Test new workflow failure control inputs
           fail_on_large_files: "true"
           fail_on_too_many_files: "true"
@@ -134,14 +166,23 @@ jobs:
       - name: Checkout PR branch (manual trigger)
         if: github.event_name == 'workflow_dispatch'
         run: gh pr checkout ${{ inputs.pr_number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Populate pull_request payload for workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          pr_payload="$(mktemp)"
+          gh api repos/"$REPO"/pulls/"$PR_NUMBER" > "$pr_payload"
+
+          event_payload="$(mktemp)"
+          jq '{pull_request: .}' "$pr_payload" > "$event_payload"
+
+          echo "GITHUB_EVENT_NAME=pull_request" >> "$GITHUB_ENV"
+          echo "GITHUB_EVENT_PATH=$event_payload" >> "$GITHUB_ENV"
 
       - name: Run PR Insights Labeler (All Features)
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           # Basic limits
           file_size_limit: "100KB"
           file_lines_limit: "500"
@@ -179,13 +220,22 @@ jobs:
       - name: Checkout PR branch (manual trigger)
         if: github.event_name == 'workflow_dispatch'
         run: gh pr checkout ${{ inputs.pr_number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Populate pull_request payload for workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          pr_payload="$(mktemp)"
+          gh api repos/"$REPO"/pulls/"$PR_NUMBER" > "$pr_payload"
+
+          event_payload="$(mktemp)"
+          jq '{pull_request: .}' "$pr_payload" > "$event_payload"
+
+          echo "GITHUB_EVENT_NAME=pull_request" >> "$GITHUB_ENV"
+          echo "GITHUB_EVENT_PATH=$event_payload" >> "$GITHUB_ENV"
 
       - name: Run PR Insights Labeler (Minimal)
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_number: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || '' }}
           # Only required parameter - all others use defaults
           enable_summary: "true"

@@ -222,27 +222,13 @@ async function createMissingLabels(
   result: ApplyResult,
 ): Promise<void> {
   for (const label of labels) {
-    // 1) Try to add the label individually (handles labels that already exist in the repo)
-    try {
-      await octokit.rest.issues.addLabels({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: context.issue.number,
-        labels: [label],
-      });
-      result.applied.push(label);
-      core.info(`Applied label: ${label}`);
-      continue; // next label
-    } catch (error) {
-      const status = extractErrorStatus(error);
-      // 422 ⇒ label likely doesn't exist in the repo; try to create
-      if (status !== 422) {
-        const e = ensureError(error);
-        result.failed.push({ label, reason: `Failed to add: ${e.message}` });
-        core.warning(`Failed to add label "${label}": ${e.message}`);
-        continue;
+    const initialAddResult = await tryAddLabel(octokit, context, label, result);
+    if (initialAddResult.success || initialAddResult.status !== 422) {
+      if (!initialAddResult.success && initialAddResult.error) {
+        result.failed.push({ label, reason: `Failed to add: ${initialAddResult.error.message}` });
+        core.warning(`Failed to add label "${label}": ${initialAddResult.error.message}`);
       }
-      // Fall through to create label
+      continue;
     }
 
     // 2) Create the missing label (ignore 422 already_exists) then add again
@@ -266,19 +252,36 @@ async function createMissingLabels(
       }
     }
 
-    try {
-      await octokit.rest.issues.addLabels({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: context.issue.number,
-        labels: [label],
-      });
-      result.applied.push(label);
-      core.info(`Applied label: ${label}`);
-    } catch (error) {
-      const e = ensureError(error);
-      result.failed.push({ label, reason: `Failed to apply after create: ${e.message}` });
-      core.warning(`Failed to apply label "${label}" after create: ${e.message}`);
+    const applyAfterCreate = await tryAddLabel(octokit, context, label, result);
+    if (!applyAfterCreate.success && applyAfterCreate.error) {
+      result.failed.push({ label, reason: `Failed to apply after create: ${applyAfterCreate.error.message}` });
+      core.warning(`Failed to apply label "${label}" after create: ${applyAfterCreate.error.message}`);
     }
+  }
+}
+
+async function tryAddLabel(
+  octokit: Octokit,
+  context: PullRequestContext,
+  label: string,
+  result: ApplyResult,
+): Promise<{ success: true } | { success: false; status?: number; error?: Error }> {
+  try {
+    await octokit.rest.issues.addLabels({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: context.issue.number,
+      labels: [label],
+    });
+    result.applied.push(label);
+    core.info(`Applied label: ${label}`);
+    return { success: true };
+  } catch (error) {
+    const status = extractErrorStatus(error);
+    const payload: { success: false; status?: number; error: Error } = { success: false, error: ensureError(error) };
+    if (status !== undefined) {
+      payload.status = status;
+    }
+    return payload;
   }
 }

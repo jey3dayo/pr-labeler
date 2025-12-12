@@ -272760,25 +272760,11 @@ async function manageComment(analysisResult, config, token, context) {
     }
     const existingCommentId = existingCommentResult.value;
     if (config.commentMode === 'never') {
-        if (existingCommentId) {
-            const deleteResult = await deleteComment(existingCommentId, token, context);
-            if (deleteResult.isErr()) {
-                return (0, neverthrow_1.err)(deleteResult.error);
-            }
-            return (0, neverthrow_1.ok)({ action: 'deleted', commentId: existingCommentId });
-        }
-        return (0, neverthrow_1.ok)({ action: 'skipped', commentId: null });
+        return handleSkipOrDelete(existingCommentId, token, context);
     }
     if (config.commentMode === 'auto') {
         if (!hasViolationsFlag) {
-            if (existingCommentId) {
-                const deleteResult = await deleteComment(existingCommentId, token, context);
-                if (deleteResult.isErr()) {
-                    return (0, neverthrow_1.err)(deleteResult.error);
-                }
-                return (0, neverthrow_1.ok)({ action: 'deleted', commentId: existingCommentId });
-            }
-            return (0, neverthrow_1.ok)({ action: 'skipped', commentId: null });
+            return handleSkipOrDelete(existingCommentId, token, context);
         }
     }
     const commentBody = generateCommentBody(analysisResult);
@@ -272796,6 +272782,16 @@ async function manageComment(analysisResult, config, token, context) {
         }
         return (0, neverthrow_1.ok)({ action: 'created', commentId: postResult.value });
     }
+}
+async function handleSkipOrDelete(existingCommentId, token, context) {
+    if (!existingCommentId) {
+        return (0, neverthrow_1.ok)({ action: 'skipped', commentId: null });
+    }
+    const deleteResult = await deleteComment(existingCommentId, token, context);
+    if (deleteResult.isErr()) {
+        return (0, neverthrow_1.err)(deleteResult.error);
+    }
+    return (0, neverthrow_1.ok)({ action: 'deleted', commentId: existingCommentId });
 }
 
 
@@ -272856,6 +272852,9 @@ const p_limit_1 = __importDefault(__nccwpck_require__(45537));
 const default_config_js_1 = __nccwpck_require__(88030);
 Object.defineProperty(exports, "DEFAULT_ANALYSIS_OPTIONS", ({ enumerable: true, get: function () { return default_config_js_1.DEFAULT_ANALYSIS_OPTIONS; } }));
 const index_js_1 = __nccwpck_require__(91064);
+function mergeAnalysisOptions(options) {
+    return { ...default_config_js_1.DEFAULT_ANALYSIS_OPTIONS, ...options };
+}
 function hasTsconfigJson() {
     try {
         const tsconfigPath = path.join(process.cwd(), 'tsconfig.json');
@@ -272912,7 +272911,7 @@ function hasSyntaxError(messages) {
     return messages.some(m => m.fatal === true || m.message.toLowerCase().includes('parsing error'));
 }
 function analyzeFile(filePath, options) {
-    const opts = { ...default_config_js_1.DEFAULT_ANALYSIS_OPTIONS, ...options };
+    const opts = mergeAnalysisOptions(options);
     return neverthrow_1.ResultAsync.fromPromise((async () => {
         try {
             const stats = await node_fs_1.promises.stat(filePath);
@@ -272985,7 +272984,7 @@ function analyzeFile(filePath, options) {
     });
 }
 function analyzeFiles(filePaths, options) {
-    const opts = { ...default_config_js_1.DEFAULT_ANALYSIS_OPTIONS, ...options };
+    const opts = mergeAnalysisOptions(options);
     const startTime = Date.now();
     return neverthrow_1.ResultAsync.fromPromise((async () => {
         const successful = [];
@@ -273448,6 +273447,15 @@ const SIZE_FIELD = exports.KNOWN_FIELD_NAMES.SIZE;
 const COMPLEXITY_FIELD = exports.KNOWN_FIELD_NAMES.COMPLEXITY;
 const CATEGORIES_FIELD = exports.KNOWN_FIELD_NAMES.CATEGORIES;
 const RISK_FIELD = exports.KNOWN_FIELD_NAMES.RISK;
+function ensureOptionalRecord(rawValue, fieldName, errorMessage) {
+    if (rawValue === undefined) {
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    if (!(0, type_guards_js_1.isRecord)(rawValue)) {
+        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(fieldName, rawValue, errorMessage));
+    }
+    return (0, neverthrow_1.ok)(rawValue);
+}
 function validateThresholdGroup(thresholdsRaw, options) {
     if (!(0, type_guards_js_1.isRecord)(thresholdsRaw)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(options.fieldLabel, thresholdsRaw, `${options.fieldLabel} must be an object`));
@@ -273487,20 +273495,22 @@ function validateThresholdGroup(thresholdsRaw, options) {
     return (0, neverthrow_1.ok)(finalValues);
 }
 function parseThresholdDrivenField(rawValue, options) {
-    if (rawValue === undefined) {
+    const recordResult = ensureOptionalRecord(rawValue, options.fieldName, `${options.fieldName} must be an object`);
+    if (recordResult.isErr()) {
+        return (0, neverthrow_1.err)(recordResult.error);
+    }
+    const recordValue = recordResult.value;
+    if (recordValue === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
-    if (!(0, type_guards_js_1.isRecord)(rawValue)) {
-        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(options.fieldName, rawValue, `${options.fieldName} must be an object`));
-    }
-    const thresholdsRaw = rawValue['thresholds'];
+    const thresholdsRaw = recordValue['thresholds'];
     if (thresholdsRaw !== undefined) {
         const validation = validateThresholdGroup(thresholdsRaw, options.thresholds);
         if (validation.isErr()) {
             return (0, neverthrow_1.err)(validation.error);
         }
     }
-    return (0, neverthrow_1.ok)(rawValue);
+    return (0, neverthrow_1.ok)(recordValue);
 }
 function parseLanguageField(rawLanguage) {
     if (rawLanguage === undefined) {
@@ -273518,13 +273528,15 @@ function parseLanguageField(rawLanguage) {
     return (0, neverthrow_1.ok)(rawLanguage);
 }
 function parseSummaryField(rawSummary) {
-    if (rawSummary === undefined) {
+    const summaryResult = ensureOptionalRecord(rawSummary, SUMMARY_FIELD, 'summary must be an object');
+    if (summaryResult.isErr()) {
+        return (0, neverthrow_1.err)(summaryResult.error);
+    }
+    const summaryRecord = summaryResult.value;
+    if (summaryRecord === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
-    if (!(0, type_guards_js_1.isRecord)(rawSummary)) {
-        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(SUMMARY_FIELD, rawSummary, 'summary must be an object'));
-    }
-    const title = rawSummary['title'];
+    const title = summaryRecord['title'];
     if (title === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
@@ -273662,17 +273674,19 @@ function parseCategoriesField(rawCategories) {
     }
 }
 function parseRiskField(rawRisk) {
-    if (rawRisk === undefined) {
+    const riskResult = ensureOptionalRecord(rawRisk, RISK_FIELD, 'risk must be an object');
+    if (riskResult.isErr()) {
+        return (0, neverthrow_1.err)(riskResult.error);
+    }
+    const riskRecord = riskResult.value;
+    if (riskRecord === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
-    if (!(0, type_guards_js_1.isRecord)(rawRisk)) {
-        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(RISK_FIELD, rawRisk, 'risk must be an object'));
-    }
-    const useCiStatus = rawRisk['use_ci_status'];
+    const useCiStatus = riskRecord['use_ci_status'];
     if (useCiStatus !== undefined && !(0, type_guards_js_1.isBoolean)(useCiStatus)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('risk.use_ci_status', useCiStatus, 'risk.use_ci_status must be a boolean'));
     }
-    return (0, neverthrow_1.ok)(rawRisk);
+    return (0, neverthrow_1.ok)(riskRecord);
 }
 function getOptionalField(source, fieldName) {
     if (!(fieldName in source)) {
@@ -274763,25 +274777,13 @@ async function applyDirectoryLabels(octokit, context, decisions, namespaces) {
 }
 async function createMissingLabels(octokit, context, labels, result) {
     for (const label of labels) {
-        try {
-            await octokit.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                labels: [label],
-            });
-            result.applied.push(label);
-            core.info(`Applied label: ${label}`);
-            continue;
-        }
-        catch (error) {
-            const status = (0, index_js_1.extractErrorStatus)(error);
-            if (status !== 422) {
-                const e = (0, index_js_1.ensureError)(error);
-                result.failed.push({ label, reason: `Failed to add: ${e.message}` });
-                core.warning(`Failed to add label "${label}": ${e.message}`);
-                continue;
+        const initialAddResult = await tryAddLabel(octokit, context, label, result);
+        if (initialAddResult.success || initialAddResult.status !== 422) {
+            if (!initialAddResult.success && initialAddResult.error) {
+                result.failed.push({ label, reason: `Failed to add: ${initialAddResult.error.message}` });
+                core.warning(`Failed to add label "${label}": ${initialAddResult.error.message}`);
             }
+            continue;
         }
         try {
             await octokit.rest.issues.createLabel({
@@ -274802,21 +274804,32 @@ async function createMissingLabels(octokit, context, labels, result) {
                 continue;
             }
         }
-        try {
-            await octokit.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                labels: [label],
-            });
-            result.applied.push(label);
-            core.info(`Applied label: ${label}`);
+        const applyAfterCreate = await tryAddLabel(octokit, context, label, result);
+        if (!applyAfterCreate.success && applyAfterCreate.error) {
+            result.failed.push({ label, reason: `Failed to apply after create: ${applyAfterCreate.error.message}` });
+            core.warning(`Failed to apply label "${label}" after create: ${applyAfterCreate.error.message}`);
         }
-        catch (error) {
-            const e = (0, index_js_1.ensureError)(error);
-            result.failed.push({ label, reason: `Failed to apply after create: ${e.message}` });
-            core.warning(`Failed to apply label "${label}" after create: ${e.message}`);
+    }
+}
+async function tryAddLabel(octokit, context, label, result) {
+    try {
+        await octokit.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            labels: [label],
+        });
+        result.applied.push(label);
+        core.info(`Applied label: ${label}`);
+        return { success: true };
+    }
+    catch (error) {
+        const status = (0, index_js_1.extractErrorStatus)(error);
+        const payload = { success: false, error: (0, index_js_1.ensureError)(error) };
+        if (status !== undefined) {
+            payload.status = status;
         }
+        return payload;
     }
 }
 
@@ -276800,20 +276813,8 @@ function decideComplexityLabel(complexity, thresholds) {
 function decideCategoryLabels(files, categories) {
     const matchedLabels = [];
     for (const category of categories) {
-        const hasMatch = files.some(file => {
-            const matchesPattern = category.patterns.some(pattern => (0, minimatch_1.minimatch)(file, pattern));
-            if (!matchesPattern) {
-                return false;
-            }
-            if (category.exclude) {
-                const matchesExclude = category.exclude.some(pattern => (0, minimatch_1.minimatch)(file, pattern));
-                if (matchesExclude) {
-                    return false;
-                }
-            }
-            return true;
-        });
-        if (hasMatch) {
+        const matchedFiles = matchCategoryFiles(files, category);
+        if (matchedFiles.length > 0) {
             matchedLabels.push(category.label);
         }
     }
@@ -276822,24 +276823,27 @@ function decideCategoryLabels(files, categories) {
 function decideCategoryLabelsWithFiles(files, categories) {
     const results = [];
     for (const category of categories) {
-        const matchedFiles = files.filter(file => {
-            const matchesPattern = category.patterns.some(pattern => (0, minimatch_1.minimatch)(file, pattern));
-            if (!matchesPattern) {
-                return false;
-            }
-            if (category.exclude) {
-                const matchesExclude = category.exclude.some(pattern => (0, minimatch_1.minimatch)(file, pattern));
-                if (matchesExclude) {
-                    return false;
-                }
-            }
-            return true;
-        });
+        const matchedFiles = matchCategoryFiles(files, category);
         if (matchedFiles.length > 0) {
             results.push({ label: category.label, matchedFiles });
         }
     }
     return results;
+}
+function matchCategoryFiles(files, category) {
+    return files.filter(file => {
+        const matchesPattern = category.patterns.some(pattern => (0, minimatch_1.minimatch)(file, pattern));
+        if (!matchesPattern) {
+            return false;
+        }
+        if (category.exclude) {
+            const matchesExclude = category.exclude.some(pattern => (0, minimatch_1.minimatch)(file, pattern));
+            if (matchesExclude) {
+                return false;
+            }
+        }
+        return true;
+    });
 }
 function determineLabelsToRemove(labelsToAdd, policies) {
     const namespacesToReplace = new Set();
@@ -277971,53 +277975,49 @@ function formatCategoryLabel(item) {
     if (files.length === 0) {
         return '';
     }
-    let output = '<details>\n';
-    output += `<summary><strong>${(0, common_js_1.escapeMarkdown)(item.label)}</strong> (${files.length} ${files.length === 1 ? 'file' : 'files'})</summary>\n\n`;
+    let output = openDetails(`<strong>${(0, common_js_1.escapeMarkdown)(item.label)}</strong> (${files.length} ${files.length === 1 ? 'file' : 'files'})`);
     for (const file of files) {
         output += `- \`${file}\`\n`;
     }
-    output += '\n</details>\n\n';
+    output += closeDetails();
     return output;
 }
 function formatRiskLabel(item) {
     const files = item.matchedFiles || [];
-    let output = '<details>\n';
-    output += `<summary><strong>${(0, common_js_1.escapeMarkdown)(item.label)}</strong></summary>\n\n`;
-    output += `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.reason')}:** ${(0, common_js_1.escapeMarkdown)(item.reason)}\n\n`;
-    if (files.length > 0) {
-        output += `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.affectedFiles')}:**\n`;
-        for (const file of files) {
-            output += `- \`${file}\`\n`;
+    return formatReasonSection(item, files, (list) => {
+        if (list.length === 0) {
+            return '';
         }
-    }
-    output += '\n</details>\n\n';
-    return output;
+        let body = `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.affectedFiles')}:**\n`;
+        for (const file of list) {
+            body += `- \`${file}\`\n`;
+        }
+        return body;
+    });
 }
 function formatComplexityLabel(item, complexityMetrics) {
     const files = item.matchedFiles || [];
-    let output = '<details>\n';
-    output += `<summary><strong>${(0, common_js_1.escapeMarkdown)(item.label)}</strong></summary>\n\n`;
-    output += `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.reason')}:** ${(0, common_js_1.escapeMarkdown)(item.reason)}\n\n`;
-    if (files.length > 0 && complexityMetrics) {
-        output += `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.highComplexityFiles')}:**\n`;
-        for (const file of files) {
+    return formatReasonSection(item, files, (list) => {
+        if (list.length === 0 || !complexityMetrics) {
+            return '';
+        }
+        let body = `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.highComplexityFiles')}:**\n`;
+        for (const file of list) {
             const fileComplexity = complexityMetrics.files.find(f => f.path === file);
             if (fileComplexity) {
-                output += `- \`${file}\` (complexity: ${fileComplexity.complexity})\n`;
+                body += `- \`${file}\` (complexity: ${fileComplexity.complexity})\n`;
             }
             else {
-                output += `- \`${file}\`\n`;
+                body += `- \`${file}\`\n`;
             }
         }
-    }
-    output += '\n</details>\n\n';
-    return output;
+        return body;
+    });
 }
 function formatSizeLabel(item, fileMetrics, excludedAdditions) {
     const files = item.matchedFiles || [];
     const totalAdditions = fileMetrics.reduce((sum, f) => sum + f.additions, 0);
-    let output = '<details>\n';
-    output += `<summary><strong>${(0, common_js_1.escapeMarkdown)(item.label)}</strong></summary>\n\n`;
+    let output = openDetails(`<strong>${(0, common_js_1.escapeMarkdown)(item.label)}</strong>`);
     output += `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.totalAdditions')}:** ${totalAdditions} lines`;
     if (excludedAdditions > 0) {
         output += ` (excluding ${excludedAdditions} lines from excluded files)`;
@@ -278037,7 +278037,20 @@ function formatSizeLabel(item, fileMetrics, excludedAdditions) {
             output += `- ...and ${files.length - 10} more files\n`;
         }
     }
-    output += '\n</details>\n\n';
+    output += closeDetails();
+    return output;
+}
+function openDetails(summary) {
+    return `<details>\n<summary>${summary}</summary>\n\n`;
+}
+function closeDetails() {
+    return '\n</details>\n\n';
+}
+function formatReasonSection(item, files, renderFiles) {
+    let output = openDetails(`<strong>${(0, common_js_1.escapeMarkdown)(item.label)}</strong>`);
+    output += `**${(0, i18n_js_1.t)('summary', 'labelFileGroups.reason')}:** ${(0, common_js_1.escapeMarkdown)(item.reason)}\n\n`;
+    output += renderFiles(files);
+    output += closeDetails();
     return output;
 }
 function calculateExcludedAdditions(_fileMetrics) {

@@ -256,6 +256,6 @@ MIT License - see repository for details.
 ## 🙏 Built With
 
 - [neverthrow](https://github.com/supermacro/neverthrow) - Type-safe error handling
-- [minimatch](https://www.npmjs.com/package/minimatch) - Glob pattern matching
+- [minimatch](https://github.com/isaacs/minimatch) - Glob pattern matching
 - [bytes](https://github.com/visionmedia/bytes.js) - Size parsing utilities
 - [@actions/toolkit](https://github.com/actions/toolkit) - GitHub Actions SDK
