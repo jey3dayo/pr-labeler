@@ -239,28 +239,13 @@ export async function manageComment(
 
   // Handle 'never' mode
   if (config.commentMode === 'never') {
-    if (existingCommentId) {
-      const deleteResult = await deleteComment(existingCommentId, token, context);
-      if (deleteResult.isErr()) {
-        return err(deleteResult.error);
-      }
-      return ok({ action: 'deleted', commentId: existingCommentId });
-    }
-    return ok({ action: 'skipped', commentId: null });
+    return handleSkipOrDelete(existingCommentId, token, context);
   }
 
   // Handle 'auto' mode
   if (config.commentMode === 'auto') {
     if (!hasViolationsFlag) {
-      // Delete comment if no violations
-      if (existingCommentId) {
-        const deleteResult = await deleteComment(existingCommentId, token, context);
-        if (deleteResult.isErr()) {
-          return err(deleteResult.error);
-        }
-        return ok({ action: 'deleted', commentId: existingCommentId });
-      }
-      return ok({ action: 'skipped', commentId: null });
+      return handleSkipOrDelete(existingCommentId, token, context);
     }
   }
 
@@ -281,4 +266,20 @@ export async function manageComment(
     }
     return ok({ action: 'created', commentId: postResult.value });
   }
+}
+
+async function handleSkipOrDelete(
+  existingCommentId: number | null,
+  token: string,
+  context: PRContext,
+): Promise<Result<CommentResult, GitHubAPIError>> {
+  if (!existingCommentId) {
+    return ok({ action: 'skipped', commentId: null });
+  }
+
+  const deleteResult = await deleteComment(existingCommentId, token, context);
+  if (deleteResult.isErr()) {
+    return err(deleteResult.error);
+  }
+  return ok({ action: 'deleted', commentId: existingCommentId });
 }

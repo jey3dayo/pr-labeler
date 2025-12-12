@@ -156,24 +156,8 @@ export function decideCategoryLabels(
   const matchedLabels: string[] = [];
 
   for (const category of categories) {
-    const hasMatch = files.some(file => {
-      // パターンにマッチするかチェック
-      const matchesPattern = category.patterns.some(pattern => minimatch(file, pattern));
-      if (!matchesPattern) {
-        return false;
-      }
-
-      // 除外パターンがある場合、除外パターンにマッチしないことを確認
-      if (category.exclude) {
-        const matchesExclude = category.exclude.some(pattern => minimatch(file, pattern));
-        if (matchesExclude) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-    if (hasMatch) {
+    const matchedFiles = matchCategoryFiles(files, category);
+    if (matchedFiles.length > 0) {
       matchedLabels.push(category.label);
     }
   }
@@ -195,29 +179,34 @@ export function decideCategoryLabelsWithFiles(
   const results: Array<{ label: string; matchedFiles: string[] }> = [];
 
   for (const category of categories) {
-    const matchedFiles = files.filter(file => {
-      // パターンにマッチするかチェック
-      const matchesPattern = category.patterns.some(pattern => minimatch(file, pattern));
-      if (!matchesPattern) {
-        return false;
-      }
-
-      // 除外パターンがある場合、除外パターンにマッチしないことを確認
-      if (category.exclude) {
-        const matchesExclude = category.exclude.some(pattern => minimatch(file, pattern));
-        if (matchesExclude) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+    const matchedFiles = matchCategoryFiles(files, category);
     if (matchedFiles.length > 0) {
       results.push({ label: category.label, matchedFiles });
     }
   }
 
   return results;
+}
+
+function matchCategoryFiles(
+  files: string[],
+  category: { label: string; patterns: string[]; exclude?: string[] },
+): string[] {
+  return files.filter(file => {
+    const matchesPattern = category.patterns.some(pattern => minimatch(file, pattern));
+    if (!matchesPattern) {
+      return false;
+    }
+
+    if (category.exclude) {
+      const matchesExclude = category.exclude.some(pattern => minimatch(file, pattern));
+      if (matchesExclude) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 }
 
 /**
