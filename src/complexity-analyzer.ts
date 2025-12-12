@@ -27,6 +27,10 @@ import type { AnalysisOptions } from './types/config.js';
 export { DEFAULT_ANALYSIS_OPTIONS };
 export type { AnalysisOptions };
 
+function mergeAnalysisOptions(options?: Partial<AnalysisOptions>): Required<AnalysisOptions> {
+  return { ...DEFAULT_ANALYSIS_OPTIONS, ...options };
+}
+
 /**
  * Check if tsconfig.json exists in the project root
  * @returns True if tsconfig.json exists
@@ -121,7 +125,7 @@ function analyzeFile(
   filePath: string,
   options?: Partial<AnalysisOptions>,
 ): ResultAsync<FileComplexity, ComplexityAnalysisError> {
-  const opts = { ...DEFAULT_ANALYSIS_OPTIONS, ...options };
+  const opts = mergeAnalysisOptions(options);
 
   return ResultAsync.fromPromise(
     (async () => {
@@ -225,7 +229,7 @@ function analyzeFiles(
   filePaths: string[],
   options?: Partial<AnalysisOptions>,
 ): ResultAsync<ComplexityMetrics, ComplexityAnalysisError> {
-  const opts = { ...DEFAULT_ANALYSIS_OPTIONS, ...options };
+  const opts = mergeAnalysisOptions(options);
   const startTime = Date.now();
 
   return ResultAsync.fromPromise(

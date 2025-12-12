@@ -271846,6 +271846,9 @@ const p_limit_1 = __importDefault(__nccwpck_require__(45537));
 const default_config_js_1 = __nccwpck_require__(88030);
 Object.defineProperty(exports, "DEFAULT_ANALYSIS_OPTIONS", ({ enumerable: true, get: function () { return default_config_js_1.DEFAULT_ANALYSIS_OPTIONS; } }));
 const index_js_1 = __nccwpck_require__(91064);
+function mergeAnalysisOptions(options) {
+    return { ...default_config_js_1.DEFAULT_ANALYSIS_OPTIONS, ...options };
+}
 function hasTsconfigJson() {
     try {
         const tsconfigPath = path.join(process.cwd(), 'tsconfig.json');
@@ -271902,7 +271905,7 @@ function hasSyntaxError(messages) {
     return messages.some(m => m.fatal === true || m.message.toLowerCase().includes('parsing error'));
 }
 function analyzeFile(filePath, options) {
-    const opts = { ...default_config_js_1.DEFAULT_ANALYSIS_OPTIONS, ...options };
+    const opts = mergeAnalysisOptions(options);
     return neverthrow_1.ResultAsync.fromPromise((async () => {
         try {
             const stats = await node_fs_1.promises.stat(filePath);
@@ -271975,7 +271978,7 @@ function analyzeFile(filePath, options) {
     });
 }
 function analyzeFiles(filePaths, options) {
-    const opts = { ...default_config_js_1.DEFAULT_ANALYSIS_OPTIONS, ...options };
+    const opts = mergeAnalysisOptions(options);
     const startTime = Date.now();
     return neverthrow_1.ResultAsync.fromPromise((async () => {
         const successful = [];
@@ -272438,6 +272441,15 @@ const SIZE_FIELD = exports.KNOWN_FIELD_NAMES.SIZE;
 const COMPLEXITY_FIELD = exports.KNOWN_FIELD_NAMES.COMPLEXITY;
 const CATEGORIES_FIELD = exports.KNOWN_FIELD_NAMES.CATEGORIES;
 const RISK_FIELD = exports.KNOWN_FIELD_NAMES.RISK;
+function ensureOptionalRecord(rawValue, fieldName, errorMessage) {
+    if (rawValue === undefined) {
+        return (0, neverthrow_1.ok)(undefined);
+    }
+    if (!(0, type_guards_js_1.isRecord)(rawValue)) {
+        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(fieldName, rawValue, errorMessage));
+    }
+    return (0, neverthrow_1.ok)(rawValue);
+}
 function validateThresholdGroup(thresholdsRaw, options) {
     if (!(0, type_guards_js_1.isRecord)(thresholdsRaw)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(options.fieldLabel, thresholdsRaw, `${options.fieldLabel} must be an object`));
@@ -272477,20 +272489,22 @@ function validateThresholdGroup(thresholdsRaw, options) {
     return (0, neverthrow_1.ok)(finalValues);
 }
 function parseThresholdDrivenField(rawValue, options) {
-    if (rawValue === undefined) {
+    const recordResult = ensureOptionalRecord(rawValue, options.fieldName, `${options.fieldName} must be an object`);
+    if (recordResult.isErr()) {
+        return (0, neverthrow_1.err)(recordResult.error);
+    }
+    const recordValue = recordResult.value;
+    if (recordValue === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
-    if (!(0, type_guards_js_1.isRecord)(rawValue)) {
-        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(options.fieldName, rawValue, `${options.fieldName} must be an object`));
-    }
-    const thresholdsRaw = rawValue['thresholds'];
+    const thresholdsRaw = recordValue['thresholds'];
     if (thresholdsRaw !== undefined) {
         const validation = validateThresholdGroup(thresholdsRaw, options.thresholds);
         if (validation.isErr()) {
             return (0, neverthrow_1.err)(validation.error);
         }
     }
-    return (0, neverthrow_1.ok)(rawValue);
+    return (0, neverthrow_1.ok)(recordValue);
 }
 function parseLanguageField(rawLanguage) {
     if (rawLanguage === undefined) {
@@ -272508,13 +272522,15 @@ function parseLanguageField(rawLanguage) {
     return (0, neverthrow_1.ok)(rawLanguage);
 }
 function parseSummaryField(rawSummary) {
-    if (rawSummary === undefined) {
+    const summaryResult = ensureOptionalRecord(rawSummary, SUMMARY_FIELD, 'summary must be an object');
+    if (summaryResult.isErr()) {
+        return (0, neverthrow_1.err)(summaryResult.error);
+    }
+    const summaryRecord = summaryResult.value;
+    if (summaryRecord === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
-    if (!(0, type_guards_js_1.isRecord)(rawSummary)) {
-        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(SUMMARY_FIELD, rawSummary, 'summary must be an object'));
-    }
-    const title = rawSummary['title'];
+    const title = summaryRecord['title'];
     if (title === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
@@ -272652,17 +272668,19 @@ function parseCategoriesField(rawCategories) {
     }
 }
 function parseRiskField(rawRisk) {
-    if (rawRisk === undefined) {
+    const riskResult = ensureOptionalRecord(rawRisk, RISK_FIELD, 'risk must be an object');
+    if (riskResult.isErr()) {
+        return (0, neverthrow_1.err)(riskResult.error);
+    }
+    const riskRecord = riskResult.value;
+    if (riskRecord === undefined) {
         return (0, neverthrow_1.ok)(undefined);
     }
-    if (!(0, type_guards_js_1.isRecord)(rawRisk)) {
-        return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)(RISK_FIELD, rawRisk, 'risk must be an object'));
-    }
-    const useCiStatus = rawRisk['use_ci_status'];
+    const useCiStatus = riskRecord['use_ci_status'];
     if (useCiStatus !== undefined && !(0, type_guards_js_1.isBoolean)(useCiStatus)) {
         return (0, neverthrow_1.err)((0, index_js_1.createConfigurationError)('risk.use_ci_status', useCiStatus, 'risk.use_ci_status must be a boolean'));
     }
-    return (0, neverthrow_1.ok)(rawRisk);
+    return (0, neverthrow_1.ok)(riskRecord);
 }
 function getOptionalField(source, fieldName) {
     if (!(fieldName in source)) {
