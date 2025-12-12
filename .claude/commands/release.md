@@ -149,6 +149,61 @@ gh release create vX.Y.Z \
 - **🔗 Full Changelog**
   - GitHub比較URL
 
+### Phase 6: メジャーバージョンRelease更新
+
+**重要**: メジャーバージョンタグ（v1, v2など）のGitHub Releaseも更新する必要があります。
+
+```bash
+gh release edit vX \
+  --title "vX (Latest vX.x)" \
+  --notes "最新のvX.Y.Zを指すフローティングタグの説明"
+```
+
+**vX Release の内容:**
+
+- 現在のバージョン番号（vX.Y.Z）
+- 最新リリースの変更内容概要
+- 使用方法（`@vX` タグの推奨）
+- 最近のバージョン履歴
+
+**例: v1 Release 更新内容**
+
+```markdown
+# Latest v1.x Release
+
+This is a floating tag that always points to the latest v1.x release.
+
+## Current Version: v1.10.1
+
+For detailed release notes, see: https://github.com/USER/REPO/releases/tag/v1.10.1
+
+## Usage
+
+\```yaml
+# Recommended: Use floating tag for automatic updates
+- uses: USER/REPO@v1
+
+# Or use specific version for stability
+- uses: USER/REPO@v1.10.1
+\```
+
+## What's New in v1.10.1
+
+### 🔄 Changed
+- update dependencies with `npx ncu -u` (#129)
+
+### 🔧 Refactoring
+- reduce duplication and stabilize docs links (#126)
+
+See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
+```
+
+**なぜ必要か:**
+
+- ユーザーが `@v1` タグを使用している場合、最新のv1.xが自動適用される
+- v1 Releaseページが古いバージョンを指していると混乱を招く
+- メジャーバージョンの最新情報を一箇所で確認できる利便性
+
 ## 🛡️ エラーハンドリング
 
 ### リリース前チェック失敗時
@@ -413,10 +468,13 @@ pnpm test && pnpm lint && pnpm type-check && pnpm build
 # 1. GitHub Releaseが作成されているか
 gh release view vX.Y.Z
 
-# 2. タグが正しいか
+# 2. メジャーバージョンReleaseが更新されているか（重要！）
+gh release view vX
+
+# 3. タグが正しいか
 git tag -l "v*" | sort -V | tail -5
 
-# 3. CIが成功しているか
+# 4. CIが成功しているか
 gh run list --branch main --limit 3
 ```
 
@@ -539,7 +597,22 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
      --notes "$(extract_changelog_notes vX.Y.Z)"
    ```
 
-9. **完了報告**
+9. **メジャーバージョンRelease更新（重要！）**
+
+   ```bash
+   # v1, v2などのメジャーバージョンタグのGitHub Releaseを更新
+   gh release edit vX \
+     --title "vX (Latest vX.x)" \
+     --notes "$(generate_major_version_notes vX.Y.Z)"
+   ```
+
+   **生成する内容:**
+   - 現在のバージョン（vX.Y.Z）
+   - 最新の変更内容概要
+   - 使用方法（`@vX` タグの推奨）
+   - 最近のバージョン履歴（直近3-5バージョン）
+
+10. **完了報告**
 
    ```
    ✨ リリース v1.0.2 が完了しました！
@@ -548,6 +621,7 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    - ✅ コミット: chore: release v1.0.2
    - ✅ タグ: v1.0.2, v1
    - ✅ GitHub Release: https://github.com/USER/REPO/releases/tag/v1.0.2
+   - ✅ v1 Release更新: https://github.com/USER/REPO/releases/tag/v1
 
    次のステップ:
    1. GitHub Actionsでのビルド確認
