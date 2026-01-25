@@ -1,9 +1,9 @@
-# Generated JavaScript bundles and source maps - treat as binary and generated
-dist/**/*.js binary linguist-generated
-dist/**/*.map binary linguist-generated
+# Generated JavaScript bundles and source maps - exclude from diff stats
+dist/**/*.js binary linguist-generated -diff
+dist/**/*.map binary linguist-generated -diff
 
 # Generated type definitions
-dist/**/*.d.ts linguist-generated
+dist/**/*.d.ts linguist-generated -diff
 
 # Generated license summary
-dist/licenses.txt binary
+dist/licenses.txt binary -diff
