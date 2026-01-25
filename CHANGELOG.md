@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Fixed
 
-- git rename形式パースエラーとauto/*ラベル削除問題の修正 (#130)
+- git rename形式パースエラーとauto/\*ラベル削除問題の修正 (#130)
+
 ## [1.10.1] - 2025-12-12
 
 ### 🔄 Changed
