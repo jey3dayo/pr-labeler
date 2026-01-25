@@ -7,6 +7,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { ResultAsync } from 'neverthrow';
 
+import { AUTO_LABEL_PREFIX } from './configs/label-defaults.js';
 import { createGitHubAPIError, ensureError, extractErrorStatus, GitHubAPIError } from './errors/index.js';
 import type { LabelDecisions, LabelPolicyConfig, LabelUpdate } from './labeler-types.js';
 import type { PRContext } from './types.js';
@@ -125,6 +126,15 @@ function calculateLabelDiff(
     // Add label if not present and not already in toAdd
     if (!currentLabels.includes(label) && !toAdd.includes(label)) {
       toAdd.push(label);
+    }
+  }
+
+  // Remove auto/* labels that are no longer in decisions
+  for (const currentLabel of currentLabels) {
+    if (currentLabel.startsWith(AUTO_LABEL_PREFIX) && !decisions.labelsToAdd.includes(currentLabel)) {
+      if (!toRemove.includes(currentLabel)) {
+        toRemove.push(currentLabel);
+      }
     }
   }
 

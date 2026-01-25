@@ -225,5 +225,42 @@ describe('Label Applicator', () => {
         labels: ['category/ci-cd'],
       });
     });
+
+    it('should remove auto/* labels when violations are resolved', async () => {
+      const mockListLabels = vi.fn().mockResolvedValue({
+        data: [{ name: 'size/L' }, { name: 'auto/too-many-lines' }],
+      });
+      const mockAddLabels = vi.fn().mockResolvedValue({});
+      const mockRemoveLabel = vi.fn().mockResolvedValue({});
+
+      const mockOctokit = {
+        rest: {
+          issues: {
+            listLabelsOnIssue: mockListLabels,
+            addLabels: mockAddLabels,
+            removeLabel: mockRemoveLabel,
+          },
+        },
+      };
+
+      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+
+      const decisions: LabelDecisions = {
+        labelsToAdd: ['size/M'],
+        labelsToRemove: [],
+        reasoning: [],
+      };
+
+      const result = await applyLabels('token', mockContext, decisions, DEFAULT_LABELER_CONFIG.labels);
+      expect(result.isOk()).toBe(true);
+
+      const update = result._unsafeUnwrap();
+      // auto/too-many-lines should be removed (no longer in decisions)
+      expect(update.removed).toContain('auto/too-many-lines');
+      // size/L should be removed (replaced by size/M)
+      expect(update.removed).toContain('size/L');
+      // size/M should be added
+      expect(update.added).toContain('size/M');
+    });
   });
 });
