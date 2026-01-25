@@ -64,7 +64,8 @@ function parseGitDiffLine(line: string): DiffFile | null {
 
   // Handle rename format: "path/{old => new}" -> "path/new"
   // Also handles: "{old => new}" -> "new"
-  const renameMatch = filename.match(/^(.*)\{(.+) => (.+)\}(.*)$/);
+  // Allows empty old name: "{ => new}" -> "new"
+  const renameMatch = filename.match(/^(.*)\{(.*) => (.+)\}(.*)$/);
   if (renameMatch) {
     const prefix = renameMatch[1] ?? '';
     const newName = renameMatch[3] ?? '';

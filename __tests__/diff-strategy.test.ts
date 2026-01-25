@@ -318,6 +318,25 @@ invalid line
       }
     });
 
+    it('should handle rename format with empty old name { => new}', async () => {
+      const gitOutput = `10\t5\tsrc/app/{ => (dashboard)}/dashboard/DashboardClient.tsx`;
+
+      mockExecAsync.mockResolvedValue({
+        stdout: gitOutput,
+        stderr: '',
+      });
+
+      const result = await getDiffFiles(context, 'test-token');
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.files).toHaveLength(1);
+        expect(result.value.files[0]?.filename).toBe('src/app/(dashboard)/dashboard/DashboardClient.tsx');
+        expect(result.value.files[0]?.additions).toBe(10);
+        expect(result.value.files[0]?.deletions).toBe(5);
+      }
+    });
+
     it('should use correct git command with diff-filter', async () => {
       const gitOutput = '10\t0\tfile.ts';
       mockExecAsync.mockResolvedValue({
