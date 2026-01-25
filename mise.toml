@@ -4,8 +4,8 @@ _.file = [".env"]
 _.path = ['./node_modules/.bin']
 
 [tools]
-node = "22"
-"npm:pnpm" = '10.25.0'
+node = "24.12"
+pnpm = "10.28.0"
 fd = 'latest'
 
 [tasks]
