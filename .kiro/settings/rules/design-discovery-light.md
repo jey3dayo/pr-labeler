@@ -6,27 +6,27 @@ Quickly analyze existing system and integration requirements for feature extensi
 ## Focused Discovery Steps
 
 ### 1. Extension Point Analysis
-**Identify Integration Approach**:
+#### Identify Integration Approach
 - Locate existing extension points or interfaces
 - Determine modification scope (files, components)
 - Check for existing patterns to follow
 - Identify backward compatibility requirements
 
 ### 2. Dependency Check
-**Verify Compatibility**:
+#### Verify Compatibility
 - Check version compatibility of new dependencies
 - Validate API contracts haven't changed
 - Ensure no breaking changes in pipeline
 
 ### 3. Quick Technology Verification
-**For New Libraries Only**:
+#### For New Libraries Only
 - Use WebSearch for official documentation
 - Verify basic usage patterns
 - Check for known compatibility issues
 - Confirm licensing compatibility
 
 ### 4. Integration Risk Assessment
-**Quick Risk Check**:
+#### Quick Risk Check
 - Impact on existing functionality
 - Performance implications
 - Security considerations

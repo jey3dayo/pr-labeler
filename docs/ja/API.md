@@ -19,11 +19,11 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **デフォルト**: `"100KB"`
 - **説明**: 個別ファイルのサイズ上限
 - **フォーマット**: 数値 + 単位（B, KB, MB, GB）または数値のみ（バイト）
-- **バリデーション**:
+- バリデーション:
   - 単位は大文字小文字を区別しない
   - 複数の単位を含む場合はエラー（例: `"10KB 20MB"`）
   - 負の値は不可
-- **使用例**:
+- 使用例:
 
   ```yaml
   file_size_limit: "100KB"    # 100キロバイト
@@ -37,7 +37,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"true"`
 - **説明**: ファイルサイズチェックの有効／無効を切り替え（`"false"` で `file_size_limit` による違反検出・ラベル付与をスキップ）
-- **使用例**:
+- 使用例:
 
   ```yaml
   file_size_limit_enabled: "false"  # サイズ違反を無効化
@@ -49,10 +49,10 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"500"`
 - **説明**: 個別ファイルの行数上限（ファイル全体の行数、diff追加行数ではない）
-- **バリデーション**:
+- バリデーション:
   - 正の整数のみ
   - 非数値はエラー
-- **使用例**:
+- 使用例:
 
   ```yaml
   file_lines_limit: "500"
@@ -65,7 +65,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"true"`
 - **説明**: ファイル行数チェックの有効／無効を切り替え（`"false"` で `file_lines_limit` による違反検出・ラベル付与をスキップ）
-- **使用例**:
+- 使用例:
 
   ```yaml
   file_lines_limit_enabled: "false"  # 行数違反を無効化
@@ -78,7 +78,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **デフォルト**: `"5000"`
 - **説明**: PR全体の追加行数上限（diff-based、削除行数は含まない）
 - **バリデーション**: 正の整数のみ
-- **使用例**:
+- 使用例:
 
   ```yaml
   pr_additions_limit: "5000"
@@ -91,7 +91,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"true"`
 - **説明**: PR全体の追加行数チェックの有効／無効を切り替え（`"false"` で `pr_additions_limit` による違反検出・ラベル付与をスキップ）
-- **使用例**:
+- 使用例:
 
   ```yaml
   pr_additions_limit_enabled: "false" # 追加行数チェックを無効化
@@ -104,7 +104,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **デフォルト**: `"50"`
 - **説明**: PR内の最大ファイル数（削除されたファイルは除く）
 - **バリデーション**: 正の整数のみ
-- **使用例**:
+- 使用例:
 
   ```yaml
   pr_files_limit: "50"
@@ -117,7 +117,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"true"`
 - **説明**: PR内のファイル数チェックの有効／無効を切り替え（`"false"` で `pr_files_limit` による違反検出・ラベル付与をスキップ）
-- **使用例**:
+- 使用例:
 
   ```yaml
   pr_files_limit_enabled: "false" # ファイル数チェックを無効化
@@ -133,7 +133,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"true"`
 - **説明**: 内部パラメータ（PR Insights Labeler のサイズラベルが自動的に適用されます）
-- **使用例**:
+- 使用例:
 
   ```yaml
   apply_size_labels: "true"
@@ -145,18 +145,18 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `'{"S": {"additions": 100, "files": 10}, "M": {"additions": 500, "files": 30}, "L": {"additions": 1000, "files": 50}}'`
 - **説明**: 内部パラメータ（`.github/pr-labeler.yml` でサイズラベルの閾値を設定してください）
-- **バリデーション**:
+- バリデーション:
   - S, M, Lの3つのサイズが必須
   - 各サイズに`additions`と`files`フィールドが必須
   - 値は非負の整数
   - 単調性: S ≤ M ≤ L（additionsとfilesそれぞれで）
-- **使用例**:
+- 使用例:
 
   ```yaml
   size_label_thresholds: '{"S": {"additions": 50, "files": 5}, "M": {"additions": 200, "files": 15}, "L": {"additions": 500, "files": 30}}'
   ```
 
-- **エラーパターン**:
+- エラーパターン:
   - 必須フィールド欠如: `Missing required size thresholds (S, M, L)`
   - 単調性違反: `Size thresholds must be monotonic (S ≤ M ≤ L for additions)`
   - 負の値: `Threshold values for size S must be non-negative`
@@ -167,7 +167,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"auto/large-files"`
 - **説明**: ファイルサイズまたは行数制限違反時に適用されるラベル
-- **使用例**:
+- 使用例:
 
   ```yaml
   large_files_label: "auto/large-files"
@@ -180,7 +180,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"auto/too-many-files"`
 - **説明**: ファイル数制限違反時に適用されるラベル
-- **使用例**:
+- 使用例:
 
   ```yaml
   too_many_files_label: "auto/too-many-files"
@@ -197,7 +197,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"true"`
 - **説明**: Draft PRをスキップ（分析を実行しない）
-- **使用例**:
+- 使用例:
 
   ```yaml
   skip_draft_pr: "true"   # Draft PRをスキップ
@@ -210,11 +210,11 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"auto"`
 - **説明**: コメント投稿モード
-- **受け入れ値**:
+- 受け入れ値:
   - `"auto"`: 違反がある場合のみコメント投稿、違反解消時は削除
   - `"always"`: 常にコメント投稿
   - `"never"`: コメント投稿しない（既存コメントは削除）
-- **使用例**:
+- 使用例:
 
   ```yaml
   comment_on_pr: "auto"     # 違反時のみコメント
@@ -229,7 +229,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **デフォルト**: `""`（無効）
 - **説明**: 大きなファイル（`auto/large-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
 - **判定条件**: ラベル（`auto/large-files`）または実際のファイルサイズ違反のいずれか
-- **使用例**:
+- 使用例:
 
   ```yaml
   fail_on_large_files: "true"   # 大きなファイル検出時に失敗
@@ -243,7 +243,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **デフォルト**: `""`（無効）
 - **説明**: ファイル数超過（`auto/too-many-files`ラベルまたは違反）が検出された場合にワークフローを失敗させる
 - **判定条件**: ラベル（`auto/too-many-files`）または実際のファイル数違反のいずれか
-- **使用例**:
+- 使用例:
 
   ```yaml
   fail_on_too_many_files: "true"  # ファイル数超過時に失敗
@@ -256,12 +256,12 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `""`（無効）
 - **説明**: PRサイズが指定閾値以上の場合にワークフローを失敗させる
-- **判定条件**:
+- 判定条件:
   - 適用されたサイズラベル（`size/large`など）または
   - 実際の追加行数から計算されたサイズカテゴリ
 - **依存関係**: `size_enabled: "true"`が必要（指定時に`size_enabled: false`ならConfigurationError）
 - **バリデーション**: 無効な値が指定された場合はConfigurationErrorを返す
-- **使用例**:
+- 使用例:
 
   ```yaml
   fail_on_pr_size: "large"      # PRサイズがlarge以上で失敗
@@ -283,17 +283,17 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ❌
 - **デフォルト**: `"true"`
 - **説明**: GitHub Actions SummaryにPRメトリクスを出力
-- **動作**:
+- 動作:
   - `"true"`: 分析結果をActions Summaryに表示
   - `"false"`: Summary出力をスキップ
-- **使用例**:
+- 使用例:
 
   ```yaml
   enable_summary: "true"   # Summary出力を有効化（デフォルト）
   enable_summary: "false"  # Summary出力を無効化
   ```
 
-- **注意**:
+- 注意:
   - Summary書き込み失敗は非致命的エラー（警告ログのみ、アクション継続）
   - ラベル・コメント機能とは独立して動作
 
@@ -309,11 +309,11 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **説明**: デフォルト除外パターンに追加する除外パターン
 - **フォーマット**: カンマ区切りまたは改行区切り
 - **パターン構文**: minimatch（glob）
-- **特殊処理**:
+- 特殊処理:
   - `#`で始まる行はコメントとして無視
   - 空白行は無視
   - 重複パターンは自動削除
-- **使用例**:
+- 使用例:
 
   ```yaml
   additional_exclude_patterns: "**/*.generated.ts,**/*.min.js"
@@ -339,17 +339,17 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **必須**: ✅
 - **説明**: GitHub API認証トークン
 - **優先順位**: `github_token`入力 > `GITHUB_TOKEN`環境変数 > `GH_TOKEN`環境変数
-- **権限要件**:
+- 権限要件:
   - `pull-requests: write` - ラベル管理用
   - `issues: write` - コメント投稿用
   - `contents: read` - ファイル読み取り用
-- **使用例**:
+- 使用例:
 
   ```yaml
   github_token: ${{ secrets.GITHUB_TOKEN }}
   ```
 
-- **エラーパターン**:
+- エラーパターン:
   - トークン未設定: `GitHub token is required. Set github_token input or GITHUB_TOKEN/GH_TOKEN environment variable`
 
 ---
@@ -363,12 +363,12 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **デフォルト**: なし（優先順位チェーンの最終段で `'en'` を使用）
 - **説明**: 出力メッセージ、エラーメッセージ、ログ、PRコメントの言語設定
 - **サポート言語**: `"en"` (English), `"ja"` (日本語)
-- **優先順位**:
+- 優先順位:
   1. GitHub Actions ワークフローの `with.language`
   2. `.github/pr-labeler.yml` の `language` フィールド
   3. 環境変数 (`LANGUAGE` → `LANG`)
   4. デフォルト: `'en'` (English)
-- **使用例**:
+- 使用例:
 
   ```yaml
   # .github/pr-labeler.yml
@@ -392,7 +392,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
       LANGUAGE: ja  # workflow input / pr-labeler.yml 未指定時のフォールバック
   ```
 
-- **動作**:
+- 動作:
   - GitHub Actions Summary、エラーメッセージ、ログ、PRコメントが指定した言語で出力されます
   - GitHub API呼び出し時のラベル名（`label` フィールド）は常に英語のまま使用されます
   - カスタムラベル表示名は `display_name` で多言語対応できます
@@ -402,7 +402,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 - **型**: `object`
 - **必須**: ❌
 - **説明**: カテゴリラベルの多言語表示名
-- **構造**:
+- 構造:
 
   ```typescript
   {
@@ -411,12 +411,12 @@ PR Insights Labelerの詳細なAPI仕様書です。
   }
   ```
 
-- **優先順位**:
+- 優先順位:
   1. `.github/pr-labeler.yml` の `display_name`（カスタム翻訳）
   2. 組み込みの翻訳リソース（`labels` 名前空間）
   3. ラベル名そのまま
 
-- **使用例**:
+- 使用例:
 
   ```yaml
   # .github/pr-labeler.yml
@@ -440,12 +440,12 @@ PR Insights Labelerの詳細なAPI仕様書です。
         ja: 'ドキュメント'
   ```
 
-- **動作**:
+- 動作:
   - GitHub Actions SummaryやPRコメントで、現在の言語に応じた表示名が使用されます
   - 例: `language: ja` の場合、「テストファイル」と表示されます
   - GitHub APIでは常に英語のラベル名（`label: 'category/tests'`）が使用されます
 
-- **バリデーション**:
+- バリデーション:
   - `display_name` が設定される場合、`en` と `ja` の両方が必須です
   - どちらか一方のみの設定はエラーになります
 
@@ -475,7 +475,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
 - **型**: `string` (JSON array)
 - **説明**: サイズまたは行数制限を超過したファイルの詳細情報
-- **構造**:
+- 構造:
 
   ```json
   [
@@ -489,7 +489,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
   ]
   ```
 
-- **使用例**:
+- 使用例:
 
   ```yaml
   - name: Check large files
@@ -513,7 +513,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
 - **型**: `string` (`"true"` | `"false"`)
 - **説明**: いずれかのファイルがサイズ制限を超過しているか
-- **使用例**:
+- 使用例:
 
   ```yaml
   - name: Notify on large files
@@ -540,7 +540,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
 - **型**: `string` (`"true"` | `"false"`)
 - **説明**: いずれかの違反が存在するか（上記すべての論理和）
-- **使用例**:
+- 使用例:
 
   ```yaml
   - name: Block merge on violations
@@ -556,9 +556,9 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
 設定パラメータの検証エラー
 
-**一般的なエラー**:
+#### 一般的なエラー
 
-1. **ファイルサイズ解析失敗**:
+1. ファイルサイズ解析失敗:
 
    ```
    [ConfigurationError] Invalid file size format: '10KB 20MB'.
@@ -567,7 +567,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
    **対処**: 単一の値のみを指定
 
-2. **数値解析失敗**:
+2. 数値解析失敗:
 
    ```
    [ConfigurationError] File lines limit must be a number
@@ -575,7 +575,7 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
    **対処**: 数値文字列を指定（例: `"500"`）
 
-3. **トークン未設定**:
+3. トークン未設定:
 
    ```
    [ConfigurationError] GitHub token is required.
@@ -588,9 +588,9 @@ PR Insights Labelerの詳細なAPI仕様書です。
 
 JSON解析・検証エラー
 
-**一般的なエラー**:
+#### 一般的なエラー
 
-1. **JSON構文エラー**:
+1. JSON構文エラー:
 
    ```
    [ParseError] Invalid JSON for size thresholds
@@ -598,7 +598,7 @@ JSON解析・検証エラー
 
    **対処**: 有効なJSON構文を使用
 
-2. **必須フィールド欠如**:
+2. 必須フィールド欠如:
 
    ```
    [ParseError] Missing required size thresholds (S, M, L)
@@ -606,7 +606,7 @@ JSON解析・検証エラー
 
    **対処**: S, M, Lすべてを含める
 
-3. **単調性違反**:
+3. 単調性違反:
 
    ```
    [ParseError] Size thresholds must be monotonic (S ≤ M ≤ L for additions)
@@ -618,9 +618,9 @@ JSON解析・検証エラー
 
 GitHub API呼び出しエラー
 
-**一般的なエラー**:
+#### 一般的なエラー
 
-1. **権限不足**:
+1. 権限不足:
 
    ```
    [GitHubAPIError] Failed to update labels: Resource not accessible by integration
@@ -628,7 +628,7 @@ GitHub API呼び出しエラー
 
    **対処**: workflowに適切な`permissions`を設定
 
-2. **レート制限**:
+2. レート制限:
 
    ```
    [GitHubAPIError] API rate limit exceeded
@@ -636,7 +636,7 @@ GitHub API呼び出しエラー
 
    **対処**: リトライまたは実行頻度を調整
 
-3. **ネットワークエラー**:
+3. ネットワークエラー:
 
    ```
    [GitHubAPIError] Failed to fetch diff files: Network error
@@ -648,9 +648,9 @@ GitHub API呼び出しエラー
 
 ファイル分析エラー（非致命的）
 
-**一般的なエラー**:
+#### 一般的なエラー
 
-1. **ファイル読み取り失敗**:
+1. ファイル読み取り失敗:
 
    ```
    [FileAnalysisError] Failed to read file src/test.ts: ENOENT
@@ -658,7 +658,7 @@ GitHub API呼び出しエラー
 
    **対処**: ファイルは`filesWithErrors`にリストされ、分析は継続
 
-2. **行数カウント失敗**:
+2. 行数カウント失敗:
 
    ```
    [FileAnalysisError] Failed to count lines in src/binary.dat
@@ -680,7 +680,7 @@ GitHub API呼び出しエラー
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-**動作**:
+#### 動作
 
 - デフォルト制限値を使用
 - 違反時のみコメント投稿（`comment_on_pr: auto`）
@@ -914,13 +914,13 @@ createConfigurationError(
 
 **翻訳キー**: `errors.configuration.invalidField`
 
-**パラメータ**:
+#### パラメータ
 
 - `field`: 設定フィールド名（例: `"language"`, `"file_size_limit"`）
 - `value`: 不正な値（デバッグ用、エラーオブジェクトに保持）
 - `customMessage`: オプション - カスタムエラーメッセージ
 
-**例**:
+#### 例
 
 ```typescript
 // 翻訳版 (EN: "Invalid configuration field: file_size_limit")
@@ -951,12 +951,12 @@ createGitHubAPIError(
 
 **翻訳キー**: `errors.github.apiError`
 
-**パラメータ**:
+#### パラメータ
 
 - `message`: エラーの詳細メッセージ（APIレスポンスから取得）
 - `status`: オプション - HTTPステータスコード
 
-**例**:
+#### 例
 
 ```typescript
 // EN: "GitHub API error: API request failed"
@@ -979,20 +979,20 @@ createFileSystemError(
 ): FileSystemError
 ```
 
-**翻訳キー**:
+#### 翻訳キー
 
 - `errors.fileSystem.readError` - ファイル読み込みエラー
 - `errors.fileSystem.writeError` - ファイル書き込みエラー
 - `errors.fileSystem.fileNotFound` - ファイル未検出
 - `errors.fileSystem.permissionDenied` - 権限エラー
 
-**パラメータ**:
+#### パラメータ
 
 - `path`: ファイルパス（技術詳細として保持）
 - `operation`: オプション - 操作種別（デフォルト: `'read'`）
 - `customMessage`: オプション - カスタムエラーメッセージ
 
-**例**:
+#### 例
 
 ```typescript
 // EN: "Failed to read file: /path/to/file"
@@ -1019,12 +1019,12 @@ createParseError(
 
 **翻訳キー**: `errors.parsing.invalidFormat`
 
-**パラメータ**:
+#### パラメータ
 
 - `input`: 不正な入力文字列（技術詳細として保持）
 - `customMessage`: オプション - カスタムエラーメッセージ
 
-**例**:
+#### 例
 
 ```typescript
 // EN: "Invalid format: 100XYZ"
@@ -1051,11 +1051,11 @@ createFileAnalysisError(file: string): FileAnalysisError
 
 **翻訳キー**: `errors.analysis.fileAnalysisError`
 
-**パラメータ**:
+#### パラメータ
 
 - `file`: ファイルパス
 
-**例**:
+#### 例
 
 ```typescript
 // EN: "Failed to analyze file: src/test.ts"
@@ -1079,7 +1079,7 @@ createDiffError(
 
 **翻訳キー**: `errors.analysis.diffError`
 
-**例**:
+#### 例
 
 ```typescript
 // EN: "Failed to get diff: git command failed"
@@ -1100,7 +1100,7 @@ createPatternError(pattern: string): PatternError
 
 **翻訳キー**: `errors.pattern.invalidPattern`
 
-**例**:
+#### 例
 
 ```typescript
 // EN: "Invalid pattern: *.invalid"
@@ -1289,7 +1289,7 @@ throw createConfigurationError('field', value);
 
 以下の場合は、`customMessage` パラメータを使用してください:
 
-1. **詳細な技術情報を含むエラー**:
+1. 詳細な技術情報を含むエラー:
 
    ```typescript
    createConfigurationError(
@@ -1299,7 +1299,7 @@ throw createConfigurationError('field', value);
    );
    ```
 
-2. **動的な翻訳が不可能な場合**:
+2. 動的な翻訳が不可能な場合:
 
    ```typescript
    const errorDetails = generateComplexErrorMessage();

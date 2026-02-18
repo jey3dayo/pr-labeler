@@ -17,12 +17,12 @@ Generate detailed implementation tasks for feature: **$1**
   "Run `/kiro:spec-requirements` and `/kiro:spec-design` first, or use `-y` flag to auto-approve"
 - If tasks.md exists: Prompt [o]verwrite/[m]erge/[c]ancel
 
-**Context Loading (Full Paths)**:
+#### Context Loading (Full Paths)
 
 1. `.kiro/specs/$1/requirements.md` - Feature requirements (EARS format)
 2. `.kiro/specs/$1/design.md` - Technical design document
 3. `.kiro/steering/` - Project-wide guidelines and constraints:
-   - **Core files (always load)**:
+   - Core files (always load):
      - @.kiro/steering/product.md - Business context, product vision, user needs
      - @.kiro/steering/tech.md - Technology stack, frameworks, libraries
      - @.kiro/steering/structure.md - File organization, naming conventions, code patterns
@@ -34,7 +34,7 @@ Generate detailed implementation tasks for feature: **$1**
 
 ### CRITICAL Task Numbering Rules (MUST FOLLOW)
 
-**⚠️ MANDATORY: Sequential major task numbering & hierarchy limits**
+### ⚠️ MANDATORY: Sequential major task numbering & hierarchy limits
 
 - Major tasks: 1, 2, 3, 4, 5... (MUST increment sequentially)
 - Sub-tasks: 1.1, 1.2, 2.1, 2.2... (reset per major task)
@@ -58,7 +58,7 @@ Generate detailed implementation tasks for feature: **$1**
 
 ### Task Generation Rules
 
-1. **Natural language descriptions**: Focus on capabilities and outcomes, not code structure
+1. Natural language descriptions: Focus on capabilities and outcomes, not code structure
    - Describe **what functionality to achieve**, not file locations or code organization
    - Specify **business logic and behavior**, not method signatures or type definitions
    - Reference **features and capabilities**, not class names or API contracts
@@ -66,19 +66,19 @@ Generate detailed implementation tasks for feature: **$1**
    - **Avoid**: File paths, function/method names, type signatures, class/interface names, specific data structures
    - **Include**: User-facing functionality, business rules, system behaviors, data relationships
    - Implementation details (files, methods, types) come from design.md
-2. **Task integration & progression**:
+2. Task integration & progression:
    - Each task must build on previous outputs (no orphaned code)
    - End with integration tasks to wire everything together
    - No hanging features - every component must connect to the system
    - Incremental complexity - no big jumps between tasks
    - Validate core functionality early in the sequence
-3. **Flexible task sizing**:
+3. Flexible task sizing:
    - Major tasks: As many sub-tasks as logically needed
    - Sub-tasks: 1-3 hours each, 3-10 details per sub
    - Group by cohesion, not arbitrary numbers
    - Balance between too granular and too broad
-4. **Requirements mapping**: End details with `_Requirements: X.X, Y.Y_` or `_Requirements: [description]_`
-5. **Code-only focus**: Include ONLY coding/testing tasks, exclude deployment/docs/user testing
+4. Requirements mapping: End details with `_Requirements: X.X, Y.Y_` or `_Requirements: [description]_`
+5. Code-only focus: Include ONLY coding/testing tasks, exclude deployment/docs/user testing
 
 ### Example Structure (FORMAT REFERENCE ONLY)
 
@@ -139,15 +139,15 @@ The following is for Claude Code conversation only - NOT for the generated docum
 
 After generating tasks.md, review the implementation tasks:
 
-**If tasks look good:**
+### If tasks look good:
 Begin implementation following the generated task sequence
 
-**If tasks need modification:**
+### If tasks need modification:
 Request changes and re-run this command after modifications
 
 Tasks represent the final planning phase - implementation can begin once tasks are approved.
 
-**Final approval process for implementation**:
+#### Final approval process for implementation
 
 ```
 📋 Tasks review completed. Ready for implementation.
@@ -165,7 +165,7 @@ Once tasks are approved, start implementation:
 /kiro:spec-impl $1 1,2,3    # Execute multiple tasks
 ```
 
-**Implementation Tips**:
+#### Implementation Tips
 
 - Use `/clear` if conversation becomes too long, then continue with spec commands
 - All spec files (.kiro/specs/) are preserved and will be reloaded as needed

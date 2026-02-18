@@ -49,11 +49,11 @@ Generate comprehensive initial content covering all aspects of the project.
 
 ### For EXISTING files (showing "✅ EXISTS")
 
-1. **Preserve user customizations** - Any manual edits or custom sections
-2. **Update factual information** - Dependencies, file structures, commands
-3. **Add new sections** - Only if significant new capabilities exist
-4. **Mark deprecated content** - Rather than deleting
-5. **Maintain formatting** - Keep consistent with existing style
+1. Preserve user customizations - Any manual edits or custom sections
+2. Update factual information - Dependencies, file structures, commands
+3. Add new sections - Only if significant new capabilities exist
+4. Mark deprecated content - Rather than deleting
+5. Maintain formatting - Keep consistent with existing style
 
 ## Inclusion Modes for Core Steering Files
 
@@ -137,7 +137,7 @@ Look for changes in:
 
 - **New directories** or major reorganization
 - **Changed file organization** patterns
-- **New or modified naming conventions**
+- New or modified naming conventions
 - **Updated architectural patterns** or principles
 - **Refactored code structure** or module boundaries
 
@@ -145,25 +145,25 @@ Look for changes in:
 
 If custom steering files exist:
 
-- **Preserve them** - Do not modify unless specifically outdated
-- **Check relevance** - Note if they reference removed features
-- **Suggest new custom files** - If new specialized areas emerge
+- Preserve them - Do not modify unless specifically outdated
+- Check relevance - Note if they reference removed features
+- Suggest new custom files - If new specialized areas emerge
 
 ## Instructions
 
 1. **Create `.kiro/steering/` directory** if it doesn't exist
 2. **Check existing files** to determine create vs update mode
 3. **Analyze the codebase** using native tools (Glob, Grep, LS)
-4. **For NEW files**: Generate comprehensive initial documentation
-5. **For EXISTING files**:
+4. For NEW files: Generate comprehensive initial documentation
+5. For EXISTING files:
    - Read current content first
    - Preserve user customizations and comments
    - Update only factual/technical information
    - Maintain existing structure and style
 6. **Use clear markdown formatting** with proper headers and sections
 7. **Include concrete examples** where helpful for understanding
-8. **Focus on facts over assumptions** - document what exists
-9. **Follow spec-driven development principles**
+8. Focus on facts over assumptions - document what exists
+9. Follow spec-driven development principles
 
 ## Important Principles
 

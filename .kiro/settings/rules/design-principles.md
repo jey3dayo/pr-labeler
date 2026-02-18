@@ -9,7 +9,7 @@
 - Specify generic constraints clearly
 
 ### 2. Design vs Implementation
-- **Focus on WHAT, not HOW**
+- Focus on WHAT, not HOW
 - Define interfaces and contracts, not code
 - Specify behavior through pre/post conditions
 - Document architectural decisions, not algorithms

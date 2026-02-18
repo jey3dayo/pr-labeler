@@ -80,7 +80,7 @@ PRに自動適用されるラベルは次のように表示されます（GitHub
 
 ### 3. カスタマイズ（オプション）
 
-**ワークフローサンプル:**
+### ワークフローサンプル:
 
 - [basic.yml](examples/workflows/basic.yml) - デフォルト設定
 - [advanced.yml](examples/workflows/advanced.yml) - オプション機能付き
@@ -141,7 +141,7 @@ PR変更の潜在的な影響と安全性を評価:
   - 設定ファイルの変更（`.github/workflows/**`、`package.json`、`tsconfig.json`）
   - インフラやデプロイメント関連の変更
 
-**リスクラベルなし** (安全な変更):
+#### リスクラベルなし (安全な変更)
 
 - 全CIチェックが成功したリファクタリング
 - ドキュメント専用の変更

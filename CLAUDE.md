@@ -12,8 +12,8 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 
 ### Steering vs Specification
 
-**Steering** (`.kiro/steering/`) - Guide AI with project-wide rules and context
-**Specs** (`.kiro/specs/`) - Formalize development process for individual features
+#### Steering
+#### Specs
 
 ### Active Specifications
 
@@ -68,7 +68,7 @@ pnpm test        # 自動テスト実行
 pnpm build       # ビルド成功確認
 ```
 
-**すべてのチェックが成功してから次へ進む**
+### すべてのチェックが成功してから次へ進む
 
 #### 2. プッシュとCI確認
 
@@ -84,15 +84,15 @@ pnpm build       # ビルド成功確認
      --fill
    ```
 
-3. **GitHub Actions ワークフローの完了を待機**
-4. **重要: すべてのCIチェックが成功するまで待つ**
+3. GitHub Actions ワークフローの完了を待機
+4. 重要: すべてのCIチェックが成功するまで待つ
    - ✅ Code Quality
    - ✅ Integration Tests (Node 20, 22)
    - ✅ Documentation Quality（Markdown変更時）
    - ✅ PR Metrics Self-Check
    - ✅ Quality Gate
 
-**CIチェックが失敗した場合は修正してから再度プッシュ**
+### CIチェックが失敗した場合は修正してから再度プッシュ
 
 #### 3. レビュープロセス
 
@@ -103,7 +103,7 @@ pnpm build       # ビルド成功確認
 
 #### 4. マージ実行
 
-**マージ戦略の選択:**
+### マージ戦略の選択:
 
 - **`squash`** (推奨): 複数コミットを1つにまとめる
   - 小さな機能追加やバグフィックス
@@ -114,20 +114,20 @@ pnpm build       # ビルド成功確認
 - **`rebase`**: 線形な履歴を維持
   - クリーンな履歴を維持したい場合
 
-**マージ後:**
+### マージ後:
 
 1. フィーチャーブランチを削除
 2. mainブランチのCIが成功することを確認
 
 #### 5. リリース（バージョンアップ時）
 
-**セマンティックバージョニングに従う:**
+### セマンティックバージョニングに従う:
 
 - **Patch** (v1.0.0 → v1.0.1): バグフィックス
 - **Minor** (v1.0.0 → v1.1.0): 後方互換性のある新機能
 - **Major** (v1.0.0 → v2.0.0): 破壊的変更
 
-**推奨: `/release` コマンド使用（自動化）:**
+### 推奨: `/release` コマンド使用（自動化）:
 
 ```bash
 # パッチリリース（バグフィックス）
@@ -143,7 +143,7 @@ pnpm build       # ビルド成功確認
 /release patch --dry-run
 ```
 
-**または、手動リリース手順:**
+### または、手動リリース手順:
 
 ```bash
 # mainブランチを最新化
@@ -174,16 +174,16 @@ gh release create v1.0.1 \
 
 ## Development Rules
 
-1. **Consider steering**: Run `/kiro:steering` before major development (optional for new features)
-2. **Follow 3-phase approval workflow**: Requirements → Design → Tasks → Implementation
-3. **Approval required**: Each phase requires human review (interactive prompt or manual)
-4. **No skipping phases**: Design requires approved requirements; Tasks require approved design
-5. **Update task status**: Mark tasks as completed when working on them
-6. **Keep steering current**: Run `/kiro:steering` after significant changes
-7. **Check spec compliance**: Use `/kiro:spec-status` to verify alignment
-8. **Local validation first**: Always run `pnpm lint && pnpm type-check && pnpm test && pnpm build` locally before pushing
-9. **CI success required**: Never merge PRs until all CI checks pass successfully
-10. **Review before merge**: Obtain approval from reviewers before merging to main/develop branches
+1. Consider steering: Run `/kiro:steering` before major development (optional for new features)
+2. Follow 3-phase approval workflow: Requirements → Design → Tasks → Implementation
+3. Approval required: Each phase requires human review (interactive prompt or manual)
+4. No skipping phases: Design requires approved requirements; Tasks require approved design
+5. Update task status: Mark tasks as completed when working on them
+6. Keep steering current: Run `/kiro:steering` after significant changes
+7. Check spec compliance: Use `/kiro:spec-status` to verify alignment
+8. Local validation first: Always run `pnpm lint && pnpm type-check && pnpm test && pnpm build` locally before pushing
+9. CI success required: Never merge PRs until all CI checks pass successfully
+10. Review before merge: Obtain approval from reviewers before merging to main/develop branches
 
 ## Steering Configuration
 

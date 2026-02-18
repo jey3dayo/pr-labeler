@@ -34,26 +34,26 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Identifies test file changes for quick test coverage assessment.
 
-**Detection Targets**:
+#### Detection Targets
 
 - Unit test files
 - Integration test files
 - Test utility files
 - Test directories
 
-**Patterns**:
+#### Patterns
 
 - `__tests__/**` - Test directories
 - `**/*.test.ts` - TypeScript test files
 - `**/*.test.tsx` - React component test files
 
-**Use Cases**:
+#### Use Cases
 
 - Verifying test coverage improvements
 - Reviewing test quality
 - Ensuring tests accompany feature changes
 
-**Example Matches**:
+#### Example Matches
 
 - `src/__tests__/utils.test.ts`
 - `src/components/Button.test.tsx`
@@ -63,23 +63,23 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Flags changes to CI/CD workflows that affect build and deployment processes.
 
-**Detection Targets**:
+#### Detection Targets
 
 - GitHub Actions workflows
 - CI configuration files
 - Deployment scripts
 
-**Patterns**:
+#### Patterns
 
 - `.github/workflows/**` - GitHub Actions workflow files
 
-**Use Cases**:
+#### Use Cases
 
 - Reviewing workflow changes carefully
 - Ensuring deployment safety
 - Coordinating with DevOps team
 
-**Example Matches**:
+#### Example Matches
 
 - `.github/workflows/ci.yml`
 - `.github/workflows/release.yml`
@@ -89,31 +89,31 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Identifies documentation updates for content review.
 
-**Detection Targets**:
+#### Detection Targets
 
 - Documentation files
 - README files
 - Markdown files (excluding specifications)
 
-**Patterns**:
+#### Patterns
 
 - `docs/**` - Documentation directory
 - `**/*.md` - All markdown files
 
-**Exclude Patterns**:
+#### Exclude Patterns
 
 - `.kiro/**` - Specification documents
 - `.specify/**` - Specification documents
 - `spec/**` - Specification directories
 - `specs/**` - Specification directories
 
-**Use Cases**:
+#### Use Cases
 
 - Ensuring documentation accuracy
 - Reviewing technical writing quality
 - Maintaining documentation consistency
 
-**Example Matches**:
+#### Example Matches
 
 - `docs/en/configuration.md`
 - `README.md`
@@ -123,14 +123,14 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Highlights configuration file changes that may affect project behavior.
 
-**Detection Targets**:
+#### Detection Targets
 
 - Build configuration files
 - Tool configuration files
 - Linter/formatter settings
 - TypeScript configuration
 
-**Patterns**:
+#### Patterns
 
 - `**/*.config.js`, `**/*.config.ts` - Configuration files
 - `**/tsconfig.json`, `**/jsconfig.json` - TypeScript/JavaScript configs
@@ -140,13 +140,13 @@ PR Insights Labeler provides 9 default categories:
 - `**/action.y?(a)ml` - GitHub Action metadata
 - `**/configs/**/*.{ts,js,json}` - Config directories
 
-**Use Cases**:
+#### Use Cases
 
 - Reviewing tool configuration changes
 - Verifying build settings
 - Ensuring consistent code style
 
-**Example Matches**:
+#### Example Matches
 
 - `vite.config.ts`
 - `tsconfig.json`
@@ -157,25 +157,25 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Identifies specification document changes for requirements tracking.
 
-**Detection Targets**:
+#### Detection Targets
 
 - Specification documents
 - Design documents
 - Requirement documents
 
-**Patterns**:
+#### Patterns
 
 - `.kiro/**` - Kiro-style specification files
 - `.specify/**` - Specify-style specification files
 - `spec/**`, `specs/**` - Specification directories
 
-**Use Cases**:
+#### Use Cases
 
 - Tracking requirement changes
 - Reviewing design decisions
 - Coordinating with product team
 
-**Example Matches**:
+#### Example Matches
 
 - `.kiro/specs/new-feature/requirements.md`
 - `.specify/architecture.md`
@@ -185,13 +185,13 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Flags dependency changes for security and compatibility review.
 
-**Detection Targets**:
+#### Detection Targets
 
 - Package manifest files
 - Lock files
 - Dependency management files
 
-**Patterns**:
+#### Patterns
 
 - `**/package.json` - npm package manifest
 - `**/pnpm-lock.yaml` - pnpm lock file
@@ -201,13 +201,13 @@ PR Insights Labeler provides 9 default categories:
 - `**/Cargo.toml`, `**/Cargo.lock` - Rust dependencies
 - `**/Gemfile`, `**/Gemfile.lock` - Ruby dependencies
 
-**Use Cases**:
+#### Use Cases
 
 - Security vulnerability assessment
 - Version compatibility check
 - License compliance review
 
-**Example Matches**:
+#### Example Matches
 
 - `package.json`
 - `pnpm-lock.yaml`
@@ -217,31 +217,31 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Identifies new feature implementations for feature review.
 
-**Detection Targets**:
+#### Detection Targets
 
 - Feature modules
 - Component implementations
 - Feature-specific utilities
 
-**Patterns**:
+#### Patterns
 
 - `src/features/**` - Feature modules
 - `features/**` - Feature directories
 - `src/components/**` - Component implementations
 
-**Exclude Patterns**:
+#### Exclude Patterns
 
 - `**/*.test.*` - Test files (classified as `category/tests`)
 - `**/*.spec.*` - Spec files (classified as `category/tests`)
 - `**/__tests__/**` - Test directories (classified as `category/tests`)
 
-**Use Cases**:
+#### Use Cases
 
 - Reviewing new functionality
 - Assessing feature impact
 - Coordinating feature releases
 
-**Example Matches**:
+#### Example Matches
 
 - `src/features/authentication/login.ts`
 - `src/components/UserProfile.tsx`
@@ -253,7 +253,7 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Highlights infrastructure and DevOps changes that affect deployment and operations.
 
-**Detection Targets**:
+#### Detection Targets
 
 - GitHub configuration files
 - Container configuration files
@@ -261,7 +261,7 @@ PR Insights Labeler provides 9 default categories:
 - Tool version management files
 - Orchestration configuration files
 
-**Patterns**:
+#### Patterns
 
 - `.github/**` - GitHub configuration (issues, PR templates, etc.)
 - `Dockerfile*` - Docker container definitions
@@ -273,13 +273,13 @@ PR Insights Labeler provides 9 default categories:
 - `helm/**` - Helm charts
 - `ansible/**` - Ansible playbooks
 
-**Use Cases**:
+#### Use Cases
 
 - Reviewing infrastructure changes
 - Ensuring deployment safety
 - Coordinating with infrastructure team
 
-**Example Matches**:
+#### Example Matches
 
 - `.github/ISSUE_TEMPLATE/bug_report.md`
 - `Dockerfile`
@@ -293,7 +293,7 @@ PR Insights Labeler provides 9 default categories:
 
 **Purpose**: Flags security-related changes for enhanced security review.
 
-**Detection Targets**:
+#### Detection Targets
 
 - Authentication implementations
 - Authorization logic
@@ -302,7 +302,7 @@ PR Insights Labeler provides 9 default categories:
 - Environment variable files
 - Secrets management
 
-**Patterns**:
+#### Patterns
 
 - `**/auth*/**` - Authentication directories
 - `**/*auth*.ts`, `**/*auth*.js` - Authentication files
@@ -312,13 +312,13 @@ PR Insights Labeler provides 9 default categories:
 - `.env*` - Environment variable files
 - `secrets/**` - Secrets directory
 
-**Use Cases**:
+#### Use Cases
 
 - Enhanced security review
 - Vulnerability assessment
 - Compliance verification
 
-**Example Matches**:
+#### Example Matches
 
 - `src/lib/auth/middleware.ts`
 - `src/utils/jwt.ts`
@@ -342,14 +342,14 @@ categories:
       ja: 'パフォーマンス'
 ```
 
-**Configuration Properties**:
+#### Configuration Properties
 
 - `label` (required): The label name (must follow `category/*` format)
 - `patterns` (required): Array of glob patterns to match files
 - `exclude` (optional): Array of glob patterns to exclude files
 - `display_name` (optional): Multilingual display names
 
-**Pattern Syntax**:
+#### Pattern Syntax
 
 - Use [minimatch](https://github.com/isaacs/minimatch) glob patterns
 - `**` matches any number of directories
@@ -360,7 +360,7 @@ categories:
 
 PR Insights Labeler uses an **additive labeling policy**. If a PR contains changes matching multiple categories, all applicable category labels are applied.
 
-**Example**:
+#### Example
 
 A PR with these changes:
 
@@ -370,7 +370,7 @@ A PR with these changes:
 
 Will receive all three labels: `category/feature`, `category/tests`, and `category/documentation`.
 
-**Benefits**:
+#### Benefits
 
 - Comprehensive classification of PR scope
 - Multiple review perspectives

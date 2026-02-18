@@ -185,7 +185,7 @@
   - package.jsonスクリプトの更新（型生成の統合）✅
   - pnpm buildワークフローの確認（型生成 → TSコンパイル → nccバンドル）✅
   - pnpm devでの型生成watch mode（不要）
-  - **nccバンドルでの翻訳JSON同梱の具体手順**:
+  - nccバンドルでの翻訳JSON同梱の具体手順:
     - 静的import方式の確認（`import json from './locales/en/summary.json'`）✅
     - FS読み込み（fs.readFileSync等）を使用していないことの確認 ✅
     - dist/index.jsに翻訳JSONが埋め込まれていることの検証 ✅
@@ -350,9 +350,9 @@
 
 各タスクでTest-Driven Development（TDD）を採用することを推奨：
 
-1. **Red**: テストを先に書く（失敗することを確認）
-2. **Green**: 最小限の実装でテスト成功
-3. **Refactor**: コード品質向上、リファクタリング
+1. Red: テストを先に書く（失敗することを確認）
+2. Green: 最小限の実装でテスト成功
+3. Refactor: コード品質向上、リファクタリング
 
 ### Incremental Integration
 
@@ -373,7 +373,7 @@
 
 ---
 
-**参照ドキュメント**:
+#### 参照ドキュメント
 
 - 要件定義: `.kiro/specs/i18n-support/requirements.md`
 - 技術設計: `.kiro/specs/i18n-support/design.md`

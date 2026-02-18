@@ -40,7 +40,7 @@ Complete reference for all input parameters, output variables, and configuration
 | `pr_files_limit` | ❌ | `50` | Maximum number of files in PR (excluding removed files) |
 | `pr_files_limit_enabled` | ❌ | `true` | Enable per-PR file count checks (set to `false` to skip file-count violations and labels) |
 
-**Examples:**
+### Examples:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
@@ -65,7 +65,7 @@ Complete reference for all input parameters, output variables, and configuration
 | `too_many_lines_label` | ❌ | `auto/too-many-lines` | Label for files exceeding line count limits |
 | `excessive_changes_label` | ❌ | `auto/excessive-changes` | Label for PRs with excessive changes (total additions) |
 
-**Examples:**
+### Examples:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
@@ -88,7 +88,7 @@ Control which label types are applied (unified naming: `*_enabled` and `*_thresh
 | `category_enabled` | ❌ | `true` | Enable category labels (category/tests, docs, etc.) |
 | `risk_enabled` | ❌ | `true` | Enable risk labels (risk/high, risk/medium) |
 
-**Examples:**
+### Examples:
 
 ```yaml
 # Default: All labels enabled
@@ -125,7 +125,7 @@ Control which label types are applied (unified naming: `*_enabled` and `*_thresh
 | `fail_on_too_many_files` | ❌ | `""` | Fail workflow if too many files are detected (labeled with `too_many_files_label`) |
 | `fail_on_pr_size` | ❌ | `""` | Fail workflow if PR size exceeds threshold (`small`/`medium`/`large`/`xlarge`/`xxlarge`, empty string to disable) |
 
-**Label-Based Workflow Failure Control:**
+### Label-Based Workflow Failure Control:
 
 These parameters control workflow failures based on applied labels or actual violations.
 
@@ -164,7 +164,7 @@ These parameters control workflow failures based on applied labels or actual vio
 | `additional_exclude_patterns` | ❌ | - | Additional file patterns to exclude (comma or newline separated) |
 | `use_default_excludes` | ❌ | `true` | Use default exclude patterns (node_modules, dist, etc.) |
 
-**Examples:**
+### Examples:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
@@ -186,7 +186,7 @@ These parameters control workflow failures based on applied labels or actual vio
 
 Directory-Based Labeling is enabled by default. Set `enable_directory_labeling: "false"` if you prefer to opt out.
 
-**Example:**
+### Example:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
@@ -205,7 +205,7 @@ See [Advanced Usage Guide](advanced-usage.md#directory-based-labeling) for `.git
 | ---------- | -------- | ------- | --------------------------------------------------- |
 | `language` | ❌ | `— (see priority)` | Language for output messages (en, ja, en-US, ja-JP). Follows priority chain below |
 
-**Example:**
+### Example:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
@@ -215,7 +215,7 @@ See [Advanced Usage Guide](advanced-usage.md#directory-based-labeling) for `.git
     LANGUAGE: ja  # Step 3 fallback when workflow input & config are omitted
 ```
 
-**Language Decision Priority:**
+### Language Decision Priority:
 
 1. `language` input value passed in the workflow (`with:` block)
 2. `language` field in `.github/pr-labeler.yml`
@@ -228,7 +228,7 @@ See [Advanced Usage Guide](advanced-usage.md#multi-language-support) for detaile
 
 ### Size Labels (`size_thresholds`)
 
-**Default thresholds:**
+### Default thresholds:
 
 ```json
 {
@@ -239,7 +239,7 @@ See [Advanced Usage Guide](advanced-usage.md#multi-language-support) for detaile
 }
 ```
 
-**Label application rules:**
+### Label application rules:
 
 - `size/small`: additions < 200
 - `size/medium`: 200 ≤ additions < 500
@@ -247,7 +247,7 @@ See [Advanced Usage Guide](advanced-usage.md#multi-language-support) for detaile
 - `size/xlarge`: 1000 ≤ additions < 3000
 - `size/xxlarge`: additions ≥ 3000
 
-**Customization:**
+### Customization:
 
 ```yaml
 size_thresholds: '{"small": 50, "medium": 200, "large": 500, "xlarge": 1500}'
@@ -255,7 +255,7 @@ size_thresholds: '{"small": 50, "medium": 200, "large": 500, "xlarge": 1500}'
 
 ### Complexity Labels (`complexity_thresholds`)
 
-**Default thresholds:**
+### Default thresholds:
 
 ```json
 {
@@ -264,12 +264,12 @@ size_thresholds: '{"small": 50, "medium": 200, "large": 500, "xlarge": 1500}'
 }
 ```
 
-**Label application rules:**
+### Label application rules:
 
 - `complexity/medium`: 15 ≤ max cyclomatic complexity < 30
 - `complexity/high`: max cyclomatic complexity ≥ 30
 
-**Customization:**
+### Customization:
 
 ```yaml
 complexity_thresholds: '{"medium": 10, "high": 20}'
@@ -282,35 +282,35 @@ complexity_thresholds: '{"medium": 10, "high": 20}'
 Risk labels assess the potential impact and safety of PR changes. The evaluation considers:
 
 1. **CI Status** (when available)
-2. **File Change Patterns**
-3. **Commit Message Analysis**
+2. File Change Patterns
+3. Commit Message Analysis
 
 #### Label Application Rules
 
 **`risk/high`** is applied when:
 
 - **CI checks failed** (tests, type-check, build, or lint)
-- **New feature in core functionality without test files**
+- New feature in core functionality without test files
   - Detected by commit messages starting with `feat:`, `feat(`, `feature:`, or `feature(`
   - Changes in `core_paths` (default: `src/**`)
   - No test files added (`*.test.ts`, `*.spec.ts`, `__tests__/**`)
 
 **`risk/medium`** is applied when:
 
-- **Configuration files changed**
+- Configuration files changed
   - `.github/workflows/**` (CI/CD pipeline changes)
   - `package.json` (dependency changes)
   - `tsconfig.json` (TypeScript configuration)
   - Any file matching `config_files` patterns
 
-**No risk label** (safe PR) when:
+#### No risk label
 
-- **Refactoring with all CI passed**
+- Refactoring with all CI passed
   - Detected by commit messages starting with `refactor:` or `refactor(`
   - All CI checks succeeded
-- **Documentation-only changes**
+- Documentation-only changes
   - Detected by commit messages starting with `docs:` or `docs(`
-- **Test-only changes**
+- Test-only changes
   - Detected by commit messages starting with `test:` or `test(`
 
 #### Default Risk Configuration
@@ -330,11 +330,11 @@ risk:
 
 #### FAQ: Why Does My PR Get `risk/medium`?
 
-**Q: I only changed `.github/workflows/ci.yml`. Why `risk/medium`?**
+### Q: I only changed `.github/workflows/ci.yml`. Why `risk/medium`?
 
 **A:** CI/CD workflow changes are inherently risky because they affect the entire build and deployment pipeline. Even small syntax errors can break builds or deployments for all developers.
 
-**Q: Can I customize which files trigger `risk/medium`?**
+### Q: Can I customize which files trigger `risk/medium`?
 
 **A:** Yes, customize via `.github/pr-labeler.yml`:
 
@@ -348,7 +348,7 @@ risk:
     - "docker-compose.yml"
 ```
 
-**Q: How do I avoid `risk/high` for new features?**
+### Q: How do I avoid `risk/high` for new features?
 
 **A:** Add test files in the same PR:
 
@@ -399,7 +399,7 @@ For large PRs (thousands of lines, hundreds of files), consider disabling or lim
 | `exceeds_file_count` | string | Whether PR exceeds file count limit | `"true"` / `"false"` |
 | `has_violations` | string | Whether any violation exists | `"true"` / `"false"` |
 
-**Usage Example:**
+### Usage Example:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1

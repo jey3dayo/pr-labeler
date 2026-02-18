@@ -26,7 +26,7 @@ The automated release process follows these steps:
 
 Before starting the release:
 
-1. **Check working tree status**
+1. Check working tree status
 
 ```bash
 git status
@@ -34,7 +34,7 @@ git status
 
 Ensure no uncommitted changes exist.
 
-1. **Verify current branch**
+1. Verify current branch
 
 ```bash
 git branch --show-current
@@ -42,7 +42,7 @@ git branch --show-current
 
 Must be on `main` branch.
 
-1. **Pull latest changes**
+1. Pull latest changes
 
 ```bash
 git pull origin main
@@ -60,11 +60,11 @@ Use `scripts/release.sh` for the complete automated workflow:
 
 The script provides an interactive menu:
 
-- **1) patch** - Bug fixes (v1.0.0 → v1.0.1)
-- **2) minor** - New features (v1.0.0 → v1.1.0)
-- **3) major** - Breaking changes (v1.0.0 → v2.0.0)
-- **4) custom** - Specify version manually
-- **5) cancel** - Abort release
+- 1) patch - Bug fixes (v1.0.0 → v1.0.1)
+- 2) minor - New features (v1.0.0 → v1.1.0)
+- 3) major - Breaking changes (v1.0.0 → v2.0.0)
+- 4) custom - Specify version manually
+- 5) cancel - Abort release
 
 The script automatically:
 
@@ -74,7 +74,7 @@ The script automatically:
 4. Creates git commit and tags (v{version} and v{major})
 5. Pushes to remote and creates GitHub Release
 
-**Release notes follow the standard format defined in `references/RELEASE_TEMPLATE.md`.**
+### Release notes follow the standard format defined in `references/RELEASE_TEMPLATE.md`.
 
 ### 3. Quality Metrics Collection
 
@@ -282,7 +282,7 @@ This skill references:
 
 Automated release script implementing the complete workflow. Execute without arguments for interactive mode.
 
-**Key features:**
+### Key features:
 
 - Interactive release type selection
 - Automatic quality checks

@@ -5,14 +5,14 @@
 ### 1. Natural Language Descriptions
 Focus on capabilities and outcomes, not code structure.
 
-**Describe**:
+#### Describe
 - What functionality to achieve
 - Business logic and behavior
 - Features and capabilities
 - Domain language and concepts
 - Data relationships and workflows
 
-**Avoid**:
+#### Avoid
 - File paths and directory structure
 - Function/method names and signatures
 - Type definitions and interfaces
@@ -23,7 +23,7 @@ Focus on capabilities and outcomes, not code structure.
 
 ### 2. Task Integration & Progression
 
-**Every task must**:
+#### Every task must
 - Build on previous outputs (no orphaned code)
 - Connect to the overall system (no hanging features)
 - Progress incrementally (no big jumps in complexity)
@@ -33,7 +33,7 @@ Focus on capabilities and outcomes, not code structure.
 
 ### 3. Flexible Task Sizing
 
-**Guidelines**:
+#### Guidelines
 - **Major tasks**: As many sub-tasks as logically needed (group by cohesion)
 - **Sub-tasks**: 1-3 hours each, 3-10 details per sub-task
 - Balance between too granular and too broad
@@ -42,18 +42,18 @@ Focus on capabilities and outcomes, not code structure.
 
 ### 4. Requirements Mapping
 
-**End each task detail section with**:
+#### End each task detail section with
 - `_Requirements: X.X, Y.Y_` for specific requirement IDs
 - `_Requirements: [description]_` for cross-cutting requirements
 
 ### 5. Code-Only Focus
 
-**Include ONLY**:
+#### Include ONLY
 - Coding tasks (implementation)
 - Testing tasks (unit, integration, E2E)
 - Technical setup tasks (infrastructure, configuration)
 
-**Exclude**:
+#### Exclude
 - Deployment tasks
 - Documentation tasks
 - User testing
@@ -89,7 +89,7 @@ Focus on capabilities and outcomes, not code structure.
 
 ## Requirements Coverage
 
-**Mandatory Check**:
+#### Mandatory Check
 - ALL requirements from requirements.md MUST be covered
 - Cross-reference every requirement ID with task mappings
 - If gaps found: Return to requirements or design phase

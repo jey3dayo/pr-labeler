@@ -77,12 +77,12 @@ git push origin v1 --force
 #### Web UI
 
 1. [リリース作成ページ](https://github.com/jey3dayo/pr-insights-labeler/releases/new)
-2. **Tag**: `v1.9.0`
-3. **Target**: `main`
-4. **Title**: `v1.9.0`
-5. **Primary Category**: `Continuous integration`
-6. **Another Category**: `Code quality`
-7. **Release notes**: 変更内容を記載
+2. Tag: `v1.9.0`
+3. Target: `main`
+4. Title: `v1.9.0`
+5. Primary Category: `Continuous integration`
+6. Another Category: `Code quality`
+7. Release notes: 変更内容を記載
 
 #### CLI
 
@@ -150,16 +150,16 @@ EOF
 
 リリース作成後：
 
-1. **Marketplace表示確認**
+1. Marketplace表示確認
    - [PR Insights Labeler - GitHub Marketplace](https://github.com/marketplace/actions/pr-insights-labeler)
 
-2. **バッジ更新（任意）**
+2. バッジ更新（任意）
 
    ```markdown
    [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-PR%20Insights%20Labeler-blue.svg)](https://github.com/marketplace/actions/pr-insights-labeler)
    ```
 
-3. **動作確認**
+3. 動作確認
 
    ```yaml
    # 他のリポジトリでテスト

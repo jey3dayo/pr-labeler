@@ -83,7 +83,7 @@ graph TD
 - **役割:** アクション全体の Result パイプライン。
 - **入力:** なし。
 - **出力:** `ResultAsync<void, AppError>`。
-- **処理:**
+- 処理:
   1. `initializeAction()` → Result 化 (`ResultAsync.fromPromise`).
   2. `.andThen` で `analyzePullRequest` / `applyLabelsStage` / `finalizeAction` を順次実行。
   3. 各ステージの Result は新たに `ResultAsync` 化。
@@ -92,7 +92,7 @@ graph TD
 
 - **initializeAction:** 現在 `Promise<InitializationArtifacts>` を返す。`ResultAsync.fromPromise` で包み、`parseActionInputs` の Err をそのまま伝播。
 - **analyzePullRequest:** 既存で throw している `diffResult.error` などを `err` で返すよう変更。ログ出力と i18n メッセージは維持。
-- **applyLabelsStage:**
+- applyLabelsStage:
   - `getCIStatus` 呼び出しを Result 化。
   - コミット pagination を `ResultAsync.fromPromise` → `mapErr(createGitHubAPIError)`。
   - Directory Labeler 部分の return 型を `ResultAsync<void, AppError>` に揃える。
@@ -117,7 +117,7 @@ graph TD
 
 ## 7. テスト戦略
 
-- **Unit:**
+- Unit:
   - `index.test.ts`: `executeAction` の成功/失敗。
   - `ci-status.test.ts`: API 失敗 → Err。
   - `workflow/labeling-stage.test.ts`: `getCIStatus` Err 処理、RateLimit ログ。

@@ -25,19 +25,19 @@
 
 ### 既存アーキテクチャ分析
 
-**現在のアーキテクチャパターン**:
+#### 現在のアーキテクチャパターン
 
 - **型定義と設定の共存**: `src/labeler-types.ts`に型定義（interfaces/types）とデフォルト設定（DEFAULT_LABELER_CONFIG）が混在
 - **純粋関数パターン**: `label-decision-engine.ts`のdecideCategoryLabels()は純粋関数で、パターンマッチングのみ実施
 - **minimatchベースのパターンマッチング**: すべてのカテゴリ判定はminimatchライブラリに依存
 
-**尊重すべきドメイン境界**:
+#### 尊重すべきドメイン境界
 
 - Label Decision Engine: ラベル判定ロジック（変更なし）
 - Labeler Types: 型定義とデフォルト設定（DEFAULT_LABELER_CONFIGのみ変更）
 - Pattern Matcher: minimatchラッパー（変更なし）
 
-**維持すべき統合ポイント**:
+#### 維持すべき統合ポイント
 
 - CategoryConfigインターフェース: label（string）+ patterns（string[]）
 - 加法的（additive）ポリシー: `labels.namespace_policies["category/*"]` = "additive"
@@ -56,7 +56,7 @@ graph TB
     Minimatch -->|matched labels| LabelDecisions
 ```
 
-**アーキテクチャ統合**:
+#### アーキテクチャ統合
 
 - **保持される既存パターン**: 純粋関数パターン、minimatchベースのパターンマッチング、加法的ポリシー
 - **新規コンポーネントの理由**: なし（既存設定データのみ変更）
@@ -81,17 +81,17 @@ graph TB
 
 - **決定**: `src/configs/categories.ts`に`DEFAULT_CATEGORIES`を定義し、`src/configs/default-config.ts`で統合する
 - **コンテキスト**: カテゴリ拡張を実現する最小限の変更方法を決定する必要がある
-- **代替案**:
+- 代替案:
   1. `src/labeler-types.ts`のDEFAULT_LABELER_CONFIG.categoriesに直接パターンを追加・削除
   2. 実行時マージ機能の追加（デフォルト設定+ユーザー設定のマージロジック）
   3. プラグインアーキテクチャ（カテゴリを動的にロード）
 - **選択アプローチ**: 設定ファイルの分離（`src/configs/`モジュール）
-- **理由**:
+- 理由:
   - 設定の責務を明確に分離（型定義と設定値を分離）
   - 既存のアーキテクチャパターンを維持
   - 保守性向上（カテゴリ設定の変更箇所が明確）
   - テスト影響範囲が限定的（DecisionEngineのテストは既存のまま）
-- **トレードオフ**:
+- トレードオフ:
   - 獲得: 設定の保守性向上、型定義ファイルの肥大化防止、モジュール化による再利用性
   - 犠牲: わずかなファイル数の増加（`src/configs/`ディレクトリ）
 
@@ -99,15 +99,15 @@ graph TB
 
 - **決定**: すべてのファイル名ベースのパターンに`**/`プレフィックスを付与する
 - **コンテキスト**: monorepo構成やサブディレクトリの設定・依存関係ファイルも検知する必要がある
-- **代替案**:
+- 代替案:
   1. ルートのみ対象（プレフィックスなし）
   2. ユーザー設定で階層を指定可能にする
 - **選択アプローチ**: すべてのパターンに`**/`を付与
-- **理由**:
+- 理由:
   - minimatchの既定動作（matchBase=false）でサブディレクトリがマッチしない問題を解決
   - monorepo構成での実用性向上（packages/\*/package.json等）
   - 要件で明示（Introduction参照）
-- **トレードオフ**:
+- トレードオフ:
   - 獲得: monorepo対応、実用性の大幅向上
   - 犠牲: パターン数増加によるわずかなマッチングコスト（minimatchは高速なため影響軽微）
 
@@ -115,15 +115,15 @@ graph TB
 
 - **決定**: デフォルト設定から`category/components`を完全削除する
 - **コンテキスト**: プロジェクト固有のパターン（src/components/\*\*）は汎用性が低い
-- **代替案**:
+- 代替案:
   1. デフォルトに残す（後方互換性優先）
   2. 非推奨（deprecated）マークのみ付与
 - **選択アプローチ**: 完全削除
-- **理由**:
+- 理由:
   - 要件で明示（Requirement 4）
   - 各リポジトリの`.github/pr-labeler.yml`でカスタム定義すべき
   - デフォルトは汎用的なパターンのみに限定
-- **トレードオフ**:
+- トレードオフ:
   - 獲得: デフォルト設定の汎用性向上、保守コスト削減
   - 犠牲: src/components/\*\*を使用していたプロジェクトは独自設定が必要（破壊的変更だが影響範囲は限定的）
 
@@ -145,22 +145,22 @@ graph TB
 
 #### DEFAULT_LABELER_CONFIG
 
-**責任と境界**
+### 責任と境界
 
 - **主要責任**: PR Insights Labelerのデフォルト設定値を提供する
 - **ドメイン境界**: Configuration Domain（設定管理）
 - **データ所有権**: デフォルトカテゴリパターンの定義と管理
 - **トランザクション境界**: N/A（静的設定データ）
 
-**依存関係**
+### 依存関係
 
 - **Inbound**: label-decision-engine.ts（decideLabels関数）、config-loader.ts（設定マージ）
 - **Outbound**: なし（純粋データ）
 - **External**: minimatchライブラリ（パターン構文のみ、実行時依存なし）
 
-**契約定義**
+### 契約定義
 
-**データ契約**:
+#### データ契約
 
 ```typescript
 interface CategoryConfig {
@@ -179,7 +179,7 @@ const DEFAULT_LABELER_CONFIG: LabelerConfig = {
 - **事後条件**: CategoryConfig[]配列が返される
 - **不変条件**: patternsは空でない文字列配列
 
-**統合戦略**:
+#### 統合戦略
 
 - **変更アプローチ**: 既存配列要素の追加・削除（拡張）
 - **後方互換性**: 既存カテゴリ（tests, ci-cd, documentation）のパターンは変更しない
@@ -189,22 +189,22 @@ const DEFAULT_LABELER_CONFIG: LabelerConfig = {
 
 #### decideCategoryLabels (既存関数、変更なし)
 
-**責任と境界**
+### 責任と境界
 
 - **主要責任**: ファイルパスとカテゴリパターンをマッチングし、適用すべきラベルを返す
 - **ドメイン境界**: Label Decision Domain（ラベル判定）
 - **データ所有権**: なし（純粋関数）
 - **トランザクション境界**: N/A（副作用なし）
 
-**依存関係**
+### 依存関係
 
 - **Inbound**: decideLabels関数（label-decision-engine.ts）
 - **Outbound**: minimatchライブラリ
 - **External**: minimatch ^10.0.3
 
-**契約定義**
+### 契約定義
 
-**サービスインターフェース**:
+#### サービスインターフェース
 
 ```typescript
 function decideCategoryLabels(
@@ -217,7 +217,7 @@ function decideCategoryLabels(
 - **事後条件**: マッチしたカテゴリラベルの配列を返す（重複なし）
 - **不変条件**: 同一カテゴリラベルは1回のみ返される
 
-**統合戦略**:
+#### 統合戦略
 
 - **変更アプローチ**: 変更なし（入力データ（categories）のみ変更）
 - **後方互換性**: 既存の関数シグネチャとロジックを完全維持
@@ -227,12 +227,12 @@ function decideCategoryLabels(
 
 ### ドメインモデル
 
-**コアコンセプト**:
+#### コアコンセプト
 
 - **CategoryConfig（値オブジェクト）**: ラベル名とパターン配列を持つ不変オブジェクト
 - **LabelDecisions（値オブジェクト）**: 適用すべきラベルと削除すべきラベルのリスト
 
-**ビジネスルールと不変条件**:
+#### ビジネスルールと不変条件
 
 - カテゴリラベルは加法的（additive）ポリシーに従い、複数同時付与可能
 - 同一カテゴリラベルの重複付与は禁止（decideCategoryLabels内で重複排除）
@@ -240,7 +240,7 @@ function decideCategoryLabels(
 
 ### 物理データモデル
 
-**TypeScript型定義**:
+#### TypeScript型定義
 
 ```typescript
 // CategoryConfigインターフェース（既存、変更なし）
@@ -340,28 +340,28 @@ minimatchパターンの構文エラーは静的型チェックとテストで�
 
 ### ユニットテスト
 
-**既存テストの維持**:
+#### 既存テストの維持
 
 - `__tests__/label-decision-engine.test.ts`: decideCategoryLabels関数のテスト（変更不要）
 - パターンマッチングロジックのテスト（変更不要）
 
-**新規テストケース**:
+#### 新規テストケース
 
-1. **category/config**: `tsconfig.json`, `eslint.config.js`, `.editorconfig`, `mise.toml`のマッチング
-2. **category/spec**: `.kiro/specs/foo/bar.md`のマッチング
-3. **category/dependencies**: `package.json`, `go.mod`, `Cargo.toml`, `Gemfile`のマッチング
-4. **任意階層マッチング**: `packages/foo/package.json`, `apps/bar/tsconfig.json`のマッチング
-5. **複数カテゴリ同時付与**: `package.json` + `README.md` → `category/dependencies` + `category/documentation`
-6. **後方互換性**: `__tests__/a.test.ts` → `category/tests`（従来通り）
-7. **components削除確認**: `src/components/Button.tsx`が`category/components`にマッチしないこと
+1. category/config: `tsconfig.json`, `eslint.config.js`, `.editorconfig`, `mise.toml`のマッチング
+2. category/spec: `.kiro/specs/foo/bar.md`のマッチング
+3. category/dependencies: `package.json`, `go.mod`, `Cargo.toml`, `Gemfile`のマッチング
+4. 任意階層マッチング: `packages/foo/package.json`, `apps/bar/tsconfig.json`のマッチング
+5. 複数カテゴリ同時付与: `package.json` + `README.md` → `category/dependencies` + `category/documentation`
+6. 後方互換性: `__tests__/a.test.ts` → `category/tests`（従来通り）
+7. components削除確認: `src/components/Button.tsx`が`category/components`にマッチしないこと
 
 ### 統合テスト
 
-**既存統合テストの維持**:
+#### 既存統合テストの維持
 
 - `__tests__/integration.test.ts`: メインフローのエンドツーエンドテスト（変更不要）
 
-**追加シナリオ**:
+#### 追加シナリオ
 
 1. デフォルト設定のロードとカテゴリ判定の統合確認
 2. monorepo構成（複数階層）での動作確認
@@ -369,7 +369,7 @@ minimatchパターンの構文エラーは静的型チェックとテストで�
 
 ### Performance/Load
 
-**パフォーマンステスト**:
+#### パフォーマンステスト
 
 1. パターン数増加（4→6カテゴリ、35パターン）によるマッチングコスト測定
 2. 大量ファイル（1000+）に対するカテゴリ判定パフォーマンス
@@ -394,7 +394,7 @@ minimatchパターンは信頼できるデフォルト設定のみであり、�
 
 **水平スケーリング**: 該当なし（GitHub Actionsの単一実行）
 
-**最適化手法**:
+#### 最適化手法
 
 - minimatchのキャッシュ機構を活用（既定で有効）
 - パターン数増加による影響はminimatchの高速性により軽微

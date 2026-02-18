@@ -31,14 +31,14 @@
 
 本機能はPR Insights Labelerの拡張として設計され、以下の既存パターンとドメイン境界を継承する：
 
-**継承する既存パターン**:
+#### 継承する既存パターン
 
 - **Railway-Oriented Programming**: neverthrowの`Result<T, E>`型による型安全なエラーハンドリング
 - **単一責任原則**: 複雑度計算、集計、出力の明確な責務分離
 - **依存性注入**: ESLint、GitHub APIクライアント、設定を引数で渡すテスタブルな設計
 - **Pure Functions優先**: 複雑度計算ロジックは純粋関数、副作用はI/O層で分離
 
-**既存のドメイン境界**:
+#### 既存のドメイン境界
 
 - **メトリクス計算層**: file-metrics.ts、diff-strategy.tsを再利用してファイルリスト取得
 - **パターンマッチング層**: pattern-matcher.tsで除外パターン適用
@@ -46,11 +46,11 @@
 - **GitHub API統合層**: label-decision-engine.ts、label-applicator.tsでラベル付与
 - **出力生成層**: actions-io.tsでGitHub Actions Summary出力
 
-**新規追加のドメイン境界**:
+#### 新規追加のドメイン境界
 
 - **複雑度分析層**: 新規モジュール`complexity-analyzer.ts`で循環的複雑度計算を実装
 
-**GitHub API統合の権限要件**:
+#### GitHub API統合の権限要件
 
 複雑度メトリクスに基づくラベル付与は、既存のPR Insights Labeler機能と同じGitHub API権限を必要とする：
 
@@ -106,7 +106,7 @@ graph TB
     I --> J
 ```
 
-**アーキテクチャ統合の理由**:
+#### アーキテクチャ統合の理由
 
 - **既存フロー活用**: PR Insights Labelerの設定読み込み → ファイル取得 → メトリクス計算 → ラベル付与 → Summary出力のフローに複雑度計算を挿入
 - **最小限の変更**: 新規モジュールは`complexity-analyzer.ts`のみ追加、既存モジュールの変更は型定義拡張（PRMetrics.complexity）のみ
@@ -116,7 +116,7 @@ graph TB
 
 本機能は既存のpr-labelerの技術スタックに完全に整合する拡張である。
 
-**既存技術の継続利用**:
+#### 既存技術の継続利用
 
 - **言語・ランタイム**: TypeScript 5.9.3 (strict mode)、Node.js 20+
 - **エラーハンドリング**: neverthrow 8.2.0 (Railway-Oriented Programming)
@@ -128,7 +128,7 @@ graph TB
 
 **新規導入ライブラリ**: p-limit、@typescript-eslint/parser（ESLintは既存依存）
 
-**実装詳細**:
+#### 実装詳細
 
 - **実装ファイル**: `src/complexity-analyzer.ts`
 - **複雑度計算**: ESLint標準`complexity`ルールを使用
@@ -142,7 +142,7 @@ graph TB
 - **エラー検出**: `message.fatal === true`で構文エラー判定
 - **型安全性**: @types/eslintで完全な型定義あり
 
-**p-limit実装詳細**:
+#### p-limit実装詳細
 
 - **バージョン**: v7.2.0（最新ESM版）
 - **公式ドキュメント**: <https://github.com/sindresorhus/p-limit>
@@ -154,7 +154,7 @@ graph TB
 - **軽量**: 依存なし、軽量（数KB）、TypeScript型定義付き
 - **実績**: 広く使用されている（週次ダウンロード数3000万以上）
 
-**@typescript-eslint/parser**:
+#### @typescript-eslint/parser
 
 - **バージョン**: v8.46.1（既存typescript-eslintと同バージョン）
 - **用途**: ESLint実行時にTypeScript/TSXファイルをパース
@@ -162,14 +162,14 @@ graph TB
   - `src/complexity-analyzer.ts:72`
 - **設定**: `parserOptions.tsconfigRootDir`でtsconfig.json解決（存在する場合のみ）
 
-**tsconfig.json解決のフォールバック（レビュー反映）**:
+#### tsconfig.json解決のフォールバック（レビュー反映）
 
 - **tsconfig.jsonが見つからない場合**: `ecmaVersion: 'latest'`, `sourceType: 'module'` を既定設定として使用
 - **警告ログ出力**: `@actions/core`の`warning()`で「tsconfig.json not found. Using default parser options.」を出力
 - **Summary注記**: 複雑度サマリーに「⚠️ tsconfig.jsonが見つからなかったため、既定の設定を使用しました」を追加
 - **性能優先**: `project`オプションは無効化（型チェック不要、AST解析のみ）
 
-**実装段階で要調査事項**:
+#### 実装段階で要調査事項
 
 - 大規模PR（100ファイル以上）でのメモリ使用量とGCプレッシャー
 - ESLint Linterインスタンスの並列実行時の安全性（p-limit並列実行時の状態管理）
@@ -182,7 +182,7 @@ graph TB
 
 **コンテキスト**: ESLint APIは将来変更される可能性があり、テストでのモック化も必要
 
-**代替案**:
+#### 代替案
 
 1. ESLint Linterを直接呼び出す（シンプルだが疎結合性が低い）
 2. ラッパークラスで抽象化（抽象化レイヤー追加）
@@ -197,13 +197,13 @@ interface ComplexityAnalyzer {
 }
 ```
 
-**理論的根拠**:
+#### 理論的根拠
 
 - ESLint設定変更に対する耐性（設定を一箇所に集約）
 - テスト時のモック差し替えが容易
 - 将来の他のメトリクス追加時に統一インタフェース提供
 
-**トレードオフ**:
+#### トレードオフ
 
 - **獲得**: API変更耐性、テスタビリティ、将来の拡張性
 - **犠牲**: 薄い抽象化レイヤーのオーバーヘッド（パフォーマンス影響は微小）
@@ -214,7 +214,7 @@ interface ComplexityAnalyzer {
 
 **コンテキスト**: 大規模PRで100ファイルを5秒以内に処理する必要がある
 
-**代替案**:
+#### 代替案
 
 1. 逐次処理（シンプルだがパフォーマンス不足）
 2. Promise.allSettledのチャンク分割（並列度制御が不正確）
@@ -223,7 +223,7 @@ interface ComplexityAnalyzer {
 
 **選択したアプローチ**: p-limitライブラリで並列度制御（既定8並列、最大8並列）
 
-**実装方法: p-limitライブラリを使用した並列度制御**
+### 実装方法: p-limitライブラリを使用した並列度制御
 
 ```typescript
 import pLimit from 'p-limit';
@@ -254,14 +254,14 @@ async function analyzeFilesWithLimit(
 }
 ```
 
-**理論的根拠**:
+#### 理論的根拠
 
 - ESLint分析はCPU集約的だがI/Oも発生するため、Promise並列で十分
 - Worker Threadsは起動コストが高く、GitHub Actionsランナー（2コア）では効果薄
 - p-limitライブラリは並列度を正確に制御し、メモリ消費を抑制
 - 既定値8並列はGitHub Actions 2コアCPU × I/O待ち時間を考慮した最適値
 
-**トレードオフ**:
+#### トレードオフ
 
 - **獲得**: 正確な並列度制御、メモリ効率、GitHubランナーとの相性、シンプルなAPI
 - **犠牲**: 外部ライブラリ依存（ただしp-limitは軽量で広く使用されている）
@@ -272,7 +272,7 @@ async function analyzeFilesWithLimit(
 
 **コンテキスト**: 大容量ファイルや生成コードで解析が遅延またはクラッシュするリスク
 
-**代替案**:
+#### 代替案
 
 1. すべてのファイルを解析試行（クラッシュリスク）
 2. タイムアウトでスキップ（時間浪費）
@@ -325,13 +325,13 @@ async function analyzeFile(filePath: string): ResultAsync<FileComplexity, Comple
 }
 ```
 
-**理論的根拠**:
+#### 理論的根拠
 
 - 1MBは99.9%のTypeScript/JavaScriptファイルをカバー
 - 構文エラーファイルも統計に含める（リファクタリング対象として可視化）
 - AST解析失敗は予期しないケースのみ（エラーログで通知）
 
-**トレードオフ**:
+#### トレードオフ
 
 - **獲得**: 安定性、予測可能な実行時間、透明なエラー処理
 - **犠牲**: 極稀に1MB超の正常ファイルがスキップされる（Summary警告で通知）
@@ -378,14 +378,14 @@ sequenceDiagram
 
 ### エラーハンドリングフロー
 
-**失敗時の基本方針**:
+#### 失敗時の基本方針
 
-1. **構文エラー（SyntaxError）**: 複雑度0として記録し、集計対象に含む。`syntaxErrorFiles`リストに追加し、Summary警告表示
-2. **AST解析失敗（ParseError）**: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'analysis_failed'）、Summary警告表示
-3. **ファイルサイズ超過**: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'too_large'）、Summary警告表示
-4. **タイムアウト**: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'timeout'）、Summary警告表示
-5. **バイナリファイル**: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'binary'）、Summary警告表示
-6. **エンコーディングエラー**: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'encoding_error'）、Summary警告表示
+1. 構文エラー（SyntaxError）: 複雑度0として記録し、集計対象に含む。`syntaxErrorFiles`リストに追加し、Summary警告表示
+2. AST解析失敗（ParseError）: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'analysis_failed'）、Summary警告表示
+3. ファイルサイズ超過: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'too_large'）、Summary警告表示
+4. タイムアウト: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'timeout'）、Summary警告表示
+5. バイナリファイル: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'binary'）、Summary警告表示
+6. エンコーディングエラー: スキップし、集計対象外。`skippedFiles`リストに追加（reason: 'encoding_error'）、Summary警告表示
 
 **全体失敗の扱い**: 一部ファイルの失敗では全体を失敗させず、CI継続。`runtime.fail_on_error=true`の場合のみCI失敗。
 
@@ -435,20 +435,20 @@ flowchart TD
 
 #### ComplexityAnalyzer
 
-**責務と境界**
+### 責務と境界
 
 - **主要責務**: PR内のTypeScript/JavaScriptファイルの循環的複雑度を計算し、集計する
 - **ドメイン境界**: 複雑度計算のビジネスロジック層（純粋関数中心）
 - **データ所有**: 一時的な複雑度計算結果（永続化なし）
 - **トランザクション境界**: 単一ファイルごとの複雑度計算は独立
 
-**依存関係**
+### 依存関係
 
 - **インバウンド**: Main Flow (index.ts)から呼び出される
 - **アウトバウンド**: ESLint Linter（既存依存）、fs（Node.js標準）
 - **外部**: ESLint、@typescript-eslint/parser
 
-**ESLintの外部依存性調査**:
+#### ESLintの外部依存性調査
 
 - **バージョン互換性**: ESLint標準complexityルール、eslint 8.x/9.x系、@typescript-eslint/parser 8.x系をサポート
 - **API署名**: `new Linter(options)` → `lintFiles(patterns)` → `Promise<Report[]>`
@@ -460,7 +460,7 @@ flowchart TD
 - **既知の問題**: tsconfig.jsonが巨大な場合にメモリ消費増加、projectオプション有効時は型チェックで遅延
 - **実装時の注意**: `project`オプションは性能優先で無効化、型情報不要な複雑度計算のみ実行
 
-**契約定義**
+### 契約定義
 
 ```typescript
 /**
@@ -550,11 +550,11 @@ interface SkippedFile {
 }
 ```
 
-**状態管理**
+### 状態管理
 
 本コンポーネントはステートレス（状態なし）。計算結果は関数の戻り値として返却し、永続化しない。
 
-**統合戦略**
+### 統合戦略
 
 - **修正アプローチ**: 新規モジュール追加（complexity-analyzer.ts）
 - **後方互換性**: PRMetrics型にcomplexityフィールド追加（オプショナル）、既存コードは影響なし
@@ -564,11 +564,11 @@ interface SkippedFile {
 
 **責務**: ESLint Linter APIのラッパー、設定管理、エラー変換、パス正規化、バイナリ/エンコーディング検出
 
-**バイナリ/エンコーディング検出戦略**:
+#### バイナリ/エンコーディング検出戦略
 
 解析前のフィルタリングで、バイナリファイルやエンコーディングエラーを検出してスキップする。
 
-**アプローチ1: 拡張子ベースの除外（推奨、初期実装）**
+### アプローチ1: 拡張子ベースの除外（推奨、初期実装）
 
 ```typescript
 /**
@@ -601,7 +601,7 @@ function isBinaryFileByExtension(filePath: string): boolean {
 }
 ```
 
-**アプローチ2: テキスト判定ライブラリの採用（将来の最適化）**
+### アプローチ2: テキスト判定ライブラリの採用（将来の最適化）
 
 拡張子ベースで漏れが発生する場合、`istextorbinary`ライブラリの採用を検討：
 
@@ -620,7 +620,7 @@ async function isBinaryFileByContent(filePath: string): Promise<boolean> {
 
 **実装時の推奨**: 初期実装ではアプローチ1（拡張子ベース）を採用し、問題が見られた場合のみアプローチ2を検討する。
 
-**エンコーディングエラー検出**:
+#### エンコーディングエラー検出
 
 `fs.promises.readFile(filePath, 'utf-8')`でUTF-8デコードに失敗した場合、`encoding_error`として分類：
 
@@ -635,7 +635,7 @@ try {
 }
 ```
 
-**パス正規化関数**:
+#### パス正規化関数
 
 ```typescript
 /**
@@ -951,7 +951,7 @@ function generateComplexitySummary(
 - **値オブジェクト**: FunctionComplexity（関数ごとの複雑度データ、不変）
 - **ドメインイベント**: なし（この機能は計算と出力のみ、状態変更なし）
 
-**ビジネスルールと不変条件**:
+#### ビジネスルールと不変条件
 
 - ファイル複雑度 = 関数複雑度の合計（常に非負整数）
 - PR最大複雑度 = 全ファイル複雑度の最大値
@@ -959,7 +959,7 @@ function generateComplexitySummary(
 - 構文エラーファイルは複雑度0として集計対象に含む
 - スキップファイル（大容量、解析失敗）は集計対象外
 
-**クロス集約の整合性戦略**:
+#### クロス集約の整合性戦略
 
 本機能は単一の集約（ComplexityMetrics）内で完結し、他の集約との依存なし。Label Decision Engineへの入力として使用されるが、これは読み取り専用の参照渡し。
 
@@ -990,27 +990,27 @@ interface PRMetrics {
 
 ### エラー分類の境界と集計への影響
 
-**失敗時方針の整理（レビュー反映）**:
+#### 失敗時方針の整理（レビュー反映）
 
 構文エラー/解析失敗の扱いを以下のように整理する：
 
-1. **構文エラー（SyntaxError）**:
+1. 構文エラー（SyntaxError）:
    - **集計への影響**: 複雑度0として**集計対象に含む**
    - **記録先**: `syntaxErrorFiles`リスト（文字列配列）
    - **Summary表示**: ⚠️ セクションで警告表示（「構文エラーファイル（複雑度0として扱われました）」）
    - **理由**: 構文エラーは開発者の修正対象であり、PRの品質評価に含めるべき
 
-2. **AST解析失敗/その他システムエラー**:
+2. AST解析失敗/その他システムエラー:
    - **集計への影響**: **集計対象外（スキップ）**
    - **記録先**: `skippedFiles`リスト（`{ path, reason, details? }`形式）
    - **Summary表示**: ⚠️ セクションで警告表示（「スキップされたファイル」）
    - **理由**: 予期しないエラーは複雑度評価とは無関係
 
-3. **CI全体の挙動**:
+3. CI全体の挙動:
    - 一部ファイルの失敗では**CI全体は失敗させない**（継続）
    - `runtime.fail_on_error=true`の場合のみCI失敗
 
-**要件6.6準拠のエラー分類**:
+#### 要件6.6準拠のエラー分類
 
 | エラー種別 | 分類 | 集計への影響 | Summary表示 | CI動作 |
 | ------------------------- | ---------------------- | ------------------------------- | ------------------------------ | ------ |
@@ -1021,7 +1021,7 @@ interface PRMetrics {
 | バイナリファイル | システムエラー | **集計対象外（スキップ）** | スキップファイルリストに表示 | 継続 |
 | エンコーディングエラー | システムエラー | **集計対象外（スキップ）** | スキップファイルリストに表示 | 継続 |
 
-**集計計算の詳細**:
+#### 集計計算の詳細
 
 ```typescript
 // aggregateMetrics内での処理
@@ -1037,7 +1037,7 @@ const avgComplexity = validFiles.reduce((sum, f) => sum + f.complexity, 0) / val
 const analyzedFiles = validFiles.length;
 ```
 
-**要件へのトレーサビリティ**:
+#### 要件へのトレーサビリティ
 
 - **要件6.3**: 「構文エラーのファイルは複雑度0として扱い、集計・ラベル判定に含める」→ `validFiles`に含まれる
 - **要件6.4**: 「解析失敗ファイルはスキップし、Summaryで通知」→ `skippedFiles`に分類
@@ -1045,14 +1045,14 @@ const analyzedFiles = validFiles.length;
 
 ### エラーカテゴリと対応
 
-**ユーザーエラー（4xx相当）**:
+#### ユーザーエラー（4xx相当）
 
 - **InvalidConfigurationError**: YAML設定の不正（閾値が負、medium >= high等）
   - 対応: エラーメッセージを表示してCI失敗、設定修正を促す
 - **UnsupportedFileTypeError**: 対象外のファイル拡張子
   - 対応: 警告ログを出力してスキップ、CI継続
 
-**システムエラー（5xx相当）**:
+#### システムエラー（5xx相当）
 
 - **FileTooLargeError**: ファイルサイズが1MB超過
   - 対応: スキップファイルリストに追加、Summary警告表示、CI継続
@@ -1063,7 +1063,7 @@ const analyzedFiles = validFiles.length;
 - **OutOfMemoryError**: メモリ不足
   - 対応: 処理中断、エラーログ出力、CI失敗（回復不能）
 
-**ビジネスロジックエラー（422相当）**:
+#### ビジネスロジックエラー（422相当）
 
 - **SyntaxError**: ファイルの構文エラー
   - 対応: 複雑度0として記録、構文エラーファイルリストに追加、Summary警告表示、CI継続
@@ -1145,7 +1145,7 @@ class EncodingError extends ComplexityError {
 
 **二層タイムアウト**: ファイル単位と全体の二層でタイムアウトを適用
 
-**ファイル単位タイムアウト（5秒）**:
+#### ファイル単位タイムアウト（5秒）
 
 ```typescript
 /**
@@ -1178,7 +1178,7 @@ async function analyzeFileWithTimeout(
 }
 ```
 
-**全体タイムアウト（60秒）**:
+#### 全体タイムアウト（60秒）
 
 ```typescript
 /**
@@ -1244,12 +1244,12 @@ async function analyzeFilesWithOverallTimeout(
 
 ### 監視
 
-**エラートラッキング**:
+#### エラートラッキング
 
 - すべてのComplexityErrorは`@actions/core`の`warning()`または`error()`でログ出力
 - エラーコード、ファイルパス、スタックトレースを含む構造化ログ
 
-**ロギング**:
+#### ロギング
 
 ```typescript
 function logComplexityError(error: ComplexityError): void {
@@ -1261,7 +1261,7 @@ function logComplexityError(error: ComplexityError): void {
 }
 ```
 
-**ヘルスモニタリング**:
+#### ヘルスモニタリング
 
 - 複雑度計算の開始/終了時刻をログ出力
 - 10秒超過時はGitHub Actions annotationsで警告表示
@@ -1283,7 +1283,7 @@ core.info(`Complexity analysis completed: ${result.analyzedFiles} files, ${elaps
 
 ### ユニットテスト
 
-**ComplexityAnalyzer**:
+#### ComplexityAnalyzer
 
 1. `analyzeFile`: 正常なTypeScriptファイルで正確な複雑度を計算
 2. `analyzeFile`: 構文エラーファイルで複雑度0を返却
@@ -1291,7 +1291,7 @@ core.info(`Complexity analysis completed: ${result.analyzedFiles} files, ${elaps
 4. `aggregateMetrics`: 複数ファイルの集計で正確なmax/avgを計算
 5. `aggregateMetrics`: 構文エラーファイルを集計対象に含む
 
-**ESLint統合層**:
+#### ESLint統合層
 
 1. `createESLintConfig`: parserOptionsの正確な生成
 2. `convertESLintResult`: ESLintレポートの正確な変換
@@ -1299,16 +1299,16 @@ core.info(`Complexity analysis completed: ${result.analyzedFiles} files, ${elaps
 
 ### 統合テスト
 
-**E2Eフロー**:
+#### E2Eフロー
 
 1. PR作成 → 複雑度計算 → ラベル付与 → Summary出力の完全なフロー
 2. 大規模PR（100ファイル）での並列処理とタイムアウト動作
 3. 構文エラーファイルと正常ファイル混在時の正確な集計
 4. complexity.enabled=falseでの複雑度計算スキップ
 5. 閾値境界（medium-1、medium、high-1、high）での正確なラベル判定
-6. **0件時の`undefined`戻り**: 全ファイルがスキップされた場合に`aggregateMetrics`が`undefined`を返すことを確認
-7. **`fs.stat`ベースのサイズスキップ**: 1MB超のファイルが読み込まれずにスキップされることを確認（`fs.readFile`呼び出しなし）
-8. **Complexityインスタンス並列安全性**: 各ファイル解析で新規インスタンスを生成し、並列実行時に副作用がないことを確認
+6. 0件時の`undefined`戻り: 全ファイルがスキップされた場合に`aggregateMetrics`が`undefined`を返すことを確認
+7. `fs.stat`ベースのサイズスキップ: 1MB超のファイルが読み込まれずにスキップされることを確認（`fs.readFile`呼び出しなし）
+8. Complexityインスタンス並列安全性: 各ファイル解析で新規インスタンスを生成し、並列実行時に副作用がないことを確認
 
 ### パフォーマンステスト
 
@@ -1348,11 +1348,11 @@ const concurrency = Math.max(2, Math.min(cpuCount * 2, 8));
 
 **ファイル内容キャッシュ**: なし（PRごとに新規計算、キャッシュのメリット薄）
 
-**ESLint Linterインスタンスの管理戦略**:
+#### ESLint Linterインスタンスの管理戦略
 
 ESLint `Linter`インスタンスは並列実行時のスレッド安全性が保証されていないため、以下のいずれかのアプローチを採用する：
 
-**アプローチ1: 各解析で都度インスタンス生成（推奨）**
+### アプローチ1: 各解析で都度インスタンス生成（推奨）
 
 ```typescript
 /**
@@ -1367,7 +1367,7 @@ async function analyzeFile(filePath: string, content: string): ResultAsync<FileC
 }
 ```
 
-**アプローチ2: 並列度分のインスタンスプール（最適化版）**
+### アプローチ2: 並列度分のインスタンスプール（最適化版）
 
 ```typescript
 /**
@@ -1414,14 +1414,14 @@ try {
 
 ### 最適化テクニック
 
-1. **Promise.allSettledによる並列実行**: I/O待ち時間を最小化
-2. **チャンク化またはp-limit**: 並列度制御でメモリ消費を抑制
-3. **fs.statによる事前サイズチェック**: 巨大ファイルは読み込まずにスキップ（判断3参照）
-4. **事前フィルタリング**: 拡張子チェック、バイナリ/エンコーディングチェックで不要な解析をスキップ
-5. **projectオプション無効**: ESLintのparserOptions.tsconfigRootDirは指定するがprojectは無効化、型チェック不要
-6. **Linterインスタンス戦略**: 各解析で都度生成（安全性優先）、必要に応じてプール化を検討
+1. Promise.allSettledによる並列実行: I/O待ち時間を最小化
+2. チャンク化またはp-limit: 並列度制御でメモリ消費を抑制
+3. fs.statによる事前サイズチェック: 巨大ファイルは読み込まずにスキップ（判断3参照）
+4. 事前フィルタリング: 拡張子チェック、バイナリ/エンコーディングチェックで不要な解析をスキップ
+5. projectオプション無効: ESLintのparserOptions.tsconfigRootDirは指定するがprojectは無効化、型チェック不要
+6. Linterインスタンス戦略: 各解析で都度生成（安全性優先）、必要に応じてプール化を検討
 
-**I/OとESLintの統合方針**:
+#### I/OとESLintの統合方針
 
 - `linter.lintText()`を使用して、ファイル内容を文字列で渡す
 - ファイル読み込みとサイズチェックは`fs.promises.readFile()`/`fs.stat()`で事前実行

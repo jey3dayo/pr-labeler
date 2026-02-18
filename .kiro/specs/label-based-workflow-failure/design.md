@@ -38,9 +38,9 @@ PR Insights Labelerは、GitHub Actions上で動作するTypeScriptベースの�
 
 本機能は、これらの既存パターンを尊重しつつ、以下のポイントで拡張します:
 
-1. **Input層の拡張**: `ActionInputs`に3つの新規フィールドを追加、`fail_on_violation`を非推奨として維持
-2. **Validation層の拡張**: `Config`インターフェースに新規フィールドを追加、互換ロジックを実装
-3. **Business Logic層の置き換え**: 既存の一括判定を、ラベルと分析結果の両方を考慮した新しい判定ロジックに置き換え
+1. Input層の拡張: `ActionInputs`に3つの新規フィールドを追加、`fail_on_violation`を非推奨として維持
+2. Validation層の拡張: `Config`インターフェースに新規フィールドを追加、互換ロジックを実装
+3. Business Logic層の置き換え: 既存の一括判定を、ラベルと分析結果の両方を考慮した新しい判定ロジックに置き換え
 
 ### High-Level Architecture
 
@@ -64,14 +64,14 @@ graph TB
 
 ### Architecture Integration
 
-**Existing patterns preserved**:
+#### Existing patterns preserved
 
 - neverthrowの`Result<T, E>`パターンを継続使用
 - 型安全性の徹底（`any`型禁止、`noUncheckedIndexedAccess`有効）
 - 3層アーキテクチャ（Input → Validation → Business Logic）の維持
 - i18nサポート（`src/locales/{language}/logs.json`）
 
-**New components rationale**:
+#### New components rationale
 
 - **Failure Evaluation Engine**: ラベルと分析結果の両方を評価する新しいロジック層
   - 理由: 既存の単一条件判定から、複数条件（ラベル、violations）を統合的に評価する必要があるため
@@ -82,7 +82,7 @@ graph TB
 
 **Technology alignment**: 既存のTypeScript 5.9.3、Node20、neverthrow 8.2.0、@actions/core 1.11.1を継続使用
 
-**Steering compliance**:
+#### Steering compliance
 
 - `structure.md`: 単一責任原則に従ったモジュール分離を維持
 - `tech.md`: neverthrowによるRailway-Oriented Programmingを継続
@@ -208,19 +208,19 @@ flowchart LR
 
 #### ActionInputs インターフェース
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: GitHub Actions入力パラメータの型定義
 - **Domain Boundary**: Input層（actions-io.ts）
 - **Data Ownership**: アクション実行時の生の入力値（文字列形式）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: GitHub Actions runtime（`@actions/core`）
 - **Outbound**: なし（純粋なデータ構造）
 - **External**: `@actions/core` v1.11.1
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 export interface ActionInputs {
@@ -234,7 +234,7 @@ export interface ActionInputs {
 }
 ```
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 既存インターフェースに3つのフィールドを追加
 - **Backward Compatibility**: `fail_on_violation`を削除せず非推奨として維持
@@ -245,19 +245,19 @@ export interface ActionInputs {
 
 #### getActionInputs 関数
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: GitHub Actions inputsから`ActionInputs`オブジェクトを生成
 - **Domain Boundary**: Input層（actions-io.ts）
 - **Data Ownership**: なし（データ変換のみ）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: run関数（src/index.ts）
 - **Outbound**: `core.getInput()` from `@actions/core`
 - **External**: `@actions/core` v1.11.1
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 function getActionInputs(): ActionInputs {
@@ -273,7 +273,7 @@ function getActionInputs(): ActionInputs {
 - **Postconditions**: すべてのinputが文字列として取得される（未指定の場合は空文字列）
 - **Invariants**: inputの取得順序は結果に影響しない
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 既存関数に3行のgetInput呼び出しを追加
 - **Backward Compatibility**: 既存のgetInput呼び出しをすべて維持
@@ -282,13 +282,13 @@ function getActionInputs(): ActionInputs {
 
 #### action.yml 変更
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: GitHub Actions入力パラメータの定義とデフォルト値の設定
 - **Domain Boundary**: GitHub Actions定義ファイル
 - **Data Ownership**: アクション実行時の入力パラメータ定義
 
-**Contract Definition**
+### Contract Definition
 
 ```yaml
 inputs:
@@ -315,7 +315,7 @@ inputs:
     default: ""  # 空文字列 = 未指定
 ```
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Default Value Rationale**: 空文字列("")をデフォルト値とすることで、ユーザーが明示的に"false"を指定した場合と未指定の場合を確実に区別できる
 - **Backward Compatibility**: `fail_on_violation`のデフォルト値は"false"のまま維持（既存の挙動を変更しない）
@@ -327,19 +327,19 @@ inputs:
 
 #### Config インターフェース
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: 検証済み・型変換済みの設定値の型定義
 - **Domain Boundary**: Validation層（input-mapper.ts）
 - **Data Ownership**: アプリケーション実行時の設定状態
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: mapActionInputsToConfig関数
 - **Outbound**: なし（純粋なデータ構造）
 - **External**: なし
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 export interface Config {
@@ -355,7 +355,7 @@ export interface Config {
 }
 ```
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 既存インターフェースに4つのフィールドを追加
 - **Backward Compatibility**: `failOnViolation`を削除せず`legacyFailOnViolation`に名前変更
@@ -365,19 +365,19 @@ export interface Config {
 
 #### mapActionInputsToConfig 関数
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: `ActionInputs`から`Config`への検証・変換、互換モードのロジック実装
 - **Domain Boundary**: Validation層（input-mapper.ts）
 - **Data Ownership**: なし（データ変換のみ）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: run関数（src/index.ts）
 - **Outbound**: parseBoolean, parseBooleanStrict
 - **External**: neverthrow v8.2.0（`Result<T, E>`）
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 function mapActionInputsToConfig(
@@ -454,7 +454,7 @@ function mapActionInputsToConfig(
 - **Postconditions**: 成功時は検証済みの`Config`、失敗時は`ConfigurationError`
 - **Invariants**: 新規input優先度 > 互換モード > デフォルト値
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 既存関数内に互換ロジックと検証ロジックを追加
 - **Backward Compatibility**: `fail_on_violation: true`の挙動を完全に再現
@@ -465,19 +465,19 @@ function mapActionInputsToConfig(
 
 #### evaluateFailureConditions 関数（新規）
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: Config、appliedLabels、violationsを統合評価し、失敗条件リストを生成
 - **Domain Boundary**: Business Logic層（src/index.ts または src/failure-evaluator.ts）
 - **Data Ownership**: なし（純粋関数）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: run関数（src/index.ts）
 - **Outbound**: compareSizeThreshold, t関数（i18n）
 - **External**: なし
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 interface FailureEvaluationInput {
@@ -582,19 +582,19 @@ function evaluateFailureConditions(
 
 #### compareSizeThreshold 関数（新規）
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: サイズラベル（または算出サイズ）と閾値を比較し、閾値以上かどうかを判定
 - **Domain Boundary**: Utility層（src/utils/size-comparison.ts または src/index.ts）
 - **Data Ownership**: なし（純粋関数）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: evaluateFailureConditions
 - **Outbound**: なし
 - **External**: なし
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 const SIZE_ORDER = ['small', 'medium', 'large', 'xlarge', 'xxlarge'] as const;
@@ -629,19 +629,19 @@ function compareSizeThreshold(
 
 #### calculateSizeCategory 関数（新規）
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: PR追加行数からサイズカテゴリを算出
 - **Domain Boundary**: Utility層（src/utils/size-comparison.ts）
 - **Data Ownership**: なし（純粋関数）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: evaluateFailureConditions
 - **Outbound**: なし
 - **External**: なし
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 function calculateSizeCategory(
@@ -664,31 +664,31 @@ function calculateSizeCategory(
 
 #### getCurrentPRLabels 関数（新規）
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: GitHub APIを使用して、現在のPRに適用されているラベル一覧を取得
 - **Domain Boundary**: GitHub API連携層（src/label-manager.ts または src/index.ts）
 - **Data Ownership**: なし（APIクライアント）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: run関数（src/index.ts）
 - **Outbound**: Octokit API (`octokit.rest.issues.listLabelsOnIssue`)
 - **External**: `@octokit/rest` v22.0.0、`@actions/github` v6.0.1
 
-**External Dependencies Investigation**:
+#### External Dependencies Investigation
 
 - **API**: `GET /repos/{owner}/{repo}/issues/{issue_number}/labels`
 - **認証**: `GITHUB_TOKEN`（自動提供、`pull-requests: read`権限必要）
 - **レート制限**: 5000 requests/hour（authenticated）
 - **ページネーション**: 最大100ラベル/ページ、PR Insights Labelerでは通常10個以下のため1ページで十分
-- **エラーケース**:
+- エラーケース:
   - 401 Unauthorized: トークン無効
   - 403 Forbidden: 権限不足
   - 404 Not Found: PR不存在
   - 503 Service Unavailable: GitHub一時的障害
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 function getCurrentPRLabels(
@@ -714,7 +714,7 @@ function getCurrentPRLabels(
 - **Postconditions**: 成功時はラベル名の配列、失敗時は`GitHubAPIError`
 - **Invariants**: ラベル名の順序は不定（Set扱い）
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 新規関数として追加（既存のlabel-manager.tsに配置）
 - **Backward Compatibility**: N/A（新規機能）
@@ -728,7 +728,7 @@ function getCurrentPRLabels(
 
 既存の`run`関数（src/index.ts）のStep 10（失敗判定ロジック）を以下のように置き換えます:
 
-**既存コード（Line 503-508）**:
+#### 既存コード（Line 503-508）
 
 ```typescript
 // Step 10: Fail if violations and fail_on_violation is true
@@ -740,7 +740,7 @@ if (hasViolations && config.failOnViolation) {
 }
 ```
 
-**新コード**:
+#### 新コード
 
 ```typescript
 // Step 10: Label-based failure control
@@ -772,7 +772,7 @@ if (failures.length > 0) {
 }
 ```
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 既存の条件分岐を完全に置き換え
 - **Backward Compatibility**: 互換モード（`legacyFailOnViolation`）により既存の挙動を再現
@@ -798,7 +798,7 @@ export interface Config {
 }
 ```
 
-**Consistency & Integrity**:
+#### Consistency & Integrity
 
 - `failOnPrSize`が空でない場合、`sizeEnabled`は`true`でなければならない（Validation層で保証）
 - 新規inputが明示指定されている場合、`legacyFailOnViolation`は無視される
@@ -843,7 +843,7 @@ export type SizeValue = typeof SIZE_ORDER[number];
 
 #### i18n メッセージキー拡張
 
-**English (`src/locales/en/logs.json`)**:
+#### English (`src/locales/en/logs.json`)
 
 ```json
 {
@@ -864,7 +864,7 @@ export type SizeValue = typeof SIZE_ORDER[number];
 }
 ```
 
-**Japanese (`src/locales/ja/logs.json`)**:
+#### Japanese (`src/locales/ja/logs.json`)
 
 ```json
 {
@@ -893,22 +893,22 @@ export type SizeValue = typeof SIZE_ORDER[number];
 
 本機能は、既存のneverth rowベースのRailway-Oriented Programming (ROP)パターンを継承し、以下のエラーハンドリング戦略を採用します:
 
-1. **ConfigurationError**: 入力検証エラー（無効な`fail_on_pr_size`値、`size_enabled`依存違反）
-2. **GitHubAPIError**: ラベル取得失敗（401, 403, 404, 503等）
-3. **Graceful Degradation**: ラベル取得失敗時は`violations`のみで失敗判定を継続
+1. ConfigurationError: 入力検証エラー（無効な`fail_on_pr_size`値、`size_enabled`依存違反）
+2. GitHubAPIError: ラベル取得失敗（401, 403, 404, 503等）
+3. Graceful Degradation: ラベル取得失敗時は`violations`のみで失敗判定を継続
 
 ### Error Categories and Responses
 
 #### User Errors (4xx相当)
 
-**ConfigurationError: 無効な`fail_on_pr_size`値**
+### ConfigurationError: 無効な`fail_on_pr_size`値
 
 - **Trigger**: `fail_on_pr_size`に有効なサイズ値以外が指定された場合
 - **Response**: `mapActionInputsToConfig`が`Result::err`を返し、ワークフローを即座に失敗
 - **Message**: "Invalid fail_on_pr_size value. Valid values: '', 'small', 'medium', 'large', 'xlarge', 'xxlarge'"（i18n対応）
 - **Recovery**: ユーザーがワークフロー設定を修正して再実行
 
-**ConfigurationError: `size_enabled`依存違反**
+### ConfigurationError: `size_enabled`依存違反
 
 - **Trigger**: `fail_on_pr_size`が指定されているが`size_enabled: false`の場合
 - **Response**: `mapActionInputsToConfig`が`Result::err`を返し、ワークフローを即座に失敗
@@ -917,10 +917,10 @@ export type SizeValue = typeof SIZE_ORDER[number];
 
 #### System Errors (5xx相当)
 
-**GitHubAPIError: ラベル取得失敗**
+### GitHubAPIError: ラベル取得失敗
 
 - **Trigger**: `getCurrentPRLabels`でGitHub API呼び出しが失敗（401, 403, 404, 503等）
-- **Response**:
+- Response:
   - 警告ログを出力（`logWarningI18n('labels.fetchFailed')`）
   - `appliedLabels = undefined`として`evaluateFailureConditions`に渡す
   - **Graceful Degradation**: `violations`のみで失敗判定を継続
@@ -929,18 +929,18 @@ export type SizeValue = typeof SIZE_ORDER[number];
 
 ### Monitoring
 
-**Error Tracking**:
+#### Error Tracking
 
 - ConfigurationError: GitHub Actionsログに即座に出力、ワークフロー失敗
 - GitHubAPIError: 警告ログ出力後、処理継続（Graceful Degradation）
 
-**Logging Strategy**:
+#### Logging Strategy
 
 - デバッグレベル: 各失敗条件の評価結果（`failures`配列への追加理由）
 - インフォレベル: 最終的な失敗判定結果（`failures.length > 0`の場合）
 - 警告レベル: ラベル取得失敗、非推奨input使用
 
-**Health Monitoring**:
+#### Health Monitoring
 
 - GitHub Actionsの標準出力にすべてのログを出力
 - `core.setFailed()`によりワークフローステータスを制御
@@ -949,7 +949,7 @@ export type SizeValue = typeof SIZE_ORDER[number];
 
 ### Unit Tests
 
-**src/input-mapper.test.ts**:
+#### src/input-mapper.test.ts
 
 1. `fail_on_pr_size`バリデーション: 有効な値（空文字列、各サイズ値）のパーステスト
 2. `fail_on_pr_size`バリデーション: 無効な値（"huge", "tiny", "123"）でのエラーthrow検証
@@ -1018,26 +1018,26 @@ flowchart TD
 
 ### Process
 
-**Phase 1: 非推奨導入（v1.x.0リリース時）**
+### Phase 1: 非推奨導入（v1.x.0リリース時）
 
 - `action.yml`に`fail_on_violation`の非推奨記載
 - 実行時に`logWarningI18n('deprecation.failOnViolation')`で警告出力
 - README.mdに移行ガイド追加
 - 新規input 3つの追加とドキュメント整備
 
-**Phase 2: 移行期間（6ヶ月〜1年）**
+### Phase 2: 移行期間（6ヶ月〜1年）
 
 - ユーザーが新規inputに移行する時間を提供
 - GitHub Discussions/Issuesで移行支援
 - 移行事例の共有（ユースケースパターン1〜4）
 
-**Phase 3: 削除予告（v2.0.0-betaリリース時）**
+### Phase 3: 削除予告（v2.0.0-betaリリース時）
 
 - CHANGELOG.mdにBreaking Change記載
 - v2.0.0で`fail_on_violation`が削除されることを明記
 - 最終移行猶予期間の設定
 
-**Phase 4: 完全削除（v2.0.0リリース時）**
+### Phase 4: 完全削除（v2.0.0リリース時）
 
 - `action.yml`から`fail_on_violation`を削除
 - `ActionInputs`、`Config`から関連フィールドを削除

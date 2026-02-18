@@ -25,7 +25,7 @@ Common issues and solutions for PR Insights Labeler.
 
 Workflow fails with error: `"Resource not accessible by integration"`
 
-**Error Example:**
+### Error Example:
 
 ```
 Error: Resource not accessible by integration
@@ -128,7 +128,7 @@ Create labels manually in your repository:
 2. Click **New label**
 3. Create the following labels:
 
-**Size Labels:**
+### Size Labels:
 
 - `size/small` (e.g., green `#28a745`)
 - `size/medium` (e.g., yellow `#ffc107`)
@@ -136,7 +136,7 @@ Create labels manually in your repository:
 - `size/xlarge` (e.g., red `#dc3545`)
 - `size/xxlarge` (e.g., dark red `#bd2130`)
 
-**Category Labels:**
+### Category Labels:
 
 - `category/tests`
 - `category/ci-cd`
@@ -145,12 +145,12 @@ Create labels manually in your repository:
 - `category/spec`
 - `category/dependencies`
 
-**Risk Labels:**
+### Risk Labels:
 
 - `risk/high` (e.g., red `#d93f0b`)
 - `risk/medium` (e.g., orange `#fbca04`)
 
-**Violation Labels:**
+### Violation Labels:
 
 - `auto/large-files`
 - `auto/too-many-files`
@@ -184,9 +184,9 @@ Directory-Based Labeling automatically creates missing labels (no configuration 
 
 After creating labels, check:
 
-1. **GitHub Actions Summary**: Verify labels are listed in the summary output
-2. **PR Page**: Check that labels appear on the PR
-3. **Workflow Logs**: Look for label application messages
+1. GitHub Actions Summary: Verify labels are listed in the summary output
+2. PR Page: Check that labels appear on the PR
+3. Workflow Logs: Look for label application messages
 
 ### Related
 
@@ -221,13 +221,13 @@ Explicitly set `skip_draft_pr` to `"false"`:
 
 ### When to Skip Draft PRs
 
-**Skip (`skip_draft_pr: "true"`, default):**
+### Skip (`skip_draft_pr: "true"`, default):
 
 - ✅ Draft PRs are work-in-progress and labels may change
 - ✅ Reduce CI noise for incomplete work
 - ✅ Save GitHub Actions minutes
 
-**Don't Skip (`skip_draft_pr: "false"`):**
+### Don't Skip (`skip_draft_pr: "false"`):
 
 - ✅ Need immediate feedback on PR size/quality
 - ✅ Enforce strict limits even for drafts
@@ -243,7 +243,7 @@ Explicitly set `skip_draft_pr` to `"false"`:
 
 Complexity analysis fails with syntax errors or parsing issues.
 
-**Error Example:**
+### Error Example:
 
 ```
 Error analyzing complexity for file: src/example.ts
@@ -316,7 +316,7 @@ Add problematic files to exclusion patterns:
 
 The file count reported by PR Insights Labeler differs from the file count shown in the GitHub PR UI.
 
-**Example:**
+### Example:
 
 - GitHub PR UI: "15 files changed"
 - PR Insights Labeler Summary: "10 files analyzed"
@@ -483,9 +483,9 @@ pnpm test
 
 Verify repository settings:
 
-1. **Actions Permissions**: Settings → Actions → General → Workflow permissions
-2. **Branch Protection**: Settings → Branches → Branch protection rules
-3. **Labels**: Issues → Labels (verify labels exist)
+1. Actions Permissions: Settings → Actions → General → Workflow permissions
+2. Branch Protection: Settings → Branches → Branch protection rules
+3. Labels: Issues → Labels (verify labels exist)
 
 ### Common Issues Checklist
 
@@ -514,12 +514,12 @@ Report bugs, request features, or ask questions:
 
 Please include:
 
-1. **Workflow Configuration**: Full YAML workflow file
-2. **Error Message**: Complete error output from workflow logs
-3. **Expected Behavior**: What you expected to happen
-4. **Actual Behavior**: What actually happened
-5. **PR Insights Labeler Version**: Action version (e.g., `v1.2.3`)
-6. **Repository Context**: Public/private, fork PR, etc.
+1. Workflow Configuration: Full YAML workflow file
+2. Error Message: Complete error output from workflow logs
+3. Expected Behavior: What you expected to happen
+4. Actual Behavior: What actually happened
+5. PR Insights Labeler Version: Action version (e.g., `v1.2.3`)
+6. Repository Context: Public/private, fork PR, etc.
 
 ---
 

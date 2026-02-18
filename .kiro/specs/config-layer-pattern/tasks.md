@@ -157,8 +157,8 @@ Configuration Layer Pattern の実装により、PR Insights Labeler の設定�
 
 ## 実装の注意点
 
-1. **TDD アプローチ**: 各タスクで RED → GREEN → REFACTOR のサイクルを遵守
-2. **段階的な移行**: 既存機能を壊さないよう、段階的に実装
-3. **型安全性**: TypeScript strict mode を遵守し、any 型を禁止
-4. **エラーハンドリング**: Result<T, E> パターンを一貫して使用
-5. **テスト容易性**: 依存注入により各レイヤーを独立してテスト可能に
+1. TDD アプローチ: 各タスクで RED → GREEN → REFACTOR のサイクルを遵守
+2. 段階的な移行: 既存機能を壊さないよう、段階的に実装
+3. 型安全性: TypeScript strict mode を遵守し、any 型を禁止
+4. エラーハンドリング: Result<T, E> パターンを一貫して使用
+5. テスト容易性: 依存注入により各レイヤーを独立してテスト可能に

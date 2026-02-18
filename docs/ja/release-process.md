@@ -242,7 +242,7 @@ git push origin v1 --force
 
 リリースノートは統一されたフォーマットに従ってください。詳細は [.github/RELEASE_TEMPLATE.md](../.github/RELEASE_TEMPLATE.md) を参照してください。
 
-**標準フォーマット:**
+### 標準フォーマット:
 
 ```markdown
 ## 🚀 What's New
@@ -365,7 +365,7 @@ git push origin main --tags
 
 **症状**: `pnpm build` が失敗する
 
-**解決策**:
+#### 解決策
 
 ```bash
 # node_modulesを削除して再インストール
@@ -383,7 +383,7 @@ pnpm build
 
 **症状**: テストが失敗する
 
-**解決策**:
+#### 解決策
 
 ```bash
 # テストを詳細モードで実行
@@ -400,7 +400,7 @@ pnpm test:coverage
 
 **症状**: `git tag` で "already exists" エラー
 
-**解決策**:
+#### 解決策
 
 ```bash
 # 既存のタグを削除
@@ -416,7 +416,7 @@ git push origin v1.0.0
 
 **症状**: `gh release create` が失敗する
 
-**解決策**:
+#### 解決策
 
 ```bash
 # GitHub CLIの認証状態を確認
@@ -433,7 +433,7 @@ gh release create v1.0.0 --title "v1.0.0" --notes "..."
 
 **症状**: `dist/index.js` が古いまま
 
-**解決策**:
+#### 解決策
 
 ```bash
 # dist/を削除して再ビルド

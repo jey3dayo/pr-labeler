@@ -30,7 +30,7 @@ import { Something } from '@/path'  // Absolute
 import { Local } from './local'     // Relative
 ```
 
-**Path Aliases**:
+#### Path Aliases
 - `@/`: [Maps to]
 
 ## Code Organization Principles

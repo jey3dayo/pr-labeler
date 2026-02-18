@@ -220,55 +220,55 @@ docs/
 
 各モジュールは単一責任原則に従い、明確な境界を持つ：
 
-**基本モジュール**:
+#### 基本モジュール
 
-1. **Input Mapper**: 入力検証のみ（ビジネスロジックなし、選択的ラベル有効化を含む）
+1. Input Mapper: 入力検証のみ（ビジネスロジックなし、選択的ラベル有効化を含む）
 2. **Input Normalizer** (`input/`): 入力値の正規化と変換
 3. **File Metrics** (`file-metrics/`): ファイル分析をサブモジュールに分割（API呼び出しなし）
    - analyze-files: オーケストレーション
    - binary-detector: バイナリ検出
    - file-size-service: サイズ計算
    - line-counter: 行数カウント
-4. **Diff Strategy**: Git差分収集のみ（分析ロジックなし）
-5. **Pattern Matcher**: パターンマッチのみ（ファイルI/Oなし）
-6. **Label Manager**: ラベル操作のみ（メトリクス計算なし）
-7. **Comment Manager**: コメント操作のみ（レポート生成は委譲）
-8. **Report Formatter**: Markdown生成のみ（GitHub API呼び出しなし）
+4. Diff Strategy: Git差分収集のみ（分析ロジックなし）
+5. Pattern Matcher: パターンマッチのみ（ファイルI/Oなし）
+6. Label Manager: ラベル操作のみ（メトリクス計算なし）
+7. Comment Manager: コメント操作のみ（レポート生成は委譲）
+8. Report Formatter: Markdown生成のみ（GitHub API呼び出しなし）
 
-**PR Insights Labelerモジュール**:
+#### PR Insights Labelerモジュール
 
-1. **Complexity Analyzer**: コード複雑度分析のみ（ESLint標準API使用）
-2. **Label Decision Engine**: メトリクスベースのラベル判定のみ
-3. **Label Applicator**: ラベル適用と冪等性保証のみ
-4. **Config Loader**: YAML設定読み込みとバリデーションのみ
+1. Complexity Analyzer: コード複雑度分析のみ（ESLint標準API使用）
+2. Label Decision Engine: メトリクスベースのラベル判定のみ
+3. Label Applicator: ラベル適用と冪等性保証のみ
+4. Config Loader: YAML設定読み込みとバリデーションのみ
 5. **Risk Evaluator** (`label-decisions/`): リスク評価ロジックの専門化
 
-**Directory-Based Labelerモジュール**:
+#### Directory-Based Labelerモジュール
 
-1. **Directory Config Loader**: directory-labeler.yml読み込みのみ
-2. **Directory Decision Engine**: パス→ラベルマッピングと優先順位制御のみ
-3. **Directory Pattern Matcher**: Globパターンマッチングのみ
-4. **Directory Label Applicator**: 名前空間ポリシーに基づくラベル適用のみ
-5. **Directory Logging**: 構造化ロギングのみ
+1. Directory Config Loader: directory-labeler.yml読み込みのみ
+2. Directory Decision Engine: パス→ラベルマッピングと優先順位制御のみ
+3. Directory Pattern Matcher: Globパターンマッチングのみ
+4. Directory Label Applicator: 名前空間ポリシーに基づくラベル適用のみ
+5. Directory Logging: 構造化ロギングのみ
 
-**共通モジュール**:
+#### 共通モジュール
 
 1. **Error Handling** (`errors/`): 統一されたエラー生成・型ガード・ハンドリング
 2. **Configuration** (`configs/`): デフォルト設定値とカテゴリ定義の管理
 
-**Workflow Orchestration（2024）**:
+#### Workflow Orchestration（2024）
 
 1. **Workflow Stages** (`workflow/stages/`): initialization→analysis→labeling→finalizationをフェーズごとに分離
 2. **Workflow Policy** (`workflow/policy/` + `failure-evaluator.ts`): ラベル結果と設定に基づくワークフロー失敗判定
 3. **Pipeline Export** (`workflow/pipeline.ts`): ステージの公開APIを一本化し、`index.ts`からの利用を単純化
 
-**Internationalization Stack**:
+#### Internationalization Stack
 
 1. **i18n Core** (`i18n.ts`): i18next初期化と`t`関数提供
 2. **Locales** (`locales/{en,ja}/`): summary/errors/logs/labels/commonの翻訳JSON
 3. **Types** (`types/i18n.d.ts`): translation resourcesの型（scripts/generate-i18n-types.tsで自動生成）
 
-**Automation Scripts**:
+#### Automation Scripts
 
 1. **generate-i18n-types** (`scripts/`): 翻訳JSON変更時に型を再生成（postinstallで自動実行）
 
@@ -365,10 +365,10 @@ core.info('Success!');
 
 ESLint (`eslint-plugin-simple-import-sort`) で自動ソート：
 
-1. **Node.js組み込みモジュール**: `import fs from 'fs'`
-2. **外部依存関係**: `import { core } from '@actions/core'`
-3. **内部モジュール**: `import { parseSize } from './parsers/size-parser.js'`
-4. **型インポート**: `import type { Config } from './types.js'`
+1. Node.js組み込みモジュール: `import fs from 'fs'`
+2. 外部依存関係: `import { core } from '@actions/core'`
+3. 内部モジュール: `import { parseSize } from './parsers/size-parser.js'`
+4. 型インポート: `import type { Config } from './types.js'`
 
 ### Import Style
 

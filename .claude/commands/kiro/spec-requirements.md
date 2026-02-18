@@ -37,24 +37,24 @@ Don't focus on implementation details in this phase. Instead, just focus on writ
 
 ### Requirements Generation Guidelines
 
-1. **Focus on Core Functionality**: Start with the essential features from the user's idea
-2. **Use EARS Format**: All acceptance criteria must use proper EARS syntax
-3. **No Sequential Questions**: Generate initial version first, then iterate based on user feedback
-4. **Keep It Manageable**: Create a solid foundation that can be expanded through user review
-5. **Choose an appropriate subject**: For software projects, use the concrete system/service name (e.g., "Checkout Service") instead of a generic subject. For non-software, choose a responsible subject (e.g., process/workflow, team/role, artifact/document, campaign, protocol).
+1. Focus on Core Functionality: Start with the essential features from the user's idea
+2. Use EARS Format: All acceptance criteria must use proper EARS syntax
+3. No Sequential Questions: Generate initial version first, then iterate based on user feedback
+4. Keep It Manageable: Create a solid foundation that can be expanded through user review
+5. Choose an appropriate subject: For software projects, use the concrete system/service name (e.g., "Checkout Service") instead of a generic subject. For non-software, choose a responsible subject (e.g., process/workflow, team/role, artifact/document, campaign, protocol).
 
 ### 3. EARS Format Requirements
 
 **EARS (Easy Approach to Requirements Syntax)** is the recommended format for acceptance criteria:
 
-**Primary EARS Patterns:**
+### Primary EARS Patterns:
 
 - WHEN [event/condition] THEN [system/subject] SHALL [response]
 - IF [precondition/state] THEN [system/subject] SHALL [response]
 - WHILE [ongoing condition] THE [system/subject] SHALL [continuous behavior]
 - WHERE [location/context/trigger] THE [system/subject] SHALL [contextual behavior]
 
-**Combined Patterns:**
+### Combined Patterns:
 
 - WHEN [event] AND [additional condition] THEN [system/subject] SHALL [response]
 - IF [condition] AND [additional condition] THEN [system/subject] SHALL [response]
@@ -119,22 +119,22 @@ Generate the requirements document content ONLY. Do not include any review or ap
 
 After generating requirements.md, review the requirements and choose:
 
-**If requirements look good:**
+### If requirements look good:
 Run `/kiro:spec-design $1 -y` to proceed to design phase
 
-**If requirements need modification:**
+### If requirements need modification:
 Request changes, then re-run this command after modifications
 
 The `-y` flag auto-approves requirements and generates design directly, streamlining the workflow while maintaining review enforcement.
 
 ## Instructions
 
-1. **Check spec.json for language** - Use the language specified in the metadata
+1. Check spec.json for language - Use the language specified in the metadata
 2. **Generate initial requirements** based on the feature idea WITHOUT asking sequential questions first
-3. **Apply EARS format** - Use proper EARS syntax patterns for all acceptance criteria
-4. **Focus on core functionality** - Start with essential features and user workflows
-5. **Structure clearly** - Group related functionality into logical requirement areas
-6. **Make requirements testable** - Each acceptance criterion should be verifiable
+3. Apply EARS format - Use proper EARS syntax patterns for all acceptance criteria
+4. Focus on core functionality - Start with essential features and user workflows
+5. Structure clearly - Group related functionality into logical requirement areas
+6. Make requirements testable - Each acceptance criterion should be verifiable
 7. **Update tracking metadata** upon completion
 
 Generate requirements that provide a solid foundation for the design phase, focusing on the core functionality from the feature idea.

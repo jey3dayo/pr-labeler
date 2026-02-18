@@ -39,14 +39,14 @@ PR Insights Labelerは、GitHub Actionとして動作する単一プロセスの
 - `comment-manager.ts`: PRコメント生成・更新・削除
 - `errors/types.ts`: 統一されたエラー型定義、エラーメッセージ文字列
 
-**既存の設計パターン**:
+#### 既存の設計パターン
 
 - Railway-Oriented Programming: neverthrowの`Result<T, E>`による明示的エラーハンドリング
 - 型安全性の徹底: `any`型禁止、厳格なTypeScript設定
 - 純粋関数優先: 副作用と純粋関数の分離
 - 依存性注入: テスタビリティを確保するための引数渡し
 
-**統合制約**:
+#### 統合制約
 
 - ビルドプロセス: `pnpm build` → 型生成 → TSコンパイル → nccバンドル
 - バンドルサイズ: 現在約200KB、翻訳追加後も250KB以内を目標
@@ -99,7 +99,7 @@ graph TB
     N --> F
 ```
 
-**アーキテクチャ統合**:
+#### アーキテクチャ統合
 
 - **既存パターン保持**: Railway-Oriented Programming、型安全性、純粋関数の原則を維持
 - **新規コンポーネントの必要性**: i18n初期化モジュール、翻訳リソース、型生成スクリプト、数値/サイズフォーマットユーティリティ
@@ -110,13 +110,13 @@ graph TB
 
 本機能は既存システムの拡張であり、確立された技術スタックに新規ライブラリを追加します。
 
-**新規依存関係**:
+#### 新規依存関係
 
 - **i18next v23.x以上**: Node.js環境での国際化ライブラリ、TypeScript完全対応、バンドルサイズ約10KB（gzip後）
   - 選定理由: Node.js環境での安定性、TypeScript型定義の充実、将来的な複数形対応・変数補間の拡張性、GitHub Actionsでの実績
   - バージョン要件: TypeScript v5対応のため v23以上
 
-**既存スタックとの統合**:
+#### 既存スタックとの統合
 
 - TypeScript 5.9: i18nextの型拡張（`CustomTypeOptions`）で型安全性を実現
 - @vercel/ncc: 翻訳JSONの静的importを自動バンドル（追加設定不要）
@@ -127,7 +127,7 @@ graph TB
 - neverthrow: i18n初期化のエラーハンドリングに`Result<T, E>`を使用
 - Vitest: 翻訳キー整合性テスト、スナップショットテストを追加
 
-**ディレクトリ構成（新規追加）**:
+#### ディレクトリ構成（新規追加）
 
 ```
 src/
@@ -165,11 +165,11 @@ __tests__/
 
 **Context**: TypeScriptで翻訳キーの存在をコンパイル時に検証し、エディタ補完を有効化する必要があります。
 
-**Alternatives**:
+#### Alternatives
 
-1. **手動型定義**: 翻訳JSONとは別に型定義ファイルを手書き
-2. **typesafe-i18n**: 専用の型安全i18nライブラリを使用
-3. **i18next + 型生成スクリプト**: JSONから型を自動生成してi18nextに適用
+1. 手動型定義: 翻訳JSONとは別に型定義ファイルを手書き
+2. typesafe-i18n: 専用の型安全i18nライブラリを使用
+3. i18next + 型生成スクリプト: JSONから型を自動生成してi18nextに適用
 
 **Selected Approach**: **i18next + 型生成スクリプト**
 
@@ -198,14 +198,14 @@ declare module 'i18next' {
 }
 ```
 
-**Rationale**:
+#### Rationale
 
 - **型の自動生成**: 翻訳JSON更新時に型定義も自動更新、手動メンテナンス不要
 - **i18nextエコシステム活用**: 既存のi18nextプラグイン、ツールチェーンを利用可能
 - **エディタ統合**: VSCodeでの補完、GoTo Definition、型チェックがフル機能
 - **CI統合**: ビルドプロセスに型生成を組み込み、型エラーで即座に検出
 
-**Trade-offs**:
+#### Trade-offs
 
 - **ビルド時間増加**: 型生成ステップ追加により数秒の増加（許容範囲内）
 - **型定義ファイルの肥大化**: 翻訳が増えるほど型ファイルも増加（nccバンドルには影響なし）
@@ -215,11 +215,11 @@ declare module 'i18next' {
 
 **Context**: 翻訳キーが数百に及ぶ可能性があり、単一ファイルでは管理が困難になります。
 
-**Alternatives**:
+#### Alternatives
 
-1. **単一ファイル**: `locales/en/translation.json` に全キーを集約
-2. **ドメイン別**: `locales/en/pr-labeler.json`, `locales/en/directory-labeler.json`
-3. **機能別**: `locales/en/summary.json`, `locales/en/errors.json`, `locales/en/labels.json`, `locales/en/logs.json`, `locales/en/common.json`
+1. 単一ファイル: `locales/en/translation.json` に全キーを集約
+2. ドメイン別: `locales/en/pr-labeler.json`, `locales/en/directory-labeler.json`
+3. 機能別: `locales/en/summary.json`, `locales/en/errors.json`, `locales/en/labels.json`, `locales/en/logs.json`, `locales/en/common.json`
 
 **Selected Approach**: **機能別（名前空間5つ）**
 
@@ -231,14 +231,14 @@ declare module 'i18next' {
 - `logs`: 情報ログ、警告ログのメッセージ
 - `common`: 共通メッセージ（ボタンラベル、単位等）
 
-**Rationale**:
+#### Rationale
 
 - **関心の分離**: 出力先・用途ごとに翻訳を整理、コンテキストが明確
 - **並行開発**: チームメンバーが異なる名前空間を同時編集可能
 - **部分ロード**: 将来的にオンデマンドロードを実装する際の基盤
 - **テスト容易性**: 名前空間ごとにスナップショットテストを実施
 
-**Trade-offs**:
+#### Trade-offs
 
 - **ファイル数増加**: 5名前空間 × 2言語 = 10ファイル（管理は容易）
 - **キー競合リスク**: 名前空間間で同名キーが存在可能（意図的な設計）
@@ -248,11 +248,11 @@ declare module 'i18next' {
 
 **Context**: GitHubラベルの実体名（API名）を多言語化すると既存設定やGitHub UIとの整合性が失われます。
 
-**Alternatives**:
+#### Alternatives
 
-1. **ラベル名も多言語化**: GitHub API呼び出し時に翻訳されたラベル名を使用
-2. **表示名のみ多言語化**: GitHub APIは英語固定、Summary/コメントの表示のみ翻訳
-3. **両方サポート**: 設定で選択可能
+1. ラベル名も多言語化: GitHub API呼び出し時に翻訳されたラベル名を使用
+2. 表示名のみ多言語化: GitHub APIは英語固定、Summary/コメントの表示のみ翻訳
+3. 両方サポート: 設定で選択可能
 
 **Selected Approach**: **表示名のみ多言語化**
 
@@ -274,14 +274,14 @@ labels:
 - PRコメント: `display_name`から選択言語を表示
 - GitHub API（ラベル適用）: `name`を使用（英語固定）
 
-**Rationale**:
+#### Rationale
 
 - **GitHub慣習準拠**: ラベル名は英語が一般的、多言語ラベルは混乱を招く
 - **後方互換性**: 既存の英語ラベル設定がそのまま機能
 - **検索性**: GitHub UI検索、フィルタリングで英語ラベルが一貫
 - **移行容易性**: `display_name`フィールド追加のみ、既存設定は変更不要
 
-**Trade-offs**:
+#### Trade-offs
 
 - **設定複雑化**: `name`と`display_name`の2つのフィールド管理
 - **部分多言語化**: ラベル自体は英語のまま（意図的な制約）
@@ -375,36 +375,36 @@ flowchart TD
 
 #### i18n.ts
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: i18nextライブラリの初期化、言語決定、翻訳関数の提供
 - **Domain Boundary**: i18n層（アプリケーション全体で使用される横断的関心事）
 - **Data Ownership**: 選択言語、翻訳リソースの管理
 - **Transaction Boundary**: なし（ステートレス、初期化は1回のみ）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: index.ts（アプリケーションエントリーポイント）、全出力モジュール
 - **Outbound**: i18next、input-mapper.ts（設定取得）、locales/（静的import）
 - **External**: i18next v23.x以上
 
-**External Dependencies Investigation**:
+#### External Dependencies Investigation
 
-- **i18next公式ドキュメント調査結果**:
+- i18next公式ドキュメント調査結果:
   - TypeScript v5完全対応、型拡張による型安全性
   - `CustomTypeOptions`インターフェースで型定義をカスタマイズ
   - `init()`メソッドで同期初期化可能（非同期不要）
   - `fallbackLng`オプションでフォールバック言語を指定
   - 名前空間（namespace）による翻訳リソース分割サポート
   - バンドルサイズ: 約10KB（gzip後）、tree-shakingに対応
-- **設定オプション**:
+- 設定オプション:
   - `lng`: 選択言語（例: 'en', 'ja'）
   - `fallbackLng`: フォールバック言語（デフォルト: 'en'）
   - `ns`: 名前空間配列（例: ['summary', 'errors']）
   - `defaultNS`: デフォルト名前空間
   - `resources`: 翻訳リソースオブジェクト
   - `debug`: デバッグログ有効化（開発時のみ）
-- **リソース読み込み方式**:
+- リソース読み込み方式:
   - 静的importでJSONを読み込み、`resources`オプションに渡す（同期初期化可能）
   - nccが自動的にバンドルに含めるため、追加設定不要
   - FS依存を排除し、確実なリソース同梱を保証
@@ -431,12 +431,12 @@ flowchart TD
   t(key: string, options?: TOptions): string;
   ```
 
-- **既知の制約**:
+- 既知の制約:
   - TypeScript v5未満はサポート外
   - 大規模翻訳（1000キー以上）ではコンパイル時間増加の可能性
   - `enableSelector: true`で型パフォーマンス最適化可能
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 // Service Interface
@@ -506,22 +506,22 @@ interface AppConfig {
 }
 ```
 
-**Preconditions**:
+#### Preconditions
 
 - アプリケーション起動時、他のモジュール初期化前に`initializeI18n()`を呼び出す
 - `locales/en/`配下に英語翻訳JSONが存在する（必須）
 
-**Postconditions**:
+#### Postconditions
 
 - `initializeI18n()`成功後、`t()`関数で翻訳取得が可能
 - 選択言語が確定し、すべての出力で一貫した言語が使用される
 
-**Invariants**:
+#### Invariants
 
 - 英語翻訳は常にフォールバックとして利用可能
 - 初期化は1回のみ実行（再初期化は不要）
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 既存モジュール（report-formatter等）に`t()`関数呼び出しを追加（ラップ）
 - **Backward Compatibility**: `initializeI18n()`が失敗しても英語で動作継続（フォールバック）
@@ -531,20 +531,20 @@ interface AppConfig {
 
 #### report-formatter.ts (Modified)
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: GitHub Actions Summary、PRコメントのMarkdownレポート生成
 - **Domain Boundary**: 出力層（プレゼンテーション）
 - **Data Ownership**: フォーマット済みMarkdownテキスト
 - **Transaction Boundary**: なし（ステートレス、純粋関数）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: actions-io.ts、comment-manager.ts
 - **Outbound**: i18n.ts（翻訳関数）、utils/formatting.ts（数値・サイズフォーマット）
 - **External**: なし
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 // 既存関数の型シグネチャ（変更なし、内部実装で t() 使用）
@@ -564,17 +564,17 @@ function formatBasicMetrics(metrics: Metrics, options: FormatBasicMetricsOptions
 }
 ```
 
-**Preconditions**:
+#### Preconditions
 
 - `i18n.ts`の初期化が完了している
 - `metrics`, `violations`等の入力データが有効
 
-**Postconditions**:
+#### Postconditions
 
 - 選択言語でフォーマットされたMarkdownテキストを返す
 - 数値、ファイルサイズはロケール形式でフォーマット
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: 既存の文字列リテラルを`t()`関数呼び出しに置換（最小限の変更）
 - **Backward Compatibility**: `t()`関数が失敗しても英語文字列が返る（フォールバック）
@@ -584,7 +584,7 @@ function formatBasicMetrics(metrics: Metrics, options: FormatBasicMetricsOptions
 - **文単位でキー化**: 長文テンプレートは文ごとに分割してキー化（例: `summary.overview.intro`, `summary.overview.description`）
 - **変数は補間で対応**: `t('summary.filesAnalyzed', { count: 10 })` → "Analyzed {{count}} files" / "{{count}}個のファイルを分析しました"
 - **Markdown構造はコード側で合成**: 見出し（`##`, `###`）、リスト記号（`-`, `1.`）、表構造はコード側で生成、テキスト部分のみ翻訳
-- **適切な粒度の例**:
+- 適切な粒度の例:
 
   ```typescript
   // ✅ Good: 文単位でキー化、変数補間
@@ -600,20 +600,20 @@ function formatBasicMetrics(metrics: Metrics, options: FormatBasicMetricsOptions
 
 #### actions-io.ts (Modified)
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: GitHub Actions Summary書き込み、ログ出力（info/warning/error）
 - **Domain Boundary**: 出力層（GitHub Actions統合）
 - **Data Ownership**: GitHub Actions Summary HTML、コンソールログ
 - **Transaction Boundary**: なし（副作用あり、GitHub API呼び出し）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: index.ts、各種モジュール（エラーハンドリング等）
 - **Outbound**: @actions/core（GitHub Actions SDK）、i18n.ts、report-formatter.ts
 - **External**: @actions/core v1.11.1
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 // 既存関数（ログ出力に翻訳適用）
@@ -629,7 +629,7 @@ logInfo('logs.initializationSuccess', { language: 'ja' });
 // Output: "Initialized with language: ja" / "言語で初期化されました: ja"
 ```
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: ログメッセージを翻訳キー + パラメータで渡す方式に変更
 - **Backward Compatibility**: 既存の文字列直接指定も引き続きサポート
@@ -638,20 +638,20 @@ logInfo('logs.initializationSuccess', { language: 'ja' });
 
 #### utils/formatting.ts (New)
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: 数値、ファイルサイズのロケール形式フォーマット
 - **Domain Boundary**: ユーティリティ層
 - **Data Ownership**: フォーマット済み文字列
 - **Transaction Boundary**: なし（純粋関数）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: report-formatter.ts、actions-io.ts
 - **Outbound**: Intl.NumberFormat（標準API）
 - **External**: なし（Node.js標準）
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 interface FormattingService {
@@ -715,20 +715,20 @@ function formatFileSize(bytes: number, lang: 'en' | 'ja' = 'en'): string {
 
 #### scripts/generate-i18n-types.ts (New)
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: 翻訳JSONから TypeScript型定義を自動生成
 - **Domain Boundary**: ビルド時ツール
 - **Data Ownership**: 生成される`src/types/i18n.ts`
 - **Transaction Boundary**: なし（ビルド時実行）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: `pnpm build`, `pnpm dev`スクリプト
 - **Outbound**: File System（翻訳JSON読み込み、型ファイル書き込み）
 - **External**: なし
 
-**Contract Definition**
+### Contract Definition
 
 ```typescript
 // スクリプト実行結果
@@ -782,16 +782,16 @@ declare module 'i18next' {
 }
 ```
 
-**Preconditions**:
+#### Preconditions
 
 - `src/locales/en/*.json`が存在する
 
-**Postconditions**:
+#### Postconditions
 
 - `src/types/i18n.ts`が生成される
 - TypeScriptコンパイル時に翻訳キーの型チェックが有効化
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **ビルドプロセス統合**: `pnpm build`の最初のステップで実行
 - **Watch mode**: `pnpm dev`時も翻訳JSON変更を監視して再生成
@@ -906,7 +906,7 @@ labels:
       min_complexity: 10
 ```
 
-**型定義**:
+#### 型定義
 
 ```typescript
 interface PRLabelerConfig {
@@ -933,18 +933,18 @@ i18n機能のエラーハンドリングは、既存のRailway-Oriented Programm
 
 ### Error Categories and Responses
 
-**Configuration Errors (初期化失敗)**:
+#### Configuration Errors (初期化失敗)
 
 - **言語コード不正**: 警告ログ出力 → 次の優先順位にフォールバック → デフォルト英語
 - **翻訳ファイル欠落**: 警告ログ出力 → 英語フォールバックで継続
 - **JSON パースエラー**: エラーログ出力 → 該当名前空間を英語で継続
 
-**Translation Key Errors (翻訳キー欠落)**:
+#### Translation Key Errors (翻訳キー欠落)
 
 - **選択言語にキーなし**: 英語フォールバック → 警告ログ（開発時のみ）
 - **英語にもキーなし**: キー文字列をそのまま返す → エラーログ
 
-**File System Errors (ファイル読み込み失敗)**:
+#### File System Errors (ファイル読み込み失敗)
 
 - **翻訳ファイル読み込み失敗**: 英語フォールバック → 警告ログ
 - **英語ファイルも失敗**: 初期化エラー → アプリケーション停止（致命的エラー）
@@ -983,7 +983,7 @@ flowchart TD
 
 ### Monitoring
 
-**エラーログ出力**:
+#### エラーログ出力
 
 - **警告レベル**: 翻訳キー欠落、ファイル読み込み失敗（フォールバック成功）
 - **エラーレベル**: 英語翻訳も欠落、致命的な初期化失敗
@@ -994,7 +994,7 @@ flowchart TD
 - **2回目以降**: debug レベルで集計のみ（重複警告を抑制）
 - **Summary末尾**: オプションで欠落キー数を表示可能（`show_missing_translations: true`）
 
-**ログ形式** (actions-io.ts経由):
+#### ログ形式 (actions-io.ts経由)
 
 ```typescript
 // 初回発生キー
@@ -1010,12 +1010,12 @@ logError('i18n.keyMissing', { key: 'unknown.key', language: 'en' });
 // Output: "[i18n] Translation key 'unknown.key' not found in any language"
 ```
 
-**CI統合**:
+#### CI統合
 
 - 翻訳キー整合性テスト（`__tests__/i18n-integrity.test.ts`）で欠落キーを検出
 - テスト失敗時は明確なエラーメッセージで該当キー・言語を表示
 
-**オプション機能**:
+#### オプション機能
 
 - Summary末尾に欠落翻訳のサマリを表示（設定で有効化）
 - 例: "Note: 3 translation keys fell back to English during this run"
@@ -1024,44 +1024,44 @@ logError('i18n.keyMissing', { key: 'unknown.key', language: 'en' });
 
 ### Unit Tests
 
-**i18n Core Functions** (`__tests__/i18n.test.ts`):
+#### i18n Core Functions (`__tests__/i18n.test.ts`)
 
 - `determineLanguage()`: 言語決定の優先順位（環境変数 > 設定ファイル > デフォルト）
 - `initializeI18n()`: 正常初期化、エラーハンドリング、フォールバック
 - `t()`: 翻訳キー解決、補間変数、フォールバック動作
 
-**Formatting Utilities** (`__tests__/formatting.test.ts`):
+#### Formatting Utilities (`__tests__/formatting.test.ts`)
 
 - `formatNumber()`: 英語・日本語での数値フォーマット（桁区切り）
 - `formatFileSize()`: 1024基数でのファイルサイズフォーマット、単位表記
 
-**Type Generation** (`__tests__/generate-i18n-types.test.ts`):
+#### Type Generation (`__tests__/generate-i18n-types.test.ts`)
 
 - スクリプト実行成功、型定義ファイル生成確認
 - 翻訳JSON変更時の型再生成
 
 ### Integration Tests
 
-**End-to-End Translation Flow** (`__tests__/i18n-integration.test.ts`):
+#### End-to-End Translation Flow (`__tests__/i18n-integration.test.ts`)
 
 - 環境変数指定 → Summary/コメント出力が指定言語
 - 設定ファイル指定 → Summary/コメント出力が指定言語
 - 言語未指定 → 英語で出力
 
-**Report Formatter Integration** (`__tests__/report-formatter-i18n.test.ts`):
+#### Report Formatter Integration (`__tests__/report-formatter-i18n.test.ts`)
 
 - `formatBasicMetrics()`が選択言語で出力
 - 数値・サイズが各ロケールでフォーマット
 - エラーメッセージが翻訳される
 
-**Actions IO Integration** (`__tests__/actions-io-i18n.test.ts`):
+#### Actions IO Integration (`__tests__/actions-io-i18n.test.ts`)
 
 - `logInfo()`/`logWarning()`/`logError()`が翻訳される
 - `writeSummary()`のMarkdownが選択言語
 
 ### Snapshot Tests
 
-**Language-Specific Snapshots** (`__tests__/i18n-snapshot.test.ts`):
+#### Language-Specific Snapshots (`__tests__/i18n-snapshot.test.ts`)
 
 ```typescript
 describe.each(['en', 'ja'])('Snapshot Tests (%s)', (lang) => {
@@ -1089,7 +1089,7 @@ describe.each(['en', 'ja'])('Snapshot Tests (%s)', (lang) => {
 
 ### Translation Integrity Tests
 
-**Key Completeness Check** (`__tests__/i18n-integrity.test.ts`):
+#### Key Completeness Check (`__tests__/i18n-integrity.test.ts`)
 
 ```typescript
 describe('Translation Integrity', () => {
@@ -1127,7 +1127,7 @@ describe('Translation Integrity', () => {
 
 ### Fallback Behavior Tests
 
-**Fallback Scenarios** (`__tests__/i18n-fallback.test.ts`):
+#### Fallback Scenarios (`__tests__/i18n-fallback.test.ts`)
 
 ```typescript
 describe('Fallback Behavior', () => {
@@ -1158,7 +1158,7 @@ describe('Fallback Behavior', () => {
 
 ### Performance Tests
 
-**Initialization Performance** (`__tests__/i18n-performance.test.ts`):
+#### Initialization Performance (`__tests__/i18n-performance.test.ts`)
 
 ```typescript
 describe('Performance', () => {
@@ -1212,7 +1212,7 @@ flowchart LR
     G --> H[Phase 1完了]
 ```
 
-**タスク**:
+#### タスク
 
 1. i18next依存関係追加、`i18n.ts`実装
 2. 型生成スクリプト`generate-i18n-types.ts`実装
@@ -1221,7 +1221,7 @@ flowchart LR
 5. 翻訳キー整合性テスト実装
 6. CI/CDパイプラインに型生成とテストを統合
 
-**検証ポイント**:
+#### 検証ポイント
 
 - 英語環境で既存動作が変化しないこと
 - 日本語環境でSummaryが日本語表示されること
@@ -1241,7 +1241,7 @@ flowchart LR
     G --> H[Phase 2完了]
 ```
 
-**タスク**:
+#### タスク
 
 1. `locales/*/errors.json`, `locales/*/logs.json`作成
 2. `errors/factories.ts`, `actions-io.ts`に翻訳適用
@@ -1250,7 +1250,7 @@ flowchart LR
 5. スナップショットテスト実装（英語・日本語）
 6. 全モジュールの回帰テスト実行
 
-**検証ポイント**:
+#### 検証ポイント
 
 - すべての出力が選択言語で表示されること
 - フォールバックが正常に機能すること
@@ -1266,7 +1266,7 @@ flowchart LR
     D --> E[Phase 3完了]
 ```
 
-**タスク**:
+#### タスク
 
 1. `pr-labeler.yml`に`language`フィールド追加
 2. `LabelConfig`に`display_name`フィールド追加
@@ -1274,7 +1274,7 @@ flowchart LR
 4. README.md、docs/ja/API.mdに多言語設定例を追加（英語版は後追い）
 5. 既存設定での後方互換性テスト
 
-**検証ポイント**:
+#### 検証ポイント
 
 - 既存設定（`display_name`なし）が正常動作
 - 新規設定（`display_name`あり）で多言語表示
@@ -1289,7 +1289,7 @@ flowchart LR
 - **パフォーマンス劣化**: 初期化時間が100ms以上増加
 - **重大な回帰バグ**: 既存機能が動作しなくなる
 
-**Rollback手順**:
+#### Rollback手順
 
 1. i18n関連のPRをrevert
 2. `i18next`依存関係を削除
@@ -1298,21 +1298,21 @@ flowchart LR
 
 ### Validation Checkpoints
 
-**Phase 1完了時**:
+#### Phase 1完了時
 
 - [ ] 英語環境で既存動作が変化しない
 - [ ] 日本語環境でSummaryが日本語表示
 - [ ] 型生成スクリプトが正常動作
 - [ ] CI/CDパイプラインが成功
 
-**Phase 2完了時**:
+#### Phase 2完了時
 
 - [ ] すべての出力が多言語化
 - [ ] フォールバックが正常動作
 - [ ] テストカバレッジ90%以上
 - [ ] スナップショットテストが通過
 
-**Phase 3完了時**:
+#### Phase 3完了時
 
 - [ ] 設定ファイル多言語対応完了
 - [ ] ドキュメント更新完了
@@ -1326,7 +1326,7 @@ flowchart LR
 - **Requirements Document**: `.kiro/specs/i18n-support/requirements.md`
 - **i18next Official Documentation**: <https://www.i18next.com/>
 - **TypeScript i18next Integration**: <https://www.i18next.com/overview/typescript>
-- **Steering Documents**:
+- Steering Documents:
   - `.kiro/steering/structure.md` - プロジェクト構造、コーディング規約
   - `.kiro/steering/tech.md` - 技術スタック、ビルドプロセス
   - `.kiro/steering/product.md` - プロダクト概要、品質基準

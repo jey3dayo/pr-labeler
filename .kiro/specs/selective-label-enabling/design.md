@@ -41,16 +41,16 @@
 
 ### マイグレーションガイド
 
-**v0.xから移行する場合:**
+### v0.xから移行する場合:
 
-1. **`apply_size_labels`を削除し、`size_enabled`に置き換え**
+1. `apply_size_labels`を削除し、`size_enabled`に置き換え
 
 ```diff
 - apply_size_labels: 'true'
 + size_enabled: 'true'
 ```
 
-1. **`size_label_thresholds`を削除し、`size_thresholds`に置き換え**
+1. `size_label_thresholds`を削除し、`size_thresholds`に置き換え
 
 ```diff
 - size_label_thresholds: '{"small": 100, "medium": 300, "large": 800}'
@@ -62,7 +62,7 @@
 - **v0.x**: `additions + files`の合計で判定
 - **v1**: `additions`のみで判定
 
-1. **ラベル名の変更**
+1. ラベル名の変更
 
 - v0.x: `S`, `M`, `L`, `XL`, `XXL`
 - v1: `size/small`, `size/medium`, `size/large`, `size/xlarge`, `size/xxlarge`
@@ -85,7 +85,7 @@
 **方式A: v0.x のサイズ機能を廃止し、PR Insights Labeler に一本化**（採用）
 
 - **理由**: 命名統一の目的と一貫性を保つ
-- **影響**:
+- 影響:
   - `label-manager.ts` のサイズ関連ロジックを削除
   - README/docs から v0.x の記述を削除
   - CHANGELOG.md にマイグレーションガイドを追加
@@ -134,11 +134,11 @@ LabelerConfig (final, inputs優先)
 Label Decisions
 ```
 
-**統合ロジック（index.ts）**:
+#### 統合ロジック（index.ts）
 
 1. YAML から `LabelerConfig` を読み込み（`config-loader.ts`）
 2. `ActionInputs` から `Config` を生成（`input-mapper.ts`）
-3. **inputs 優先マージ**: `Config` の値で `LabelerConfig` を上書き
+3. inputs 優先マージ: `Config` の値で `LabelerConfig` を上書き
    - `config.sizeEnabled` → `labelerConfig.size.enabled`
    - `config.complexityEnabled` → `labelerConfig.complexity.enabled`
    - `config.categoryEnabled` → `labelerConfig.categoryLabeling.enabled`
@@ -227,7 +227,7 @@ export interface Config {
 
 ### バリデーション厳密化
 
-**parseBooleanStrict の実装**:
+#### parseBooleanStrict の実装
 
 - **現行の parseBoolean**: 未知値を `false` にフォールバック（エラーにしない）
 - **新規の parseBooleanStrict**: 未知値は `ConfigurationError` を返却
@@ -316,7 +316,7 @@ export async function writeSummaryWithAnalysis(
    }
    ```
 
-3. **表示条件**:
+3. 表示条件:
    - 無効化されたラベル種別が存在する場合のみ表示
    - 空配列または未指定の場合は何も表示しない
 

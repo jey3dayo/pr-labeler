@@ -4,7 +4,7 @@
 
 **Purpose**: This feature simplifies the PR Insights Labeler project's README.md from 717 lines to 200-300 lines by restructuring documentation, prioritizing quick-start workflows, and separating detailed information into dedicated docs/ files. This improves first-time user onboarding, accelerates information access for existing users, and reduces documentation maintenance burden.
 
-**Users**:
+#### Users
 
 - **First-time users** need to understand basic usage within 5 minutes and start using the action with copy-paste examples
 - **Existing users** need quick access to advanced configuration and troubleshooting
@@ -33,7 +33,7 @@
 
 ### Existing Architecture Analysis
 
-**Current Documentation Structure** (Monolithic):
+#### Current Documentation Structure (Monolithic)
 
 ```
 pr-labeler/
@@ -51,7 +51,7 @@ pr-labeler/
     └── i18n-error-migration-guide.md
 ```
 
-**Challenges with Current Structure**:
+#### Challenges with Current Structure
 
 - Information overload for first-time users
 - Mixing basic and advanced content
@@ -87,7 +87,7 @@ graph TB
     style Trouble fill:#fff4e1
 ```
 
-**Architecture Integration**:
+#### Architecture Integration
 
 - Existing docs/ files (API.md, release-process.md, etc.) remain unchanged
 - New documentation files follow existing documentation-guidelines.md
@@ -96,14 +96,14 @@ graph TB
 
 ### Technology Stack and Design Decisions
 
-**Technology Alignment**:
+#### Technology Alignment
 
 - Markdown format for all documentation (consistent with existing docs/)
 - GitHub-flavored Markdown for tables and code blocks
 - No external dependencies or build tools required
 - Documentation structure follows GitHub best practices (actions/checkout, docker/build-push-action)
 
-**Key Design Decisions**:
+#### Key Design Decisions
 
 #### Decision 1: Content Separation Strategy
 
@@ -111,10 +111,10 @@ graph TB
 
 **Context**: Current 717-line README.md contains both quick-start examples and comprehensive parameter documentation, making it difficult for new users to identify essential information.
 
-**Alternatives**:
+#### Alternatives
 
-1. **Flat structure**: Keep everything in README.md but reorganize sections
-2. **Multi-level structure**: Create nested docs/guides/, docs/reference/, docs/examples/
+1. Flat structure: Keep everything in README.md but reorganize sections
+2. Multi-level structure: Create nested docs/guides/, docs/reference/, docs/examples/
 3. **Hub-and-spoke model** (selected): README.md as hub, flat docs/ with specific purpose files
 
 **Selected Approach**: Hub-and-spoke model with three core documentation files:
@@ -123,14 +123,14 @@ graph TB
 - `docs/en/advanced-usage.md`: Copy-paste workflow examples for advanced scenarios
 - `docs/en/troubleshooting.md`: Problem-solution pairs for common issues
 
-**Rationale**:
+#### Rationale
 
 - Minimizes navigation depth (maximum 2 clicks to any information)
 - Aligns with user mental model (quick-start → specific need → detailed doc)
 - Simplifies maintenance (clear ownership of each documentation file)
 - Follows patterns from successful GitHub Actions (actions/checkout, docker/build-push-action)
 
-**Trade-offs**:
+#### Trade-offs
 
 - **Gain**: Faster onboarding, easier maintenance, clear information hierarchy
 - **Sacrifice**: Slight information duplication between README.md and docs/ (quick-start vs. comprehensive examples)
@@ -141,14 +141,14 @@ graph TB
 
 **Context**: Current README.md mixes Japanese and English content, creating language barriers for global users. Project has international GitHub Actions Marketplace presence. However, existing Japanese-speaking user base requires continued Japanese support to avoid onboarding experience degradation.
 
-**Alternatives**:
+#### Alternatives
 
-1. **Japanese-first**: Keep current mixed approach
-2. **Bilingual inline**: Include both languages in same file with language toggles
-3. **English-first, delayed Japanese translation**: English README.md first, Japanese translation later (rejected due to UX regression)
+1. Japanese-first: Keep current mixed approach
+2. Bilingual inline: Include both languages in same file with language toggles
+3. English-first, delayed Japanese translation: English README.md first, Japanese translation later (rejected due to UX regression)
 4. **English-first with simultaneous Japanese release** (selected)
 
-**Selected Approach**:
+#### Selected Approach
 
 - README.md written in English (primary)
 - README.ja.md released simultaneously (same PR)
@@ -156,7 +156,7 @@ graph TB
 - Language selection prominently displayed in both READMEs
 - Synchronization guidelines in documentation-guidelines.md
 
-**Rationale**:
+#### Rationale
 
 - GitHub Actions Marketplace requires English documentation
 - English enables wider adoption and contribution
@@ -164,7 +164,7 @@ graph TB
 - Simultaneous Japanese release prevents existing user base regression
 - Follows industry standard (most popular actions use English-first with translations)
 
-**Trade-offs**:
+#### Trade-offs
 
 - **Gain**: Global accessibility, marketplace compliance, no Japanese user regression, easier contributions
 - **Sacrifice**: Additional translation maintenance burden (mitigated by synchronization guidelines)
@@ -175,27 +175,27 @@ graph TB
 
 **Context**: External documentation, blog posts, and bookmarks may link to specific README.md sections using anchor links.
 
-**Alternatives**:
+#### Alternatives
 
-1. **Big-bang replacement**: Replace README.md entirely in one PR
-2. **Incremental with redirects**: Add HTML redirects or link warnings
+1. Big-bang replacement: Replace README.md entirely in one PR
+2. Incremental with redirects: Add HTML redirects or link warnings
 3. **Incremental with anchor preservation** (selected)
 
-**Selected Approach**:
+#### Selected Approach
 
 - Preserve critical section anchors in new README.md structure
 - Add clear migration notes in README.md pointing to new docs/ files
 - Document changes in CHANGELOG.md
 - Create GitHub Issue announcement (Issue #35) with migration guide
 
-**Rationale**:
+#### Rationale
 
 - Minimizes breaking changes for existing users
 - Provides clear migration path
 - Maintains SEO value of existing links
 - Allows gradual user adaptation
 
-**Trade-offs**:
+#### Trade-offs
 
 - **Gain**: Smooth transition, preserved external links, user confidence
 - **Sacrifice**: Slightly longer README.md due to anchor preservation (acceptable within 200-300 line target)
@@ -298,21 +298,21 @@ flowchart LR
 
 #### README.md (Hub)
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: Entry point for all users, providing quick-start guide and navigation to detailed documentation
 - **Domain Boundary**: User onboarding and navigation hub
 - **Content Ownership**: Project overview, core features, quick-start example, essential links
 - **Target Length**: 200-300 lines
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: External links from GitHub Actions Marketplace, blog posts, social media
 - **Outbound**: Links to docs/en/configuration.md, docs/en/advanced-usage.md, docs/en/troubleshooting.md, existing docs/
 
-**Contract Definition**
+### Contract Definition
 
-**Content Structure**:
+#### Content Structure
 
 ```markdown
 # PR Insights Labeler
@@ -343,7 +343,7 @@ flowchart LR
 **Postconditions**: Users can start using the action within 5 minutes
 **Invariants**: Quick-start example must always be functional and up-to-date
 
-**Detailed Layout Example with Anchor Compatibility**:
+#### Detailed Layout Example with Anchor Compatibility
 
 ````markdown
 # PR Insights Labeler
@@ -442,7 +442,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ````
 
-**Line Count Breakdown**:
+#### Line Count Breakdown
 
 - Header + badges + description: ~15 lines
 - Features: ~10 lines
@@ -460,21 +460,21 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 #### docs/en/configuration.md
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: Comprehensive reference for all action input parameters
 - **Domain Boundary**: Configuration reference documentation
 - **Content Ownership**: All input parameters, default values, type definitions, examples
 - **Target Structure**: Parameter tables + detailed explanations
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: Links from README.md, docs/en/advanced-usage.md
 - **Outbound**: References to action.yml (source of truth), docs/en/advanced-usage.md (usage examples)
 
-**Contract Definition**
+### Contract Definition
 
-**Content Structure**:
+#### Content Structure
 
 ```markdown
 # Configuration Guide
@@ -521,21 +521,21 @@ Brief introduction to configuration system
 
 #### docs/en/advanced-usage.md
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: Real-world, copy-paste workflow examples for advanced scenarios
 - **Domain Boundary**: Practical usage examples and patterns
 - **Content Ownership**: Complete workflow files for specific use cases
 - **Target Structure**: Scenario-based examples with explanations
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: Links from README.md, docs/en/configuration.md
 - **Outbound**: References to docs/en/configuration.md (parameter details), docs/en/troubleshooting.md (if issues arise)
 
-**Contract Definition**
+### Contract Definition
 
-**Content Structure**:
+#### Content Structure
 
 ```markdown
 # Advanced Usage
@@ -583,21 +583,21 @@ Brief introduction to configuration system
 
 #### docs/en/troubleshooting.md
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: Problem-solution pairs for common issues
 - **Domain Boundary**: User support and debugging
 - **Content Ownership**: Common errors, permission issues, unexpected behaviors
 - **Target Structure**: Problem → Cause → Solution format
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: Links from README.md, docs/en/advanced-usage.md
 - **Outbound**: References to docs/en/configuration.md (parameter fixes), GitHub documentation (permissions)
 
-**Contract Definition**
+### Contract Definition
 
-**Content Structure**:
+#### Content Structure
 
 ```markdown
 # Troubleshooting Guide
@@ -655,19 +655,19 @@ Brief introduction to configuration system
 
 ### Integration Strategy
 
-**Modification Approach**:
+#### Modification Approach
 
 - **README.md**: Complete rewrite with new structure
 - **docs/ files**: Create new files, preserve existing docs/
 - **CHANGELOG.md**: Document restructuring changes
 
-**Backward Compatibility**:
+#### Backward Compatibility
 
 - Preserve key section anchors where possible
 - Add migration notes in README.md
 - Document breaking documentation changes in CHANGELOG.md
 
-**Migration Path**:
+#### Migration Path
 
 1. Create new docs/ files first (configuration.md, advanced-usage.md, troubleshooting.md)
 2. Validate content completeness (no information loss)
@@ -711,7 +711,7 @@ flowchart TD
     style Phase4 fill:#e1ffe1
 ```
 
-**Phase 1: Preparation** (Day 1-2)
+#### Phase 1: Preparation (Day 1-2)
 
 - Create feature branch: `feature/readme-simplification`
 - Analyze current README.md structure (717 lines)
@@ -721,7 +721,7 @@ flowchart TD
   - docs/en/advanced-usage.md: Lines 497-691 (advanced examples, custom config)
   - docs/en/troubleshooting.md: New content based on common issues
 
-**Phase 2: Content Creation** (Day 3-5)
+#### Phase 2: Content Creation (Day 3-5)
 
 - Create docs/en/configuration.md with all input parameters in table format
 - Create docs/en/advanced-usage.md with copy-paste workflow examples
@@ -734,7 +734,7 @@ flowchart TD
   - Documentation links
   - Contribution and license sections
 
-**Phase 3: Validation** (Day 6)
+#### Phase 3: Validation (Day 6)
 
 - Content completeness check:
   - ✅ All 717 lines of original content accounted for
@@ -749,7 +749,7 @@ flowchart TD
   - ✅ Tables render properly
   - ✅ Code blocks have syntax highlighting
 
-**Phase 4: Review & Deploy** (Day 7-8)
+#### Phase 4: Review & Deploy (Day 7-8)
 
 - Peer review of all documentation changes
 - Update CHANGELOG.md with documentation restructuring notes
@@ -760,9 +760,9 @@ flowchart TD
 
 **Critical Challenge**: External links (blog posts, issues, bookmarks) may point to specific README.md sections using anchor links (e.g., `#入力パラメータ`, `#使用方法`). When content moves to docs/, these anchors will return 404, breaking the external ecosystem.
 
-**Implementation Strategy**:
+#### Implementation Strategy
 
-**1. Placeholder Sections with Redirect Links**
+### 1. Placeholder Sections with Redirect Links
 
 Create minimal placeholder sections in README.md that preserve anchor compatibility and redirect users to new locations:
 
@@ -779,7 +779,7 @@ Quick reference: [Basic Limits](docs/en/configuration.md#basic-limits) | [Label 
 
 **Cost**: Each placeholder section adds ~5 lines → 4-5 placeholders = 20-25 lines (within 200-300 line target).
 
-**2. HTML Anchor Preservation**
+### 2. HTML Anchor Preservation
 
 Use HTML comment anchors to maintain backward compatibility without visible content:
 
@@ -791,7 +791,7 @@ Use HTML comment anchors to maintain backward compatibility without visible cont
 For advanced usage examples, see [Advanced Usage Guide](docs/en/advanced-usage.md).
 ```
 
-**3. Critical Anchors to Preserve**
+### 3. Critical Anchors to Preserve
 
 Based on README.md analysis, preserve these high-traffic anchors:
 
@@ -803,7 +803,7 @@ Based on README.md analysis, preserve these high-traffic anchors:
 | `#必要な権限` | `#permissions` | Permissions section (in README) |
 | `#自動適用ラベル` | `#labels` | docs/en/configuration.md#auto-labels |
 
-**4. Migration Notice Section**
+### 4. Migration Notice Section
 
 Add a prominent migration notice at the top of README.md for 1-2 releases:
 
@@ -811,7 +811,7 @@ Add a prominent migration notice at the top of README.md for 1-2 releases:
 > **📢 Documentation Update**: README.md has been simplified. Detailed documentation moved to [docs/](docs/). See [Migration Guide](docs/migration-guide.md) for details.
 ```
 
-**5. Archive Link Strategy**
+### 5. Archive Link Strategy
 
 For users who prefer the old comprehensive README:
 
@@ -819,7 +819,7 @@ For users who prefer the old comprehensive README:
 - Add link in README.md: "Previous comprehensive README: [View archived version](https://github.com/owner/repo/blob/pre-simplification-readme/README.md)"
 - Remove archive link after 2-3 releases once migration is stable
 
-**Trade-offs**:
+#### Trade-offs
 
 - **Placeholder sections**: Add 20-25 lines to README.md but prevent 404 errors
 - **HTML anchors**: Invisible to readers but maintain backward compatibility
@@ -828,14 +828,14 @@ For users who prefer the old comprehensive README:
 
 ### Rollback Triggers
 
-**Immediate rollback if**:
+#### Immediate rollback if
 
 - Critical information found missing after validation
 - Multiple external links break due to anchor changes
 - GitHub Actions Marketplace compliance issues discovered
 - Peer review identifies fundamental structural problems
 
-**Rollback procedure**:
+#### Rollback procedure
 
 1. Revert PR commits
 2. Re-analyze missing/broken content
@@ -844,7 +844,7 @@ For users who prefer the old comprehensive README:
 
 ### Validation Checkpoints
 
-**Content Validation Checklist**:
+#### Content Validation Checklist
 
 - [ ] All input parameters from original README.md present in docs/en/configuration.md
 - [ ] All advanced examples from original README.md present in docs/en/advanced-usage.md
@@ -852,14 +852,14 @@ For users who prefer the old comprehensive README:
 - [ ] README.md length between 200-300 lines
 - [ ] No information loss verified by side-by-side comparison
 
-**Link Validation Checklist**:
+#### Link Validation Checklist
 
 - [ ] All internal links (README.md → docs/) resolve correctly
 - [ ] All docs/ cross-references work
 - [ ] Key section anchors preserved for backward compatibility
 - [ ] External links (if any) still valid
 
-**Quality Validation Checklist**:
+#### Quality Validation Checklist
 
 - [ ] Markdown syntax validated with linter
 - [ ] Code blocks have appropriate language tags
@@ -871,19 +871,19 @@ For users who prefer the old comprehensive README:
 
 ### Documentation Validation
 
-**Link Validation Tests**:
+#### Link Validation Tests
 
 - Automated link checking with `markdown-link-check`
 - Manual verification of internal anchor links
 - Cross-reference validation between README.md and docs/
 
-**Content Completeness Tests**:
+#### Content Completeness Tests
 
 - Line-by-line comparison of original vs. new structure
 - Checklist validation for each requirement
 - Parameter table completeness check against action.yml
 
-**Example Functionality Tests**:
+#### Example Functionality Tests
 
 - Copy-paste quick-start example into fresh repository
 - Test workflow execution
@@ -892,13 +892,13 @@ For users who prefer the old comprehensive README:
 
 ### Manual Review Tests
 
-**User Experience Tests**:
+#### User Experience Tests
 
 - Time-to-first-success for new users (target: < 5 minutes)
 - Navigation path clarity (can users find advanced examples?)
 - Search functionality (Ctrl+F for common terms)
 
-**Maintenance Tests**:
+#### Maintenance Tests
 
 - Update simulation (modify one parameter, verify impact)
 - Consistency check (parameter names match across files)
@@ -906,7 +906,7 @@ For users who prefer the old comprehensive README:
 
 ### Acceptance Criteria
 
-**Success Criteria**:
+#### Success Criteria
 
 1. ✅ README.md length: 200-300 lines (current: 717)
 2. ✅ All requirements (1.1-7.5) met and validated
@@ -915,7 +915,7 @@ For users who prefer the old comprehensive README:
 5. ✅ Peer review approval
 6. ✅ No content loss verified
 
-**Quality Gates**:
+#### Quality Gates
 
 - Markdown linting passes (markdownlint)
 - Link checking passes (markdown-link-check)
@@ -926,13 +926,13 @@ For users who prefer the old comprehensive README:
 
 ### Documentation Performance
 
-**Target Metrics**:
+#### Target Metrics
 
 - README.md load time: < 1 second (reduced from current due to size reduction)
 - Search indexing: Improved due to better structure
 - GitHub rendering: Faster due to smaller file size
 
-**Optimization Strategies**:
+#### Optimization Strategies
 
 - Limit images to 3 or fewer, max 500KB each
 - Keep individual docs/ files under 100KB
@@ -940,13 +940,13 @@ For users who prefer the old comprehensive README:
 
 ### Maintenance Scalability
 
-**Update Patterns**:
+#### Update Patterns
 
 - New feature documentation: Add to docs/en/advanced-usage.md, update quick-start if needed
 - New parameter: Add to docs/en/configuration.md table, update CHANGELOG.md
 - Bug fix: Update docs/en/troubleshooting.md if user-facing
 
-**Synchronization Strategy**:
+#### Synchronization Strategy
 
 - Document in documentation-guidelines.md: "When updating action.yml, update docs/en/configuration.md"
 - Add CI check (future): Validate parameter consistency between action.yml and docs/en/configuration.md
@@ -956,13 +956,13 @@ For users who prefer the old comprehensive README:
 
 ### Information Security
 
-**No sensitive information disclosure**:
+#### No sensitive information disclosure
 
 - Examples use placeholder tokens (`${{ secrets.GITHUB_TOKEN }}`)
 - No hardcoded credentials or API keys
 - Security best practices documented (e.g., fork PR handling)
 
-**Link Security**:
+#### Link Security
 
 - All external links verified before inclusion
 - No shortened URLs or tracking links
@@ -970,7 +970,7 @@ For users who prefer the old comprehensive README:
 
 ### Access Control
 
-**Documentation permissions**:
+#### Documentation permissions
 
 - README.md and docs/ are public (open-source project)
 - No authentication required for documentation access
@@ -998,7 +998,7 @@ For users who prefer the old comprehensive README:
 
 ### New Content to Create
 
-**docs/en/troubleshooting.md** (New):
+#### docs/en/troubleshooting.md (New)
 
 - Permission errors
 - Label creation issues
@@ -1007,14 +1007,14 @@ For users who prefer the old comprehensive README:
 - File count mismatches
 - Debug logging tips
 
-**README.ja.md** (Same PR, Required):
+#### README.ja.md (Same PR, Required)
 
 - Japanese translation of README.md
 - Released simultaneously with README.md to prevent UX regression
 - Language selection links in both READMEs
 - Maintained separately with synchronization guidelines in documentation-guidelines.md
 
-**docs/migration-guide.md** (Optional):
+#### docs/migration-guide.md (Optional)
 
 - Detailed migration guide for users
 - Mapping of old anchors to new locations

@@ -165,7 +165,7 @@ pr-labeler/
 
 ### README同期手順
 
-**README.md（英語）を更新した場合**:
+#### README.md（英語）を更新した場合
 
 1. README.ja.md（日本語）を同じ構造で更新する
 2. セクション順序を完全に一致させる
@@ -176,13 +176,13 @@ pr-labeler/
 4. 言語選択リンクを確認する
 5. 両ファイルの行数が大きく乖離していないことを確認する（±10%以内推奨）
 
-**README.ja.md（日本語）を更新した場合**:
+#### README.ja.md（日本語）を更新した場合
 
 - 上記の逆順で README.md（英語）を更新する
 
 ### action.yml同期手順
 
-**action.yml の inputs セクションを更新した場合**:
+#### action.yml の inputs セクションを更新した場合
 
 1. `docs/en/configuration.md` の Input Parameters セクションを更新する
 2. 以下の内容を同期させる：
@@ -195,7 +195,7 @@ pr-labeler/
    - 使用例を記載
    - Advanced Usage に詳細な使用例を追加（必要な場合）
 
-**action.yml の outputs セクションを更新した場合**:
+#### action.yml の outputs セクションを更新した場合
 
 1. `docs/en/configuration.md` の Output Variables セクションを更新する
 2. 変数名、型、説明、例を同期させる
@@ -204,19 +204,19 @@ pr-labeler/
 
 新機能を追加する際は、以下のドキュメントを更新する必要があります：
 
-**必須**:
+#### 必須
 
-1. **README.md / README.ja.md**: 新機能の概要を Key Features に追加
-2. **docs/en/configuration.md**: 新規入力パラメータ/出力変数を追加
-3. **CHANGELOG.md**: 変更内容を記録
+1. README.md / README.ja.md: 新機能の概要を Key Features に追加
+2. docs/en/configuration.md: 新規入力パラメータ/出力変数を追加
+3. CHANGELOG.md: 変更内容を記録
 
-**推奨**:
+#### 推奨
 
-1. **docs/en/advanced-usage.md**: 実践的な使用例を追加
-2. **docs/en/troubleshooting.md**: 想定される問題と解決策を追加
-3. **action.yml**: description を更新（機能変更の場合）
+1. docs/en/advanced-usage.md: 実践的な使用例を追加
+2. docs/en/troubleshooting.md: 想定される問題と解決策を追加
+3. action.yml: description を更新（機能変更の場合）
 
-**チェックリスト**:
+#### チェックリスト
 
 - [ ] README.md と README.ja.md を同期更新
 - [ ] action.yml と docs/en/configuration.md を同期更新
@@ -259,9 +259,9 @@ pr-labeler/
 
 ドキュメントが大きくなりすぎた場合：
 
-1. **機能別分割**: 異なる機能は別ファイルへ
-2. **対象者別分割**: ユーザー向けと開発者向けを分離
-3. **詳細度別分割**: 概要と詳細リファレンスを分離
+1. 機能別分割: 異なる機能は別ファイルへ
+2. 対象者別分割: ユーザー向けと開発者向けを分離
+3. 詳細度別分割: 概要と詳細リファレンスを分離
 
 ## 🔍 品質チェック項目
 

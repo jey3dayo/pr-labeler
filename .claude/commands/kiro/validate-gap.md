@@ -34,14 +34,14 @@ Analyze implementation requirements and existing codebase for feature: **$1**
 
 #### 1. Current State Investigation
 
-**Existing Codebase Analysis**:
+#### Existing Codebase Analysis
 
 - Identify files and modules related to the feature domain
 - Map current architecture patterns, conventions, and tech stack usage
 - Document existing services, utilities, and reusable components
 - Understand current data models, APIs, and integration patterns
 
-**Code Structure Assessment**:
+#### Code Structure Assessment
 
 - Document file organization, naming conventions, and architectural layers
 - Extract import/export patterns and module dependency structures
@@ -51,14 +51,14 @@ Analyze implementation requirements and existing codebase for feature: **$1**
 
 #### 2. Requirements Feasibility Analysis
 
-**Technical Requirements Extraction**:
+#### Technical Requirements Extraction
 
 - Parse EARS format requirements from requirements.md
 - Identify technical components needed for each requirement
 - Extract non-functional requirements (security, performance, etc.)
 - Map business logic complexity and integration points
 
-**Gap Identification**:
+#### Gap Identification
 
 - Missing technical capabilities vs requirements
 - Unknown technologies or external dependencies
@@ -67,7 +67,7 @@ Analyze implementation requirements and existing codebase for feature: **$1**
 
 #### 3. Implementation Approach Options
 
-**Multiple Strategy Evaluation**:
+#### Multiple Strategy Evaluation
 
 - **Option A**: Extend existing components/files
   - Which existing files/modules to extend
@@ -86,14 +86,14 @@ Analyze implementation requirements and existing codebase for feature: **$1**
 
 #### 4. Technical Research Requirements
 
-**External Dependencies Analysis** (if any):
+#### External Dependencies Analysis (if any)
 
 - Required libraries, APIs, or services not currently used
 - Version compatibility with existing dependencies
 - Authentication, configuration, and setup requirements
 - Rate limits, usage constraints, and cost implications
 
-**Knowledge Gap Assessment**:
+#### Knowledge Gap Assessment
 
 - Technologies unfamiliar to the team
 - Complex integration patterns requiring research
@@ -102,14 +102,14 @@ Analyze implementation requirements and existing codebase for feature: **$1**
 
 #### 5. Implementation Complexity Assessment
 
-**Effort Estimation**:
+#### Effort Estimation
 
 - **Small (S)**: 1-3 days, mostly using existing patterns
 - **Medium (M)**: 3-7 days, some new patterns or integrations
 - **Large (L)**: 1-2 weeks, significant new functionality
 - **Extra Large (XL)**: 2+ weeks, complex architecture changes
 
-**Risk Factors**:
+#### Risk Factors
 
 - High: Unknown technologies, complex integrations, architectural changes
 - Medium: New patterns, external dependencies, performance requirements
@@ -156,13 +156,13 @@ For each viable approach:
 
 ## Instructions
 
-1. **Check spec.json for language** - Use the language specified in the metadata
-2. **Prerequisites validation** - Ensure requirements are approved
-3. **Thorough investigation** - Analyze existing codebase comprehensively
-4. **Multiple options** - Present viable implementation approaches
-5. **Information focus** - Provide analysis, not final decisions
-6. **Research identification** - Flag areas needing investigation
-7. **Design preparation** - Set up design phase for success
+1. Check spec.json for language - Use the language specified in the metadata
+2. Prerequisites validation - Ensure requirements are approved
+3. Thorough investigation - Analyze existing codebase comprehensively
+4. Multiple options - Present viable implementation approaches
+5. Information focus - Provide analysis, not final decisions
+6. Research identification - Flag areas needing investigation
+7. Design preparation - Set up design phase for success
 
 **CRITICAL**: This is an analysis phase. Provide information and options, not final implementation decisions. The design phase will make strategic choices based on this analysis.
 
@@ -172,8 +172,8 @@ For each viable approach:
 
 After validation, proceed to design phase:
 
-**Generate design based on analysis:**
+### Generate design based on analysis:
 Run `/kiro:spec-design $1` to create technical design document
 
-**Auto-approve and proceed:**  
+### Auto-approve and proceed:
 Run `/kiro:spec-design $1 -y` to auto-approve requirements and generate design directly

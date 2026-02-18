@@ -22,14 +22,14 @@ PR Insights Labeler（旧: PR Labeler）は、GitHubのPull Requestのサイズ�
 
 ### 🏷️ 自動ラベル付け
 
-**基本ラベリング機能**:
+#### 基本ラベリング機能
 
 - PRサイズに応じた5段階ラベル（S/M/L/XL/XXL）を自動適用
 - 制限違反時の警告ラベル（auto/large-files, auto/too-many-files）
 - カスタマイズ可能な閾値設定（JSON形式）
 - ラベルの自動削除機能（制限クリア時）
 
-**🆕 PR Insights Labeler機能（インテリジェントラベリング）**:
+#### 🆕 PR Insights Labeler機能（インテリジェントラベリング）
 
 - **サイズベース**: PR追加行数に基づく4段階ラベル（size/small, size/medium, size/large, size/xlarge）
 - **複雑度ベース**: ESLint標準complexityルールによる循環的複雑度分析
@@ -49,19 +49,19 @@ PR Insights Labeler（旧: PR Labeler）は、GitHubのPull Requestのサイズ�
 - **柔軟な設定**: YAML設定ファイル（.github/pr-labeler.yml）でカスタマイズ可能
 - **名前空間ポリシー**: サイズ・複雑度・リスクは置換、カテゴリは加法的
 
-**🆕 Directory-Based Labeler機能**:
+#### 🆕 Directory-Based Labeler機能
 
 - **パスベースマッピング**: ディレクトリパターン（glob）からラベルを自動決定
   - minimatchによる柔軟なパターンマッチング
   - include/excludeパターンでファイルを正確にフィルタリング
-- **優先順位制御**:
+- 優先順位制御:
   - priority値による明示的な優先順位設定
   - 最長マッチルール（具体的なパスほど優先）
   - 定義順フォールバック
-- **名前空間ポリシー**:
+- 名前空間ポリシー:
   - exclusive（置換）: area:\* など、1つのみ適用
   - additive（加法的）: scope:\* など、複数適用可能
-- **安全設計**:
+- 安全設計:
   - デフォルトで無効、明示的な有効化が必要（`enable_directory_labeling: true`）
   - ラベルは自動作成される（固定値: color=cccccc, description=""）
 - **設定ファイル**: `.github/directory-labeler.yml`でルール定義

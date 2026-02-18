@@ -38,14 +38,14 @@ Interactive design quality review for feature: **$1**
 
 #### 1. Existing Architecture Alignment (Critical)
 
-**Evaluation Points**:
+#### Evaluation Points
 
 - Integration with existing system boundaries and layers
 - Consistency with established architectural patterns
 - Proper dependency direction and coupling management
 - Alignment with current module organization and responsibilities
 
-**Review Questions**:
+#### Review Questions
 
 - Does this design respect existing architectural boundaries?
 - Are new components properly integrated with existing systems?
@@ -53,14 +53,14 @@ Interactive design quality review for feature: **$1**
 
 #### 2. Design Consistency & Standards
 
-**Evaluation Points**:
+#### Evaluation Points
 
 - Adherence to project naming conventions and code standards
 - Consistent error handling and logging strategies
 - Uniform approach to configuration and dependency management
 - Alignment with established data modeling patterns
 
-**Review Questions**:
+#### Review Questions
 
 - Is the design consistent with existing code standards?
 - Are error handling and configuration approaches unified?
@@ -68,14 +68,14 @@ Interactive design quality review for feature: **$1**
 
 #### 3. Extensibility & Maintainability
 
-**Evaluation Points**:
+#### Evaluation Points
 
 - Design flexibility for future requirements changes
 - Clear separation of concerns and single responsibility principle
 - Testability and debugging considerations
 - Documentation and code clarity requirements
 
-**Review Questions**:
+#### Review Questions
 
 - How well does this design handle future changes?
 - Are responsibilities clearly separated and testable?
@@ -83,14 +83,14 @@ Interactive design quality review for feature: **$1**
 
 #### 4. Type Safety & Interface Design
 
-**Evaluation Points** (for TypeScript projects):
+#### Evaluation Points (for TypeScript projects)
 
 - Proper type definitions and interface contracts
 - Avoidance of `any` types and unsafe patterns
 - Clear API boundaries and data structure definitions
 - Input validation and error handling coverage
 
-**Review Questions**:
+#### Review Questions
 
 - Are types properly defined and interfaces clear?
 - Is the API design robust and well-defined?
@@ -111,7 +111,7 @@ Thoroughly analyze the design document against all review criteria, identifying 
 
 **Limit to 3 most important concerns maximum**. For each critical issue:
 
-**Issue Format**:
+#### Issue Format
 
 ```
 🔴 **Critical Issue [1-3]**: [Brief title]
@@ -126,14 +126,14 @@ Acknowledge 1-2 strong aspects of the design to maintain balanced feedback.
 
 #### Step 4: GO/NO-GO Decision
 
-**GO Criteria**:
+#### GO Criteria
 
 - No critical architectural misalignment
 - Requirements adequately addressed
 - Implementation path is clear and reasonable
 - Risks are acceptable and manageable
 
-**NO-GO Criteria**:
+#### NO-GO Criteria
 
 - Fundamental architectural conflicts
 - Critical requirements not addressed
@@ -177,21 +177,21 @@ Engage in dialogue about:
 
 ## Review Guidelines
 
-1. **Critical Focus**: Only flag issues that significantly impact success
-2. **Constructive Tone**: Provide solutions, not just criticism
-3. **Interactive Approach**: Engage in dialogue rather than one-way evaluation
-4. **Balanced Assessment**: Recognize both strengths and weaknesses
-5. **Clear Decision**: Make definitive GO/NO-GO recommendation
-6. **Actionable Feedback**: Ensure all suggestions are implementable
+1. Critical Focus: Only flag issues that significantly impact success
+2. Constructive Tone: Provide solutions, not just criticism
+3. Interactive Approach: Engage in dialogue rather than one-way evaluation
+4. Balanced Assessment: Recognize both strengths and weaknesses
+5. Clear Decision: Make definitive GO/NO-GO recommendation
+6. Actionable Feedback: Ensure all suggestions are implementable
 
 ## Instructions
 
-1. **Load all context documents** - Understand full project scope
-2. **Analyze design thoroughly** - Review against all criteria
-3. **Identify critical issues only** - Focus on most important problems
-4. **Engage interactively** - Discuss findings with user
-5. **Make clear decision** - Provide definitive GO/NO-GO
-6. **Guide next steps** - Clear direction for proceeding
+1. Load all context documents - Understand full project scope
+2. Analyze design thoroughly - Review against all criteria
+3. Identify critical issues only - Focus on most important problems
+4. Engage interactively - Discuss findings with user
+5. Make clear decision - Provide definitive GO/NO-GO
+6. Guide next steps - Clear direction for proceeding
 
 **Remember**: This is quality assurance, not perfection seeking. The goal is ensuring the design is solid enough to proceed to implementation with acceptable risk.
 
@@ -201,8 +201,8 @@ Engage in dialogue about:
 
 After design validation:
 
-**If design passes validation (GO decision):**
+### If design passes validation (GO decision):
 Run `/kiro:spec-tasks $1` to generate implementation tasks
 
-**Auto-approve and proceed:**
+### Auto-approve and proceed:
 Run `/kiro:spec-tasks $1 -y` to auto-approve requirements and design, then generate tasks directly

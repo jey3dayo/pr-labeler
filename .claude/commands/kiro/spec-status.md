@@ -101,7 +101,7 @@ Check alignment with steering documents:
 
 ## Instructions
 
-1. **Check spec.json for language** - Use the language specified in the metadata
+1. Check spec.json for language - Use the language specified in the metadata
 2. **Parse all spec files** to understand current state
 3. **Calculate completion percentages** for each phase
 4. **Identify next actions** based on current progress

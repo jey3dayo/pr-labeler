@@ -238,11 +238,11 @@
 
 ### 優先順位
 
-1. **Phase 1**: タスク1-3（基盤機能と単一ファイル解析）
-2. **Phase 2**: タスク4-5（並列処理と設定管理）
-3. **Phase 3**: タスク6-8（メインフロー統合とSummary出力）
-4. **Phase 4**: タスク9-10（エラーハンドリングとテスト）
-5. **Phase 5**: タスク11（ドキュメントとリリース）
+1. Phase 1: タスク1-3（基盤機能と単一ファイル解析）
+2. Phase 2: タスク4-5（並列処理と設定管理）
+3. Phase 3: タスク6-8（メインフロー統合とSummary出力）
+4. Phase 4: タスク9-10（エラーハンドリングとテスト）
+5. Phase 5: タスク11（ドキュメントとリリース）
 
 ### 品質保証チェックリスト
 
@@ -257,16 +257,16 @@
 
 ### 実装上の重要ポイント
 
-1. **Railway-Oriented Programming**: すべてのエラーをResult<T, E>型で表現
-2. **並列度制御**: p-limitライブラリで正確に8並列を維持
-3. **構文エラーの扱い**: 集計から除外し、syntaxErrorFiles配列で別枠可視化（平均値の歪み防止）
-4. **フィルタリング順序**: additionalExcludePatterns → pattern-matcher → complexity.extensions
-5. **tsconfig.jsonフォールバック**: 見つからない場合は既定設定を使用し、警告ログを出力
-6. **Summary上限**: ファイル上位10件、関数上位5件まで表示
-7. **後方互換性**: pr-labeler.ymlのcomplexity.enabledで制御（action.yml入力は当面不要）
-8. **既存型の活用**: labeler-types.tsの既存型を確認し、差分のみ拡張
-9. **デフォルト設定**: 閾値は既存の10/20、対象拡張子は['.ts', '.tsx']のみ
-10. **ファイルサイズガード**: デフォルト1MB（既存file-metricsとの一貫性確認）
+1. Railway-Oriented Programming: すべてのエラーをResult<T, E>型で表現
+2. 並列度制御: p-limitライブラリで正確に8並列を維持
+3. 構文エラーの扱い: 集計から除外し、syntaxErrorFiles配列で別枠可視化（平均値の歪み防止）
+4. フィルタリング順序: additionalExcludePatterns → pattern-matcher → complexity.extensions
+5. tsconfig.jsonフォールバック: 見つからない場合は既定設定を使用し、警告ログを出力
+6. Summary上限: ファイル上位10件、関数上位5件まで表示
+7. 後方互換性: pr-labeler.ymlのcomplexity.enabledで制御（action.yml入力は当面不要）
+8. 既存型の活用: labeler-types.tsの既存型を確認し、差分のみ拡張
+9. デフォルト設定: 閾値は既存の10/20、対象拡張子は['.ts', '.tsx']のみ
+10. ファイルサイズガード: デフォルト1MB（既存file-metricsとの一貫性確認）
 
 ## 要件カバレッジマトリクス
 

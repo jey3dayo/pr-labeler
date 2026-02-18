@@ -17,7 +17,7 @@ Initialize a new specification based on the provided project description:
 ### 1. Generate Feature Name
 
 Create a concise, descriptive feature name from the project description ($ARGUMENTS).
-**Check existing `.kiro/specs/` directory to ensure the generated feature name is unique. If a conflict exists, append a number suffix (e.g., feature-name-2).**
+### Check existing `.kiro/specs/` directory to ensure the generated feature name is unique. If a conflict exists, append a number suffix (e.g., feature-name-2).
 
 ### 2. Create Spec Directory
 
@@ -79,9 +79,9 @@ Add the new spec to the active specifications list with the generated feature na
 
 Follow the strict spec-driven development workflow:
 
-1. **`/kiro:spec-requirements <feature-name>`** - Create and generate requirements.md
-2. **`/kiro:spec-design <feature-name>`** - Create and generate design.md (requires approved requirements)
-3. **`/kiro:spec-tasks <feature-name>`** - Create and generate tasks.md (requires approved design)
+1. `/kiro:spec-requirements <feature-name>` - Create and generate requirements.md
+2. `/kiro:spec-design <feature-name>` - Create and generate design.md (requires approved requirements)
+3. `/kiro:spec-tasks <feature-name>` - Create and generate tasks.md (requires approved design)
 
 **Important**: Each phase creates its respective file and requires approval before proceeding to the next phase.
 
@@ -92,5 +92,5 @@ After initialization, provide:
 1. Generated feature name and rationale
 2. Brief project summary
 3. Created spec.json path
-4. **Clear next step**: `/kiro:spec-requirements <feature-name>`
+4. Clear next step: `/kiro:spec-requirements <feature-name>`
 5. Explanation that only spec.json was created, following stage-by-stage development principles

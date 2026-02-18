@@ -4,7 +4,7 @@
 Conduct interactive quality review of technical design documents to ensure they are solid enough to proceed to implementation with acceptable risk.
 
 ## Review Philosophy
-- **Quality assurance, not perfection seeking**
+- Quality assurance, not perfection seeking
 - **Critical focus**: Limit to 3 most important concerns
 - **Interactive dialogue**: Engage with designer, not one-way evaluation
 - **Balanced assessment**: Recognize strengths and weaknesses
@@ -95,12 +95,12 @@ Engage on designer's perspective, alternatives, clarifications, and necessary ch
 
 ## Review Guidelines
 
-1. **Critical Focus**: Only flag issues that significantly impact success
-2. **Constructive Tone**: Provide solutions, not just criticism
-3. **Interactive Approach**: Engage in dialogue rather than one-way evaluation
-4. **Balanced Assessment**: Recognize both strengths and weaknesses
-5. **Clear Decision**: Make definitive GO/NO-GO recommendation
-6. **Actionable Feedback**: Ensure all suggestions are implementable
+1. Critical Focus: Only flag issues that significantly impact success
+2. Constructive Tone: Provide solutions, not just criticism
+3. Interactive Approach: Engage in dialogue rather than one-way evaluation
+4. Balanced Assessment: Recognize both strengths and weaknesses
+5. Clear Decision: Make definitive GO/NO-GO recommendation
+6. Actionable Feedback: Ensure all suggestions are implementable
 
 ## Final Checklist
 

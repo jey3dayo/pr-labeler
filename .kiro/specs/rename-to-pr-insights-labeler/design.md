@@ -40,7 +40,7 @@
 
 ### 技術整合性
 
-**既存技術スタックとの整合**:
+#### 既存技術スタックとの整合
 
 本改名作業は既存技術スタックに対する変更を含みません。以下の技術要素は全て維持されます：
 
@@ -54,7 +54,7 @@
 
 **新規依存関係**: なし
 
-**変更ファイル種別**:
+#### 変更ファイル種別
 
 - ドキュメントファイル（Markdown）: README.md、README.ja.md、CHANGELOG.md、docs/配下全ファイル
 - 設定ファイル（YAML/JSON）: action.yml、package.json、src/locales/**/*.json
@@ -104,24 +104,24 @@
 
 #### 契約定義
 
-**Service Interface**:
+#### Service Interface
 
 本機能は実装コードではなく、手動または自動化されたテキスト置換プロセスとして実行されます。型定義やサービスインターフェースは不要です。
 
-**前提条件**:
+#### 前提条件
 
 - 対象ファイルが存在し、読み書き可能である
 - 置換パターン「PR Labeler」が明確に定義されている
 - バックアップまたはバージョン管理（Git）が有効である
 
-**事後条件**:
+#### 事後条件
 
 - 全ドキュメントで「PR Labeler」が「PR Insights Labeler」に置換されている
 - package.jsonのversionフィールドが1.8.0に更新されている
 - CHANGELOG.mdに新バージョンエントリーが追加されている
 - pnpm buildが成功し、dist/index.jsが再生成されている
 
-**不変条件**:
+#### 不変条件
 
 - ファイルのフォーマット（Markdown、YAML、JSON）は維持される
 - 既存の機能コード（TypeScript実装）は変更されない
@@ -149,7 +149,7 @@
 
 #### 契約定義
 
-**Service Interface**:
+#### Service Interface
 
 手動実行プロセス：
 
@@ -159,13 +159,13 @@
 # 3. pnpm buildを実行してdist/を再生成
 ```
 
-**前提条件**:
+#### 前提条件
 
 - 現在のバージョンが1.7.1である
 - ドキュメント更新が完了している
 - 全テストが成功している（pnpm test）
 
-**事後条件**:
+#### 事後条件
 
 - package.jsonのversionが「1.8.0」である
 - CHANGELOG.mdに「## [1.8.0] - YYYY-MM-DD」エントリーが存在する
@@ -193,12 +193,12 @@
 
 #### 契約定義
 
-**前提条件**:
+#### 前提条件
 
 - .kiro/steering/product.md、structure.md、tech.mdが存在する
 - 各ファイルにupdated_atフィールドが存在する
 
-**事後条件**:
+#### 事後条件
 
 - product.md内の「Product Description」セクションで「PR Labeler」が「PR Insights Labeler」に置換されている
 - structure.md内の全プロダクト名参照が「PR Insights Labeler」に置換されている（ルート名`pr-labeler/`は実リポジトリ名維持）
@@ -227,19 +227,19 @@
 
 #### 契約定義
 
-**Service Interface**:
+#### Service Interface
 
 ```bash
 pnpm build
 ```
 
-**前提条件**:
+#### 前提条件
 
 - package.jsonが有効である
 - src/配下の全TypeScriptファイルが型チェックを通過している
 - node_modules/が最新の依存関係で更新されている
 
-**事後条件**:
+#### 事後条件
 
 - dist/index.jsが生成されている
 - dist/index.js.mapが生成されている
@@ -258,17 +258,17 @@ pnpm build
 
 本改名作業は実装コードの変更を含まないため、ランタイムエラーハンドリングは不要です。以下のビルド時・テスト時エラーのみ考慮します：
 
-**ビルドエラー**:
+#### ビルドエラー
 
 - pnpm build失敗 → nccバンドルエラーまたはTypeScript型エラー
 - 対応: pnpm type-checkで事前検証、エラーログ確認
 
-**テストエラー**:
+#### テストエラー
 
 - pnpm test失敗 → 既存テストケースの破損または名前参照の不整合
 - 対応: テストケース内のプロダクト名参照を「PR Insights Labeler」に更新
 
-**ドキュメント整合性エラー**:
+#### ドキュメント整合性エラー
 
 - 置換漏れによるプロダクト名の不整合
 - 対応: grep/ripgrepによる全文検索で「PR Labeler」の残存確認
@@ -277,7 +277,7 @@ pnpm build
 
 **User Errors (4xx)**: 適用不可（本機能はユーザー入力を受け取らない）
 
-**System Errors (5xx)**:
+#### System Errors (5xx)
 
 - ファイルシステムI/Oエラー → 手動実行時のファイルアクセス権限確認
 - ビルドエラー → pnpm clean && pnpm buildで再試行
@@ -300,7 +300,7 @@ pnpm build
 
 本機能は実装コードの変更を含まないため、新規ユニットテストは不要です。既存の全ユニットテストが成功することを確認します。
 
-**既存テストの更新**:
+#### 既存テストの更新
 
 以下のテストファイルでプロダクト名を参照している場合、テストケース内の文字列を更新します：
 
@@ -310,19 +310,19 @@ pnpm build
 
 ### Integration Tests
 
-**既存統合テストの回帰確認**:
+#### 既存統合テストの回帰確認
 
 - `__tests__/integration.test.ts`: エンドツーエンドのワークフロー実行
 - `__tests__/index.test.ts`: メインエントリーポイントの統合動作
 
-**CI/CD統合テスト**:
+#### CI/CD統合テスト
 
 - `.github/workflows/test-pr-labeler.yml`: 自己適用ワークフローの成功確認
 - `.github/workflows/quality.yml`: 品質ゲートの通過確認
 
 ### ビルド検証
 
-**必須チェック**:
+#### 必須チェック
 
 1. `pnpm lint` → 成功
 2. `pnpm type-check` → 成功
@@ -331,7 +331,7 @@ pnpm build
 
 ### ドキュメント整合性テスト
 
-**手動検証**:
+#### 手動検証
 
 ```bash
 # 「PR Labeler」の残存確認（置換漏れチェック）
@@ -374,13 +374,13 @@ graph TB
 
 ### Phase Breakdown
 
-**Phase 1: ドキュメント更新**
+### Phase 1: ドキュメント更新
 
 - 対象: action.yml、package.json、README.md、README.ja.md、docs/*、.kiro/steering/*
 - 作業: テキストエディタまたはスクリプトで「PR Labeler」→「PR Insights Labeler」置換
 - 検証: grep -r "PR Labeler"で残存確認
 
-**Phase 2: バージョン更新**
+### Phase 2: バージョン更新
 
 - 対象: package.json、CHANGELOG.md
 - 作業:
@@ -388,25 +388,25 @@ graph TB
   - CHANGELOG.md: 新バージョンエントリー追加
 - 検証: package.jsonのバージョンが1.8.0であること
 
-**Phase 3: テスト実行**
+### Phase 3: テスト実行
 
 - コマンド: pnpm lint && pnpm type-check && pnpm test:vitest
 - 検証: 全チェックが成功すること
 - 失敗時: テストケース内のプロダクト名参照を更新
 
-**Phase 4: ビルド実行**
+### Phase 4: ビルド実行
 
 - コマンド: pnpm build
 - 検証: dist/index.js、dist/index.js.map、dist/licenses.txt生成
 - 失敗時: エラーログ確認、pnpm cleanして再試行
 
-**Phase 5: Git操作**
+### Phase 5: Git操作
 
 - コミット: git add . && git commit -m "chore: rename to PR Insights Labeler"
 - プッシュ: git push origin [feature-branch]
 - PR作成: GitHub UIまたはgh prコマンド
 
-**Phase 6: CI検証**
+### Phase 6: CI検証
 
 - 対象ワークフロー:
   - Code Quality
@@ -414,7 +414,7 @@ graph TB
   - PR Metrics Self-Check
 - 検証: 全ワークフローが成功すること
 
-**Phase 7: マージとリリース**
+### Phase 7: マージとリリース
 
 - mainブランチへマージ
 - Gitタグ作成: git tag -a v1.8.0 -m "v1.8.0"
@@ -423,13 +423,13 @@ graph TB
 
 ### Rollback Triggers
 
-**ロールバック条件**:
+#### ロールバック条件
 
 - CI/CDワークフローの失敗
 - 既存機能の破壊（テスト失敗）
 - ビルドエラー
 
-**ロールバック手順**:
+#### ロールバック手順
 
 1. フィーチャーブランチをクローズ
 2. mainブランチの最新状態を維持
@@ -500,12 +500,12 @@ PRコメント投稿、GitHub Actions Summary出力の機能は変更なし。�
 
 **置換後文字列**: 「PR Insights Labeler」
 
-**除外対象**:
+#### 除外対象
 
 - .kiro/specs/rename-to-pr-insights-labeler/配下のファイル（本仕様書は改名前の名前を記録として保持）
 - CHANGELOG.mdの過去バージョンエントリー（履歴改ざん防止）
 
-**特殊ケース**:
+#### 特殊ケース
 
 - package.jsonのnameフィールド: 「pr-labeler」→「pr-insights-labeler」（ケバブケース）
 - READMEのタイトル: `# PR Labeler` → `# PR Insights Labeler`
@@ -519,19 +519,19 @@ PRコメント投稿、GitHub Actions Summary出力の機能は変更なし。�
 - `src/locales/ja/logs.json`: 全ログメッセージ（開始、読み込み、適用、成功等）
 - 目的: ユーザー向け出力の一貫したブランド体験提供
 
-**ワークフローファイルの更新**:
+#### ワークフローファイルの更新
 
 - `.github/workflows/quality.yml`: job name "PR Labeler Self-Check" → "PR Insights Labeler Self-Check"
 
 ### バージョン更新時の注意
 
-**セマンティックバージョニング**:
+#### セマンティックバージョニング
 
 - MAJOR（破壊的変更）: 該当しない
 - MINOR（後方互換性のある新機能）: 改名はブランディング変更として扱う → 1.7.1から1.8.0へ
 - PATCH（バグフィックス）: 該当しない
 
-**CHANGELOG.md形式** (Keep a Changelog):
+#### CHANGELOG.md形式 (Keep a Changelog)
 
 ```markdown
 ## [1.8.0] - YYYY-MM-DD (実装時の実際の日付を使用)
@@ -542,7 +542,7 @@ PRコメント投稿、GitHub Actions Summary出力の機能は変更なし。�
 - 既存機能への影響なし（後方互換性維持）
 ```
 
-**Gitコミットメッセージ形式** (Conventional Commits):
+#### Gitコミットメッセージ形式 (Conventional Commits)
 
 ```
 chore: rename product to PR Insights Labeler
@@ -554,19 +554,19 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 **updated_atフィールド**: 実装時の実際の日時をISO 8601形式で記録（例: 2025-01-15T10:30:00Z）
 
-**product.md更新箇所**:
+#### product.md更新箇所
 
 - タイトル: `# Product Overview - PR Insights Labeler`
 - updated_at: 実装時の実際の日時（ISO 8601形式、例: `2025-01-15T10:30:00Z`）
 - Product Description段落: 冒頭文を「PR Insights Labeler（旧: PR Labeler）...」に更新
 
-**structure.md更新箇所**:
+#### structure.md更新箇所
 
 - タイトル: `# Project Structure - PR Insights Labeler`
 - updated_at: 実装時の実際の日時（ISO 8601形式、例: `2025-01-15T10:30:00Z`）
 - ディレクトリツリー内のコメント: プロダクト名"PR Labeler"を"PR Insights Labeler"に更新（ルート名`pr-labeler/`は実リポジトリ名と一致させるため変更しない）
 
-**tech.md更新箇所**:
+#### tech.md更新箇所
 
 - タイトル: `# Technology Stack - PR Insights Labeler`
 - updated_at: 実装時の実際の日時（ISO 8601形式、例: `2025-01-15T10:30:00Z`）
@@ -574,12 +574,12 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ### テストケース更新時の注意
 
-**スナップショットテスト**:
+#### スナップショットテスト
 
 - `__tests__/__snapshots__/comment-manager.test.ts.snap`: プロダクト名を含むスナップショットを更新
 - `__tests__/__snapshots__/report-formatter.test.ts.snap`: レポートフォーマット結果のスナップショットを更新
 
-**更新手順**:
+#### 更新手順
 
 1. テストケース内のプロダクト名参照を「PR Insights Labeler」に更新
 2. pnpm test:vitest --update（スナップショット更新）
@@ -587,23 +587,23 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ### CI/CD実行時の注意
 
-**CIワークフロー**:
+#### CIワークフロー
 
 - `.github/workflows/test-pr-labeler.yml`: ワークフロー名はそのまま維持（履歴継続のため、ファイル名は変更しない）
 - `.github/workflows/quality.yml`: job name "PR Labeler Self-Check" → "PR Insights Labeler Self-Check" に更新（要件1 AC12に従う）
 
-**Self-Check動作**:
+#### Self-Check動作
 
 - PR Metrics Self-Checkワークフローは、改名後のアクションを自己適用するため、動作確認に有効
 
 ### GitHub Marketplace更新の注意
 
-**自動更新**:
+#### 自動更新
 
 - Gitタグ（v1.8.0）をプッシュすると、GitHub Actions Marketplaceは自動的にaction.ymlから新プロダクト名を取得して表示を更新
 - 手動操作は不要
 
-**確認項目**:
+#### 確認項目
 
 - Marketplace上でプロダクト名が「PR Insights Labeler」と表示されていること
 - descriptionが更新されていること

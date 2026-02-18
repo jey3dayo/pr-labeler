@@ -4,7 +4,7 @@
 
 このプランは、GitHub Actions SummaryにPR分析結果を表示する機能を段階的に実装します。**Codexレビュー結果を反映**し、既存コードとの整合性を最優先にした実装計画です。
 
-**実装方針**:
+#### 実装方針
 
 - 型名を現行コードに統一（`AnalysisResult`, `FileMetrics`）
 - 既存API（`actions-io.writeSummary`）を活用してAPI重複を回避

@@ -37,14 +37,14 @@ PR Metrics Actionは以下の構造で実装されています：
 - **入出力**: `src/actions-io.ts` - GitHub Actions入出力ヘルパー
 - **型定義**: `src/types.ts` - 共通型定義
 
-**既存パターン**:
+#### 既存パターン
 
 - neverthrowの`Result<T, E>`パターンによるエラーハンドリング
 - 各機能モジュールは独立した責務を持つ
 - `src/index.ts`のrunメソッドが各ステップを順次実行
 - GitHub Actions Core APIを`src/actions-io.ts`でラップ
 
-**統合ポイント**:
+#### 統合ポイント
 
 - `src/index.ts`のrunメソッドにSummary出力ステップを追加
 - 既存の分析結果（`AnalysisResult`型）を再利用
@@ -73,13 +73,13 @@ graph TB
     L --> F
 ```
 
-**Architecture Integration**:
+#### Architecture Integration
 
 - **既存パターン保持**: モジュラー設計、Result型によるエラーハンドリング、型安全性
-- **新規コンポーネント**:
+- 新規コンポーネント:
   - `report-formatter.ts`: 共通マークダウン整形ロジック（コメント/サマリー両方で使用）
   - `actions-io.ts`の拡張: 既存`writeSummary()`にエラーハンドリングとenable_summary制御を追加
-- **コード再利用**:
+- コード再利用:
   - `comment-manager.ts`からフォーマット関数を抽出し`report-formatter.ts`へ共通化
   - 既存の`writeSummary()`を活用してAPI重複を回避
 - **Technology Alignment**: TypeScript strict mode、neverthrow、@actions/core API
@@ -89,7 +89,7 @@ graph TB
 
 この機能は既存のPR Metrics Actionに機能追加するため、以下の技術スタックと完全に整合します：
 
-**既存技術スタック**:
+#### 既存技術スタック
 
 - TypeScript 5.0+ (strict mode)
 - Node.js 20+
@@ -106,16 +106,16 @@ graph TB
 
 - **Decision**: 既存の`src/actions-io.ts`の`writeSummary()`を拡張し、エラーハンドリングとenable_summary制御を追加する
 - **Context**: 既存にSummary書き込み関数があり、API重複を避けるべき。分析結果を異なる出力先に書き込む機能である
-- **Alternatives**:
+- Alternatives:
   1. 独立した新規モジュール（`summary-writer.ts`） → API重複のリスク
   2. comment-manager内に統合 → コメントとSummaryは出力先が異なる
   3. 既存`actions-io.ts`の拡張 → 選択
 - **Selected Approach**: `actions-io.ts`に`writeSummaryWithAnalysis()`関数を追加し、既存の`writeSummary()`を内部で活用
-- **Rationale**:
+- Rationale:
   - 既存APIを最大限活用し、コードの重複を回避
   - Summary書き込みロジックを1箇所に集約
   - 既存の入出力ヘルパー層との整合性を保つ
-- **Trade-offs**:
+- Trade-offs:
   - `actions-io.ts`のファイルサイズが増加するが、API重複を防ぎ保守性が向上
   - Summary固有のロジック（フォーマット）は`report-formatter.ts`に分離して単一責任を維持
 
@@ -123,17 +123,17 @@ graph TB
 
 - **Decision**: マークダウン整形ロジックを`report-formatter.ts`として分離し、コメントとサマリーの両方で利用する
 - **Context**: `comment-manager.ts`にマークダウン生成ロジックが既に存在し、Summary出力でも類似のマークダウンが必要。コードの重複を避けるべき
-- **Alternatives**:
+- Alternatives:
   1. 独立した`summary-formatter.ts` → コメントとの重複が発生
   2. comment-manager内に統合 → 責務が曖昧になる
   3. 共通の`report-formatter.ts`を作成 → 選択
 - **Selected Approach**: `report-formatter.ts`として共通フォーマッタを作成し、`comment-manager.ts`と新規Summary出力の両方から利用
-- **Rationale**:
+- Rationale:
   - コメントとサマリーで重複するMarkdown生成ロジックを一元化
   - 純粋関数としてテストが容易
   - DRY原則に従い、保守性が向上
   - 既存の`formatBytes()`, `formatNumber()`などを抽出・再利用
-- **Trade-offs**:
+- Trade-offs:
   - `comment-manager.ts`のリファクタリングが必要だが、既存テストで安全性を担保
   - 共通化により関数の引数が増える可能性があるが、オプション引数で柔軟性を確保
 
@@ -141,16 +141,16 @@ graph TB
 
 - **Decision**: `enable_summary`のデフォルト値を`true`とし、オプトアウト方式を採用する
 - **Context**: Summary機能は既存機能に影響を与えず、開発者体験を向上させる機能である
-- **Alternatives**:
+- Alternatives:
   1. デフォルト`false`（オプトイン） → ユーザーが明示的に有効化する必要がある
   2. デフォルト`true`（オプトアウト） → 選択
   3. 常に有効で設定不可 → 柔軟性が失われる
 - **Selected Approach**: デフォルト`true`、ユーザーが無効化可能
-- **Rationale**:
+- Rationale:
   - 新機能を自動的に享受でき、ユーザー体験が即座に向上
   - Summary出力は副作用がなく、既存機能と干渉しない
   - 必要に応じて無効化可能で柔軟性を維持
-- **Trade-offs**:
+- Trade-offs:
   - 一部のユーザーが不要な出力を受け取る可能性があるが、無効化は容易
 
 ## System Flows
@@ -229,22 +229,22 @@ flowchart TD
 
 #### actions-io (拡張)
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: GitHub Actions I/O操作全般（既存）+ Summary書き込みの拡張
 - **Domain Boundary**: Actions入出力層
 - **Data Ownership**: アクション入出力、ログ、Summary書き込み状態
 - **Transaction Boundary**: 単一のsummary.write()呼び出し
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: `src/index.ts` runメソッドから呼び出される
-- **Outbound**:
+- Outbound:
   - `report-formatter`: マークダウン生成
   - `@actions/core`: Actions Core API（既存）
 - **External**: `@actions/core` (v1.11+)
 
-**External Dependencies Investigation**:
+#### External Dependencies Investigation
 
 @actions/core Summary APIの主要メソッド:
 
@@ -253,15 +253,15 @@ flowchart TD
 - `summary.write()`: バッファをファイルに書き込み
 - `summary.clear()`: バッファをクリア
 
-**制約**:
+#### 制約
 
 - `write()`は一度だけ呼び出す（複数回呼ぶとバッファが重複）
 - マークダウンはGitHub Flavored Markdown仕様に準拠
 - 最大サイズ制限: 1MBまでのマークダウン
 
-**Contract Definition**
+### Contract Definition
 
-**Service Interface** (actions-io.ts に追加):
+#### Service Interface (actions-io.ts に追加)
 
 ```typescript
 /**
@@ -292,7 +292,7 @@ export async function writeSummaryWithAnalysis(
 ): Promise<Result<SummaryWriteResult, Error>>;
 ```
 
-**型定義** (actions-io.ts に追加):
+#### 型定義 (actions-io.ts に追加)
 
 ```typescript
 export interface SummaryWriteResult {
@@ -304,7 +304,7 @@ export interface SummaryWriteResult {
 // 専用エラークラスは不要（シンプルなError型で十分）
 ```
 
-**Integration Strategy**:
+#### Integration Strategy
 
 - **Modification Approach**: `src/actions-io.ts`に新関数を追加（既存関数は変更なし）
 - **Backward Compatibility**: enableSummary=falseで既存動作を完全に維持
@@ -313,22 +313,22 @@ export interface SummaryWriteResult {
 
 #### report-formatter (新規)
 
-**Responsibility & Boundaries**
+### Responsibility & Boundaries
 
 - **Primary Responsibility**: コメント・サマリー共通のマークダウン生成
 - **Domain Boundary**: 整形・フォーマット層（input-mapperと同階層）
 - **Data Ownership**: マークダウン文字列生成ロジック、数値整形ユーティリティ
 - **Transaction Boundary**: なし（純粋関数）
 
-**Dependencies**
+### Dependencies
 
 - **Inbound**: `actions-io`, `comment-manager` から呼び出される
 - **Outbound**: `src/file-metrics.ts`の型定義のみ
 - **External**: なし
 
-**Contract Definition**
+### Contract Definition
 
-**Service Interface**:
+#### Service Interface
 
 ```typescript
 // report-formatter.ts
@@ -381,7 +381,7 @@ export function escapeMarkdown(text: string): string;
 
 **State Management**: なし（ステートレスな純粋関数）
 
-**移行方針**:
+#### 移行方針
 
 - `comment-manager.ts`の既存関数（`formatBytes`, `formatNumber`）を抽出
 - コメントとサマリーで共通利用可能な純粋関数として再設計
@@ -419,7 +419,7 @@ Summary関連の型は`actions-io.ts`に直接定義（`types.ts`への追加は
 
 この機能は既存の`AnalysisResult`型を入力として受け取り、新しいデータ構造を導入しません。
 
-**既存データ構造の活用**:
+#### 既存データ構造の活用
 
 ```typescript
 // src/file-metrics.ts (既存)
@@ -459,7 +459,7 @@ interface ViolationDetail {
 }
 ```
 
-**データフロー**:
+#### データフロー
 
 1. `analyzeFiles()` → `AnalysisResult`生成
 2. `formatSummaryContent(AnalysisResult)` → マークダウン文字列生成
@@ -471,28 +471,28 @@ interface ViolationDetail {
 
 Summary出力はメイン機能（分析、ラベル、コメント）の補助的な機能であるため、Summary書き込みエラーは以下のように処理します：
 
-1. **非致命的エラー**: Summary出力エラーは**常に非致命的**として扱い、警告ログを出力してアクションは継続実行する
+1. 非致命的エラー: Summary出力エラーは**常に非致命的**として扱い、警告ログを出力してアクションは継続実行する
    - `fail_on_violation`設定は**PRのviolations（制限違反）**の判定にのみ影響し、Summary出力エラーには影響しない
    - Summary書き込み失敗時もラベル・コメント機能は正常に動作する
-2. **エラー分類**: エラーコードによる明確な分類（`SUMMARY_WRITE_FAILED`, `SUMMARY_FORMAT_FAILED`）
-3. **Result型活用**: neverthrowの`Result<T, E>`パターンで型安全なエラーハンドリング
+2. エラー分類: エラーコードによる明確な分類（`SUMMARY_WRITE_FAILED`, `SUMMARY_FORMAT_FAILED`）
+3. Result型活用: neverthrowの`Result<T, E>`パターンで型安全なエラーハンドリング
 
 ### Error Categories and Responses
 
-**System Errors (5xx相当)**:
+#### System Errors (5xx相当)
 
 - **SUMMARY_WRITE_FAILED**: `@actions/core.summary.write()`の失敗
   - 対応: 警告ログを出力し、**アクションは継続実行する**（Summary出力は非致命的）
   - 回復: リトライなし（GitHub Actions環境の問題である可能性が高い）
   - 影響: Summary出力のみ失敗、ラベル・コメント機能は正常動作
 
-**User Errors (4xx相当)**:
+#### User Errors (4xx相当)
 
 - **SUMMARY_FORMAT_FAILED**: マークダウン生成の失敗（通常は発生しない）
   - 対応: エラーログ出力、分析結果の問題を示唆
   - 回復: フォールバック（簡易版Summaryを出力）
 
-**Business Logic Errors (422相当)**:
+#### Business Logic Errors (422相当)
 
 - **enable_summary=false**: Summary出力をスキップ
   - 対応: デバッグログ出力、`ok('skipped')`を返す
@@ -516,14 +516,14 @@ flowchart TD
 
 ### Monitoring
 
-**ログ出力**:
+#### ログ出力
 
 - Summary出力開始: `logInfo('📊 Writing GitHub Actions Summary...')`
 - Summary出力成功: `logInfo('  - Summary written successfully')`
 - Summary出力スキップ: `logInfo('  - Summary output skipped (enable_summary=false)')`
 - Summary出力失敗: `logWarning('Failed to write summary: {error.message}')`
 
-**デバッグ情報**:
+#### デバッグ情報
 
 - 書き込みバイト数: `bytesWritten`
 - エラー詳細: `SummaryWriteError.cause`
@@ -532,7 +532,7 @@ flowchart TD
 
 ### Unit Tests
 
-1. **report-formatter.ts**:
+1. report-formatter.ts:
    - `formatBasicMetrics()`: 基本メトリクスセクション生成テスト
    - `formatViolations()`: 違反情報セクション生成テスト（違反あり/なし）
    - `formatFileDetails()`: ファイル詳細テーブル生成テスト（limit機能含む）
@@ -541,74 +541,74 @@ flowchart TD
    - `escapeMarkdown()`: Markdownエスケープテスト
    - エッジケース: 空配列、大量ファイル、特殊文字を含むファイル名
 
-2. **actions-io.ts (拡張)**:
+2. actions-io.ts (拡張):
    - `writeSummaryWithAnalysis()`: enableSummary=true/falseのテスト
    - モック: `@actions/core.summary`をモック化
    - エラーハンドリング: `summary.write()`失敗時のテスト
    - Result型検証: `ok()`/`err()`の返却パターンテスト
    - `getActionInputs()`: enable_summaryフィールドのデフォルト値テスト
 
-3. **comment-manager.ts (リファクタリング後)**:
+3. comment-manager.ts (リファクタリング後):
    - 既存のすべてのテストが通ることを確認
    - マークダウン生成結果が以前と同じことを確認
 
 ### Integration Tests
 
-1. **run() → writeSummaryWithAnalysis()統合**:
+1. run() → writeSummaryWithAnalysis()統合:
    - 分析結果からSummary出力までのエンドツーエンド
    - enableSummary設定による動作切り替え
    - Draft PR時のSummary出力テスト（要件1.5）
    - エラー発生時の既存機能（label/comment）への影響確認
 
-2. **report-formatter と comment-manager の統合**:
+2. report-formatter と comment-manager の統合:
    - リファクタリング後のコメント生成が正常動作することを確認
    - 既存のコメント統合テストがすべて通ることを確認
 
-3. **@actions/core.summary統合**:
+3. @actions/core.summary統合:
    - 実際のsummary APIを使用したテスト（可能であれば）
    - マークダウン出力の妥当性検証
 
-4. **既存機能との並行実行**:
+4. 既存機能との並行実行:
    - Summary出力が既存のlabel/comment機能に干渉しないことを確認
    - failOnViolation設定との組み合わせテスト
 
 ### E2E Tests
 
-1. **GitHub Actions環境テスト**:
+1. GitHub Actions環境テスト:
    - 実際のGitHub Actionsワークフローでの動作確認
    - Summary表示の視覚的検証（手動）
    - 各種設定パターン（enable_summary、fail_on_violation）の組み合わせテスト
 
 ## Security Considerations
 
-**データ保護**:
+#### データ保護
 
 - Summary出力はPRの公開情報のみを含む（機密情報なし）
 - ファイルパス、行数、サイズ情報は既にPRで公開されている情報
 
-**インジェクション対策**:
+#### インジェクション対策
 
 - ファイル名に特殊文字が含まれる場合のマークダウンエスケープ処理
 - summary.addRaw()使用時のXSS対策（GitHub側で処理されるが念のため確認）
 
-**権限**:
+#### 権限
 
 - Summary書き込みには特別な権限は不要（既存の`GITHUB_TOKEN`で十分）
 - 既存のpermissions設定（pull-requests: write, issues: write, contents: read）で動作
 
 ## Performance & Scalability
 
-**パフォーマンス目標**:
+#### パフォーマンス目標
 
 - Summary生成時間: 100ms以内（大規模PR: 1000ファイルでも）
 - メモリ使用量: 追加10MB以内
 
-**最適化戦略**:
+#### 最適化戦略
 
 - 文字列結合は配列joinを使用（テンプレートリテラル連結を避ける）
 - ファイル詳細テーブルは最大100行まで表示（それ以上は省略+集計）
 
-**スケーリング制約**:
+#### スケーリング制約
 
 - GitHub Actions Summary最大サイズ: 1MB
 - 大規模PR（1000+ファイル）では詳細テーブルを要約表示
@@ -667,19 +667,19 @@ flowchart LR
     D --> D1[v1.x.0リリース]
 ```
 
-**ロールバックトリガー**:
+#### ロールバックトリガー
 
 - Summary書き込みが頻繁に失敗する場合
 - GitHub Actions Summary APIの仕様変更による不具合
 - パフォーマンス劣化（Summary生成に1秒以上かかる）
 
-**ロールバック手順**:
+#### ロールバック手順
 
 1. `enable_summary`のデフォルト値を`false`に変更
 2. または`src/index.ts`のSummary出力ステップをコメントアウト
 3. 緊急リリース発行
 
-**検証チェックポイント**:
+#### 検証チェックポイント
 
 - [ ] Summary出力が正常に表示される
 - [ ] 既存のlabel/comment機能が正常動作する

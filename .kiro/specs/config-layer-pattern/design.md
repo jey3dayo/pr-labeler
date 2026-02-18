@@ -6,11 +6,11 @@
 
 Configuration Layer Pattern は、PR Insights Labeler の設定管理を統一し、以下の目標を達成します：
 
-1. **明確な優先順位**: action input > pr-labeler.yml > 環境変数 > デフォルト値
-2. **疎結合化**: 各関数は必要なパラメータのみを受け取る（例: `initializeI18n(language)` not `initializeI18n(config)`）
-3. **Environment Layer**: `process.env` へのアクセスを一箇所に集約
-4. **テスト容易性**: 依存注入により全てのレイヤーが独立してテスト可能
-5. **型安全性**: TypeScript strict mode で nullable 型を活用
+1. 明確な優先順位: action input > pr-labeler.yml > 環境変数 > デフォルト値
+2. 疎結合化: 各関数は必要なパラメータのみを受け取る（例: `initializeI18n(language)` not `initializeI18n(config)`）
+3. Environment Layer: `process.env` へのアクセスを一箇所に集約
+4. テスト容易性: 依存注入により全てのレイヤーが独立してテスト可能
+5. 型安全性: TypeScript strict mode で nullable 型を活用
 
 ### 1.2 Key Principles
 
@@ -247,7 +247,7 @@ export function parseActionInputs(): Result<ParsedInputs, ConfigurationError | P
 }
 ```
 
-**設計ポイント**:
+#### 設計ポイント
 
 - 空文字列 → `undefined` 変換（`rawLanguage || undefined`）
 - Result<T, E> によるエラーハンドリング
@@ -277,7 +277,7 @@ export interface EnvironmentConfig {
 }
 ```
 
-**設計ポイント**:
+#### 設計ポイント
 
 - `process.env` への直接アクセスはこのモジュールのみ
 - `undefined` を返すことで「未設定」を表現
@@ -393,7 +393,7 @@ export interface CompleteConfig {
 }
 ```
 
-**設計ポイント**:
+#### 設計ポイント
 
 - `undefined` チェックで優先順位を明確化
 - デバッグログで各ソースの値と最終決定値を出力
@@ -438,7 +438,7 @@ export function initializeI18n(language: LanguageCode): Result<void, Configurati
 // → buildCompleteConfig() の resolveLanguage() に統合
 ```
 
-**設計ポイント**:
+#### 設計ポイント
 
 - `Config` オブジェクト全体ではなく `LanguageCode` のみを受け取る
 - 環境変数の参照を削除（Environment Layer に集約）
@@ -514,7 +514,7 @@ async function run(): Promise<void> {
 }
 ```
 
-**設計ポイント**:
+#### 設計ポイント
 
 - `parseActionInputs()` で型安全なパース（Result<T,E>）
 - パースエラー時は即座に失敗（早期リターン）
@@ -615,13 +615,13 @@ export interface LabelerConfig {
 }
 ```
 
-**理由**:
+#### 理由
 
 - pr-labeler.yml では `language: ja-JP` のようなロケール表記を許容すべき
 - `normalizeLanguageCode()` で最終的に `LanguageCode` ('en' | 'ja') に収束
 - コンパイル時に型エラーを防ぎ、正規化フローを実証可能にする
 
-**データフロー**:
+#### データフロー
 
 ```
 pr-labeler.yml: language: 'ja-JP'
@@ -879,21 +879,21 @@ describe('Configuration Integration', () => {
 
 ### 9.1 Step-by-Step Implementation
 
-1. **Week 1**: 新しいモジュールの作成とテスト
+1. Week 1: 新しいモジュールの作成とテスト
    - `input-parser.ts` + tests（既存ロジック移植）
    - `config-builder.ts` + tests
    - `environment-loader.ts` + tests
 
-2. **Week 2**: 既存モジュールの修正
+2. Week 2: 既存モジュールの修正
    - `action.yml` 修正（language default 削除）
    - `i18n.ts` 修正（シグネチャ変更、determineLanguage 削除）
 
-3. **Week 3**: 統合とテスト
+3. Week 3: 統合とテスト
    - `index.ts` 統合
    - 既存テストの更新
    - 統合テストの追加
 
-4. **Week 4**: レビューと修正
+4. Week 4: レビューと修正
    - コードレビュー
    - バグフィックス
    - ドキュメント更新
@@ -926,13 +926,13 @@ describe('Configuration Integration', () => {
 
 ## 11. Open Questions
 
-1. **Q**: `mapActionInputsToConfig()` は完全に削除すべきか？
+1. Q: `mapActionInputsToConfig()` は完全に削除すべきか？
    **A**: `parseActionInputs()` として `input-parser.ts` に移行。既存の検証ロジック（約130行）を100%保持。
 
-2. **Q**: `Config` インターフェースは残すべきか？
+2. Q: `Config` インターフェースは残すべきか？
    **A**: `CompleteConfig` に統合。型エイリアス `type Config = CompleteConfig` で互換性維持も可能。
 
-3. **Q**: デバッグログはどこまで出力すべきか？
+3. Q: デバッグログはどこまで出力すべきか？
    **A**: 設定の由来（source）と各ソースの値をデバッグログで出力。
 
 ## 12. Appendix

@@ -41,7 +41,7 @@ graph TB
     I --> J[Error Reporter]
 ```
 
-**アーキテクチャ統合**:
+#### アーキテクチャ統合
 
 - 既存パターンの保持: GitHub Actions標準パターン、Node.js非同期処理
 - 新規コンポーネントの根拠: モジュール化による保守性向上、個別テスト可能性
@@ -50,7 +50,7 @@ graph TB
 
 ### 技術スタックと設計決定
 
-**エラーハンドリング戦略**:
+#### エラーハンドリング戦略
 
 - **決定**: neverthrowのResult<T, E>パターン採用
 - **コンテキスト**: GitHub API呼び出しやファイル操作で多くの失敗ケースが存在
@@ -59,7 +59,7 @@ graph TB
 - **根拠**: コンパイル時のエラー処理漏れ検出、関数型プログラミングパターンの活用
 - **トレードオフ**: 学習曲線はあるが、長期的な保守性とバグ削減効果が上回る
 
-**ビルド戦略**:
+#### ビルド戦略
 
 - **決定**: @vercel/nccによる単一ファイルバンドル
 - **コンテキスト**: GitHub Actionsは単一のJavaScriptファイルを期待
@@ -68,7 +68,7 @@ graph TB
 - **根拠**: GitHub Actions推奨、ゼロ設定、高速実行
 - **トレードオフ**: デバッグが若干困難だが、source-mapで緩和
 
-**開発環境構成**:
+#### 開発環境構成
 
 - **決定**: pnpm + npm-run-all による並列タスク実行
 - **コンテキスト**: 複数の品質チェックツールを効率的に実行する必要
@@ -412,7 +412,7 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
 
 ### ファイル分析戦略
 
-- **ファイルサイズ取得優先順位**:
+- ファイルサイズ取得優先順位:
   1. fs.stat（ローカルファイル、最速）
   2. git ls-tree -l（gitオブジェクト、高速）
   3. GitHub API（ネットワーク経由、フォールバック）
@@ -420,13 +420,13 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
      - `ref` パラメータに `headSha` を指定して PR HEAD 時点のファイルを取得
      - これにより、PR マージ前の正確なファイルサイズを保証
 
-- **行数取得戦略**:
+- 行数取得戦略:
   - checkoutされたファイルから`wc -l`またはNode.jsで行数を計測
   - ファイル全体の行数を取得（差分の追加行数ではない）
   - バイナリファイルや行数取得不可の場合はスキップしサイズのみ評価
   - 実装注記: Linux環境前提で`wc -l`使用、またはNode.js実装（`fs.readFileSync`+`split('\\n')`）でクロスプラットフォーム対応
 
-- **バイナリファイル判定（優先順位）**:
+- バイナリファイル判定（優先順位）:
   - 判定順序:
     1. `istextorbinary`ライブラリによる内容ベース判定（最も正確）
     2. 拡張子ベースの判定（フォールバック）
@@ -466,7 +466,7 @@ const createDiffStrategy: CreateDiffStrategy = (octokit) => ({
 
   - バイナリファイル検出時は行数カウントをスキップし、サイズチェックのみ実施
 
-- **変更種別の扱い**:
+- 変更種別の扱い:
   - `added`、`modified`、`renamed`: 分析対象
   - `removed`: サイズ/行数評価およびファイル数カウントから除外
   - `renamed`: 新しいパスで評価
@@ -907,7 +907,7 @@ neverthrowのResult<T, E>パターンを全面採用し、Railway-Oriented Progr
 
 ### エラーカテゴリと対応
 
-**エラー型定義**:
+#### エラー型定義
 
 ```typescript
 // AppError統合型（9種類のエラー型）
@@ -978,7 +978,7 @@ interface CacheError {
 }
 ```
 
-**エラー処理フロー**:
+#### エラー処理フロー
 
 - **ユーザーエラー（設定ミス）**: 詳細なエラーメッセージとガイダンスを提供
 - **システムエラー（API失敗）**: リトライとグレースフルデグラデーション
@@ -986,7 +986,7 @@ interface CacheError {
 
 ### 失敗ポリシー
 
-**failOnViolation設定の動作**:
+#### failOnViolation設定の動作
 
 ```typescript
 // メインエントリーポイントでの処理
@@ -1062,7 +1062,7 @@ const runPRMetricsAction = (
 
 ### モニタリング
 
-**ログレベルと出力内容**:
+#### ログレベルと出力内容
 
 ```typescript
 // 進捗状況の出力（core.info）
@@ -1110,7 +1110,7 @@ const writeSummary = async (stats: AnalysisStatistics): Promise<void> => {
 
 ### 早期打ち切り最適化
 
-**ファイル数制限の早期検出**:
+#### ファイル数制限の早期検出
 
 ```typescript
 // pr_files_limit超過を早期検出して詳細解析を省略
@@ -1147,7 +1147,7 @@ const shouldSkipDetailedAnalysis = (fileCount: number): boolean => {
 
 ### API呼び出し最適化
 
-**ページング戦略**:
+#### ページング戦略
 
 ```typescript
 interface PaginationConfig {
@@ -1182,7 +1182,7 @@ async function* fetchAllFiles(
 }
 ```
 
-**並列処理**:
+#### 並列処理
 
 ```typescript
 // ファイルメトリクス取得の並列化
@@ -1205,7 +1205,7 @@ async function analyzeFilesParallel(
 
 ### リトライ戦略
 
-**指数バックオフ**:
+#### 指数バックオフ
 
 ```typescript
 interface RetryConfig {
@@ -1248,7 +1248,7 @@ async function withRetry<T>(
 
 ### キャッシュ戦略
 
-**ファイルサイズキャッシュ**:
+#### ファイルサイズキャッシュ
 
 ```typescript
 // 関数型キャッシュ実装
@@ -1290,7 +1290,7 @@ const getFileSizeWithCache = (
 
 ### メモリ最適化
 
-**ストリーミング処理**:
+#### ストリーミング処理
 
 ```typescript
 // 大きなファイルリストのストリーミング処理
@@ -1362,7 +1362,7 @@ const processLargeFileList = async (
 
 ### package.jsonスクリプト構成
 
-**開発フロー**:
+#### 開発フロー
 
 ```json
 {
@@ -1377,7 +1377,7 @@ const processLargeFileList = async (
 }
 ```
 
-**品質保証**:
+#### 品質保証
 
 ```json
 {
@@ -1395,7 +1395,7 @@ const processLargeFileList = async (
 
 ### GitHub Actionsワークフロー
 
-**推奨イベントタイプ**:
+#### 推奨イベントタイプ
 
 ```yaml
 name: PR Metrics Check
@@ -1409,7 +1409,7 @@ on:
 - `reopened`: クローズ後の再オープン時
 - `ready_for_review`: Draft → Ready移行時（skip_draft_pr有効時に重要）
 
-**CI/CDワークフロー例**:
+#### CI/CDワークフロー例
 
 ```yaml
 name: CI

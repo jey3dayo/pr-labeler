@@ -6,12 +6,12 @@
 
 **目的**: 既存ユーザーと新規ユーザーの両方に対して、より直感的で実用的なパラメータ設計を提供する
 
-**対象ユーザー**:
+#### 対象ユーザー
 
 - PR Insights Labelerを導入するプロジェクトのメンテナー
 - 既存のPR Insights Labeler設定を最適化したいユーザー
 
-**影響範囲**:
+#### 影響範囲
 
 - 入力パラメータ定義(`action.yml`)
 - 入力マッピングロジック(`src/input-mapper.ts`)
@@ -36,19 +36,19 @@
 
 ### 既存アーキテクチャ分析
 
-**現在の設計パターン**:
+#### 現在の設計パターン
 
 - **Railway-Oriented Programming**: neverthrow `Result<T, E>`型による明示的なエラーハンドリング
 - **モジュール分離**: 入力検証、ビジネスロジック、GitHub API呼び出しの明確な境界
 - **依存性注入**: GitHub APIクライアントとConfigを引数で渡すテスタブルな設計
 
-**既存のドメイン境界**:
+#### 既存のドメイン境界
 
 - **Input Layer**: `input-mapper.ts`で入力検証とパース
 - **Business Logic Layer**: `label-decision-engine.ts`でラベル判定、`label-applicator.ts`でラベル適用
 - **Infrastructure Layer**: `actions-io.ts`でGitHub Actions I/O、GitHub APIクライアント
 
-**維持すべき統合ポイント**:
+#### 維持すべき統合ポイント
 
 - `Config`インターフェースを通じた設定の型安全な受け渡し
 - 個別`*_enabled`フラグによるラベル種別の選択的有効化
@@ -69,7 +69,7 @@ graph TB
     style F fill:#ff000020,stroke:#ff0000,stroke-dasharray: 5 5
 ```
 
-**アーキテクチャ統合**:
+#### アーキテクチャ統合
 
 - **既存パターン維持**: Railway-Oriented Programming、モジュール分離、依存性注入
 - **新コンポーネント**: なし(既存コンポーネントの修正のみ)
@@ -94,26 +94,26 @@ graph TB
 
 #### action.yml
 
-**責任と境界**:
+#### 責任と境界
 
 - **主要責任**: GitHub Actions入力パラメータの定義とデフォルト値の提供
 - **ドメイン境界**: Input Definition層、ビジネスロジックから完全に独立
 - **データ所有権**: 入力パラメータのスキーマとデフォルト値
 
-**依存関係**:
+#### 依存関係
 
 - **インバウンド**: GitHub Actionsランタイム
 - **アウトバウンド**: なし(他のコンポーネントに依存しない)
 
-**契約定義**:
+#### 契約定義
 
-**変更内容**:
+#### 変更内容
 
 1. `apply_labels`パラメータ定義を完全削除
 2. `complexity_enabled`のデフォルト値を`"true"`から`"false"`に変更
 3. `complexity_thresholds`のデフォルト値を`'{"medium": 10, "high": 20}'`から`'{"medium": 15, "high": 30}'`に変更
 
-**削除されるパラメータ**:
+#### 削除されるパラメータ
 
 ```yaml
 # 削除前(lines 31-34)
@@ -123,7 +123,7 @@ apply_labels:
   default: "true"
 ```
 
-**変更されるパラメータ**:
+#### 変更されるパラメータ
 
 ```yaml
 # 複雑度有効化フラグ(lines 52-55)
@@ -141,26 +141,26 @@ complexity_thresholds:
 
 #### Input Mapper (`src/input-mapper.ts`)
 
-**責任と境界**:
+#### 責任と境界
 
 - **主要責任**: GitHub Actions入力のパースと検証、`Config`オブジェクトへの変換
 - **ドメイン境界**: Input Validation層、ビジネスロジックには関与しない
 - **データ所有権**: 入力パース結果とバリデーションエラー
 
-**依存関係**:
+#### 依存関係
 
 - **インバウンド**: `src/index.ts`(メインフロー), `src/actions-io.ts`
 - **アウトバウンド**: `bytes`パッケージ(サイズパース), neverthrow
 
-**契約定義**:
+#### 契約定義
 
-**変更内容**:
+#### 変更内容
 
 1. `Config`インターフェースから`applyLabels: boolean`プロパティを削除
 2. `mapActionInputsToConfig`関数から`apply_labels`の読み込み処理を削除
 3. デフォルト値変更は`action.yml`に委任(Input Mapperは渡された値をそのまま使用)
 
-**削除されるインターフェース**:
+#### 削除されるインターフェース
 
 ```typescript
 // src/input-mapper.ts:34-71
@@ -171,7 +171,7 @@ export interface Config {
 }
 ```
 
-**削除される処理**:
+#### 削除される処理
 
 ```typescript
 // src/input-mapper.ts:mapActionInputsToConfig内
@@ -182,7 +182,7 @@ const config: Config = {
 };
 ```
 
-**統合戦略**:
+#### 統合戦略
 
 - **修正アプローチ**: 既存コードからの削除のみ、新規コード追加なし
 - **後方互換性**: まだリリースされていないため考慮不要
@@ -192,23 +192,23 @@ const config: Config = {
 
 #### Main Flow (`src/index.ts`)
 
-**責任と境界**:
+#### 責任と境界
 
 - **主要責任**: PR分析のメインフロー制御、各ステップのオーケストレーション
 - **ドメイン境界**: Application層、ビジネスロジックの調整役
 - **データ所有権**: フロー全体の実行状態
 
-**依存関係**:
+#### 依存関係
 
 - **インバウンド**: GitHub Actionsランタイム
 - **アウトバウンド**: すべてのビジネスロジックモジュール
 
-**契約定義**:
+#### 契約定義
 
-**変更内容**:
+#### 変更内容
 `config.applyLabels`チェックを削除し、個別`*_enabled`フラグのみで制御するロジックに変更
 
-**削除される処理**:
+#### 削除される処理
 
 ```typescript
 // src/index.ts:229付近
@@ -217,7 +217,7 @@ if (config.applyLabels) {
 }
 ```
 
-**変更後のロジック**:
+#### 変更後のロジック
 
 ```typescript
 // 個別*_enabledフラグで既に制御されているため、
@@ -226,62 +226,62 @@ if (config.applyLabels) {
 // 個別フラグを参照して動作
 ```
 
-**統合戦略**:
+#### 統合戦略
 
 - **修正アプローチ**: 条件分岐の削除、既存のLabel Decision Engine/Applicatorが個別フラグを参照
 - **後方互換性**: なし(完全削除)
 
 #### Label Applicator (`src/label-applicator.ts`)
 
-**責任と境界**:
+#### 責任と境界
 
 - **主要責任**: GitHub APIを使ったラベルの適用と削除、冪等性保証
 - **ドメイン境界**: Infrastructure層、GitHub API操作のみ担当
 - **データ所有権**: ラベル適用結果(added/removed/skipped)
 
-**依存関係**:
+#### 依存関係
 
 - **インバウンド**: `src/index.ts`(メインフロー)
 - **アウトバウンド**: `@actions/github`(Octokit), neverthrow
 
-**契約定義**:
+#### 契約定義
 
-**変更内容**:
+#### 変更内容
 `applyLabels`関数は`config.applyLabels`を参照していないため、変更不要。個別`*_enabled`フラグは`LabelDecisions`を通じて既に反映されている。
 
-**確認事項**:
+#### 確認事項
 
 - `applyLabels`関数のシグネチャに`config.applyLabels`への依存がないことを確認
 - `LabelPolicyConfig`に`applyLabels`プロパティがないことを確認
 
 #### Actions I/O (`src/actions-io.ts`)
 
-**責任と境界**:
+#### 責任と境界
 
 - **主要責任**: GitHub Actions入力の取得、出力の設定
 - **ドメイン境界**: Infrastructure層、I/O操作のみ担当
 - **データ所有権**: Actions入力値の生データ
 
-**依存関係**:
+#### 依存関係
 
 - **インバウンド**: `src/index.ts`
 - **アウトバウンド**: `@actions/core`
 
-**契約定義**:
+#### 契約定義
 
-**変更内容**:
+#### 変更内容
 
 1. `apply_labels`入力の読み込み処理を削除(該当行を削除)
 2. 複雑度閾値のデフォルト値を`'{"medium": 15, "high": 30}'`に変更(line 135付近)
 
-**削除される処理**:
+#### 削除される処理
 
 ```typescript
 // src/actions-io.tsのgetActionInputs関数内
 apply_labels: core.getInput('apply_labels') || 'true', // ← 削除
 ```
 
-**変更される処理**:
+#### 変更される処理
 
 ```typescript
 // src/actions-io.ts:135付近(現在)
@@ -295,7 +295,7 @@ complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 15,
 
 ### 論理データモデル
 
-**変更前の`Config`インターフェース**:
+#### 変更前の`Config`インターフェース
 
 ```typescript
 export interface Config {
@@ -311,7 +311,7 @@ export interface Config {
 }
 ```
 
-**変更後の`Config`インターフェース**:
+#### 変更後の`Config`インターフェース
 
 ```typescript
 export interface Config {
@@ -327,7 +327,7 @@ export interface Config {
 }
 ```
 
-**整合性とインテグリティ**:
+#### 整合性とインテグリティ
 
 - `Config`インターフェースから`applyLabels`を削除しても、個別`*_enabled`フラグで制御可能
 - デフォルト値変更は`action.yml`で管理、Input Mapperは渡された値をそのまま使用
@@ -341,17 +341,17 @@ export interface Config {
 
 ### エラーカテゴリと対応
 
-**ユーザーエラー(4xx相当)**:
+#### ユーザーエラー(4xx相当)
 
 - 既存: 入力パラメータの型エラー(`parseBooleanStrict`, `parseComplexityThresholdsV2`)
 - 変更: `apply_labels`関連のバリデーションエラーが削除される
 
-**システムエラー(5xx相当)**:
+#### システムエラー(5xx相当)
 
 - 既存: GitHub API呼び出しエラー
 - 変更: なし
 
-**ビジネスロジックエラー(422相当)**:
+#### ビジネスロジックエラー(422相当)
 
 - 既存: 依存関係検証エラー(`fail_on_pr_size`が`size_enabled`を要求)
 - 変更: なし
@@ -365,18 +365,18 @@ export interface Config {
 
 ### ユニットテスト
 
-**Input Mapper (`__tests__/input-mapper.test.ts`)**:
+#### Input Mapper (`__tests__/input-mapper.test.ts`)
 
 - `apply_labels`パラメータに関連するテストケースを完全削除
 - `complexityEnabled`デフォルト値が`false`であることを検証するテストケースを追加
 - 新しい複雑度閾値(`{"medium": 15, "high": 30}`)を使用するテストケースを追加
 
-**Label Applicator (`__tests__/label-applicator.test.ts`)**:
+#### Label Applicator (`__tests__/label-applicator.test.ts`)
 
 - `applyLabels`パラメータへの依存を削除
 - 個別`*_enabled`フラグを使用するテストケースに更新
 
-**削除されるテストケース例**:
+#### 削除されるテストケース例
 
 ```typescript
 // __tests__/input-mapper.test.ts
@@ -387,7 +387,7 @@ describe('apply_labels parameter', () => {
 });
 ```
 
-**追加されるテストケース例**:
+#### 追加されるテストケース例
 
 ```typescript
 // __tests__/input-mapper.test.ts
@@ -406,7 +406,7 @@ describe('complexity default values', () => {
 
 ### 統合テスト
 
-**メインフロー (`__tests__/index.test.ts`, `__tests__/integration.test.ts`)**:
+#### メインフロー (`__tests__/index.test.ts`, `__tests__/integration.test.ts`)
 
 - `config.applyLabels`チェックを削除したフローが正常に動作することを検証
 - 個別`*_enabled`フラグでラベル制御が機能することを確認
@@ -431,37 +431,37 @@ graph LR
     E --> F[Phase 6: 品質チェック]
 ```
 
-**Phase 1: action.yml修正**
+### Phase 1: action.yml修正
 
 - `apply_labels`パラメータ定義を削除
 - `complexity_enabled`デフォルト値を`"false"`に変更
 - `complexity_thresholds`デフォルト値を`'{"medium": 15, "high": 30}'`に変更
 
-**Phase 2: 型定義修正**
+### Phase 2: 型定義修正
 
 - `src/input-mapper.ts`の`Config`インターフェースから`applyLabels`削除
 - `src/actions-io.ts`の`ActionInputs`型から`apply_labels`削除(型定義の一貫性維持)
 
-**Phase 3: ロジック修正**
+### Phase 3: ロジック修正
 
 - `src/input-mapper.ts`の`mapActionInputsToConfig`から`apply_labels`読み込み削除
 - `src/index.ts`の`config.applyLabels`チェック削除
 - `src/actions-io.ts`の`apply_labels`入力取得削除
 - `src/actions-io.ts`の複雑度閾値デフォルト値変更
 
-**Phase 4: テスト更新**
+### Phase 4: テスト更新
 
 - `__tests__/input-mapper.test.ts`から`apply_labels`関連テスト削除
 - `__tests__/label-applicator.test.ts`の更新
 - 複雑度デフォルト値テスト追加
 
-**Phase 5: ドキュメント更新**
+### Phase 5: ドキュメント更新
 
 - `README.md`から`apply_labels`記載削除
 - `docs/en/configuration.md`のパラメータテーブル更新
 - `CHANGELOG.md`に破壊的変更記録
 
-**Phase 6: 品質チェック**
+### Phase 6: 品質チェック
 
 - `pnpm lint && pnpm type-check && pnpm test && pnpm build`実行
 - カバレッジ93%以上確認

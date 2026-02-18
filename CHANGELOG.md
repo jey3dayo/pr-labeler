@@ -201,11 +201,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 README.mdを717行から206行に簡素化し、詳細情報を`docs/`ディレクトリに分離しました。
 
-**変更内容**:
+#### 変更内容
 
 - **README.md簡素化**: 730行 → 206行（目標200-300行達成）
 - **README.ja.md追加**: 日本語版READMEを同時リリース
-- **詳細ドキュメント作成**:
+- 詳細ドキュメント作成:
   - `docs/en/configuration.md`: 全入力パラメータ、出力変数、デフォルト値（440行）
   - `docs/en/advanced-usage.md`: 実践的な使用例と高度な設定（670行）
   - `docs/en/troubleshooting.md`: よくある問題と解決策（527行）
@@ -213,7 +213,7 @@ README.mdを717行から206行に簡素化し、詳細情報を`docs/`ディレ�
 - **移行通知**: README冒頭に移行通知とアーカイブリンク追加
 - **ドキュメント同期ガイドライン**: `docs/ja/documentation-guidelines.md`に多言語同期手順を追加
 
-**アーカイブ**:
+#### アーカイブ
 
 以前のREADME（730行）は[pre-simplification-readme](https://github.com/jey3dayo/pr-insights-labeler/tree/pre-simplification-readme)タグで参照可能です。
 
@@ -225,16 +225,16 @@ README.mdを717行から206行に簡素化し、詳細情報を`docs/`ディレ�
 
 冗長な`apply_labels`パラメータを削除し、複雑度分析機能をデフォルトOFFに変更しました。
 
-**削除されたinputs**:
+#### 削除されたinputs
 
 - `apply_labels` - 個別の`*_enabled`パラメータで代替
 
-**変更されたデフォルト値**:
+#### 変更されたデフォルト値
 
 - `complexity_enabled`: `"true"` → `"false"` (オプトイン機能に変更)
 - `complexity_thresholds`: `'{"medium": 10, "high": 20}'` → `'{"medium": 15, "high": 30}'` (より実用的な閾値に緩和)
 
-**移行ガイド**:
+#### 移行ガイド
 
 既存ユーザーが`apply_labels: "false"`を使用していた場合:
 
@@ -269,7 +269,7 @@ complexity_thresholds: '{"medium": 10, "high": 20}'
 
 ラベルまたは違反に基づいて、個別にワークフロー失敗を制御できる新機能を追加。
 
-**新規inputs**:
+#### 新規inputs
 
 - `fail_on_large_files` - 大きなファイル（`auto/large-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
 - `fail_on_too_many_files` - ファイル数超過（`auto/too-many-files`ラベルまたは違反）が検出された場合にワークフロー失敗（デフォルト: `""`）
@@ -277,13 +277,13 @@ complexity_thresholds: '{"medium": 10, "high": 20}'
   - 有効値: `"small"` | `"medium"` | `"large"` | `"xlarge"` | `"xxlarge"`
   - `size_enabled: "true"`が必要
 
-**主な特徴**:
+#### 主な特徴
 
 - ラベル（例: `auto/large-files`）または実際の違反のいずれかが該当すれば失敗
 - 各失敗条件を個別に有効/無効化可能
 - 多言語対応（日本語・英語）の失敗メッセージ
 
-**使用例**:
+#### 使用例
 
 ```yaml
 # 大きなファイルのみ厳格にチェック
@@ -303,7 +303,7 @@ fail_on_pr_size: "xlarge"
 
 各ラベル種別（size/complexity/category/risk）を個別にON/OFF可能にする統一インターフェースを追加 (#25)。
 
-**新規inputs（統一された命名規則）**:
+#### 新規inputs（統一された命名規則）
 
 - `size_enabled` - サイズラベルの有効/無効（デフォルト: `"true"`）
 - `size_thresholds` - サイズラベル閾値（JSON形式: `{"small": 100, "medium": 500, "large": 1000}`）
@@ -312,12 +312,12 @@ fail_on_pr_size: "xlarge"
 - `category_enabled` - カテゴリラベルの有効/無効（デフォルト: `"true"`）
 - `risk_enabled` - リスクラベルの有効/無効（デフォルト: `"true"`）
 
-**統一された命名規則**:
+#### 統一された命名規則
 
 - すべてのラベル種別で `*_enabled` と `*_thresholds` の一貫したパターンを採用
 - より直感的で学習しやすいAPI設計
 
-**GitHub Actions Summary拡張**:
+#### GitHub Actions Summary拡張
 
 - 無効化されたラベル種別の情報をSummaryに表示
 - デバッグとトラブルシューティングの容易性向上
@@ -326,7 +326,7 @@ fail_on_pr_size: "xlarge"
 
 PRメトリクス分析に基づいた高度な自動ラベル付け機能を追加。従来のサイズラベル（S/M/L/XL/XXL）に加え、複数のディメンションでPRを分類します。
 
-**サイズベースラベル**:
+#### サイズベースラベル
 
 - `size/small` - 追加行数 < 100行
 - `size/medium` - 追加行数 100-500行
@@ -334,7 +334,7 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 - `size/xlarge` - 追加行数 >= 1000行
 - 既存のsize/\*ラベルを自動置換（一意性保証）
 
-**カテゴリベースラベル**:
+#### カテゴリベースラベル
 
 - `category/tests` - テストファイルの変更（`__tests__/**`, `**/*.test.ts`）
 - `category/ci-cd` - CI/CD設定の変更（`.github/workflows/**`）
@@ -346,19 +346,19 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 - 任意階層対応（`**/`プレフィックス）でmonorepo構成もサポート
 - 複数カテゴリ同時付与（加法ポリシー）
 
-**リスクベースラベル**:
+#### リスクベースラベル
 
 - `risk/high` - テストなしでコア機能変更（`src/**`）
 - `risk/medium` - 設定ファイル変更（`package.json`, `tsconfig.json`, `.github/workflows/**`）
 - レビュー優先度の可視化
 
-**設定の柔軟性**:
+#### 設定の柔軟性
 
 - `.github/pr-labeler.yml`でカスタマイズ可能
 - 閾値、パターン、ラベル名をプロジェクト固有に調整
 - デフォルト設定でゼロ設定で即利用可能
 
-**技術実装**:
+#### 技術実装
 
 - Railway-Oriented Programming（neverthrow）による堅牢なエラーハンドリング
 - 冪等性保証（同じPR状態で再実行しても同じラベル）
@@ -382,7 +382,7 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 
 ### Note
 
-**複雑度ベースラベル（complexity/medium, complexity/high）は将来拡張として v1.2.0 で実装予定**
+### 複雑度ベースラベル（complexity/medium, complexity/high）は将来拡張として v1.2.0 で実装予定
 
 ## [1.0.1] - 2025-10-19
 

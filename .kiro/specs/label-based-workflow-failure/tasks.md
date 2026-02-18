@@ -169,8 +169,8 @@ Label-Based Workflow Failure Control機能の実装タスク。現在の`fail_on
 
 すべてのタスクが完了し、以下の基準を満たすこと:
 
-1. **機能完全性**: 全10要件カテゴリの60以上のAcceptance Criteriaが実装されている
-2. **テストカバレッジ**: 新規コードのカバレッジが90%以上
-3. **品質チェック**: lint/type-check/buildがすべて成功
-4. **後方互換性**: 既存ユーザーの`fail_on_violation`が正しく動作
-5. **ドキュメント**: README、API.md、CHANGELOGが更新されている
+1. 機能完全性: 全10要件カテゴリの60以上のAcceptance Criteriaが実装されている
+2. テストカバレッジ: 新規コードのカバレッジが90%以上
+3. 品質チェック: lint/type-check/buildがすべて成功
+4. 後方互換性: 既存ユーザーの`fail_on_violation`が正しく動作
+5. ドキュメント: README、API.md、CHANGELOGが更新されている

@@ -51,7 +51,7 @@ This release was made possible by:
 
 ### ⚠️ Breaking Changes
 
-**Critical changes that may affect existing users.**
+### Critical changes that may affect existing users.
 
 Include this section when:
 
@@ -60,7 +60,7 @@ Include this section when:
 - Deprecated features removed
 - Behavior changes that require user action
 
-**Required information:**
+### Required information:
 
 - Clear description of what changed
 - Migration guide with step-by-step instructions
@@ -71,7 +71,7 @@ Include this section when:
 
 Main section containing all changes, organized by type.
 
-**Subsections (use as needed):**
+### Subsections (use as needed):
 
 - **✨ Added**: New features, capabilities, or enhancements
 - **🔄 Changed**: Modifications to existing functionality
@@ -91,7 +91,7 @@ Automated quality assurance results. Include:
 
 List of contributors for this release. Automatically generated from git commits.
 
-**Auto-generated content:**
+### Auto-generated content:
 
 - Extracted using `git shortlog -s -n`
 - Ordered by number of commits (descending)
@@ -129,7 +129,7 @@ Link to GitHub's compare view showing all commits between releases.
 
 ### 3. Link to PRs (Required)
 
-**Always include PR references for traceability:**
+### Always include PR references for traceability:
 
 ```markdown
 - Enhanced risk assessment documentation (#84)
@@ -137,7 +137,7 @@ Link to GitHub's compare view showing all commits between releases.
 - Add snapshot exclusion patterns (#90)
 ```
 
-**Why PR links are required:**
+### Why PR links are required:
 
 - Enables users to see the full context of changes
 - Provides access to discussions and decisions

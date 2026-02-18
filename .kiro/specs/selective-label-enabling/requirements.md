@@ -2,7 +2,7 @@
 
 ## Project Description (Input)
 
-**GitHub Issue #25: ラベル種別の選択的有効化機能の追加（Input設計の統一化）**
+### GitHub Issue #25: ラベル種別の選択的有効化機能の追加（Input設計の統一化）
 
 ### 概要
 
@@ -45,11 +45,11 @@
 
 ### 実装の優先順位
 
-1. **Phase 1**: 型定義の更新（labeler-types.ts, input-mapper.ts, actions-io.ts）
-2. **Phase 2**: Input処理の実装（actions-io.ts, input-mapper.ts, config-loader.ts）
-3. **Phase 3**: ラベル判定ロジックの更新（label-decision-engine.ts）
-4. **Phase 4**: テストの追加・更新
-5. **Phase 5**: ドキュメント更新（README.md, action.ymlの説明文）
+1. Phase 1: 型定義の更新（labeler-types.ts, input-mapper.ts, actions-io.ts）
+2. Phase 2: Input処理の実装（actions-io.ts, input-mapper.ts, config-loader.ts）
+3. Phase 3: ラベル判定ロジックの更新（label-decision-engine.ts）
+4. Phase 4: テストの追加・更新
+5. Phase 5: ドキュメント更新（README.md, action.ymlの説明文）
 
 ### 影響を受けるファイル
 

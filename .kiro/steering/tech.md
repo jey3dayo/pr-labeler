@@ -26,7 +26,7 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ### Core Components
 
-**PR Metrics機能（既存）**:
+#### PR Metrics機能（既存）
 
 1. **Input Mapper** (`input-mapper.ts`): GitHub Actions入力の検証とパース
 2. **File Metrics** (`file-metrics.ts`): ファイルサイズと行数の分析
@@ -36,7 +36,7 @@ GitHub Event (PR) → Action Runner → dist/index.js
 6. **Comment Manager** (`comment-manager.ts`): PRコメントの作成・更新
 7. **Report Formatter** (`report-formatter.ts`): Markdownレポート生成
 
-**🆕 PR Insights Labeler機能（新規）**:
+#### 🆕 PR Insights Labeler機能（新規）
 
 1. **Configuration Loader** (`config-loader.ts`): YAML設定の読み込みとバリデーション
 2. **Label Decision Engine** (`label-decision-engine.ts`): メトリクスベースのラベル判定ロジック
@@ -45,7 +45,7 @@ GitHub Event (PR) → Action Runner → dist/index.js
 5. **Complexity Analyzer** (`complexity-analyzer.ts`): ESLint標準complexityルールによる循環的複雑度分析
 6. **Input Mapper** (`input-mapper.ts`): 選択的ラベル有効化を含む入力パラメータマッピング
 
-**🆕 Directory-Based Labeler機能**:
+#### 🆕 Directory-Based Labeler機能
 
 1. **Directory Labeler Config Loader** (`directory-labeler/config-loader.ts`): directory-labeler.yml設定の読み込み
 2. **Directory Labeler Decision Engine** (`directory-labeler/decision-engine.ts`): パス→ラベルマッピングと優先順位制御
@@ -54,7 +54,7 @@ GitHub Event (PR) → Action Runner → dist/index.js
 5. **Directory Labeler Logging** (`directory-labeler/logging.ts`): 構造化ロギング
 6. **Directory Labeler Types** (`directory-labeler/types.ts`): Directory Labeler専用型定義
 
-**共通モジュール（リファクタリング）**:
+#### 共通モジュール（リファクタリング）
 
 1. **Error Handling** (`errors/`):
 
@@ -69,19 +69,19 @@ GitHub Event (PR) → Action Runner → dist/index.js
 - `configs/categories.ts`: デフォルトカテゴリ定義
 - `configs/index.ts`: 設定モジュールエクスポート
 
-**Config Layer Pattern（2024アップデート）**:
+#### Config Layer Pattern（2024アップデート）
 
 - `config-builder.ts`: Action入力・YAML設定・環境変数を優先順位付きで統合し、`CompleteConfig`を生成
 - `config/`: `loaders/`がGitHub設定取得・YAMLパース・バリデーションを専門化、`transformers/`が設定整形を担当
 - `environment-loader.ts`: LANGUAGE/LANGとGitHubトークンを1カ所で読み込み、他モジュールからの直接`process.env`アクセスを排除
 
-**Workflow Pipeline（Stage Orchestration）**:
+#### Workflow Pipeline（Stage Orchestration）
 
 - `workflow/`: `stages/`ディレクトリでinitialization→analysis→labeling→finalizationの順に処理を分割
 - `workflow/policy/pr-failure-evaluator.ts`: ラベル適用結果と解析メトリクスを突き合わせて失敗条件を算出
 - `pipeline.ts`: 各ステージの公開APIを束ね、上位レイヤーからの利用をシンプルにする
 
-**Internationalization Stack**:
+#### Internationalization Stack
 
 - `i18n.ts`: i18nextを初期化し、多言語ログ/サマリー/コメント向けの`t`関数を提供
 - `locales/{en,ja}/`: summary・logs・labels・errors・commonの5命名空間をJSONで管理し、nccバンドルに静的同梱
@@ -166,7 +166,7 @@ GitHub Event (PR) → Action Runner → dist/index.js
 - **UI**: @vitest/ui（インタラクティブテストビュー）
 - **Test Pattern**: `__tests__/**/*.test.ts`
 - **tsconfig**: `tsconfig.test.json`でVitest用の型設定を分離
-- **Commands**:
+- Commands:
   - `pnpm test`: 全テスト + lint + type-check
   - `pnpm test:vitest`: Vitestのみ実行
   - `pnpm test:watch`: ウォッチモード
@@ -178,7 +178,7 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 - **Version**: 9.38.0 (Flat Config)
 - **Parser**: typescript-eslint v8.46.2
-- **Plugins**:
+- Plugins:
   - `eslint-plugin-import`: import文の整理
   - `eslint-plugin-neverthrow`: neverthrow使用時のベストプラクティス
   - `eslint-plugin-simple-import-sort`: import自動ソート
@@ -204,9 +204,9 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ### Required Tools
 
-1. **Node.js**: v20以上（LTS推奨）
-2. **pnpm**: 10.19.0（`packageManager`フィールドで固定、postinstallでi18n型を再生成）
-3. **Git**: バージョン管理
+1. Node.js: v20以上（LTS推奨）
+2. pnpm: 10.19.0（`packageManager`フィールドで固定、postinstallでi18n型を再生成）
+3. Git: バージョン管理
 
 ### Optional Tools
 
@@ -312,9 +312,9 @@ dist/
 
 ### GitHub Actions Workflows
 
-1. **自己チェック**: このアクション自体をPRでテスト
-2. **テスト**: lint + type-check + vitest
-3. **リリース**: タグプッシュ時のdist/更新確認
+1. 自己チェック: このアクション自体をPRでテスト
+2. テスト: lint + type-check + vitest
+3. リリース: タグプッシュ時のdist/更新確認
 
 ### Release Process
 

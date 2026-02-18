@@ -75,7 +75,7 @@ throw createConfigurationError('language', code, 'Invalid language code');
 throw createConfigurationError('language', code);
 ```
 
-**確認**:
+#### 確認
 
 ```typescript
 // 英語環境
@@ -143,7 +143,7 @@ throw createFileSystemError(path, 'read');
 // JA: "ファイルの読み込みに失敗しました: /path/to/config.yml"
 ```
 
-**操作種別の選択**:
+#### 操作種別の選択
 
 - `'read'` - ファイル読み込みエラー
 - `'write'` - ファイル書き込みエラー
@@ -221,7 +221,7 @@ function validateFileSize(input: string): Result<number, ConfigurationError> {
 }
 ```
 
-**テスト**:
+#### テスト
 
 ```typescript
 describe('validateFileSize - i18n', () => {
@@ -283,7 +283,7 @@ async function loadConfig(path: string): Promise<Result<Config, FileSystemError>
 }
 ```
 
-**改善点**:
+#### 改善点
 
 1. エラー種別を明示（`'read'`, `'notFound'`, `'permission'`）
 2. 適切な翻訳メッセージが自動選択される
@@ -334,7 +334,7 @@ async function fetchPullRequest(
 }
 ```
 
-**改善点**:
+#### 改善点
 
 1. APIのエラーメッセージを保持
 2. 翻訳キーで包含（"GitHub API error: " / "GitHub APIエラー: "）
@@ -394,7 +394,7 @@ function validateConfig(input: RawConfig): Result<Config, ConfigurationError[]> 
 }
 ```
 
-**エラー表示例**:
+#### エラー表示例
 
 ```typescript
 const result = validateConfig(invalidInput);
@@ -453,7 +453,7 @@ function parseThresholds(input: string): Result<Thresholds, ParseError> {
 }
 ```
 
-**判断基準**:
+#### 判断基準
 
 - **翻訳キー使用**: 一般的なエラー（"Invalid format", "File not found"など）
 - **カスタムメッセージ使用**: 詳細なガイダンス、複雑なバリデーションルール
@@ -466,7 +466,7 @@ function parseThresholds(input: string): Result<Thresholds, ParseError> {
 
 **原因**: i18nが初期化されていない
 
-**解決策**:
+#### 解決策
 
 ```typescript
 // エントリーポイント（src/index.ts）で初期化を確認
@@ -483,7 +483,7 @@ initializeI18n(config);  // 必須
 
 **原因**: 翻訳リソースに新しいキーを追加したが、型定義が再生成されていない
 
-**解決策**:
+#### 解決策
 
 ```bash
 # 型定義の再生成
@@ -499,7 +499,7 @@ pnpm run generate:i18n-types
 
 **原因**: テスト間でi18nの状態が共有されている
 
-**解決策**:
+#### 解決策
 
 ```typescript
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -528,7 +528,7 @@ describe('My Test', () => {
 
 **原因**: `customMessage` パラメータを渡していない
 
-**解決策**:
+#### 解決策
 
 ```typescript
 // 誤り（翻訳キーが使用される）
@@ -545,7 +545,7 @@ const error = createConfigurationError('field', value, 'My custom message');
 
 **原因**: 技術詳細をカスタムメッセージに含めている
 
-**解決策**:
+#### 解決策
 
 ```typescript
 // 誤り（パスが翻訳される可能性）
@@ -597,7 +597,7 @@ const error = createFileSystemError(path, 'notFound');
 
 この移行ガイドに従うことで、既存のエラーハンドリングコードを安全かつ効率的に多言語対応に移行できます。
 
-**重要なポイント**:
+#### 重要なポイント
 
 1. 一般的なエラーは翻訳キーを使用
 2. 詳細なガイダンスが必要な場合はカスタムメッセージを継続使用
@@ -605,7 +605,7 @@ const error = createFileSystemError(path, 'notFound');
 4. テストで両言語の出力を確認
 5. 型定義は `pnpm build` で自動再生成
 
-**さらなるリソース**:
+#### さらなるリソース
 
 - [API.md - エラーファクトリーi18n統合](./API.md#-エラーファクトリーの多言語化-i18n-integration)
 - [src/errors/factories.ts](../src/errors/factories.ts) - 実装例

@@ -10,7 +10,7 @@ GitHub Actionプロジェクトの新バージョンリリースを自動化す�
 - **タグ自動管理**: vX.Y.Z と vメジャーバージョンタグの自動作成・更新
 - **GitHub Release作成**: リリースノートの自動生成
 - **ロールバック対応**: エラー時の自動ロールバック
-- **⚡ 新機能 ⚡**
+- ⚡ 新機能 ⚡
   - **Breaking Changes自動検出**: `BREAKING CHANGE:` フッターや `feat!:` 記法から自動検出
   - **PR番号自動抽出**: コミットメッセージから `(#123)` 形式のPR番号を自動抽出
   - **Contributors自動生成**: git shortlogからコントリビューター一覧を自動生成
@@ -43,7 +43,7 @@ GitHub Actionプロジェクトの新バージョンリリースを自動化す�
 2. 新しいバージョンを計算
 3. ワーキングディレクトリの状態確認（未コミット変更のチェック）
 
-**出力例:**
+### 出力例:
 
 ```
 📊 現在のバージョン: v1.0.1
@@ -62,19 +62,19 @@ pnpm test        # テスト実行
 pnpm build       # ビルド実行
 ```
 
-**いずれか1つでも失敗した場合、リリースを中止します。**
+### いずれか1つでも失敗した場合、リリースを中止します。
 
 ### Phase 3: ドキュメント更新
 
-1. **package.json の更新**
+1. package.json の更新
    - `version` フィールドを新バージョンに更新
 
-2. **CHANGELOG.md の更新**
+2. CHANGELOG.md の更新
    - 新バージョンのエントリを先頭に追加
    - リリース日を自動設定
    - 最近のコミットから変更内容を自動抽出
 
-**CHANGELOG.md 生成ロジック:**
+### CHANGELOG.md 生成ロジック:
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
@@ -96,14 +96,14 @@ pnpm build       # ビルド実行
 
 ### Phase 4: Git操作
 
-1. **変更をコミット**
+1. 変更をコミット
 
    ```bash
    git add package.json CHANGELOG.md dist/
    git commit -m "chore: release vX.Y.Z"
    ```
 
-2. **タグ作成**
+2. タグ作成
 
    ```bash
    # 具体的なバージョンタグ
@@ -113,7 +113,7 @@ pnpm build       # ビルド実行
    git tag -f vX vX.Y.Z^{}
    ```
 
-3. **プッシュ**
+3. プッシュ
 
    ```bash
    git push origin main
@@ -131,22 +131,22 @@ gh release create vX.Y.Z \
   --notes "CHANGELOG.mdから抽出したリリースノート"
 ```
 
-**リリースノート内容（自動生成）:**
+### リリースノート内容（自動生成）:
 
 - **⚠️ Breaking Changes** (検出された場合)
   - `BREAKING CHANGE:` フッターから自動抽出
   - `feat!:`, `fix!:` 記法から自動検出
-- **🚀 What's New**
+- 🚀 What's New
   - ✨ Added: `feat:` コミット + 自動PR番号抽出
   - 🔄 Changed: `chore:`, `docs:`, `style:` コミット + 自動PR番号抽出
   - 🐛 Fixed: `fix:` コミット + 自動PR番号抽出
-- **📊 Quality Metrics**
+- 📊 Quality Metrics
   - テスト数（改善された抽出ロジック + エラーハンドリング）
   - Lint/TypeCheck/Build ステータス
-- **👥 Contributors**
+- 👥 Contributors
   - git shortlogから自動生成
   - コミット数順にソート
-- **🔗 Full Changelog**
+- 🔗 Full Changelog
   - GitHub比較URL
 
 ### Phase 6: メジャーバージョンRelease更新
@@ -159,14 +159,14 @@ gh release edit vX \
   --notes "最新のvX.Y.Zを指すフローティングタグの説明"
 ```
 
-**vX Release の内容:**
+### vX Release の内容:
 
 - 現在のバージョン番号（vX.Y.Z）
 - 最新リリースの変更内容概要
 - 使用方法（`@vX` タグの推奨）
 - 最近のバージョン履歴
 
-**例: v1 Release 更新内容**
+### 例: v1 Release 更新内容
 
 ```markdown
 # Latest v1.x Release
@@ -198,7 +198,7 @@ For detailed release notes, see: https://github.com/USER/REPO/releases/tag/v1.10
 See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
 ```
 
-**なぜ必要か:**
+### なぜ必要か:
 
 - ユーザーが `@v1` タグを使用している場合、最新のv1.xが自動適用される
 - v1 Releaseページが古いバージョンを指していると混乱を招く
@@ -219,7 +219,7 @@ See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
 2. すべてのチェックが成功したら再実行してください
 ```
 
-**実行内容:**
+### 実行内容:
 
 - 何も変更せずに終了
 - ワーキングディレクトリは元の状態を維持
@@ -238,7 +238,7 @@ See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
    /release patch --next
 ```
 
-**実行内容:**
+### 実行内容:
 
 - コミットはロールバック
 - package.json, CHANGELOG.md は元に戻す
@@ -274,7 +274,7 @@ See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
 /release patch --dry-run
 ```
 
-**出力例:**
+### 出力例:
 
 ```
 🔍 ドライランモード（実際には変更しません）
@@ -297,7 +297,7 @@ See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
 /release minor --no-push
 ```
 
-**実行内容:**
+### 実行内容:
 
 - ✅ リリース前チェック
 - ✅ ドキュメント更新
@@ -305,7 +305,7 @@ See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
 - ✅ タグ作成
 - ⏸️ プッシュはスキップ
 
-**手動プッシュ:**
+### 手動プッシュ:
 
 ```bash
 git push origin main
@@ -321,7 +321,7 @@ gh release create vX.Y.Z
 /release patch --skip-checks
 ```
 
-**警告:**
+### 警告:
 
 ```
 ⚠️ リリース前チェックをスキップします
@@ -336,7 +336,7 @@ gh release create vX.Y.Z
 /release patch --force
 ```
 
-**動作:**
+### 動作:
 
 - 既存の vX.Y.Z タグを削除
 - 新しいタグを作成
@@ -543,35 +543,35 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
 
 あなたは `/release` コマンドを実行しています。
 
-**手順:**
+### 手順:
 
-1. **現状確認**
+1. 現状確認
    - 現在のバージョンを確認
    - ワーキングディレクトリの状態確認
    - ブランチ確認（mainブランチであることを確認）
 
-2. **バージョンタイプ確認**
+2. バージョンタイプ確認
    - 引数から bump_type を取得 (patch/minor/major)
    - 新しいバージョンを計算
 
-3. **リリース前チェック（--skip-checks でスキップ可能）**
+3. リリース前チェック（--skip-checks でスキップ可能）
 
    ```bash
    pnpm lint && pnpm type-check && pnpm test && pnpm build
    ```
 
-4. **ドキュメント更新**
+4. ドキュメント更新
    - package.json の version フィールド更新
    - CHANGELOG.md に新エントリ追加（前回タグからのコミット履歴を分析）
 
-5. **コミット作成**
+5. コミット作成
 
    ```bash
    git add package.json CHANGELOG.md dist/
    git commit -m "chore: release vX.Y.Z"
    ```
 
-6. **タグ作成**
+6. タグ作成
 
    ```bash
    # 具体的なバージョンタグ
@@ -581,7 +581,7 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    git tag -f vX vX.Y.Z^{}
    ```
 
-7. **プッシュ（--no-push でスキップ可能）**
+7. プッシュ（--no-push でスキップ可能）
 
    ```bash
    git push origin main
@@ -589,7 +589,7 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    git push origin vX --force
    ```
 
-8. **GitHub Release作成**
+8. GitHub Release作成
 
    ```bash
    gh release create vX.Y.Z \
@@ -597,7 +597,7 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
      --notes "$(extract_changelog_notes vX.Y.Z)"
    ```
 
-9. **メジャーバージョンRelease更新（重要！）**
+9. メジャーバージョンRelease更新（重要！）
 
    ```bash
    # v1, v2などのメジャーバージョンタグのGitHub Releaseを更新
@@ -606,13 +606,13 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
      --notes "$(generate_major_version_notes vX.Y.Z)"
    ```
 
-   **生成する内容:**
+   ### 生成する内容:
    - 現在のバージョン（vX.Y.Z）
    - 最新の変更内容概要
    - 使用方法（`@vX` タグの推奨）
    - 最近のバージョン履歴（直近3-5バージョン）
 
-10. **完了報告**
+10. 完了報告
 
    ```
    ✨ リリース v1.0.2 が完了しました！
@@ -628,6 +628,6 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    2. ユーザーへのアナウンス
    ```
 
-**エラーハンドリング:**
+### エラーハンドリング:
 
 各ステップで失敗した場合、適切にロールバックし、ユーザーに対処方法を提示してください。

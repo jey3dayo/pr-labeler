@@ -102,19 +102,19 @@ Choose the inclusion mode based on how frequently and in what context this steer
 
 Create the custom steering document with:
 
-1. **Clear Title and Purpose**
+1. Clear Title and Purpose
    - What aspect of the project this document covers
    - When this guidance should be applied
 
-2. **Specific Guidelines**
+2. Specific Guidelines
    - Concrete rules and patterns to follow
    - Rationale for important decisions
 
-3. **Code Examples**
+3. Code Examples
    - Show correct implementation patterns
    - Include counter-examples if helpful
 
-4. **Integration Points**
+4. Integration Points
    - How this relates to other steering documents
    - Dependencies or prerequisites
 
