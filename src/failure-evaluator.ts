@@ -27,6 +27,17 @@ export interface FailureEvaluationInput {
   sizeThresholds: SizeThresholds;
 }
 
+function hasLabelOrViolation(appliedLabels: string[] | undefined, label: string, violation: boolean): boolean {
+  return (appliedLabels?.includes(label) ?? false) || violation;
+}
+
+function addUniqueFailure(failures: string[], failureKeys: Set<string>, key: string, message: string): void {
+  if (!failureKeys.has(key)) {
+    failureKeys.add(key);
+    failures.push(message);
+  }
+}
+
 /**
  * Evaluate failure conditions based on config, labels, and violations
  * Returns array of failure messages (empty if no failures)
@@ -37,77 +48,50 @@ export interface FailureEvaluationInput {
 export function evaluateFailureConditions(input: FailureEvaluationInput): string[] {
   const { config, appliedLabels, violations, metrics, sizeThresholds } = input;
   const failures: string[] = [];
-  // Track failure keys to prevent duplicates of the same failure type
   const failureKeys = new Set<string>();
 
   // fail_on_large_files: Check for large files (auto/large-files label or violation)
-  if (config.failOnLargeFiles) {
-    if (config.fileSizeLimitEnabled) {
-      const hasLargeFilesLabel = appliedLabels?.includes(config.largeFilesLabel) ?? false;
-      const hasLargeFilesViolation = violations.largeFiles.length > 0;
-      if (hasLargeFilesLabel || hasLargeFilesViolation) {
-        if (!failureKeys.has('largeFiles')) {
-          failureKeys.add('largeFiles');
-          failures.push(t('logs', 'failures.largeFiles'));
-        }
-      }
+  if (config.failOnLargeFiles && config.fileSizeLimitEnabled) {
+    if (hasLabelOrViolation(appliedLabels, config.largeFilesLabel, violations.largeFiles.length > 0)) {
+      addUniqueFailure(failures, failureKeys, 'largeFiles', t('logs', 'failures.largeFiles'));
     }
   }
 
   // fail_on_too_many_files: Check for too many files (auto/too-many-files label or violation)
   if (config.failOnTooManyFiles && config.prFilesLimitEnabled) {
-    const hasTooManyFilesLabel = appliedLabels?.includes(config.tooManyFilesLabel) ?? false;
-    const hasTooManyFilesViolation = violations.exceedsFileCount;
-    if (hasTooManyFilesLabel || hasTooManyFilesViolation) {
-      if (!failureKeys.has('tooManyFiles')) {
-        failureKeys.add('tooManyFiles');
-        failures.push(t('logs', 'failures.tooManyFiles'));
-      }
+    if (hasLabelOrViolation(appliedLabels, config.tooManyFilesLabel, violations.exceedsFileCount)) {
+      addUniqueFailure(failures, failureKeys, 'tooManyFiles', t('logs', 'failures.tooManyFiles'));
     }
   }
 
   // Additional check: fail_on_large_files also covers per-file line count violations
   if (config.failOnLargeFiles && config.fileLinesLimitEnabled) {
-    const hasTooManyLinesLabel = appliedLabels?.includes(config.tooManyLinesLabel) ?? false;
-    const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
-    if (hasTooManyLinesLabel || hasTooManyLinesViolation) {
-      if (!failureKeys.has('tooManyLines')) {
-        failureKeys.add('tooManyLines');
-        failures.push(t('logs', 'failures.tooManyLines'));
-      }
+    if (hasLabelOrViolation(appliedLabels, config.tooManyLinesLabel, violations.exceedsFileLines.length > 0)) {
+      addUniqueFailure(failures, failureKeys, 'tooManyLines', t('logs', 'failures.tooManyLines'));
     }
   }
 
   // Additional check: fail_on_pr_size also covers PR additions limit (excessive changes label)
   if (config.failOnPrSize !== '' && config.prAdditionsLimitEnabled) {
-    const hasExcessiveChangesLabel = appliedLabels?.includes(config.excessiveChangesLabel) ?? false;
-    const hasExcessiveChangesViolation = violations.exceedsAdditions;
-    if (hasExcessiveChangesLabel || hasExcessiveChangesViolation) {
-      if (!failureKeys.has('excessiveChanges')) {
-        failureKeys.add('excessiveChanges');
-        failures.push(t('logs', 'failures.excessiveChanges'));
-      }
+    if (hasLabelOrViolation(appliedLabels, config.excessiveChangesLabel, violations.exceedsAdditions)) {
+      addUniqueFailure(failures, failureKeys, 'excessiveChanges', t('logs', 'failures.excessiveChanges'));
     }
   }
 
   // fail_on_pr_size: Check if PR size exceeds threshold
   if (config.failOnPrSize !== '') {
     const sizeLabel = appliedLabels?.find(l => l.startsWith('size/'));
-    let actualSize: string;
-
-    if (sizeLabel) {
-      // Normalize "size/large" -> "large"
-      actualSize = sizeLabel.replace(/^size\//, '');
-    } else {
-      // Calculate size category from totalAdditions if no label applied
-      actualSize = calculateSizeCategory(metrics.totalAdditions, sizeThresholds);
-    }
+    const actualSize = sizeLabel
+      ? sizeLabel.replace(/^size\//, '')
+      : calculateSizeCategory(metrics.totalAdditions, sizeThresholds);
 
     if (compareSizeThreshold(actualSize, config.failOnPrSize)) {
-      if (!failureKeys.has('prSize')) {
-        failureKeys.add('prSize');
-        failures.push(t('logs', 'failures.prSize', { size: actualSize, threshold: config.failOnPrSize }));
-      }
+      addUniqueFailure(
+        failures,
+        failureKeys,
+        'prSize',
+        t('logs', 'failures.prSize', { size: actualSize, threshold: config.failOnPrSize }),
+      );
     }
   }
 

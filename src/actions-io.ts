@@ -105,46 +105,50 @@ export function getGitHubToken(): Result<string, ConfigurationError> {
   return ok(token);
 }
 
+function getInput(name: string, defaultValue: string): string {
+  return core.getInput(name) || defaultValue;
+}
+
 /**
  * Get all action inputs with defaults
  */
 export function getActionInputs(): ActionInputs {
   return {
     github_token: resolveTokenValue() || '',
-    file_size_limit: core.getInput('file_size_limit') || '100KB',
-    file_size_limit_enabled: core.getInput('file_size_limit_enabled') || 'true',
-    file_lines_limit: core.getInput('file_lines_limit') || '500',
-    file_lines_limit_enabled: core.getInput('file_lines_limit_enabled') || 'true',
-    pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
-    pr_additions_limit_enabled: core.getInput('pr_additions_limit_enabled') || 'true',
-    pr_files_limit: core.getInput('pr_files_limit') || '50',
-    pr_files_limit_enabled: core.getInput('pr_files_limit_enabled') || 'true',
+    file_size_limit: getInput('file_size_limit', '100KB'),
+    file_size_limit_enabled: getInput('file_size_limit_enabled', 'true'),
+    file_lines_limit: getInput('file_lines_limit', '500'),
+    file_lines_limit_enabled: getInput('file_lines_limit_enabled', 'true'),
+    pr_additions_limit: getInput('pr_additions_limit', '5000'),
+    pr_additions_limit_enabled: getInput('pr_additions_limit_enabled', 'true'),
+    pr_files_limit: getInput('pr_files_limit', '50'),
+    pr_files_limit_enabled: getInput('pr_files_limit_enabled', 'true'),
     // PR Insights Labeler - Selective Label Enabling
-    size_enabled: core.getInput('size_enabled') || 'true',
-    size_thresholds: core.getInput('size_thresholds') || '{"small": 100, "medium": 500, "large": 1000}',
-    complexity_enabled: core.getInput('complexity_enabled') || 'false',
-    complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 15, "high": 30}',
-    category_enabled: core.getInput('category_enabled') || 'true',
-    risk_enabled: core.getInput('risk_enabled') || 'true',
-    large_files_label: core.getInput('large_files_label') || VIOLATION_LABELS.largeFiles,
-    too_many_files_label: core.getInput('too_many_files_label') || VIOLATION_LABELS.tooManyFiles,
-    too_many_lines_label: core.getInput('too_many_lines_label') || VIOLATION_LABELS.tooManyLines,
-    excessive_changes_label: core.getInput('excessive_changes_label') || VIOLATION_LABELS.excessiveChanges,
-    skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
-    comment_on_pr: core.getInput('comment_on_pr') || 'auto',
+    size_enabled: getInput('size_enabled', 'true'),
+    size_thresholds: getInput('size_thresholds', '{"small": 100, "medium": 500, "large": 1000}'),
+    complexity_enabled: getInput('complexity_enabled', 'false'),
+    complexity_thresholds: getInput('complexity_thresholds', '{"medium": 15, "high": 30}'),
+    category_enabled: getInput('category_enabled', 'true'),
+    risk_enabled: getInput('risk_enabled', 'true'),
+    large_files_label: getInput('large_files_label', VIOLATION_LABELS.largeFiles),
+    too_many_files_label: getInput('too_many_files_label', VIOLATION_LABELS.tooManyFiles),
+    too_many_lines_label: getInput('too_many_lines_label', VIOLATION_LABELS.tooManyLines),
+    excessive_changes_label: getInput('excessive_changes_label', VIOLATION_LABELS.excessiveChanges),
+    skip_draft_pr: getInput('skip_draft_pr', 'true'),
+    comment_on_pr: getInput('comment_on_pr', 'auto'),
     // Label-Based Workflow Failure Control
-    fail_on_large_files: core.getInput('fail_on_large_files') || '',
-    fail_on_too_many_files: core.getInput('fail_on_too_many_files') || '',
-    fail_on_pr_size: core.getInput('fail_on_pr_size') || '',
-    enable_summary: core.getInput('enable_summary') || 'true',
-    additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
+    fail_on_large_files: getInput('fail_on_large_files', ''),
+    fail_on_too_many_files: getInput('fail_on_too_many_files', ''),
+    fail_on_pr_size: getInput('fail_on_pr_size', ''),
+    enable_summary: getInput('enable_summary', 'true'),
+    additional_exclude_patterns: getInput('additional_exclude_patterns', ''),
     // Directory-Based Labeling
-    enable_directory_labeling: core.getInput('enable_directory_labeling') || 'false',
-    directory_labeler_config_path: core.getInput('directory_labeler_config_path') || '.github/directory-labeler.yml',
-    max_labels: core.getInput('max_labels') || '10',
-    use_default_excludes: core.getInput('use_default_excludes') || 'true',
+    enable_directory_labeling: getInput('enable_directory_labeling', 'false'),
+    directory_labeler_config_path: getInput('directory_labeler_config_path', '.github/directory-labeler.yml'),
+    max_labels: getInput('max_labels', '10'),
+    use_default_excludes: getInput('use_default_excludes', 'true'),
     // i18n Support
-    language: core.getInput('language') || 'en',
+    language: getInput('language', 'en'),
   };
 }
 

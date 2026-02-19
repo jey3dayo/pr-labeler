@@ -15,52 +15,63 @@ export function validateLabelerConfig(config: unknown): ResultAsync<LabelerConfi
   );
 }
 
+function mergeSizeThresholds(userConfig: Partial<LabelerConfig>): LabelerConfig['size']['thresholds'] {
+  const user = userConfig.size?.thresholds;
+  const defaults = DEFAULT_LABELER_CONFIG.size.thresholds;
+  return {
+    small: user?.small ?? defaults.small,
+    medium: user?.medium ?? defaults.medium,
+    large: user?.large ?? defaults.large,
+    xlarge: user?.xlarge ?? defaults.xlarge,
+  };
+}
+
+function mergeSizeConfig(userConfig: Partial<LabelerConfig>): LabelerConfig['size'] {
+  return {
+    enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
+    thresholds: mergeSizeThresholds(userConfig),
+  };
+}
+
+function mergeComplexityConfig(userConfig: Partial<LabelerConfig>): LabelerConfig['complexity'] {
+  const user = userConfig.complexity;
+  const defaults = DEFAULT_LABELER_CONFIG.complexity;
+  return {
+    enabled: user?.enabled ?? defaults.enabled,
+    metric: user?.metric ?? defaults.metric,
+    thresholds: {
+      medium: user?.thresholds?.medium ?? defaults.thresholds.medium,
+      high: user?.thresholds?.high ?? defaults.thresholds.high,
+    },
+    extensions: user?.extensions ?? defaults.extensions,
+    exclude: user?.exclude ?? defaults.exclude,
+  };
+}
+
+function mergeRiskConfig(userConfig: Partial<LabelerConfig>): LabelerConfig['risk'] {
+  const user = userConfig.risk;
+  const defaults = DEFAULT_LABELER_CONFIG.risk;
+  return {
+    enabled: user?.enabled ?? defaults.enabled,
+    high_if_no_tests_for_core: user?.high_if_no_tests_for_core ?? defaults.high_if_no_tests_for_core,
+    core_paths: user?.core_paths ?? defaults.core_paths,
+    ...(user?.coverage_threshold !== undefined && { coverage_threshold: user.coverage_threshold }),
+    config_files: user?.config_files ?? defaults.config_files,
+    ...(user?.use_ci_status !== undefined && { use_ci_status: user.use_ci_status }),
+  };
+}
+
 export function mergeWithDefaults(userConfig: Partial<LabelerConfig>): LabelerConfig {
   return {
     ...(userConfig.language !== undefined && { language: userConfig.language }),
-    ...(userConfig.summary?.title
-      ? {
-          summary: {
-            title: userConfig.summary.title,
-          },
-        }
-      : {}),
-    size: {
-      enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
-      thresholds: {
-        small: userConfig.size?.thresholds?.small ?? DEFAULT_LABELER_CONFIG.size.thresholds.small,
-        medium: userConfig.size?.thresholds?.medium ?? DEFAULT_LABELER_CONFIG.size.thresholds.medium,
-        large: userConfig.size?.thresholds?.large ?? DEFAULT_LABELER_CONFIG.size.thresholds.large,
-        xlarge: userConfig.size?.thresholds?.xlarge ?? DEFAULT_LABELER_CONFIG.size.thresholds.xlarge,
-      },
-    },
-    complexity: {
-      enabled: userConfig.complexity?.enabled ?? DEFAULT_LABELER_CONFIG.complexity.enabled,
-      metric: userConfig.complexity?.metric ?? DEFAULT_LABELER_CONFIG.complexity.metric,
-      thresholds: {
-        medium: userConfig.complexity?.thresholds?.medium ?? DEFAULT_LABELER_CONFIG.complexity.thresholds.medium,
-        high: userConfig.complexity?.thresholds?.high ?? DEFAULT_LABELER_CONFIG.complexity.thresholds.high,
-      },
-      extensions: userConfig.complexity?.extensions ?? DEFAULT_LABELER_CONFIG.complexity.extensions,
-      exclude: userConfig.complexity?.exclude ?? DEFAULT_LABELER_CONFIG.complexity.exclude,
-    },
+    ...(userConfig.summary?.title ? { summary: { title: userConfig.summary.title } } : {}),
+    size: mergeSizeConfig(userConfig),
+    complexity: mergeComplexityConfig(userConfig),
     categoryLabeling: {
       enabled: userConfig.categoryLabeling?.enabled ?? DEFAULT_LABELER_CONFIG.categoryLabeling.enabled,
     },
     categories: userConfig.categories ?? DEFAULT_LABELER_CONFIG.categories,
-    risk: {
-      enabled: userConfig.risk?.enabled ?? DEFAULT_LABELER_CONFIG.risk.enabled,
-      high_if_no_tests_for_core:
-        userConfig.risk?.high_if_no_tests_for_core ?? DEFAULT_LABELER_CONFIG.risk.high_if_no_tests_for_core,
-      core_paths: userConfig.risk?.core_paths ?? DEFAULT_LABELER_CONFIG.risk.core_paths,
-      ...(userConfig.risk?.coverage_threshold !== undefined && {
-        coverage_threshold: userConfig.risk.coverage_threshold,
-      }),
-      config_files: userConfig.risk?.config_files ?? DEFAULT_LABELER_CONFIG.risk.config_files,
-      ...(userConfig.risk?.use_ci_status !== undefined && {
-        use_ci_status: userConfig.risk.use_ci_status,
-      }),
-    },
+    risk: mergeRiskConfig(userConfig),
     exclude: {
       additional: userConfig.exclude?.additional ?? DEFAULT_LABELER_CONFIG.exclude.additional,
     },

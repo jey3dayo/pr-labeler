@@ -226,6 +226,60 @@ export async function removeLabels(
   });
 }
 
+function buildCustomViolationLabels(config: LabelConfig): {
+  largeFiles?: string;
+  tooManyFiles?: string;
+  tooManyLines?: string;
+} {
+  const customLabels: { largeFiles?: string; tooManyFiles?: string; tooManyLines?: string } = {};
+  if (config.largeFilesLabel) {customLabels.largeFiles = config.largeFilesLabel;}
+  if (config.tooManyFilesLabel) {customLabels.tooManyFiles = config.tooManyFilesLabel;}
+  if (config.tooManyLinesLabel) {customLabels.tooManyLines = config.tooManyLinesLabel;}
+  return customLabels;
+}
+
+function calculateLabelsToRemove(
+  currentLabels: string[],
+  newSizeLabel: string | null,
+  newViolationLabels: string[],
+  applySizeLabels: boolean,
+  autoRemoveLabels: boolean,
+): string[] {
+  if (!autoRemoveLabels) {return [];}
+  const labelsToRemove: string[] = [];
+  if (applySizeLabels) {
+    for (const label of currentLabels) {
+      if ((label.startsWith('size:') || label.startsWith('size/')) && label !== newSizeLabel) {
+        labelsToRemove.push(label);
+      }
+    }
+  }
+  for (const label of currentLabels) {
+    if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
+      labelsToRemove.push(label);
+    }
+  }
+  return labelsToRemove;
+}
+
+function calculateLabelsToAdd(
+  currentLabels: string[],
+  newSizeLabel: string | null,
+  newViolationLabels: string[],
+  applySizeLabels: boolean,
+): string[] {
+  const labelsToAdd: string[] = [];
+  if (applySizeLabels && newSizeLabel && !currentLabels.includes(newSizeLabel)) {
+    labelsToAdd.push(newSizeLabel);
+  }
+  for (const label of newViolationLabels) {
+    if (!currentLabels.includes(label)) {
+      labelsToAdd.push(label);
+    }
+  }
+  return labelsToAdd;
+}
+
 /**
  * Update labels based on analysis results
  * Ensures idempotency - only adds/removes what's necessary
@@ -236,78 +290,35 @@ export async function updateLabels(
   token: string,
   context: PRContext,
 ): Promise<Result<LabelUpdate, GitHubAPIError | ConfigurationError>> {
-  // Validate thresholds
   const validationResult = validateSizeLabelThresholds(config.sizeLabelThresholds);
   if (validationResult.isErr()) {
     return err(validationResult.error);
   }
 
-  // Get current labels
   const currentLabelsResult = await getCurrentLabels(token, context);
   if (currentLabelsResult.isErr()) {
     return err(currentLabelsResult.error);
   }
   const currentLabels = currentLabelsResult.value;
 
-  const applySizeLabels = config.applySizeLabels !== false; // Default true
-  const autoRemoveLabels = config.autoRemoveLabels !== false; // Default true
+  const applySizeLabels = config.applySizeLabels !== false;
+  const autoRemoveLabels = config.autoRemoveLabels !== false;
 
-  // Determine new size label (only if applySizeLabels is true)
   const newSizeLabel = applySizeLabels
     ? calculateSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds)
     : null;
 
-  // Determine new violation labels with custom names
-  const customLabels: { largeFiles?: string; tooManyFiles?: string; tooManyLines?: string } = {};
-  if (config.largeFilesLabel) {
-    customLabels.largeFiles = config.largeFilesLabel;
-  }
-  if (config.tooManyFilesLabel) {
-    customLabels.tooManyFiles = config.tooManyFilesLabel;
-  }
-  if (config.tooManyLinesLabel) {
-    customLabels.tooManyLines = config.tooManyLinesLabel;
-  }
-  const newViolationLabels = getDetailLabels(analysisResult.violations, customLabels);
+  const newViolationLabels = getDetailLabels(analysisResult.violations, buildCustomViolationLabels(config));
 
-  // Find labels to remove (old size labels and old auto labels)
-  const labelsToRemove: string[] = [];
+  const labelsToRemove = calculateLabelsToRemove(
+    currentLabels,
+    newSizeLabel,
+    newViolationLabels,
+    applySizeLabels,
+    autoRemoveLabels,
+  );
+  const labelsToAdd = calculateLabelsToAdd(currentLabels, newSizeLabel, newViolationLabels, applySizeLabels);
 
-  if (autoRemoveLabels) {
-    // Remove old size labels (only if applySizeLabels is true)
-    if (applySizeLabels) {
-      for (const label of currentLabels) {
-        // Support both old (size:) and new (size/) formats
-        if ((label.startsWith('size:') || label.startsWith('size/')) && label !== newSizeLabel) {
-          labelsToRemove.push(label);
-        }
-      }
-    }
-
-    // Remove auto labels that are no longer applicable
-    for (const label of currentLabels) {
-      if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
-        labelsToRemove.push(label);
-      }
-    }
-  }
-
-  // Find labels to add
-  const labelsToAdd: string[] = [];
-
-  // Add new size label if not present (only if applySizeLabels is true)
-  if (applySizeLabels && newSizeLabel && !currentLabels.includes(newSizeLabel)) {
-    labelsToAdd.push(newSizeLabel);
-  }
-
-  // Add new violation labels
-  for (const label of newViolationLabels) {
-    if (!currentLabels.includes(label)) {
-      labelsToAdd.push(label);
-    }
-  }
-
-  // Apply changes
   if (labelsToRemove.length > 0) {
     const removeResult = await removeLabels(labelsToRemove, token, context);
     if (removeResult.isErr()) {
@@ -322,14 +333,8 @@ export async function updateLabels(
     }
   }
 
-  // Calculate final label list
   const finalLabels = currentLabels.filter(label => !labelsToRemove.includes(label)).concat(labelsToAdd);
-
-  const result: LabelUpdate = {
-    added: labelsToAdd,
-    removed: labelsToRemove,
-    current: finalLabels,
-  };
+  const result: LabelUpdate = { added: labelsToAdd, removed: labelsToRemove, current: finalLabels };
 
   if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
     logInfo('No label changes needed');

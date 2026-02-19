@@ -61,45 +61,51 @@ export interface NormalizedActionInputs {
 
 export type ActionInputStrings = Omit<ActionInputs, 'github_token' | 'language'>;
 
-/**
- * Normalize and validate raw action input strings
- */
-export function normalizeActionInputStrings(
-  inputs: ActionInputStrings,
-): Result<NormalizedActionInputs, ConfigurationError | ParseError> {
+interface FileLimitInputs {
+  fileSizeLimit: number;
+  fileSizeLimitEnabled: boolean;
+  fileLinesLimit: number;
+  fileLinesLimitEnabled: boolean;
+}
+
+function parseFileLimits(inputs: ActionInputStrings): Result<FileLimitInputs, ConfigurationError | ParseError> {
   const fileSizeLimitResult = parseSize(inputs.file_size_limit);
-  if (fileSizeLimitResult.isErr()) {
-    return err(fileSizeLimitResult.error);
-  }
+  if (fileSizeLimitResult.isErr()) {return err(fileSizeLimitResult.error);}
 
   const fileSizeLimitEnabledResult = parseBooleanStrict(inputs.file_size_limit_enabled);
-  if (fileSizeLimitEnabledResult.isErr()) {
-    return err(fileSizeLimitEnabledResult.error);
-  }
+  if (fileSizeLimitEnabledResult.isErr()) {return err(fileSizeLimitEnabledResult.error);}
 
   const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
   if (isNaN(fileLinesLimit)) {
-    return err(
-      createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'),
-    );
+    return err(createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'));
   }
 
   const fileLinesLimitEnabledResult = parseBooleanStrict(inputs.file_lines_limit_enabled);
-  if (fileLinesLimitEnabledResult.isErr()) {
-    return err(fileLinesLimitEnabledResult.error);
-  }
+  if (fileLinesLimitEnabledResult.isErr()) {return err(fileLinesLimitEnabledResult.error);}
 
+  return ok({
+    fileSizeLimit: fileSizeLimitResult.value,
+    fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
+    fileLinesLimit,
+    fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
+  });
+}
+
+interface PRLimitInputs {
+  prAdditionsLimit: number;
+  prAdditionsLimitEnabled: boolean;
+  prFilesLimit: number;
+  prFilesLimitEnabled: boolean;
+}
+
+function parsePRLimits(inputs: ActionInputStrings): Result<PRLimitInputs, ConfigurationError | ParseError> {
   const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
   if (isNaN(prAdditionsLimit)) {
-    return err(
-      createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'),
-    );
+    return err(createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
   }
 
   const prAdditionsLimitEnabledResult = parseBooleanStrict(inputs.pr_additions_limit_enabled);
-  if (prAdditionsLimitEnabledResult.isErr()) {
-    return err(prAdditionsLimitEnabledResult.error);
-  }
+  if (prAdditionsLimitEnabledResult.isErr()) {return err(prAdditionsLimitEnabledResult.error);}
 
   const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
   if (isNaN(prFilesLimit)) {
@@ -107,57 +113,61 @@ export function normalizeActionInputStrings(
   }
 
   const prFilesLimitEnabledResult = parseBooleanStrict(inputs.pr_files_limit_enabled);
-  if (prFilesLimitEnabledResult.isErr()) {
-    return err(prFilesLimitEnabledResult.error);
-  }
+  if (prFilesLimitEnabledResult.isErr()) {return err(prFilesLimitEnabledResult.error);}
 
+  return ok({
+    prAdditionsLimit,
+    prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
+    prFilesLimit,
+    prFilesLimitEnabled: prFilesLimitEnabledResult.value,
+  });
+}
+
+interface FeatureFlagInputs {
+  sizeEnabled: boolean;
+  complexityEnabled: boolean;
+  categoryEnabled: boolean;
+  riskEnabled: boolean;
+}
+
+function parseFeatureFlags(inputs: ActionInputStrings): Result<FeatureFlagInputs, ConfigurationError | ParseError> {
   const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
-  if (sizeEnabledResult.isErr()) {
-    return err(sizeEnabledResult.error);
-  }
+  if (sizeEnabledResult.isErr()) {return err(sizeEnabledResult.error);}
 
   const complexityEnabledResult = parseBooleanStrict(inputs.complexity_enabled);
-  if (complexityEnabledResult.isErr()) {
-    return err(complexityEnabledResult.error);
-  }
+  if (complexityEnabledResult.isErr()) {return err(complexityEnabledResult.error);}
 
   const categoryEnabledResult = parseBooleanStrict(inputs.category_enabled);
-  if (categoryEnabledResult.isErr()) {
-    return err(categoryEnabledResult.error);
-  }
+  if (categoryEnabledResult.isErr()) {return err(categoryEnabledResult.error);}
 
   const riskEnabledResult = parseBooleanStrict(inputs.risk_enabled);
-  if (riskEnabledResult.isErr()) {
-    return err(riskEnabledResult.error);
-  }
+  if (riskEnabledResult.isErr()) {return err(riskEnabledResult.error);}
 
-  const sizeThresholdsResult = parseSizeThresholds(inputs.size_thresholds);
-  if (sizeThresholdsResult.isErr()) {
-    return err(sizeThresholdsResult.error);
-  }
+  return ok({
+    sizeEnabled: sizeEnabledResult.value,
+    complexityEnabled: complexityEnabledResult.value,
+    categoryEnabled: categoryEnabledResult.value,
+    riskEnabled: riskEnabledResult.value,
+  });
+}
 
-  const complexityThresholdsV2Result = parseComplexityThresholdsV2(inputs.complexity_thresholds);
-  if (complexityThresholdsV2Result.isErr()) {
-    return err(complexityThresholdsV2Result.error);
-  }
+interface FailureConditionInputs {
+  failOnLargeFiles: boolean;
+  failOnTooManyFiles: boolean;
+  failOnPrSize: string;
+}
 
-  const rawMax = (inputs.max_labels ?? '').trim();
-  const maxLabels = rawMax === '' ? 0 : parseInt(rawMax, 10);
-  if (!Number.isInteger(maxLabels) || maxLabels < 0) {
-    return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'));
-  }
-
+function parseFailureConditions(
+  inputs: ActionInputStrings,
+  sizeEnabled: boolean,
+): Result<FailureConditionInputs, ConfigurationError | ParseError> {
   const failOnLargeFilesRaw = inputs.fail_on_large_files ?? '';
   const failOnTooManyFilesRaw = inputs.fail_on_too_many_files ?? '';
   const failOnPrSizeRaw = inputs.fail_on_pr_size ?? '';
 
-  const hasExplicitLargeFiles = failOnLargeFilesRaw.trim() !== '';
-  const hasExplicitTooManyFiles = failOnTooManyFilesRaw.trim() !== '';
-  const hasExplicitPrSize = failOnPrSizeRaw.trim() !== '';
-
-  const failOnLargeFiles = hasExplicitLargeFiles ? parseBoolean(failOnLargeFilesRaw) === true : false;
-  const failOnTooManyFiles = hasExplicitTooManyFiles ? parseBoolean(failOnTooManyFilesRaw) === true : false;
-  const failOnPrSize = hasExplicitPrSize ? failOnPrSizeRaw.trim() : '';
+  const failOnLargeFiles = failOnLargeFilesRaw.trim() !== '' ? parseBoolean(failOnLargeFilesRaw) === true : false;
+  const failOnTooManyFiles = failOnTooManyFilesRaw.trim() !== '' ? parseBoolean(failOnTooManyFilesRaw) === true : false;
+  const failOnPrSize = failOnPrSizeRaw.trim() !== '' ? failOnPrSizeRaw.trim() : '';
 
   const validSizes = ['', 'small', 'medium', 'large', 'xlarge', 'xxlarge'];
   if (!validSizes.includes(failOnPrSize)) {
@@ -170,36 +180,56 @@ export function normalizeActionInputStrings(
     );
   }
 
-  if (failOnPrSize !== '' && !sizeEnabledResult.value) {
-    return err(
-      createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'),
-    );
+  if (failOnPrSize !== '' && !sizeEnabled) {
+    return err(createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'));
   }
 
+  return ok({ failOnLargeFiles, failOnTooManyFiles, failOnPrSize });
+}
+
+/**
+ * Normalize and validate raw action input strings
+ */
+export function normalizeActionInputStrings(
+  inputs: ActionInputStrings,
+): Result<NormalizedActionInputs, ConfigurationError | ParseError> {
+  const fileLimitsResult = parseFileLimits(inputs);
+  if (fileLimitsResult.isErr()) {return err(fileLimitsResult.error);}
+
+  const prLimitsResult = parsePRLimits(inputs);
+  if (prLimitsResult.isErr()) {return err(prLimitsResult.error);}
+
+  const featureFlagsResult = parseFeatureFlags(inputs);
+  if (featureFlagsResult.isErr()) {return err(featureFlagsResult.error);}
+
+  const sizeThresholdsResult = parseSizeThresholds(inputs.size_thresholds);
+  if (sizeThresholdsResult.isErr()) {return err(sizeThresholdsResult.error);}
+
+  const complexityThresholdsV2Result = parseComplexityThresholdsV2(inputs.complexity_thresholds);
+  if (complexityThresholdsV2Result.isErr()) {return err(complexityThresholdsV2Result.error);}
+
+  const rawMax = (inputs.max_labels ?? '').trim();
+  const maxLabels = rawMax === '' ? 0 : parseInt(rawMax, 10);
+  if (!Number.isInteger(maxLabels) || maxLabels < 0) {
+    return err(createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'));
+  }
+
+  const failureConditionsResult = parseFailureConditions(inputs, featureFlagsResult.value.sizeEnabled);
+  if (failureConditionsResult.isErr()) {return err(failureConditionsResult.error);}
+
   return ok({
-    fileSizeLimit: fileSizeLimitResult.value,
-    fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
-    fileLinesLimit,
-    fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
-    prAdditionsLimit,
-    prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
-    prFilesLimit,
-    prFilesLimitEnabled: prFilesLimitEnabledResult.value,
-    sizeEnabled: sizeEnabledResult.value,
+    ...fileLimitsResult.value,
+    ...prLimitsResult.value,
+    ...featureFlagsResult.value,
     sizeThresholds: sizeThresholdsResult.value,
-    complexityEnabled: complexityEnabledResult.value,
     complexityThresholdsV2: complexityThresholdsV2Result.value,
-    categoryEnabled: categoryEnabledResult.value,
-    riskEnabled: riskEnabledResult.value,
     largeFilesLabel: inputs.large_files_label,
     tooManyFilesLabel: inputs.too_many_files_label,
     tooManyLinesLabel: inputs.too_many_lines_label,
     excessiveChangesLabel: inputs.excessive_changes_label,
     skipDraftPr: parseBoolean(inputs.skip_draft_pr),
     commentOnPr: parseCommentMode(inputs.comment_on_pr),
-    failOnLargeFiles,
-    failOnTooManyFiles,
-    failOnPrSize,
+    ...failureConditionsResult.value,
     enableSummary: parseBoolean(inputs.enable_summary),
     additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
     enableDirectoryLabeling: parseBoolean(inputs.enable_directory_labeling),
