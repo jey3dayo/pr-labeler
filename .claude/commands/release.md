@@ -123,31 +123,56 @@ pnpm build       # ビルド実行
 
 ### Phase 5: GitHub Release作成
 
-GitHub CLI (`gh`) を使用してリリースを作成：
+GitHub CLI (`gh`) を使用してリリースを作成。リリースノートは以下の**標準フォーマット**に厳密に従うこと：
 
-```bash
-gh release create vX.Y.Z \
-  --title "vX.Y.Z" \
-  --notes "CHANGELOG.mdから抽出したリリースノート"
+```markdown
+## ⚠️ Breaking Changes (breaking changeがある場合のみ)
+
+- 変更内容 (#PR)
+  - **Migration Guide**: 移行手順
+
+## 🚀 What's New
+
+### ✨ Added
+- **機能名**: 説明 (#PR)
+
+### 🔄 Changed
+- 説明 (#PR)
+
+### 🐛 Fixed
+- 説明 (#PR)
+
+### 🔧 Refactoring
+- 説明 (#PR)
+
+## 📊 Quality Metrics
+
+- ✅ Tests: N tests passing
+- ✅ Lint: No issues
+- ✅ TypeCheck: No errors
+- ✅ Build: Successful
+
+## 👥 Contributors
+
+- Full Name (@github-username)
+
+## 🔗 Full Changelog
+
+**Full Changelog**: https://github.com/OWNER/REPO/compare/vPREV...vCURRENT
 ```
 
-### リリースノート内容（自動生成）:
+### フォーマットルール:
 
-- **⚠️ Breaking Changes** (検出された場合)
-  - `BREAKING CHANGE:` フッターから自動抽出
-  - `feat!:`, `fix!:` 記法から自動検出
-- 🚀 What's New
-  - ✨ Added: `feat:` コミット + 自動PR番号抽出
-  - 🔄 Changed: `chore:`, `docs:`, `style:` コミット + 自動PR番号抽出
-  - 🐛 Fixed: `fix:` コミット + 自動PR番号抽出
-- 📊 Quality Metrics
-  - テスト数（改善された抽出ロジック + エラーハンドリング）
-  - Lint/TypeCheck/Build ステータス
-- 👥 Contributors
-  - git shortlogから自動生成
-  - コミット数順にソート
-- 🔗 Full Changelog
-  - GitHub比較URL
+- `## 🚀 What's New` は常に使用（変更種別に関わらず）
+- サブセクションは変更がある種別のみ表示（空セクションは省略）
+  - `feat:` → `### ✨ Added`
+  - `chore:`, `docs:`, `style:` → `### 🔄 Changed`
+  - `fix:` → `### 🐛 Fixed`
+  - `refactor:` → `### 🔧 Refactoring`
+- Quality Metrics のフォーマット: `- ✅ Tests: N tests passing`（`pnpm vitest run` の結果から取得）
+- Contributors: `git shortlog -s -n vPREV..HEAD` から取得し `Full Name (@github-username)` 形式
+- Full Changelog: 必ず `**Full Changelog**: URL` の形式（太字プレフィックス）
+- Breaking Changes セクションは該当がなければ省略
 
 ### Phase 6: メジャーバージョンRelease更新
 
@@ -173,29 +198,32 @@ gh release edit vX \
 
 This is a floating tag that always points to the latest v1.x release.
 
-## Current Version: v1.10.1
+## Current Version: v1.11.1
 
-For detailed release notes, see: https://github.com/USER/REPO/releases/tag/v1.10.1
+For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.1
 
 ## Usage
 
 \```yaml
 # Recommended: Use floating tag for automatic updates
-- uses: USER/REPO@v1
+- uses: jey3dayo/pr-insights-labeler@v1
 
 # Or use specific version for stability
-- uses: USER/REPO@v1.10.1
+- uses: jey3dayo/pr-insights-labeler@v1.11.1
 \```
 
-## What's New in v1.10.1
-
-### 🔄 Changed
-- update dependencies with `npx ncu -u` (#129)
+## What's New in v1.11.1
 
 ### 🔧 Refactoring
-- reduce duplication and stabilize docs links (#126)
+- reduce cyclomatic complexity: extract helper functions for Critical (30+) and High (28-29) complexity functions (#132)
 
-See full changelog: https://github.com/USER/REPO/compare/v1.10.0...v1.10.1
+## Recent Versions
+
+- [v1.11.1](https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.1) - 2026-02-19
+- [v1.11.0](https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.0) - 2026-02-19
+- [v1.10.2](https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.10.2) - 2026-01-25
+
+**Full Changelog**: https://github.com/jey3dayo/pr-insights-labeler/compare/vPREV...vCURRENT
 ```
 
 ### なぜ必要か:
@@ -591,10 +619,47 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
 
 8. GitHub Release作成
 
+   `git log vPREV..HEAD --pretty=format:"%s"` でコミットを分類し、以下の**標準フォーマット**でリリースノートを生成すること：
+
+   ```
+   ## 🚀 What's New
+
+   ### ✨ Added       ← feat: コミットがある場合のみ
+   - **機能名**: 説明 (#PR)
+
+   ### 🔄 Changed    ← chore:/docs:/style: コミットがある場合のみ
+   - 説明 (#PR)
+
+   ### 🐛 Fixed      ← fix: コミットがある場合のみ
+   - 説明 (#PR)
+
+   ### 🔧 Refactoring ← refactor: コミットがある場合のみ
+   - 説明 (#PR)
+
+   ## 📊 Quality Metrics
+
+   - ✅ Tests: N tests passing    ← pnpm vitest run の結果から取得
+   - ✅ Lint: No issues
+   - ✅ TypeCheck: No errors
+   - ✅ Build: Successful
+
+   ## 👥 Contributors
+
+   - Full Name (@github-username)  ← git shortlog -s -n vPREV..HEAD から取得
+
+   ## 🔗 Full Changelog
+
+   **Full Changelog**: https://github.com/jey3dayo/pr-insights-labeler/compare/vPREV...vCURRENT
+   ```
+
+   テスト数の取得:
    ```bash
-   gh release create vX.Y.Z \
-     --title "vX.Y.Z" \
-     --notes "$(extract_changelog_notes vX.Y.Z)"
+   pnpm vitest run 2>&1 | grep "Tests " | grep -oP '\d+ passed'
+   ```
+
+   Contributorsの取得:
+   ```bash
+   git shortlog -s -n vPREV..HEAD | awk '{$1=""; name=substr($0,2); print "- " name " (@jey3dayo)"}'
    ```
 
 9. メジャーバージョンRelease更新（重要！）
@@ -603,14 +668,41 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    # v1, v2などのメジャーバージョンタグのGitHub Releaseを更新
    gh release edit vX \
      --title "vX (Latest vX.x)" \
-     --notes "$(generate_major_version_notes vX.Y.Z)"
+     --notes "..."
    ```
 
-   ### 生成する内容:
-   - 現在のバージョン（vX.Y.Z）
-   - 最新の変更内容概要
-   - 使用方法（`@vX` タグの推奨）
-   - 最近のバージョン履歴（直近3-5バージョン）
+   ### 生成する内容（標準フォーマット）:
+   ```
+   # Latest v1.x Release
+
+   This is a floating tag that always points to the latest v1.x release.
+
+   ## Current Version: vX.Y.Z
+
+   For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/vX.Y.Z
+
+   ## Usage
+
+   ```yaml
+   # Recommended: Use floating tag for automatic updates
+   - uses: jey3dayo/pr-insights-labeler@v1
+
+   # Or use specific version for stability
+   - uses: jey3dayo/pr-insights-labeler@vX.Y.Z
+   ```
+
+   ## What's New in vX.Y.Z
+
+   （最新バージョンの変更内容を簡潔に）
+
+   ## Recent Versions
+
+   - [vX.Y.Z](URL) - YYYY-MM-DD
+   - [vX.Y.Z-1](URL) - YYYY-MM-DD
+   - [vX.Y.Z-2](URL) - YYYY-MM-DD
+
+   **Full Changelog**: https://github.com/jey3dayo/pr-insights-labeler/compare/vPREV...vCURRENT
+   ```
 
 10. 完了報告
 
