@@ -20,7 +20,7 @@
     "dev": "tsx watch src/index.ts",
     "clean": "rimraf dist",
     "build": "run-s clean build:compile",
-    "build:compile": "ncc build src/index.ts -o dist --source-map --license licenses.txt --quiet",
+    "build:compile": "ncc build src/main.ts -o dist --source-map --license licenses.txt --quiet",
     "test": "run-p lint test:vitest",
     "test:vitest": "vitest run",
     "test:watch": "vitest",

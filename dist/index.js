@@ -259812,18 +259812,10 @@ module.exports = Queue;
 
 /***/ }),
 
-/***/ 65440:
-/***/ ((module, __webpack_exports__, __nccwpck_require__) => {
+/***/ 89926:
+/***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
-// ESM COMPAT FLAG
-__nccwpck_require__.r(__webpack_exports__);
-
-// EXPORTS
-__nccwpck_require__.d(__webpack_exports__, {
-  executeAction: () => (/* binding */ executeAction),
-  run: () => (/* binding */ run)
-});
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/neverthrow@8.2.0/node_modules/neverthrow/dist/index.cjs.js
 var index_cjs = __nccwpck_require__(50734);
@@ -280556,7 +280548,6 @@ function parseRetryAfterSeconds(error) {
 
 
 ;// CONCATENATED MODULE: ./src/index.ts
-/* module decorator */ module = __nccwpck_require__.hmd(module);
 
 
 
@@ -280598,10 +280589,11 @@ function handleDraft(context) {
         logInfoI18n('completion.skippedDraft');
     })(), toAppError).map(() => undefined);
 }
-if (__nccwpck_require__.c[__nccwpck_require__.s] === module) {
-    run();
-}
 
+
+;// CONCATENATED MODULE: ./src/main.ts
+
+void run();
 
 
 /***/ }),
@@ -414344,35 +414336,9 @@ module.exports = {"rE":"2.6.1"};
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/harmony module decorator */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.hmd = (module) => {
-/******/ 			module = Object.create(module);
-/******/ 			if (!module.children) module.children = [];
-/******/ 			Object.defineProperty(module, 'exports', {
-/******/ 				enumerable: true,
-/******/ 				set: () => {
-/******/ 					throw new Error('ES Modules may not assign module.exports or exports.*, Use ESM export syntax, instead: ' + module.id);
-/******/ 				}
-/******/ 			});
-/******/ 			return module;
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/compat */
@@ -414426,7 +414392,7 @@ module.exports = {"rE":"2.6.1"};
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __nccwpck_require__(__nccwpck_require__.s = 65440);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(89926);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
