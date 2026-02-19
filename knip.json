@@ -1,8 +1,8 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["scripts/**/*.ts"],
+  "entry": ["src/main.ts", "scripts/**/*.ts"],
   "project": ["src/**/*.ts", "scripts/**/*.ts"],
-  "ignore": ["**/*.d.ts", "dist/**", "node_modules/**", "coverage/**", "__tests__/**"],
+  "ignore": ["dist/**"],
   "ignoreExportsUsedInFile": true,
   "eslint": {
     "config": ["eslint.config.js"]
