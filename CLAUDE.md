@@ -13,6 +13,7 @@ Kiro-style Spec Driven Development implementation using claude code slash comman
 ### Steering vs Specification
 
 #### Steering
+
 #### Specs
 
 ### Active Specifications

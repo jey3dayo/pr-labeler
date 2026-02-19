@@ -60,10 +60,5 @@ function handleDraft(context: InitializationArtifacts): ResultAsync<void, AppErr
   ).map(() => undefined);
 }
 
-// Run the action if this is the main module
-if (require.main === module) {
-  run();
-}
-
-// Export for testing
+// Export for testing and for main entry point
 export { executeAction, run };

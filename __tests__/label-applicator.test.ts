@@ -1,6 +1,8 @@
 import * as github from '@actions/github';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('@actions/github');
+
 import { applyLabels, getCurrentLabels } from '../src/label-applicator';
 import type { LabelDecisions } from '../src/labeler-types';
 import { DEFAULT_LABELER_CONFIG } from '../src/labeler-types';
@@ -70,7 +72,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const decisions: LabelDecisions = {
         labelsToAdd: ['size/small', 'category/tests'],
@@ -109,7 +111,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const decisions: LabelDecisions = {
         labelsToAdd: ['size/large'],
@@ -142,7 +144,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const decisions: LabelDecisions = {
         labelsToAdd: ['size/small', 'category/tests'],
@@ -173,7 +175,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const decisions: LabelDecisions = {
         labelsToAdd: ['size/small'],
@@ -204,7 +206,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const decisions: LabelDecisions = {
         labelsToAdd: ['category/tests', 'category/ci-cd'],
@@ -243,7 +245,7 @@ describe('Label Applicator', () => {
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const decisions: LabelDecisions = {
         labelsToAdd: ['size/M'],
