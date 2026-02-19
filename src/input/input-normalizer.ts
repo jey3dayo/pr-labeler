@@ -1,4 +1,4 @@
-import { err, ok, type Result } from 'neverthrow';
+import { err, ok, type Result, safeTry } from 'neverthrow';
 
 import type { ActionInputs } from '../actions-io';
 import type { ConfigurationError, ParseError } from '../errors/index.js';
@@ -69,33 +69,20 @@ interface FileLimitInputs {
 }
 
 function parseFileLimits(inputs: ActionInputStrings): Result<FileLimitInputs, ConfigurationError | ParseError> {
-  const fileSizeLimitResult = parseSize(inputs.file_size_limit);
-  if (fileSizeLimitResult.isErr()) {
-    return err(fileSizeLimitResult.error);
-  }
+  return safeTry(function* () {
+    const fileSizeLimit = yield* parseSize(inputs.file_size_limit).safeUnwrap();
+    const fileSizeLimitEnabled = yield* parseBooleanStrict(inputs.file_size_limit_enabled).safeUnwrap();
 
-  const fileSizeLimitEnabledResult = parseBooleanStrict(inputs.file_size_limit_enabled);
-  if (fileSizeLimitEnabledResult.isErr()) {
-    return err(fileSizeLimitEnabledResult.error);
-  }
+    const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
+    if (isNaN(fileLinesLimit)) {
+      return err(
+        createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'),
+      );
+    }
 
-  const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
-  if (isNaN(fileLinesLimit)) {
-    return err(
-      createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'),
-    );
-  }
+    const fileLinesLimitEnabled = yield* parseBooleanStrict(inputs.file_lines_limit_enabled).safeUnwrap();
 
-  const fileLinesLimitEnabledResult = parseBooleanStrict(inputs.file_lines_limit_enabled);
-  if (fileLinesLimitEnabledResult.isErr()) {
-    return err(fileLinesLimitEnabledResult.error);
-  }
-
-  return ok({
-    fileSizeLimit: fileSizeLimitResult.value,
-    fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
-    fileLinesLimit,
-    fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
+    return ok({ fileSizeLimit, fileSizeLimitEnabled, fileLinesLimit, fileLinesLimitEnabled });
   });
 }
 
@@ -107,33 +94,27 @@ interface PRLimitInputs {
 }
 
 function parsePRLimits(inputs: ActionInputStrings): Result<PRLimitInputs, ConfigurationError | ParseError> {
-  const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
-  if (isNaN(prAdditionsLimit)) {
-    return err(
-      createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'),
-    );
-  }
+  return safeTry(function* () {
+    const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
+    if (isNaN(prAdditionsLimit)) {
+      return err(
+        createConfigurationError(
+          'pr_additions_limit',
+          inputs.pr_additions_limit,
+          'PR additions limit must be a number',
+        ),
+      );
+    }
 
-  const prAdditionsLimitEnabledResult = parseBooleanStrict(inputs.pr_additions_limit_enabled);
-  if (prAdditionsLimitEnabledResult.isErr()) {
-    return err(prAdditionsLimitEnabledResult.error);
-  }
+    const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
+    if (isNaN(prFilesLimit)) {
+      return err(createConfigurationError('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
+    }
 
-  const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
-  if (isNaN(prFilesLimit)) {
-    return err(createConfigurationError('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
-  }
+    const prAdditionsLimitEnabled = yield* parseBooleanStrict(inputs.pr_additions_limit_enabled).safeUnwrap();
+    const prFilesLimitEnabled = yield* parseBooleanStrict(inputs.pr_files_limit_enabled).safeUnwrap();
 
-  const prFilesLimitEnabledResult = parseBooleanStrict(inputs.pr_files_limit_enabled);
-  if (prFilesLimitEnabledResult.isErr()) {
-    return err(prFilesLimitEnabledResult.error);
-  }
-
-  return ok({
-    prAdditionsLimit,
-    prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
-    prFilesLimit,
-    prFilesLimitEnabled: prFilesLimitEnabledResult.value,
+    return ok({ prAdditionsLimit, prAdditionsLimitEnabled, prFilesLimit, prFilesLimitEnabled });
   });
 }
 
@@ -145,31 +126,12 @@ interface FeatureFlagInputs {
 }
 
 function parseFeatureFlags(inputs: ActionInputStrings): Result<FeatureFlagInputs, ConfigurationError | ParseError> {
-  const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
-  if (sizeEnabledResult.isErr()) {
-    return err(sizeEnabledResult.error);
-  }
-
-  const complexityEnabledResult = parseBooleanStrict(inputs.complexity_enabled);
-  if (complexityEnabledResult.isErr()) {
-    return err(complexityEnabledResult.error);
-  }
-
-  const categoryEnabledResult = parseBooleanStrict(inputs.category_enabled);
-  if (categoryEnabledResult.isErr()) {
-    return err(categoryEnabledResult.error);
-  }
-
-  const riskEnabledResult = parseBooleanStrict(inputs.risk_enabled);
-  if (riskEnabledResult.isErr()) {
-    return err(riskEnabledResult.error);
-  }
-
-  return ok({
-    sizeEnabled: sizeEnabledResult.value,
-    complexityEnabled: complexityEnabledResult.value,
-    categoryEnabled: categoryEnabledResult.value,
-    riskEnabled: riskEnabledResult.value,
+  return safeTry(function* () {
+    const sizeEnabled = yield* parseBooleanStrict(inputs.size_enabled).safeUnwrap();
+    const complexityEnabled = yield* parseBooleanStrict(inputs.complexity_enabled).safeUnwrap();
+    const categoryEnabled = yield* parseBooleanStrict(inputs.category_enabled).safeUnwrap();
+    const riskEnabled = yield* parseBooleanStrict(inputs.risk_enabled).safeUnwrap();
+    return ok({ sizeEnabled, complexityEnabled, categoryEnabled, riskEnabled });
   });
 }
 

@@ -151,19 +151,30 @@ function parseRulesField(
   return ok({ rules: normalizedRules, warnings });
 }
 
+function parseTypedOption<T>(
+  record: Record<string, unknown>,
+  key: string,
+  fieldPath: string,
+  typeGuard: (value: unknown) => value is T,
+  errorMessage: string,
+  transform?: (value: T) => T,
+): Result<T | undefined, ConfigError> {
+  if (!(key in record) || record[key] === undefined) {
+    return ok(undefined);
+  }
+  const value = record[key];
+  if (!typeGuard(value)) {
+    return err(createConfigurationError(fieldPath, value, errorMessage));
+  }
+  return ok(transform ? transform(value) : value);
+}
+
 function parseBooleanOption(
   record: Record<string, unknown>,
   key: string,
   fieldPath: string,
 ): Result<boolean | undefined, ConfigError> {
-  if (!(key in record) || record[key] === undefined) {
-    return ok(undefined);
-  }
-  const value = record[key];
-  if (!isBoolean(value)) {
-    return err(createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be a boolean`));
-  }
-  return ok(value);
+  return parseTypedOption(record, key, fieldPath, isBoolean, `Field "${fieldPath}" must be a boolean`);
 }
 
 function parseOptionsField(cfg: Record<string, unknown>): Result<Partial<MinimatchOptions> | undefined, ConfigError> {
@@ -211,14 +222,7 @@ function parseStringArrayOption(
   key: string,
   fieldPath: string,
 ): Result<string[] | undefined, ConfigError> {
-  if (!(key in record) || record[key] === undefined) {
-    return ok(undefined);
-  }
-  const value = record[key];
-  if (!isStringArray(value)) {
-    return err(createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be an array`));
-  }
-  return ok([...value]);
+  return parseTypedOption(record, key, fieldPath, isStringArray, `Field "${fieldPath}" must be an array`, v => [...v]);
 }
 
 function parseNamespacesField(cfg: Record<string, unknown>): Result<Partial<NamespacePolicy> | undefined, ConfigError> {
