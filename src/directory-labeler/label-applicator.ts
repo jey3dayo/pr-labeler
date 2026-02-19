@@ -56,6 +56,67 @@ interface OctokitErrorResponse {
   };
 }
 
+type LabelApplicatorError =
+  | ReturnType<typeof createGitHubAPIError>
+  | ReturnType<typeof createPermissionError>
+  | ReturnType<typeof createRateLimitError>;
+
+async function fetchExistingLabels(
+  octokit: Octokit,
+  context: PullRequestContext,
+): Promise<Result<string[], LabelApplicatorError>> {
+  try {
+    const { data } = await octokit.rest.issues.listLabelsOnIssue({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: context.issue.number,
+    });
+    return ok(data.map(label => label.name));
+  } catch (error) {
+    const e = ensureError(error);
+    const status = extractErrorStatus(error);
+
+    if (status === 403) {
+      return err(createPermissionError('issues: read', `Failed to list labels: ${e.message}`));
+    }
+
+    if (status === 429) {
+      const errorWithResponse = error as OctokitErrorResponse;
+      const rawHeaders = errorWithResponse.response?.headers;
+      const headers = isRecord(rawHeaders) ? rawHeaders : {};
+      const retryAfterHeader = headers['retry-after'] ?? headers['Retry-After'];
+      const retryAfter = isString(retryAfterHeader)
+        ? Number.parseInt(retryAfterHeader, 10)
+        : isNumber(retryAfterHeader)
+          ? retryAfterHeader
+          : undefined;
+      return err(createRateLimitError(Number.isFinite(retryAfter) ? (retryAfter as number) : undefined));
+    }
+
+    return err(createGitHubAPIError(`Failed to list labels: ${e.message}`, status));
+  }
+}
+
+function calculateNamespaceRemovals(
+  existingLabels: string[],
+  newLabels: string[],
+  namespaces: Required<NamespacePolicy>,
+): Set<string> {
+  const labelsToRemove = new Set<string>();
+  for (const newLabel of newLabels) {
+    const namespace = extractNamespace(newLabel, ':');
+    if (namespace && namespaces.exclusive.includes(namespace)) {
+      for (const existingLabel of existingLabels) {
+        const existingNamespace = extractNamespace(existingLabel, ':');
+        if (existingNamespace === namespace && existingLabel !== newLabel) {
+          labelsToRemove.add(existingLabel);
+        }
+      }
+    }
+  }
+  return labelsToRemove;
+}
+
 /**
  * Directory-Based Labelerのラベルを適用
  *
@@ -72,14 +133,7 @@ export async function applyDirectoryLabels(
   context: PullRequestContext,
   decisions: LabelDecision[],
   namespaces: Required<NamespacePolicy>,
-): Promise<
-  Result<
-    ApplyResult,
-    | ReturnType<typeof createGitHubAPIError>
-    | ReturnType<typeof createPermissionError>
-    | ReturnType<typeof createRateLimitError>
-  >
-> {
+): Promise<Result<ApplyResult, LabelApplicatorError>> {
   const result: ApplyResult = {
     applied: [],
     skipped: [],
@@ -87,64 +141,20 @@ export async function applyDirectoryLabels(
     failed: [],
   };
 
-  // 空のdecisions配列は何もしない
   if (decisions.length === 0) {
     core.debug('No label decisions to apply.');
     return ok(result);
   }
 
-  // 既存ラベルを取得
-  let existingLabels: string[];
-  try {
-    const { data } = await octokit.rest.issues.listLabelsOnIssue({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      issue_number: context.issue.number,
-    });
-    existingLabels = data.map(label => label.name);
-    core.debug(`Existing labels: ${existingLabels.join(', ')}`);
-  } catch (error) {
-    const e = ensureError(error);
-    const status = extractErrorStatus(error);
-
-    if (status === 403) {
-      return err(createPermissionError('issues: read', `Failed to list labels: ${e.message}`));
-    }
-
-    if (status === 429) {
-      // Extract Retry-After header if available
-      const errorWithResponse = error as OctokitErrorResponse;
-      const rawHeaders = errorWithResponse.response?.headers;
-      const headers = isRecord(rawHeaders) ? rawHeaders : {};
-      const retryAfterHeader = headers['retry-after'] ?? headers['Retry-After'];
-      const retryAfter = isString(retryAfterHeader)
-        ? Number.parseInt(retryAfterHeader, 10)
-        : isNumber(retryAfterHeader)
-          ? retryAfterHeader
-          : undefined;
-      return err(createRateLimitError(Number.isFinite(retryAfter) ? (retryAfter as number) : undefined));
-    }
-
-    return err(createGitHubAPIError(`Failed to list labels: ${e.message}`, status));
+  const existingLabelsResult = await fetchExistingLabels(octokit, context);
+  if (existingLabelsResult.isErr()) {
+    return err(existingLabelsResult.error);
   }
+  const existingLabels = existingLabelsResult.value;
+  core.debug(`Existing labels: ${existingLabels.join(', ')}`);
 
-  // 名前空間ポリシーに基づいて削除すべきラベルを決定
-  const labelsToRemove = new Set<string>();
   const newLabels = decisions.map(d => d.label);
-
-  for (const newLabel of newLabels) {
-    const namespace = extractNamespace(newLabel, ':');
-
-    // exclusive名前空間の場合、同一名前空間の既存ラベルを削除
-    if (namespace && namespaces.exclusive.includes(namespace)) {
-      for (const existingLabel of existingLabels) {
-        const existingNamespace = extractNamespace(existingLabel, ':');
-        if (existingNamespace === namespace && existingLabel !== newLabel) {
-          labelsToRemove.add(existingLabel);
-        }
-      }
-    }
-  }
+  const labelsToRemove = calculateNamespaceRemovals(existingLabels, newLabels, namespaces);
 
   // ラベルを削除
   for (const label of labelsToRemove) {

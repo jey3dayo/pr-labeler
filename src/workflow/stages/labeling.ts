@@ -22,6 +22,139 @@ import type { PRContext } from '../../types';
 import { hasProperty, isNumber, isObject, isRecord, isString } from '../../utils/type-guards.js';
 import type { AnalysisArtifacts, InitializationArtifacts } from '../types';
 
+async function enrichContextWithCIStatus(
+  octokit: ReturnType<typeof github.getOctokit>,
+  prContext: InitializationArtifacts['prContext'],
+  labelerConfig: InitializationArtifacts['labelerConfig'],
+  extendedPRContext: PRContext,
+): Promise<void> {
+  const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
+  if (!useCiStatus) {
+    return;
+  }
+
+  logInfoI18n('ciStatus.fetching');
+  const ciStatusResult = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
+  if (ciStatusResult.isOk()) {
+    const ciStatus = ciStatusResult.value;
+    if (ciStatus) {
+      extendedPRContext.ciStatus = ciStatus;
+      logInfoI18n('ciStatus.status', {
+        tests: ciStatus.tests,
+        typeCheck: ciStatus.typeCheck,
+        build: ciStatus.build,
+        lint: ciStatus.lint,
+      });
+    } else {
+      logInfoI18n('ciStatus.notAvailable');
+    }
+  } else {
+    logInfoI18n('ciStatus.notAvailable');
+    logWarning(`CI status unavailable: ${ciStatusResult.error.message}`);
+  }
+
+  const commitMessagesResult = await fetchCommitMessages(
+    octokit,
+    prContext.owner,
+    prContext.repo,
+    prContext.pullNumber,
+  );
+  if (commitMessagesResult.isOk()) {
+    extendedPRContext.commitMessages = commitMessagesResult.value;
+    logInfoI18n('ciStatus.fetchedCommits', { count: commitMessagesResult.value.length });
+  } else {
+    logInfoI18n('ciStatus.fetchCommitsFailed');
+    logWarning(`Failed to fetch commit messages: ${commitMessagesResult.error.message}`);
+  }
+}
+
+async function processDirectoryLabeling(
+  octokit: ReturnType<typeof github.getOctokit>,
+  prContext: InitializationArtifacts['prContext'],
+  config: InitializationArtifacts['config'],
+  files: AnalysisArtifacts['files'],
+  artifacts: AnalysisArtifacts,
+): Promise<AnalysisArtifacts> {
+  logInfoI18n('directoryLabeling.starting');
+  const dirConfigResult = loadDirectoryLabelerConfig(config.directoryLabelerConfigPath);
+
+  let dirConfig;
+  if (dirConfigResult.isErr()) {
+    if (dirConfigResult.error.type === 'FileSystemError') {
+      logInfoI18n('directoryLabeling.configNotFound', { path: config.directoryLabelerConfigPath });
+      logInfoI18n('directoryLabeling.usingDefaultCategories');
+      dirConfig = convertCategoriesToDirectoryConfig(DEFAULT_CATEGORIES);
+    } else {
+      logWarningI18n('directoryLabeling.configLoadFailed', { message: dirConfigResult.error.message });
+      logInfoI18n('directoryLabeling.skipped');
+      return artifacts;
+    }
+  } else {
+    dirConfig = dirConfigResult.value;
+  }
+  dirConfig.useDefaultExcludes = config.useDefaultExcludes;
+
+  const fileList = files.map(file => file.filename);
+  const directoryDecisionsResult = decideLabelsForFiles(fileList, dirConfig);
+
+  if (directoryDecisionsResult.isErr()) {
+    logWarningI18n('directoryLabeling.decideFailed', { message: directoryDecisionsResult.error.message });
+    return artifacts;
+  }
+
+  const directoryDecisions = directoryDecisionsResult.value;
+  if (directoryDecisions.length === 0) {
+    logInfoI18n('directoryLabeling.noLabelsMatched');
+    return artifacts;
+  }
+
+  logInfoI18n('directoryLabeling.decided', { count: directoryDecisions.length });
+  const { selected, rejected } = filterByMaxLabels(directoryDecisions, config.maxLabels);
+
+  if (rejected.length > 0) {
+    logWarningI18n('directoryLabeling.rejected', { count: rejected.length });
+    for (const rejectedDecision of rejected) {
+      logDebugI18n('directoryLabeling.rejectedDetail', {
+        label: rejectedDecision.label,
+        reason: rejectedDecision.reason,
+      });
+    }
+  }
+
+  const applyDirectoryResult = await applyDirectoryLabels(
+    octokit,
+    { repo: { owner: prContext.owner, repo: prContext.repo }, issue: { number: prContext.pullNumber } },
+    selected,
+    dirConfig.namespaces || { exclusive: ['size', 'area', 'type'], additive: ['scope', 'meta'] },
+  );
+
+  if (applyDirectoryResult.isErr()) {
+    if (applyDirectoryResult.error.type === 'PermissionError') {
+      logWarningI18n('directoryLabeling.permissionError', { message: applyDirectoryResult.error.message });
+      logWarningI18n('directoryLabeling.permissionHint');
+    } else {
+      logWarningI18n('directoryLabeling.applyFailed', { message: applyDirectoryResult.error.message });
+    }
+    return artifacts;
+  }
+
+  const result = applyDirectoryResult.value;
+  logInfoI18n('directoryLabeling.applyResult', {
+    applied: result.applied.length,
+    skipped: result.skipped.length,
+    removed: result.removed?.length || 0,
+    failed: result.failed.length,
+  });
+
+  if (result.failed.length > 0) {
+    for (const failed of result.failed) {
+      logWarningI18n('directoryLabeling.failedDetail', { label: failed.label, reason: failed.reason });
+    }
+  }
+
+  return artifacts;
+}
+
 /**
  * Apply PR labels including directory-based labeling
  */
@@ -39,7 +172,7 @@ export function applyLabelsStage(
         totalAdditions: analysis.metrics.totalAdditions,
         excludedAdditions: analysis.metrics.excludedAdditions,
         files: analysis.metrics.filesAnalyzed,
-        allFiles: analysis.metrics.allFiles, // カテゴリラベル判定用の全ファイルパス
+        allFiles: analysis.metrics.allFiles,
         ...(complexityMetrics && { complexity: complexityMetrics }),
       };
 
@@ -50,43 +183,7 @@ export function applyLabelsStage(
         pullNumber: prContext.pullNumber,
       };
 
-      const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
-      if (useCiStatus) {
-        logInfoI18n('ciStatus.fetching');
-        const ciStatusResult = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
-        if (ciStatusResult.isOk()) {
-          const ciStatus = ciStatusResult.value;
-          if (ciStatus) {
-            extendedPRContext.ciStatus = ciStatus;
-            logInfoI18n('ciStatus.status', {
-              tests: ciStatus.tests,
-              typeCheck: ciStatus.typeCheck,
-              build: ciStatus.build,
-              lint: ciStatus.lint,
-            });
-          } else {
-            logInfoI18n('ciStatus.notAvailable');
-          }
-        } else {
-          logInfoI18n('ciStatus.notAvailable');
-          logWarning(`CI status unavailable: ${ciStatusResult.error.message}`);
-        }
-
-        const commitMessagesResult = await fetchCommitMessages(
-          octokit,
-          prContext.owner,
-          prContext.repo,
-          prContext.pullNumber,
-        );
-        if (commitMessagesResult.isOk()) {
-          const messages = commitMessagesResult.value;
-          extendedPRContext.commitMessages = messages;
-          logInfoI18n('ciStatus.fetchedCommits', { count: messages.length });
-        } else {
-          logInfoI18n('ciStatus.fetchCommitsFailed');
-          logWarning(`Failed to fetch commit messages: ${commitMessagesResult.error.message}`);
-        }
-      }
+      await enrichContextWithCIStatus(octokit, prContext, labelerConfig, extendedPRContext);
 
       const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext);
       if (labelerDecisions.isOk()) {
@@ -94,7 +191,6 @@ export function applyLabelsStage(
         logInfoI18n('labels.labelsToAdd', { labels: decisions.labelsToAdd.join(', ') || 'none' });
         logInfoI18n('labels.labelsToRemove', { labels: decisions.labelsToRemove.join(', ') || 'none' });
 
-        // Store label decisions in artifacts for Summary generation
         artifacts.labelDecisions = decisions;
 
         if (labelerConfig.runtime.dry_run) {
@@ -103,11 +199,7 @@ export function applyLabelsStage(
           logInfoI18n('labels.applying');
           const applyResult = await applyLabels(
             token,
-            {
-              owner: prContext.owner,
-              repo: prContext.repo,
-              pullNumber: prContext.pullNumber,
-            },
+            { owner: prContext.owner, repo: prContext.repo, pullNumber: prContext.pullNumber },
             decisions,
             labelerConfig.labels,
           );
@@ -133,95 +225,7 @@ export function applyLabelsStage(
         return artifacts;
       }
 
-      logInfoI18n('directoryLabeling.starting');
-      const dirConfigResult = loadDirectoryLabelerConfig(config.directoryLabelerConfigPath);
-
-      let dirConfig;
-      if (dirConfigResult.isErr()) {
-        if (dirConfigResult.error.type === 'FileSystemError') {
-          // Configuration file not found, use DEFAULT_CATEGORIES as fallback
-          logInfoI18n('directoryLabeling.configNotFound', { path: config.directoryLabelerConfigPath });
-          logInfoI18n('directoryLabeling.usingDefaultCategories');
-          dirConfig = convertCategoriesToDirectoryConfig(DEFAULT_CATEGORIES);
-        } else {
-          logWarningI18n('directoryLabeling.configLoadFailed', { message: dirConfigResult.error.message });
-          logInfoI18n('directoryLabeling.skipped');
-          return artifacts;
-        }
-      } else {
-        dirConfig = dirConfigResult.value;
-      }
-      dirConfig.useDefaultExcludes = config.useDefaultExcludes;
-
-      const fileList = files.map(file => file.filename);
-      const directoryDecisionsResult = decideLabelsForFiles(fileList, dirConfig);
-
-      if (directoryDecisionsResult.isErr()) {
-        logWarningI18n('directoryLabeling.decideFailed', { message: directoryDecisionsResult.error.message });
-        return artifacts;
-      }
-
-      const directoryDecisions = directoryDecisionsResult.value;
-
-      if (directoryDecisions.length === 0) {
-        logInfoI18n('directoryLabeling.noLabelsMatched');
-        return artifacts;
-      }
-
-      logInfoI18n('directoryLabeling.decided', { count: directoryDecisions.length });
-
-      const { selected, rejected } = filterByMaxLabels(directoryDecisions, config.maxLabels);
-
-      if (rejected.length > 0) {
-        logWarningI18n('directoryLabeling.rejected', { count: rejected.length });
-        for (const rejectedDecision of rejected) {
-          logDebugI18n('directoryLabeling.rejectedDetail', {
-            label: rejectedDecision.label,
-            reason: rejectedDecision.reason,
-          });
-        }
-      }
-
-      const applyDirectoryResult = await applyDirectoryLabels(
-        octokit,
-        {
-          repo: {
-            owner: prContext.owner,
-            repo: prContext.repo,
-          },
-          issue: {
-            number: prContext.pullNumber,
-          },
-        },
-        selected,
-        dirConfig.namespaces || { exclusive: ['size', 'area', 'type'], additive: ['scope', 'meta'] },
-      );
-
-      if (applyDirectoryResult.isErr()) {
-        if (applyDirectoryResult.error.type === 'PermissionError') {
-          logWarningI18n('directoryLabeling.permissionError', { message: applyDirectoryResult.error.message });
-          logWarningI18n('directoryLabeling.permissionHint');
-        } else {
-          logWarningI18n('directoryLabeling.applyFailed', { message: applyDirectoryResult.error.message });
-        }
-        return artifacts;
-      }
-
-      const result = applyDirectoryResult.value;
-      logInfoI18n('directoryLabeling.applyResult', {
-        applied: result.applied.length,
-        skipped: result.skipped.length,
-        removed: result.removed?.length || 0,
-        failed: result.failed.length,
-      });
-
-      if (result.failed.length > 0) {
-        for (const failed of result.failed) {
-          logWarningI18n('directoryLabeling.failedDetail', { label: failed.label, reason: failed.reason });
-        }
-      }
-
-      return artifacts;
+      return processDirectoryLabeling(octokit, prContext, config, files, artifacts);
     })(),
     toAppError,
   );
