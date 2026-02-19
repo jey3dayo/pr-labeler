@@ -29,7 +29,9 @@ async function enrichContextWithCIStatus(
   extendedPRContext: PRContext,
 ): Promise<void> {
   const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
-  if (!useCiStatus) {return;}
+  if (!useCiStatus) {
+    return;
+  }
 
   logInfoI18n('ciStatus.fetching');
   const ciStatusResult = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);

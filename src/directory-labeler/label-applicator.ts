@@ -147,7 +147,9 @@ export async function applyDirectoryLabels(
   }
 
   const existingLabelsResult = await fetchExistingLabels(octokit, context);
-  if (existingLabelsResult.isErr()) {return err(existingLabelsResult.error);}
+  if (existingLabelsResult.isErr()) {
+    return err(existingLabelsResult.error);
+  }
   const existingLabels = existingLabelsResult.value;
   core.debug(`Existing labels: ${existingLabels.join(', ')}`);
 

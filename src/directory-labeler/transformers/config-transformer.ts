@@ -110,8 +110,12 @@ function parseSingleRule(
   }
 
   const normalizedRule: LabelRule = { label, include: [...include] };
-  if (exclude) {normalizedRule.exclude = exclude;}
-  if (priority !== undefined) {normalizedRule.priority = priority;}
+  if (exclude) {
+    normalizedRule.exclude = exclude;
+  }
+  if (priority !== undefined) {
+    normalizedRule.priority = priority;
+  }
 
   return ok(normalizedRule);
 }
@@ -138,7 +142,9 @@ function parseRulesField(
 
   for (let i = 0; i < rawRules.length; i++) {
     const ruleResult = parseSingleRule(rawRules[i], i, labelsSeen, warnings);
-    if (ruleResult.isErr()) {return err(ruleResult.error);}
+    if (ruleResult.isErr()) {
+      return err(ruleResult.error);
+    }
     normalizedRules.push(ruleResult.value);
   }
 
@@ -150,7 +156,9 @@ function parseBooleanOption(
   key: string,
   fieldPath: string,
 ): Result<boolean | undefined, ConfigError> {
-  if (!(key in record) || record[key] === undefined) {return ok(undefined);}
+  if (!(key in record) || record[key] === undefined) {
+    return ok(undefined);
+  }
   const value = record[key];
   if (!isBoolean(value)) {
     return err(createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be a boolean`));
@@ -159,7 +167,9 @@ function parseBooleanOption(
 }
 
 function parseOptionsField(cfg: Record<string, unknown>): Result<Partial<MinimatchOptions> | undefined, ConfigError> {
-  if (!('options' in cfg) || cfg['options'] === undefined) {return ok(undefined);}
+  if (!('options' in cfg) || cfg['options'] === undefined) {
+    return ok(undefined);
+  }
 
   const rawOptions = cfg['options'];
   if (!isRecord(rawOptions)) {
@@ -170,16 +180,28 @@ function parseOptionsField(cfg: Record<string, unknown>): Result<Partial<Minimat
   const optionOverrides: Partial<MinimatchOptions> = {};
 
   const dotResult = parseBooleanOption(optionsRecord, 'dot', 'options.dot');
-  if (dotResult.isErr()) {return err(dotResult.error);}
-  if (dotResult.value !== undefined) {optionOverrides.dot = dotResult.value;}
+  if (dotResult.isErr()) {
+    return err(dotResult.error);
+  }
+  if (dotResult.value !== undefined) {
+    optionOverrides.dot = dotResult.value;
+  }
 
   const nocaseResult = parseBooleanOption(optionsRecord, 'nocase', 'options.nocase');
-  if (nocaseResult.isErr()) {return err(nocaseResult.error);}
-  if (nocaseResult.value !== undefined) {optionOverrides.nocase = nocaseResult.value;}
+  if (nocaseResult.isErr()) {
+    return err(nocaseResult.error);
+  }
+  if (nocaseResult.value !== undefined) {
+    optionOverrides.nocase = nocaseResult.value;
+  }
 
   const matchBaseResult = parseBooleanOption(optionsRecord, 'matchBase', 'options.matchBase');
-  if (matchBaseResult.isErr()) {return err(matchBaseResult.error);}
-  if (matchBaseResult.value !== undefined) {optionOverrides.matchBase = matchBaseResult.value;}
+  if (matchBaseResult.isErr()) {
+    return err(matchBaseResult.error);
+  }
+  if (matchBaseResult.value !== undefined) {
+    optionOverrides.matchBase = matchBaseResult.value;
+  }
 
   return ok(Object.keys(optionOverrides).length > 0 ? optionOverrides : undefined);
 }
@@ -189,7 +211,9 @@ function parseStringArrayOption(
   key: string,
   fieldPath: string,
 ): Result<string[] | undefined, ConfigError> {
-  if (!(key in record) || record[key] === undefined) {return ok(undefined);}
+  if (!(key in record) || record[key] === undefined) {
+    return ok(undefined);
+  }
   const value = record[key];
   if (!isStringArray(value)) {
     return err(createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be an array`));
@@ -198,7 +222,9 @@ function parseStringArrayOption(
 }
 
 function parseNamespacesField(cfg: Record<string, unknown>): Result<Partial<NamespacePolicy> | undefined, ConfigError> {
-  if (!('namespaces' in cfg) || cfg['namespaces'] === undefined) {return ok(undefined);}
+  if (!('namespaces' in cfg) || cfg['namespaces'] === undefined) {
+    return ok(undefined);
+  }
 
   const rawNamespaces = cfg['namespaces'];
   if (!isRecord(rawNamespaces)) {
@@ -209,18 +235,28 @@ function parseNamespacesField(cfg: Record<string, unknown>): Result<Partial<Name
   const overrides: Partial<NamespacePolicy> = {};
 
   const exclusiveResult = parseStringArrayOption(namespacesRecord, 'exclusive', 'namespaces.exclusive');
-  if (exclusiveResult.isErr()) {return err(exclusiveResult.error);}
-  if (exclusiveResult.value !== undefined) {overrides.exclusive = exclusiveResult.value;}
+  if (exclusiveResult.isErr()) {
+    return err(exclusiveResult.error);
+  }
+  if (exclusiveResult.value !== undefined) {
+    overrides.exclusive = exclusiveResult.value;
+  }
 
   const additiveResult = parseStringArrayOption(namespacesRecord, 'additive', 'namespaces.additive');
-  if (additiveResult.isErr()) {return err(additiveResult.error);}
-  if (additiveResult.value !== undefined) {overrides.additive = additiveResult.value;}
+  if (additiveResult.isErr()) {
+    return err(additiveResult.error);
+  }
+  if (additiveResult.value !== undefined) {
+    overrides.additive = additiveResult.value;
+  }
 
   return ok(Object.keys(overrides).length > 0 ? overrides : undefined);
 }
 
 function parseUseDefaultExcludesField(cfg: Record<string, unknown>): Result<boolean | undefined, ConfigError> {
-  if (!('useDefaultExcludes' in cfg) || cfg['useDefaultExcludes'] === undefined) {return ok(undefined);}
+  if (!('useDefaultExcludes' in cfg) || cfg['useDefaultExcludes'] === undefined) {
+    return ok(undefined);
+  }
   const rawUseDefault = cfg['useDefaultExcludes'];
   if (!isBoolean(rawUseDefault)) {
     return err(
@@ -234,33 +270,51 @@ export function parseDirectoryLabelerConfig(
   config: unknown,
 ): Result<DirectoryLabelerConfigTransformResult, ConfigError> {
   const objectValidation = validateObjectInput(config, 'config');
-  if (objectValidation.isErr()) {return err(objectValidation.error);}
+  if (objectValidation.isErr()) {
+    return err(objectValidation.error);
+  }
 
   const cfg = objectValidation.value;
 
   const versionResult = validateVersion(cfg);
-  if (versionResult.isErr()) {return err(versionResult.error);}
+  if (versionResult.isErr()) {
+    return err(versionResult.error);
+  }
 
   const rulesResult = parseRulesField(cfg);
-  if (rulesResult.isErr()) {return err(rulesResult.error);}
+  if (rulesResult.isErr()) {
+    return err(rulesResult.error);
+  }
 
   const optionsResult = parseOptionsField(cfg);
-  if (optionsResult.isErr()) {return err(optionsResult.error);}
+  if (optionsResult.isErr()) {
+    return err(optionsResult.error);
+  }
 
   const namespacesResult = parseNamespacesField(cfg);
-  if (namespacesResult.isErr()) {return err(namespacesResult.error);}
+  if (namespacesResult.isErr()) {
+    return err(namespacesResult.error);
+  }
 
   const useDefaultExcludesResult = parseUseDefaultExcludesField(cfg);
-  if (useDefaultExcludesResult.isErr()) {return err(useDefaultExcludesResult.error);}
+  if (useDefaultExcludesResult.isErr()) {
+    return err(useDefaultExcludesResult.error);
+  }
 
   const normalizedConfig: DirectoryLabelerConfig = {
     version: 1,
     rules: rulesResult.value.rules,
   };
 
-  if (optionsResult.value) {normalizedConfig.options = optionsResult.value as MinimatchOptions;}
-  if (namespacesResult.value) {normalizedConfig.namespaces = namespacesResult.value as NamespacePolicy;}
-  if (useDefaultExcludesResult.value !== undefined) {normalizedConfig.useDefaultExcludes = useDefaultExcludesResult.value;}
+  if (optionsResult.value) {
+    normalizedConfig.options = optionsResult.value as MinimatchOptions;
+  }
+  if (namespacesResult.value) {
+    normalizedConfig.namespaces = namespacesResult.value as NamespacePolicy;
+  }
+  if (useDefaultExcludesResult.value !== undefined) {
+    normalizedConfig.useDefaultExcludes = useDefaultExcludesResult.value;
+  }
 
   return ok({ config: normalizedConfig, warnings: rulesResult.value.warnings });
 }

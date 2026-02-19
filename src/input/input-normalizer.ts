@@ -70,18 +70,26 @@ interface FileLimitInputs {
 
 function parseFileLimits(inputs: ActionInputStrings): Result<FileLimitInputs, ConfigurationError | ParseError> {
   const fileSizeLimitResult = parseSize(inputs.file_size_limit);
-  if (fileSizeLimitResult.isErr()) {return err(fileSizeLimitResult.error);}
+  if (fileSizeLimitResult.isErr()) {
+    return err(fileSizeLimitResult.error);
+  }
 
   const fileSizeLimitEnabledResult = parseBooleanStrict(inputs.file_size_limit_enabled);
-  if (fileSizeLimitEnabledResult.isErr()) {return err(fileSizeLimitEnabledResult.error);}
+  if (fileSizeLimitEnabledResult.isErr()) {
+    return err(fileSizeLimitEnabledResult.error);
+  }
 
   const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
   if (isNaN(fileLinesLimit)) {
-    return err(createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'));
+    return err(
+      createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'),
+    );
   }
 
   const fileLinesLimitEnabledResult = parseBooleanStrict(inputs.file_lines_limit_enabled);
-  if (fileLinesLimitEnabledResult.isErr()) {return err(fileLinesLimitEnabledResult.error);}
+  if (fileLinesLimitEnabledResult.isErr()) {
+    return err(fileLinesLimitEnabledResult.error);
+  }
 
   return ok({
     fileSizeLimit: fileSizeLimitResult.value,
@@ -101,11 +109,15 @@ interface PRLimitInputs {
 function parsePRLimits(inputs: ActionInputStrings): Result<PRLimitInputs, ConfigurationError | ParseError> {
   const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
   if (isNaN(prAdditionsLimit)) {
-    return err(createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
+    return err(
+      createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'),
+    );
   }
 
   const prAdditionsLimitEnabledResult = parseBooleanStrict(inputs.pr_additions_limit_enabled);
-  if (prAdditionsLimitEnabledResult.isErr()) {return err(prAdditionsLimitEnabledResult.error);}
+  if (prAdditionsLimitEnabledResult.isErr()) {
+    return err(prAdditionsLimitEnabledResult.error);
+  }
 
   const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
   if (isNaN(prFilesLimit)) {
@@ -113,7 +125,9 @@ function parsePRLimits(inputs: ActionInputStrings): Result<PRLimitInputs, Config
   }
 
   const prFilesLimitEnabledResult = parseBooleanStrict(inputs.pr_files_limit_enabled);
-  if (prFilesLimitEnabledResult.isErr()) {return err(prFilesLimitEnabledResult.error);}
+  if (prFilesLimitEnabledResult.isErr()) {
+    return err(prFilesLimitEnabledResult.error);
+  }
 
   return ok({
     prAdditionsLimit,
@@ -132,16 +146,24 @@ interface FeatureFlagInputs {
 
 function parseFeatureFlags(inputs: ActionInputStrings): Result<FeatureFlagInputs, ConfigurationError | ParseError> {
   const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
-  if (sizeEnabledResult.isErr()) {return err(sizeEnabledResult.error);}
+  if (sizeEnabledResult.isErr()) {
+    return err(sizeEnabledResult.error);
+  }
 
   const complexityEnabledResult = parseBooleanStrict(inputs.complexity_enabled);
-  if (complexityEnabledResult.isErr()) {return err(complexityEnabledResult.error);}
+  if (complexityEnabledResult.isErr()) {
+    return err(complexityEnabledResult.error);
+  }
 
   const categoryEnabledResult = parseBooleanStrict(inputs.category_enabled);
-  if (categoryEnabledResult.isErr()) {return err(categoryEnabledResult.error);}
+  if (categoryEnabledResult.isErr()) {
+    return err(categoryEnabledResult.error);
+  }
 
   const riskEnabledResult = parseBooleanStrict(inputs.risk_enabled);
-  if (riskEnabledResult.isErr()) {return err(riskEnabledResult.error);}
+  if (riskEnabledResult.isErr()) {
+    return err(riskEnabledResult.error);
+  }
 
   return ok({
     sizeEnabled: sizeEnabledResult.value,
@@ -181,7 +203,9 @@ function parseFailureConditions(
   }
 
   if (failOnPrSize !== '' && !sizeEnabled) {
-    return err(createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'));
+    return err(
+      createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'),
+    );
   }
 
   return ok({ failOnLargeFiles, failOnTooManyFiles, failOnPrSize });
@@ -194,19 +218,29 @@ export function normalizeActionInputStrings(
   inputs: ActionInputStrings,
 ): Result<NormalizedActionInputs, ConfigurationError | ParseError> {
   const fileLimitsResult = parseFileLimits(inputs);
-  if (fileLimitsResult.isErr()) {return err(fileLimitsResult.error);}
+  if (fileLimitsResult.isErr()) {
+    return err(fileLimitsResult.error);
+  }
 
   const prLimitsResult = parsePRLimits(inputs);
-  if (prLimitsResult.isErr()) {return err(prLimitsResult.error);}
+  if (prLimitsResult.isErr()) {
+    return err(prLimitsResult.error);
+  }
 
   const featureFlagsResult = parseFeatureFlags(inputs);
-  if (featureFlagsResult.isErr()) {return err(featureFlagsResult.error);}
+  if (featureFlagsResult.isErr()) {
+    return err(featureFlagsResult.error);
+  }
 
   const sizeThresholdsResult = parseSizeThresholds(inputs.size_thresholds);
-  if (sizeThresholdsResult.isErr()) {return err(sizeThresholdsResult.error);}
+  if (sizeThresholdsResult.isErr()) {
+    return err(sizeThresholdsResult.error);
+  }
 
   const complexityThresholdsV2Result = parseComplexityThresholdsV2(inputs.complexity_thresholds);
-  if (complexityThresholdsV2Result.isErr()) {return err(complexityThresholdsV2Result.error);}
+  if (complexityThresholdsV2Result.isErr()) {
+    return err(complexityThresholdsV2Result.error);
+  }
 
   const rawMax = (inputs.max_labels ?? '').trim();
   const maxLabels = rawMax === '' ? 0 : parseInt(rawMax, 10);
@@ -215,7 +249,9 @@ export function normalizeActionInputStrings(
   }
 
   const failureConditionsResult = parseFailureConditions(inputs, featureFlagsResult.value.sizeEnabled);
-  if (failureConditionsResult.isErr()) {return err(failureConditionsResult.error);}
+  if (failureConditionsResult.isErr()) {
+    return err(failureConditionsResult.error);
+  }
 
   return ok({
     ...fileLimitsResult.value,

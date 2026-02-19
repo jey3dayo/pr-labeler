@@ -232,9 +232,15 @@ function buildCustomViolationLabels(config: LabelConfig): {
   tooManyLines?: string;
 } {
   const customLabels: { largeFiles?: string; tooManyFiles?: string; tooManyLines?: string } = {};
-  if (config.largeFilesLabel) {customLabels.largeFiles = config.largeFilesLabel;}
-  if (config.tooManyFilesLabel) {customLabels.tooManyFiles = config.tooManyFilesLabel;}
-  if (config.tooManyLinesLabel) {customLabels.tooManyLines = config.tooManyLinesLabel;}
+  if (config.largeFilesLabel) {
+    customLabels.largeFiles = config.largeFilesLabel;
+  }
+  if (config.tooManyFilesLabel) {
+    customLabels.tooManyFiles = config.tooManyFilesLabel;
+  }
+  if (config.tooManyLinesLabel) {
+    customLabels.tooManyLines = config.tooManyLinesLabel;
+  }
   return customLabels;
 }
 
@@ -245,7 +251,9 @@ function calculateLabelsToRemove(
   applySizeLabels: boolean,
   autoRemoveLabels: boolean,
 ): string[] {
-  if (!autoRemoveLabels) {return [];}
+  if (!autoRemoveLabels) {
+    return [];
+  }
   const labelsToRemove: string[] = [];
   if (applySizeLabels) {
     for (const label of currentLabels) {

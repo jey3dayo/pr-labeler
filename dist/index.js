@@ -259812,7 +259812,7 @@ module.exports = Queue;
 
 /***/ }),
 
-/***/ 89926:
+/***/ 53997:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -266874,7 +266874,7 @@ class BaseError extends Error {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/i18next@25.8.10_typescript@5.9.3/node_modules/i18next/dist/esm/i18next.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/i18next@25.8.11_typescript@5.9.3/node_modules/i18next/dist/esm/i18next.js
 const isString = obj => typeof obj === 'string';
 const defer = () => {
   let res;
@@ -269573,39 +269573,42 @@ function getGitHubToken() {
     core.setSecret(token);
     return ok(token);
 }
+function actions_io_getInput(name, defaultValue) {
+    return core.getInput(name) || defaultValue;
+}
 function getActionInputs() {
     return {
         github_token: resolveTokenValue() || '',
-        file_size_limit: core.getInput('file_size_limit') || '100KB',
-        file_size_limit_enabled: core.getInput('file_size_limit_enabled') || 'true',
-        file_lines_limit: core.getInput('file_lines_limit') || '500',
-        file_lines_limit_enabled: core.getInput('file_lines_limit_enabled') || 'true',
-        pr_additions_limit: core.getInput('pr_additions_limit') || '5000',
-        pr_additions_limit_enabled: core.getInput('pr_additions_limit_enabled') || 'true',
-        pr_files_limit: core.getInput('pr_files_limit') || '50',
-        pr_files_limit_enabled: core.getInput('pr_files_limit_enabled') || 'true',
-        size_enabled: core.getInput('size_enabled') || 'true',
-        size_thresholds: core.getInput('size_thresholds') || '{"small": 100, "medium": 500, "large": 1000}',
-        complexity_enabled: core.getInput('complexity_enabled') || 'false',
-        complexity_thresholds: core.getInput('complexity_thresholds') || '{"medium": 15, "high": 30}',
-        category_enabled: core.getInput('category_enabled') || 'true',
-        risk_enabled: core.getInput('risk_enabled') || 'true',
-        large_files_label: core.getInput('large_files_label') || VIOLATION_LABELS.largeFiles,
-        too_many_files_label: core.getInput('too_many_files_label') || VIOLATION_LABELS.tooManyFiles,
-        too_many_lines_label: core.getInput('too_many_lines_label') || VIOLATION_LABELS.tooManyLines,
-        excessive_changes_label: core.getInput('excessive_changes_label') || VIOLATION_LABELS.excessiveChanges,
-        skip_draft_pr: core.getInput('skip_draft_pr') || 'true',
-        comment_on_pr: core.getInput('comment_on_pr') || 'auto',
-        fail_on_large_files: core.getInput('fail_on_large_files') || '',
-        fail_on_too_many_files: core.getInput('fail_on_too_many_files') || '',
-        fail_on_pr_size: core.getInput('fail_on_pr_size') || '',
-        enable_summary: core.getInput('enable_summary') || 'true',
-        additional_exclude_patterns: core.getInput('additional_exclude_patterns') || '',
-        enable_directory_labeling: core.getInput('enable_directory_labeling') || 'false',
-        directory_labeler_config_path: core.getInput('directory_labeler_config_path') || '.github/directory-labeler.yml',
-        max_labels: core.getInput('max_labels') || '10',
-        use_default_excludes: core.getInput('use_default_excludes') || 'true',
-        language: core.getInput('language') || 'en',
+        file_size_limit: actions_io_getInput('file_size_limit', '100KB'),
+        file_size_limit_enabled: actions_io_getInput('file_size_limit_enabled', 'true'),
+        file_lines_limit: actions_io_getInput('file_lines_limit', '500'),
+        file_lines_limit_enabled: actions_io_getInput('file_lines_limit_enabled', 'true'),
+        pr_additions_limit: actions_io_getInput('pr_additions_limit', '5000'),
+        pr_additions_limit_enabled: actions_io_getInput('pr_additions_limit_enabled', 'true'),
+        pr_files_limit: actions_io_getInput('pr_files_limit', '50'),
+        pr_files_limit_enabled: actions_io_getInput('pr_files_limit_enabled', 'true'),
+        size_enabled: actions_io_getInput('size_enabled', 'true'),
+        size_thresholds: actions_io_getInput('size_thresholds', '{"small": 100, "medium": 500, "large": 1000}'),
+        complexity_enabled: actions_io_getInput('complexity_enabled', 'false'),
+        complexity_thresholds: actions_io_getInput('complexity_thresholds', '{"medium": 15, "high": 30}'),
+        category_enabled: actions_io_getInput('category_enabled', 'true'),
+        risk_enabled: actions_io_getInput('risk_enabled', 'true'),
+        large_files_label: actions_io_getInput('large_files_label', VIOLATION_LABELS.largeFiles),
+        too_many_files_label: actions_io_getInput('too_many_files_label', VIOLATION_LABELS.tooManyFiles),
+        too_many_lines_label: actions_io_getInput('too_many_lines_label', VIOLATION_LABELS.tooManyLines),
+        excessive_changes_label: actions_io_getInput('excessive_changes_label', VIOLATION_LABELS.excessiveChanges),
+        skip_draft_pr: actions_io_getInput('skip_draft_pr', 'true'),
+        comment_on_pr: actions_io_getInput('comment_on_pr', 'auto'),
+        fail_on_large_files: actions_io_getInput('fail_on_large_files', ''),
+        fail_on_too_many_files: actions_io_getInput('fail_on_too_many_files', ''),
+        fail_on_pr_size: actions_io_getInput('fail_on_pr_size', ''),
+        enable_summary: actions_io_getInput('enable_summary', 'true'),
+        additional_exclude_patterns: actions_io_getInput('additional_exclude_patterns', ''),
+        enable_directory_labeling: actions_io_getInput('enable_directory_labeling', 'false'),
+        directory_labeler_config_path: actions_io_getInput('directory_labeler_config_path', '.github/directory-labeler.yml'),
+        max_labels: actions_io_getInput('max_labels', '10'),
+        use_default_excludes: actions_io_getInput('use_default_excludes', 'true'),
+        language: actions_io_getInput('language', 'en'),
     };
 }
 function setActionOutputs(outputs) {
@@ -273981,6 +273984,50 @@ async function removeLabels(labels, token, context) {
         },
     });
 }
+function buildCustomViolationLabels(config) {
+    const customLabels = {};
+    if (config.largeFilesLabel) {
+        customLabels.largeFiles = config.largeFilesLabel;
+    }
+    if (config.tooManyFilesLabel) {
+        customLabels.tooManyFiles = config.tooManyFilesLabel;
+    }
+    if (config.tooManyLinesLabel) {
+        customLabels.tooManyLines = config.tooManyLinesLabel;
+    }
+    return customLabels;
+}
+function calculateLabelsToRemove(currentLabels, newSizeLabel, newViolationLabels, applySizeLabels, autoRemoveLabels) {
+    if (!autoRemoveLabels) {
+        return [];
+    }
+    const labelsToRemove = [];
+    if (applySizeLabels) {
+        for (const label of currentLabels) {
+            if ((label.startsWith('size:') || label.startsWith('size/')) && label !== newSizeLabel) {
+                labelsToRemove.push(label);
+            }
+        }
+    }
+    for (const label of currentLabels) {
+        if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
+            labelsToRemove.push(label);
+        }
+    }
+    return labelsToRemove;
+}
+function calculateLabelsToAdd(currentLabels, newSizeLabel, newViolationLabels, applySizeLabels) {
+    const labelsToAdd = [];
+    if (applySizeLabels && newSizeLabel && !currentLabels.includes(newSizeLabel)) {
+        labelsToAdd.push(newSizeLabel);
+    }
+    for (const label of newViolationLabels) {
+        if (!currentLabels.includes(label)) {
+            labelsToAdd.push(label);
+        }
+    }
+    return labelsToAdd;
+}
 async function updateLabels(analysisResult, config, token, context) {
     const validationResult = validateSizeLabelThresholds(config.sizeLabelThresholds);
     if (validationResult.isErr()) {
@@ -273996,41 +274043,9 @@ async function updateLabels(analysisResult, config, token, context) {
     const newSizeLabel = applySizeLabels
         ? calculateSizeLabel(analysisResult.metrics.totalAdditions, config.sizeLabelThresholds)
         : null;
-    const customLabels = {};
-    if (config.largeFilesLabel) {
-        customLabels.largeFiles = config.largeFilesLabel;
-    }
-    if (config.tooManyFilesLabel) {
-        customLabels.tooManyFiles = config.tooManyFilesLabel;
-    }
-    if (config.tooManyLinesLabel) {
-        customLabels.tooManyLines = config.tooManyLinesLabel;
-    }
-    const newViolationLabels = getDetailLabels(analysisResult.violations, customLabels);
-    const labelsToRemove = [];
-    if (autoRemoveLabels) {
-        if (applySizeLabels) {
-            for (const label of currentLabels) {
-                if ((label.startsWith('size:') || label.startsWith('size/')) && label !== newSizeLabel) {
-                    labelsToRemove.push(label);
-                }
-            }
-        }
-        for (const label of currentLabels) {
-            if (label.startsWith(AUTO_LABEL_PREFIX) && !newViolationLabels.includes(label)) {
-                labelsToRemove.push(label);
-            }
-        }
-    }
-    const labelsToAdd = [];
-    if (applySizeLabels && newSizeLabel && !currentLabels.includes(newSizeLabel)) {
-        labelsToAdd.push(newSizeLabel);
-    }
-    for (const label of newViolationLabels) {
-        if (!currentLabels.includes(label)) {
-            labelsToAdd.push(label);
-        }
-    }
+    const newViolationLabels = getDetailLabels(analysisResult.violations, buildCustomViolationLabels(config));
+    const labelsToRemove = calculateLabelsToRemove(currentLabels, newSizeLabel, newViolationLabels, applySizeLabels, autoRemoveLabels);
+    const labelsToAdd = calculateLabelsToAdd(currentLabels, newSizeLabel, newViolationLabels, applySizeLabels);
     if (labelsToRemove.length > 0) {
         const removeResult = await removeLabels(labelsToRemove, token, context);
         if (removeResult.isErr()) {
@@ -274044,11 +274059,7 @@ async function updateLabels(analysisResult, config, token, context) {
         }
     }
     const finalLabels = currentLabels.filter(label => !labelsToRemove.includes(label)).concat(labelsToAdd);
-    const result = {
-        added: labelsToAdd,
-        removed: labelsToRemove,
-        current: finalLabels,
-    };
+    const result = { added: labelsToAdd, removed: labelsToRemove, current: finalLabels };
     if (labelsToAdd.length === 0 && labelsToRemove.length === 0) {
         logInfo('No label changes needed');
     }
@@ -274102,66 +274113,46 @@ function calculateSizeCategory(totalAdditions, thresholds) {
 ;// CONCATENATED MODULE: ./src/failure-evaluator.ts
 
 
+function hasLabelOrViolation(appliedLabels, label, violation) {
+    return (appliedLabels?.includes(label) ?? false) || violation;
+}
+function addUniqueFailure(failures, failureKeys, key, message) {
+    if (!failureKeys.has(key)) {
+        failureKeys.add(key);
+        failures.push(message);
+    }
+}
 function evaluateFailureConditions(input) {
     const { config, appliedLabels, violations, metrics, sizeThresholds } = input;
     const failures = [];
     const failureKeys = new Set();
-    if (config.failOnLargeFiles) {
-        if (config.fileSizeLimitEnabled) {
-            const hasLargeFilesLabel = appliedLabels?.includes(config.largeFilesLabel) ?? false;
-            const hasLargeFilesViolation = violations.largeFiles.length > 0;
-            if (hasLargeFilesLabel || hasLargeFilesViolation) {
-                if (!failureKeys.has('largeFiles')) {
-                    failureKeys.add('largeFiles');
-                    failures.push(i18n_t('logs', 'failures.largeFiles'));
-                }
-            }
+    if (config.failOnLargeFiles && config.fileSizeLimitEnabled) {
+        if (hasLabelOrViolation(appliedLabels, config.largeFilesLabel, violations.largeFiles.length > 0)) {
+            addUniqueFailure(failures, failureKeys, 'largeFiles', i18n_t('logs', 'failures.largeFiles'));
         }
     }
     if (config.failOnTooManyFiles && config.prFilesLimitEnabled) {
-        const hasTooManyFilesLabel = appliedLabels?.includes(config.tooManyFilesLabel) ?? false;
-        const hasTooManyFilesViolation = violations.exceedsFileCount;
-        if (hasTooManyFilesLabel || hasTooManyFilesViolation) {
-            if (!failureKeys.has('tooManyFiles')) {
-                failureKeys.add('tooManyFiles');
-                failures.push(i18n_t('logs', 'failures.tooManyFiles'));
-            }
+        if (hasLabelOrViolation(appliedLabels, config.tooManyFilesLabel, violations.exceedsFileCount)) {
+            addUniqueFailure(failures, failureKeys, 'tooManyFiles', i18n_t('logs', 'failures.tooManyFiles'));
         }
     }
     if (config.failOnLargeFiles && config.fileLinesLimitEnabled) {
-        const hasTooManyLinesLabel = appliedLabels?.includes(config.tooManyLinesLabel) ?? false;
-        const hasTooManyLinesViolation = violations.exceedsFileLines.length > 0;
-        if (hasTooManyLinesLabel || hasTooManyLinesViolation) {
-            if (!failureKeys.has('tooManyLines')) {
-                failureKeys.add('tooManyLines');
-                failures.push(i18n_t('logs', 'failures.tooManyLines'));
-            }
+        if (hasLabelOrViolation(appliedLabels, config.tooManyLinesLabel, violations.exceedsFileLines.length > 0)) {
+            addUniqueFailure(failures, failureKeys, 'tooManyLines', i18n_t('logs', 'failures.tooManyLines'));
         }
     }
     if (config.failOnPrSize !== '' && config.prAdditionsLimitEnabled) {
-        const hasExcessiveChangesLabel = appliedLabels?.includes(config.excessiveChangesLabel) ?? false;
-        const hasExcessiveChangesViolation = violations.exceedsAdditions;
-        if (hasExcessiveChangesLabel || hasExcessiveChangesViolation) {
-            if (!failureKeys.has('excessiveChanges')) {
-                failureKeys.add('excessiveChanges');
-                failures.push(i18n_t('logs', 'failures.excessiveChanges'));
-            }
+        if (hasLabelOrViolation(appliedLabels, config.excessiveChangesLabel, violations.exceedsAdditions)) {
+            addUniqueFailure(failures, failureKeys, 'excessiveChanges', i18n_t('logs', 'failures.excessiveChanges'));
         }
     }
     if (config.failOnPrSize !== '') {
         const sizeLabel = appliedLabels?.find(l => l.startsWith('size/'));
-        let actualSize;
-        if (sizeLabel) {
-            actualSize = sizeLabel.replace(/^size\//, '');
-        }
-        else {
-            actualSize = calculateSizeCategory(metrics.totalAdditions, sizeThresholds);
-        }
+        const actualSize = sizeLabel
+            ? sizeLabel.replace(/^size\//, '')
+            : calculateSizeCategory(metrics.totalAdditions, sizeThresholds);
         if (compareSizeThreshold(actualSize, config.failOnPrSize)) {
-            if (!failureKeys.has('prSize')) {
-                failureKeys.add('prSize');
-                failures.push(i18n_t('logs', 'failures.prSize', { size: actualSize, threshold: config.failOnPrSize }));
-            }
+            addUniqueFailure(failures, failureKeys, 'prSize', i18n_t('logs', 'failures.prSize', { size: actualSize, threshold: config.failOnPrSize }));
         }
     }
     return failures;
@@ -274858,51 +274849,59 @@ function parseLabelerConfig(config) {
 function validateLabelerConfig(config) {
     return validateConfigWithTransformerAsync(config, parseLabelerConfig).map(normalizedConfig => mergeWithDefaults(normalizedConfig));
 }
+function mergeSizeThresholds(userConfig) {
+    const user = userConfig.size?.thresholds;
+    const defaults = DEFAULT_LABELER_CONFIG.size.thresholds;
+    return {
+        small: user?.small ?? defaults.small,
+        medium: user?.medium ?? defaults.medium,
+        large: user?.large ?? defaults.large,
+        xlarge: user?.xlarge ?? defaults.xlarge,
+    };
+}
+function mergeSizeConfig(userConfig) {
+    return {
+        enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
+        thresholds: mergeSizeThresholds(userConfig),
+    };
+}
+function mergeComplexityConfig(userConfig) {
+    const user = userConfig.complexity;
+    const defaults = DEFAULT_LABELER_CONFIG.complexity;
+    return {
+        enabled: user?.enabled ?? defaults.enabled,
+        metric: user?.metric ?? defaults.metric,
+        thresholds: {
+            medium: user?.thresholds?.medium ?? defaults.thresholds.medium,
+            high: user?.thresholds?.high ?? defaults.thresholds.high,
+        },
+        extensions: user?.extensions ?? defaults.extensions,
+        exclude: user?.exclude ?? defaults.exclude,
+    };
+}
+function mergeRiskConfig(userConfig) {
+    const user = userConfig.risk;
+    const defaults = DEFAULT_LABELER_CONFIG.risk;
+    return {
+        enabled: user?.enabled ?? defaults.enabled,
+        high_if_no_tests_for_core: user?.high_if_no_tests_for_core ?? defaults.high_if_no_tests_for_core,
+        core_paths: user?.core_paths ?? defaults.core_paths,
+        ...(user?.coverage_threshold !== undefined && { coverage_threshold: user.coverage_threshold }),
+        config_files: user?.config_files ?? defaults.config_files,
+        ...(user?.use_ci_status !== undefined && { use_ci_status: user.use_ci_status }),
+    };
+}
 function mergeWithDefaults(userConfig) {
     return {
         ...(userConfig.language !== undefined && { language: userConfig.language }),
-        ...(userConfig.summary?.title
-            ? {
-                summary: {
-                    title: userConfig.summary.title,
-                },
-            }
-            : {}),
-        size: {
-            enabled: userConfig.size?.enabled ?? DEFAULT_LABELER_CONFIG.size.enabled,
-            thresholds: {
-                small: userConfig.size?.thresholds?.small ?? DEFAULT_LABELER_CONFIG.size.thresholds.small,
-                medium: userConfig.size?.thresholds?.medium ?? DEFAULT_LABELER_CONFIG.size.thresholds.medium,
-                large: userConfig.size?.thresholds?.large ?? DEFAULT_LABELER_CONFIG.size.thresholds.large,
-                xlarge: userConfig.size?.thresholds?.xlarge ?? DEFAULT_LABELER_CONFIG.size.thresholds.xlarge,
-            },
-        },
-        complexity: {
-            enabled: userConfig.complexity?.enabled ?? DEFAULT_LABELER_CONFIG.complexity.enabled,
-            metric: userConfig.complexity?.metric ?? DEFAULT_LABELER_CONFIG.complexity.metric,
-            thresholds: {
-                medium: userConfig.complexity?.thresholds?.medium ?? DEFAULT_LABELER_CONFIG.complexity.thresholds.medium,
-                high: userConfig.complexity?.thresholds?.high ?? DEFAULT_LABELER_CONFIG.complexity.thresholds.high,
-            },
-            extensions: userConfig.complexity?.extensions ?? DEFAULT_LABELER_CONFIG.complexity.extensions,
-            exclude: userConfig.complexity?.exclude ?? DEFAULT_LABELER_CONFIG.complexity.exclude,
-        },
+        ...(userConfig.summary?.title ? { summary: { title: userConfig.summary.title } } : {}),
+        size: mergeSizeConfig(userConfig),
+        complexity: mergeComplexityConfig(userConfig),
         categoryLabeling: {
             enabled: userConfig.categoryLabeling?.enabled ?? DEFAULT_LABELER_CONFIG.categoryLabeling.enabled,
         },
         categories: userConfig.categories ?? DEFAULT_LABELER_CONFIG.categories,
-        risk: {
-            enabled: userConfig.risk?.enabled ?? DEFAULT_LABELER_CONFIG.risk.enabled,
-            high_if_no_tests_for_core: userConfig.risk?.high_if_no_tests_for_core ?? DEFAULT_LABELER_CONFIG.risk.high_if_no_tests_for_core,
-            core_paths: userConfig.risk?.core_paths ?? DEFAULT_LABELER_CONFIG.risk.core_paths,
-            ...(userConfig.risk?.coverage_threshold !== undefined && {
-                coverage_threshold: userConfig.risk.coverage_threshold,
-            }),
-            config_files: userConfig.risk?.config_files ?? DEFAULT_LABELER_CONFIG.risk.config_files,
-            ...(userConfig.risk?.use_ci_status !== undefined && {
-                use_ci_status: userConfig.risk.use_ci_status,
-            }),
-        },
+        risk: mergeRiskConfig(userConfig),
         exclude: {
             additional: userConfig.exclude?.additional ?? DEFAULT_LABELER_CONFIG.exclude.additional,
         },
@@ -278957,7 +278956,7 @@ function parseSize(input) {
 
 
 
-function normalizeActionInputStrings(inputs) {
+function parseFileLimits(inputs) {
     const fileSizeLimitResult = parseSize(inputs.file_size_limit);
     if (fileSizeLimitResult.isErr()) {
         return (0,index_cjs/* err */._q)(fileSizeLimitResult.error);
@@ -278974,6 +278973,14 @@ function normalizeActionInputStrings(inputs) {
     if (fileLinesLimitEnabledResult.isErr()) {
         return (0,index_cjs/* err */._q)(fileLinesLimitEnabledResult.error);
     }
+    return (0,index_cjs.ok)({
+        fileSizeLimit: fileSizeLimitResult.value,
+        fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
+        fileLinesLimit,
+        fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
+    });
+}
+function parsePRLimits(inputs) {
     const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
     if (isNaN(prAdditionsLimit)) {
         return (0,index_cjs/* err */._q)(factories_createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
@@ -278990,6 +278997,14 @@ function normalizeActionInputStrings(inputs) {
     if (prFilesLimitEnabledResult.isErr()) {
         return (0,index_cjs/* err */._q)(prFilesLimitEnabledResult.error);
     }
+    return (0,index_cjs.ok)({
+        prAdditionsLimit,
+        prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
+        prFilesLimit,
+        prFilesLimitEnabled: prFilesLimitEnabledResult.value,
+    });
+}
+function parseFeatureFlags(inputs) {
     const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
     if (sizeEnabledResult.isErr()) {
         return (0,index_cjs/* err */._q)(sizeEnabledResult.error);
@@ -279006,6 +279021,42 @@ function normalizeActionInputStrings(inputs) {
     if (riskEnabledResult.isErr()) {
         return (0,index_cjs/* err */._q)(riskEnabledResult.error);
     }
+    return (0,index_cjs.ok)({
+        sizeEnabled: sizeEnabledResult.value,
+        complexityEnabled: complexityEnabledResult.value,
+        categoryEnabled: categoryEnabledResult.value,
+        riskEnabled: riskEnabledResult.value,
+    });
+}
+function parseFailureConditions(inputs, sizeEnabled) {
+    const failOnLargeFilesRaw = inputs.fail_on_large_files ?? '';
+    const failOnTooManyFilesRaw = inputs.fail_on_too_many_files ?? '';
+    const failOnPrSizeRaw = inputs.fail_on_pr_size ?? '';
+    const failOnLargeFiles = failOnLargeFilesRaw.trim() !== '' ? parseBoolean(failOnLargeFilesRaw) === true : false;
+    const failOnTooManyFiles = failOnTooManyFilesRaw.trim() !== '' ? parseBoolean(failOnTooManyFilesRaw) === true : false;
+    const failOnPrSize = failOnPrSizeRaw.trim() !== '' ? failOnPrSizeRaw.trim() : '';
+    const validSizes = ['', 'small', 'medium', 'large', 'xlarge', 'xxlarge'];
+    if (!validSizes.includes(failOnPrSize)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError('fail_on_pr_size', failOnPrSize, `Invalid fail_on_pr_size value. Valid values: ${validSizes.join(', ')}`));
+    }
+    if (failOnPrSize !== '' && !sizeEnabled) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'));
+    }
+    return (0,index_cjs.ok)({ failOnLargeFiles, failOnTooManyFiles, failOnPrSize });
+}
+function normalizeActionInputStrings(inputs) {
+    const fileLimitsResult = parseFileLimits(inputs);
+    if (fileLimitsResult.isErr()) {
+        return (0,index_cjs/* err */._q)(fileLimitsResult.error);
+    }
+    const prLimitsResult = parsePRLimits(inputs);
+    if (prLimitsResult.isErr()) {
+        return (0,index_cjs/* err */._q)(prLimitsResult.error);
+    }
+    const featureFlagsResult = parseFeatureFlags(inputs);
+    if (featureFlagsResult.isErr()) {
+        return (0,index_cjs/* err */._q)(featureFlagsResult.error);
+    }
     const sizeThresholdsResult = parseSizeThresholds(inputs.size_thresholds);
     if (sizeThresholdsResult.isErr()) {
         return (0,index_cjs/* err */._q)(sizeThresholdsResult.error);
@@ -279019,46 +279070,23 @@ function normalizeActionInputStrings(inputs) {
     if (!Number.isInteger(maxLabels) || maxLabels < 0) {
         return (0,index_cjs/* err */._q)(factories_createConfigurationError('max_labels', inputs.max_labels, 'max_labels must be a non-negative integer'));
     }
-    const failOnLargeFilesRaw = inputs.fail_on_large_files ?? '';
-    const failOnTooManyFilesRaw = inputs.fail_on_too_many_files ?? '';
-    const failOnPrSizeRaw = inputs.fail_on_pr_size ?? '';
-    const hasExplicitLargeFiles = failOnLargeFilesRaw.trim() !== '';
-    const hasExplicitTooManyFiles = failOnTooManyFilesRaw.trim() !== '';
-    const hasExplicitPrSize = failOnPrSizeRaw.trim() !== '';
-    const failOnLargeFiles = hasExplicitLargeFiles ? parseBoolean(failOnLargeFilesRaw) === true : false;
-    const failOnTooManyFiles = hasExplicitTooManyFiles ? parseBoolean(failOnTooManyFilesRaw) === true : false;
-    const failOnPrSize = hasExplicitPrSize ? failOnPrSizeRaw.trim() : '';
-    const validSizes = ['', 'small', 'medium', 'large', 'xlarge', 'xxlarge'];
-    if (!validSizes.includes(failOnPrSize)) {
-        return (0,index_cjs/* err */._q)(factories_createConfigurationError('fail_on_pr_size', failOnPrSize, `Invalid fail_on_pr_size value. Valid values: ${validSizes.join(', ')}`));
-    }
-    if (failOnPrSize !== '' && !sizeEnabledResult.value) {
-        return (0,index_cjs/* err */._q)(factories_createConfigurationError('fail_on_pr_size', failOnPrSize, 'fail_on_pr_size requires size_enabled to be true'));
+    const failureConditionsResult = parseFailureConditions(inputs, featureFlagsResult.value.sizeEnabled);
+    if (failureConditionsResult.isErr()) {
+        return (0,index_cjs/* err */._q)(failureConditionsResult.error);
     }
     return (0,index_cjs.ok)({
-        fileSizeLimit: fileSizeLimitResult.value,
-        fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
-        fileLinesLimit,
-        fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
-        prAdditionsLimit,
-        prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
-        prFilesLimit,
-        prFilesLimitEnabled: prFilesLimitEnabledResult.value,
-        sizeEnabled: sizeEnabledResult.value,
+        ...fileLimitsResult.value,
+        ...prLimitsResult.value,
+        ...featureFlagsResult.value,
         sizeThresholds: sizeThresholdsResult.value,
-        complexityEnabled: complexityEnabledResult.value,
         complexityThresholdsV2: complexityThresholdsV2Result.value,
-        categoryEnabled: categoryEnabledResult.value,
-        riskEnabled: riskEnabledResult.value,
         largeFilesLabel: inputs.large_files_label,
         tooManyFilesLabel: inputs.too_many_files_label,
         tooManyLinesLabel: inputs.too_many_lines_label,
         excessiveChangesLabel: inputs.excessive_changes_label,
         skipDraftPr: parseBoolean(inputs.skip_draft_pr),
         commentOnPr: parseCommentMode(inputs.comment_on_pr),
-        failOnLargeFiles,
-        failOnTooManyFiles,
-        failOnPrSize,
+        ...failureConditionsResult.value,
         enableSummary: parseBoolean(inputs.enable_summary),
         additionalExcludePatterns: parseExcludePatterns(inputs.additional_exclude_patterns),
         enableDirectoryLabeling: parseBoolean(inputs.enable_directory_labeling),
@@ -279276,19 +279304,62 @@ function convertCategoriesToDirectoryConfig(categories) {
 
 
 
-function parseDirectoryLabelerConfig(config) {
-    const objectValidation = validateObjectInput(config, 'config');
-    if (objectValidation.isErr()) {
-        return (0,index_cjs/* err */._q)(objectValidation.error);
-    }
-    const cfg = objectValidation.value;
-    const warnings = [];
+function validateVersion(cfg) {
     if (!('version' in cfg)) {
         return (0,index_cjs/* err */._q)(factories_createConfigurationError('version', cfg['version'], 'Field "version" is required'));
     }
     if (cfg['version'] !== 1) {
         return (0,index_cjs/* err */._q)(factories_createConfigurationError('version', cfg['version'], 'Field "version" must be 1 (current schema version)'));
     }
+    return (0,index_cjs.ok)(undefined);
+}
+function parseSingleRule(rule, index, labelsSeen, warnings) {
+    if (!isRecord(rule)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${index}]`, rule, `Rule at index ${index} must be an object`));
+    }
+    const label = rule['label'];
+    if (!type_guards_isString(label)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${index}].label`, label, `Field "label" is required and must be a string in rule at index ${index}`));
+    }
+    if (labelsSeen.has(label)) {
+        warnings.push(`Duplicate label "${label}" found in rules. The first definition will be prioritized.`);
+    }
+    else {
+        labelsSeen.add(label);
+    }
+    if (!('include' in rule)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${index}].include`, rule['include'], `Field "include" is required in rule at index ${index}`));
+    }
+    const include = rule['include'];
+    if (!isNonEmptyStringArray(include)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${index}].include`, include, `Field "include" must be a non-empty array in rule at index ${index}`));
+    }
+    let exclude;
+    if ('exclude' in rule && rule['exclude'] !== undefined) {
+        const rawExclude = rule['exclude'];
+        if (!isStringArray(rawExclude)) {
+            return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${index}].exclude`, rawExclude, `Field "exclude" must be an array in rule at index ${index}`));
+        }
+        exclude = [...rawExclude];
+    }
+    let priority;
+    if ('priority' in rule && rule['priority'] !== undefined) {
+        const rawPriority = rule['priority'];
+        if (!isNumber(rawPriority)) {
+            return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${index}].priority`, rawPriority, `Field "priority" must be a number in rule at index ${index}`));
+        }
+        priority = rawPriority;
+    }
+    const normalizedRule = { label, include: [...include] };
+    if (exclude) {
+        normalizedRule.exclude = exclude;
+    }
+    if (priority !== undefined) {
+        normalizedRule.priority = priority;
+    }
+    return (0,index_cjs.ok)(normalizedRule);
+}
+function parseRulesField(cfg) {
     if (!('rules' in cfg)) {
         return (0,index_cjs/* err */._q)(factories_createConfigurationError('rules', cfg['rules'], 'Field "rules" is required'));
     }
@@ -279296,142 +279367,150 @@ function parseDirectoryLabelerConfig(config) {
     if (!Array.isArray(rawRules)) {
         return (0,index_cjs/* err */._q)(factories_createConfigurationError('rules', rawRules, 'Field "rules" must be an array'));
     }
+    const warnings = [];
     if (rawRules.length === 0) {
         warnings.push('Configuration has no rules defined. No labels will be applied.');
     }
     const normalizedRules = [];
     const labelsSeen = new Set();
     for (let i = 0; i < rawRules.length; i++) {
-        const rule = rawRules[i];
-        if (!isRecord(rule)) {
-            return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${i}]`, rule, `Rule at index ${i} must be an object`));
+        const ruleResult = parseSingleRule(rawRules[i], i, labelsSeen, warnings);
+        if (ruleResult.isErr()) {
+            return (0,index_cjs/* err */._q)(ruleResult.error);
         }
-        const label = rule['label'];
-        if (!type_guards_isString(label)) {
-            return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${i}].label`, label, `Field "label" is required and must be a string in rule at index ${i}`));
-        }
-        if (labelsSeen.has(label)) {
-            warnings.push(`Duplicate label "${label}" found in rules. The first definition will be prioritized.`);
-        }
-        else {
-            labelsSeen.add(label);
-        }
-        if (!('include' in rule)) {
-            return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${i}].include`, rule['include'], `Field "include" is required in rule at index ${i}`));
-        }
-        const include = rule['include'];
-        if (!isNonEmptyStringArray(include)) {
-            return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${i}].include`, include, `Field "include" must be a non-empty array in rule at index ${i}`));
-        }
-        let exclude;
-        if ('exclude' in rule && rule['exclude'] !== undefined) {
-            const rawExclude = rule['exclude'];
-            if (!isStringArray(rawExclude)) {
-                return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${i}].exclude`, rawExclude, `Field "exclude" must be an array in rule at index ${i}`));
-            }
-            exclude = [...rawExclude];
-        }
-        let priority;
-        if ('priority' in rule && rule['priority'] !== undefined) {
-            const rawPriority = rule['priority'];
-            if (!isNumber(rawPriority)) {
-                return (0,index_cjs/* err */._q)(factories_createConfigurationError(`rules[${i}].priority`, rawPriority, `Field "priority" must be a number in rule at index ${i}`));
-            }
-            priority = rawPriority;
-        }
-        const normalizedRule = {
-            label,
-            include: [...include],
-        };
-        if (exclude) {
-            normalizedRule.exclude = exclude;
-        }
-        if (priority !== undefined) {
-            normalizedRule.priority = priority;
-        }
-        normalizedRules.push(normalizedRule);
+        normalizedRules.push(ruleResult.value);
     }
-    let optionsOverride;
-    if ('options' in cfg && cfg['options'] !== undefined) {
-        const rawOptions = cfg['options'];
-        if (!isRecord(rawOptions)) {
-            return (0,index_cjs/* err */._q)(factories_createConfigurationError('options', rawOptions, 'Field "options" must be an object'));
-        }
-        const optionsRecord = rawOptions;
-        const optionOverrides = {};
-        if ('dot' in optionsRecord && optionsRecord['dot'] !== undefined) {
-            const value = optionsRecord['dot'];
-            if (!isBoolean(value)) {
-                return (0,index_cjs/* err */._q)(factories_createConfigurationError('options.dot', value, 'Field "options.dot" must be a boolean'));
-            }
-            optionOverrides.dot = value;
-        }
-        if ('nocase' in optionsRecord && optionsRecord['nocase'] !== undefined) {
-            const value = optionsRecord['nocase'];
-            if (!isBoolean(value)) {
-                return (0,index_cjs/* err */._q)(factories_createConfigurationError('options.nocase', value, 'Field "options.nocase" must be a boolean'));
-            }
-            optionOverrides.nocase = value;
-        }
-        if ('matchBase' in optionsRecord && optionsRecord['matchBase'] !== undefined) {
-            const value = optionsRecord['matchBase'];
-            if (!isBoolean(value)) {
-                return (0,index_cjs/* err */._q)(factories_createConfigurationError('options.matchBase', value, 'Field "options.matchBase" must be a boolean'));
-            }
-            optionOverrides.matchBase = value;
-        }
-        if (Object.keys(optionOverrides).length > 0) {
-            optionsOverride = optionOverrides;
-        }
+    return (0,index_cjs.ok)({ rules: normalizedRules, warnings });
+}
+function parseBooleanOption(record, key, fieldPath) {
+    if (!(key in record) || record[key] === undefined) {
+        return (0,index_cjs.ok)(undefined);
     }
-    let namespaceOverrides;
-    if ('namespaces' in cfg && cfg['namespaces'] !== undefined) {
-        const rawNamespaces = cfg['namespaces'];
-        if (!isRecord(rawNamespaces)) {
-            return (0,index_cjs/* err */._q)(factories_createConfigurationError('namespaces', rawNamespaces, 'Field "namespaces" must be an object'));
-        }
-        const namespacesRecord = rawNamespaces;
-        const overrides = {};
-        if ('exclusive' in namespacesRecord && namespacesRecord['exclusive'] !== undefined) {
-            const value = namespacesRecord['exclusive'];
-            if (!isStringArray(value)) {
-                return (0,index_cjs/* err */._q)(factories_createConfigurationError('namespaces.exclusive', value, 'Field "namespaces.exclusive" must be an array'));
-            }
-            overrides.exclusive = [...value];
-        }
-        if ('additive' in namespacesRecord && namespacesRecord['additive'] !== undefined) {
-            const value = namespacesRecord['additive'];
-            if (!isStringArray(value)) {
-                return (0,index_cjs/* err */._q)(factories_createConfigurationError('namespaces.additive', value, 'Field "namespaces.additive" must be an array'));
-            }
-            overrides.additive = [...value];
-        }
-        if (Object.keys(overrides).length > 0) {
-            namespaceOverrides = overrides;
-        }
+    const value = record[key];
+    if (!isBoolean(value)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be a boolean`));
     }
-    let useDefaultExcludes;
-    if ('useDefaultExcludes' in cfg && cfg['useDefaultExcludes'] !== undefined) {
-        const rawUseDefault = cfg['useDefaultExcludes'];
-        if (!isBoolean(rawUseDefault)) {
-            return (0,index_cjs/* err */._q)(factories_createConfigurationError('useDefaultExcludes', rawUseDefault, 'Field "useDefaultExcludes" must be a boolean'));
-        }
-        useDefaultExcludes = rawUseDefault;
+    return (0,index_cjs.ok)(value);
+}
+function parseOptionsField(cfg) {
+    if (!('options' in cfg) || cfg['options'] === undefined) {
+        return (0,index_cjs.ok)(undefined);
+    }
+    const rawOptions = cfg['options'];
+    if (!isRecord(rawOptions)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError('options', rawOptions, 'Field "options" must be an object'));
+    }
+    const optionsRecord = rawOptions;
+    const optionOverrides = {};
+    const dotResult = parseBooleanOption(optionsRecord, 'dot', 'options.dot');
+    if (dotResult.isErr()) {
+        return (0,index_cjs/* err */._q)(dotResult.error);
+    }
+    if (dotResult.value !== undefined) {
+        optionOverrides.dot = dotResult.value;
+    }
+    const nocaseResult = parseBooleanOption(optionsRecord, 'nocase', 'options.nocase');
+    if (nocaseResult.isErr()) {
+        return (0,index_cjs/* err */._q)(nocaseResult.error);
+    }
+    if (nocaseResult.value !== undefined) {
+        optionOverrides.nocase = nocaseResult.value;
+    }
+    const matchBaseResult = parseBooleanOption(optionsRecord, 'matchBase', 'options.matchBase');
+    if (matchBaseResult.isErr()) {
+        return (0,index_cjs/* err */._q)(matchBaseResult.error);
+    }
+    if (matchBaseResult.value !== undefined) {
+        optionOverrides.matchBase = matchBaseResult.value;
+    }
+    return (0,index_cjs.ok)(Object.keys(optionOverrides).length > 0 ? optionOverrides : undefined);
+}
+function parseStringArrayOption(record, key, fieldPath) {
+    if (!(key in record) || record[key] === undefined) {
+        return (0,index_cjs.ok)(undefined);
+    }
+    const value = record[key];
+    if (!isStringArray(value)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be an array`));
+    }
+    return (0,index_cjs.ok)([...value]);
+}
+function parseNamespacesField(cfg) {
+    if (!('namespaces' in cfg) || cfg['namespaces'] === undefined) {
+        return (0,index_cjs.ok)(undefined);
+    }
+    const rawNamespaces = cfg['namespaces'];
+    if (!isRecord(rawNamespaces)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError('namespaces', rawNamespaces, 'Field "namespaces" must be an object'));
+    }
+    const namespacesRecord = rawNamespaces;
+    const overrides = {};
+    const exclusiveResult = parseStringArrayOption(namespacesRecord, 'exclusive', 'namespaces.exclusive');
+    if (exclusiveResult.isErr()) {
+        return (0,index_cjs/* err */._q)(exclusiveResult.error);
+    }
+    if (exclusiveResult.value !== undefined) {
+        overrides.exclusive = exclusiveResult.value;
+    }
+    const additiveResult = parseStringArrayOption(namespacesRecord, 'additive', 'namespaces.additive');
+    if (additiveResult.isErr()) {
+        return (0,index_cjs/* err */._q)(additiveResult.error);
+    }
+    if (additiveResult.value !== undefined) {
+        overrides.additive = additiveResult.value;
+    }
+    return (0,index_cjs.ok)(Object.keys(overrides).length > 0 ? overrides : undefined);
+}
+function parseUseDefaultExcludesField(cfg) {
+    if (!('useDefaultExcludes' in cfg) || cfg['useDefaultExcludes'] === undefined) {
+        return (0,index_cjs.ok)(undefined);
+    }
+    const rawUseDefault = cfg['useDefaultExcludes'];
+    if (!isBoolean(rawUseDefault)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError('useDefaultExcludes', rawUseDefault, 'Field "useDefaultExcludes" must be a boolean'));
+    }
+    return (0,index_cjs.ok)(rawUseDefault);
+}
+function parseDirectoryLabelerConfig(config) {
+    const objectValidation = validateObjectInput(config, 'config');
+    if (objectValidation.isErr()) {
+        return (0,index_cjs/* err */._q)(objectValidation.error);
+    }
+    const cfg = objectValidation.value;
+    const versionResult = validateVersion(cfg);
+    if (versionResult.isErr()) {
+        return (0,index_cjs/* err */._q)(versionResult.error);
+    }
+    const rulesResult = parseRulesField(cfg);
+    if (rulesResult.isErr()) {
+        return (0,index_cjs/* err */._q)(rulesResult.error);
+    }
+    const optionsResult = parseOptionsField(cfg);
+    if (optionsResult.isErr()) {
+        return (0,index_cjs/* err */._q)(optionsResult.error);
+    }
+    const namespacesResult = parseNamespacesField(cfg);
+    if (namespacesResult.isErr()) {
+        return (0,index_cjs/* err */._q)(namespacesResult.error);
+    }
+    const useDefaultExcludesResult = parseUseDefaultExcludesField(cfg);
+    if (useDefaultExcludesResult.isErr()) {
+        return (0,index_cjs/* err */._q)(useDefaultExcludesResult.error);
     }
     const normalizedConfig = {
         version: 1,
-        rules: normalizedRules,
+        rules: rulesResult.value.rules,
     };
-    if (optionsOverride) {
-        normalizedConfig.options = optionsOverride;
+    if (optionsResult.value) {
+        normalizedConfig.options = optionsResult.value;
     }
-    if (namespaceOverrides) {
-        normalizedConfig.namespaces = namespaceOverrides;
+    if (namespacesResult.value) {
+        normalizedConfig.namespaces = namespacesResult.value;
     }
-    if (useDefaultExcludes !== undefined) {
-        normalizedConfig.useDefaultExcludes = useDefaultExcludes;
+    if (useDefaultExcludesResult.value !== undefined) {
+        normalizedConfig.useDefaultExcludes = useDefaultExcludesResult.value;
     }
-    return (0,index_cjs.ok)({ config: normalizedConfig, warnings });
+    return (0,index_cjs.ok)({ config: normalizedConfig, warnings: rulesResult.value.warnings });
 }
 
 ;// CONCATENATED MODULE: ./src/configs/directory-labeler-defaults.ts
@@ -279718,26 +279797,14 @@ function matchesNamespacePattern(namespace, pattern) {
 
 
 
-async function applyDirectoryLabels(octokit, context, decisions, namespaces) {
-    const result = {
-        applied: [],
-        skipped: [],
-        removed: [],
-        failed: [],
-    };
-    if (decisions.length === 0) {
-        core_debug('No label decisions to apply.');
-        return (0,index_cjs.ok)(result);
-    }
-    let existingLabels;
+async function fetchExistingLabels(octokit, context) {
     try {
         const { data } = await octokit.rest.issues.listLabelsOnIssue({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: context.issue.number,
         });
-        existingLabels = data.map(label => label.name);
-        core_debug(`Existing labels: ${existingLabels.join(', ')}`);
+        return (0,index_cjs.ok)(data.map(label => label.name));
     }
     catch (error) {
         const e = helpers_ensureError(error);
@@ -279759,8 +279826,9 @@ async function applyDirectoryLabels(octokit, context, decisions, namespaces) {
         }
         return (0,index_cjs/* err */._q)(factories_createGitHubAPIError(`Failed to list labels: ${e.message}`, status));
     }
+}
+function calculateNamespaceRemovals(existingLabels, newLabels, namespaces) {
     const labelsToRemove = new Set();
-    const newLabels = decisions.map(d => d.label);
     for (const newLabel of newLabels) {
         const namespace = extractNamespace(newLabel, ':');
         if (namespace && namespaces.exclusive.includes(namespace)) {
@@ -279772,6 +279840,27 @@ async function applyDirectoryLabels(octokit, context, decisions, namespaces) {
             }
         }
     }
+    return labelsToRemove;
+}
+async function applyDirectoryLabels(octokit, context, decisions, namespaces) {
+    const result = {
+        applied: [],
+        skipped: [],
+        removed: [],
+        failed: [],
+    };
+    if (decisions.length === 0) {
+        core_debug('No label decisions to apply.');
+        return (0,index_cjs.ok)(result);
+    }
+    const existingLabelsResult = await fetchExistingLabels(octokit, context);
+    if (existingLabelsResult.isErr()) {
+        return (0,index_cjs/* err */._q)(existingLabelsResult.error);
+    }
+    const existingLabels = existingLabelsResult.value;
+    core_debug(`Existing labels: ${existingLabels.join(', ')}`);
+    const newLabels = decisions.map(d => d.label);
+    const labelsToRemove = calculateNamespaceRemovals(existingLabels, newLabels, namespaces);
     for (const label of labelsToRemove) {
         try {
             await octokit.rest.issues.removeLabel({
@@ -280325,6 +280414,109 @@ function decideViolationLabels(violations) {
 
 
 
+async function enrichContextWithCIStatus(octokit, prContext, labelerConfig, extendedPRContext) {
+    const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
+    if (!useCiStatus) {
+        return;
+    }
+    logInfoI18n('ciStatus.fetching');
+    const ciStatusResult = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
+    if (ciStatusResult.isOk()) {
+        const ciStatus = ciStatusResult.value;
+        if (ciStatus) {
+            extendedPRContext.ciStatus = ciStatus;
+            logInfoI18n('ciStatus.status', {
+                tests: ciStatus.tests,
+                typeCheck: ciStatus.typeCheck,
+                build: ciStatus.build,
+                lint: ciStatus.lint,
+            });
+        }
+        else {
+            logInfoI18n('ciStatus.notAvailable');
+        }
+    }
+    else {
+        logInfoI18n('ciStatus.notAvailable');
+        actions_io_logWarning(`CI status unavailable: ${ciStatusResult.error.message}`);
+    }
+    const commitMessagesResult = await fetchCommitMessages(octokit, prContext.owner, prContext.repo, prContext.pullNumber);
+    if (commitMessagesResult.isOk()) {
+        extendedPRContext.commitMessages = commitMessagesResult.value;
+        logInfoI18n('ciStatus.fetchedCommits', { count: commitMessagesResult.value.length });
+    }
+    else {
+        logInfoI18n('ciStatus.fetchCommitsFailed');
+        actions_io_logWarning(`Failed to fetch commit messages: ${commitMessagesResult.error.message}`);
+    }
+}
+async function processDirectoryLabeling(octokit, prContext, config, files, artifacts) {
+    logInfoI18n('directoryLabeling.starting');
+    const dirConfigResult = loadDirectoryLabelerConfig(config.directoryLabelerConfigPath);
+    let dirConfig;
+    if (dirConfigResult.isErr()) {
+        if (dirConfigResult.error.type === 'FileSystemError') {
+            logInfoI18n('directoryLabeling.configNotFound', { path: config.directoryLabelerConfigPath });
+            logInfoI18n('directoryLabeling.usingDefaultCategories');
+            dirConfig = convertCategoriesToDirectoryConfig(DEFAULT_CATEGORIES);
+        }
+        else {
+            logWarningI18n('directoryLabeling.configLoadFailed', { message: dirConfigResult.error.message });
+            logInfoI18n('directoryLabeling.skipped');
+            return artifacts;
+        }
+    }
+    else {
+        dirConfig = dirConfigResult.value;
+    }
+    dirConfig.useDefaultExcludes = config.useDefaultExcludes;
+    const fileList = files.map(file => file.filename);
+    const directoryDecisionsResult = decideLabelsForFiles(fileList, dirConfig);
+    if (directoryDecisionsResult.isErr()) {
+        logWarningI18n('directoryLabeling.decideFailed', { message: directoryDecisionsResult.error.message });
+        return artifacts;
+    }
+    const directoryDecisions = directoryDecisionsResult.value;
+    if (directoryDecisions.length === 0) {
+        logInfoI18n('directoryLabeling.noLabelsMatched');
+        return artifacts;
+    }
+    logInfoI18n('directoryLabeling.decided', { count: directoryDecisions.length });
+    const { selected, rejected } = filterByMaxLabels(directoryDecisions, config.maxLabels);
+    if (rejected.length > 0) {
+        logWarningI18n('directoryLabeling.rejected', { count: rejected.length });
+        for (const rejectedDecision of rejected) {
+            logDebugI18n('directoryLabeling.rejectedDetail', {
+                label: rejectedDecision.label,
+                reason: rejectedDecision.reason,
+            });
+        }
+    }
+    const applyDirectoryResult = await applyDirectoryLabels(octokit, { repo: { owner: prContext.owner, repo: prContext.repo }, issue: { number: prContext.pullNumber } }, selected, dirConfig.namespaces || { exclusive: ['size', 'area', 'type'], additive: ['scope', 'meta'] });
+    if (applyDirectoryResult.isErr()) {
+        if (applyDirectoryResult.error.type === 'PermissionError') {
+            logWarningI18n('directoryLabeling.permissionError', { message: applyDirectoryResult.error.message });
+            logWarningI18n('directoryLabeling.permissionHint');
+        }
+        else {
+            logWarningI18n('directoryLabeling.applyFailed', { message: applyDirectoryResult.error.message });
+        }
+        return artifacts;
+    }
+    const result = applyDirectoryResult.value;
+    logInfoI18n('directoryLabeling.applyResult', {
+        applied: result.applied.length,
+        skipped: result.skipped.length,
+        removed: result.removed?.length || 0,
+        failed: result.failed.length,
+    });
+    if (result.failed.length > 0) {
+        for (const failed of result.failed) {
+            logWarningI18n('directoryLabeling.failedDetail', { label: failed.label, reason: failed.reason });
+        }
+    }
+    return artifacts;
+}
 function applyLabelsStage(context, artifacts) {
     return index_cjs/* ResultAsync */.EN.fromPromise((async () => {
         const { token, prContext, config, labelerConfig } = context;
@@ -280343,40 +280535,7 @@ function applyLabelsStage(context, artifacts) {
             repo: prContext.repo,
             pullNumber: prContext.pullNumber,
         };
-        const useCiStatus = labelerConfig.risk.use_ci_status ?? true;
-        if (useCiStatus) {
-            logInfoI18n('ciStatus.fetching');
-            const ciStatusResult = await getCIStatus(octokit, prContext.owner, prContext.repo, prContext.headSha);
-            if (ciStatusResult.isOk()) {
-                const ciStatus = ciStatusResult.value;
-                if (ciStatus) {
-                    extendedPRContext.ciStatus = ciStatus;
-                    logInfoI18n('ciStatus.status', {
-                        tests: ciStatus.tests,
-                        typeCheck: ciStatus.typeCheck,
-                        build: ciStatus.build,
-                        lint: ciStatus.lint,
-                    });
-                }
-                else {
-                    logInfoI18n('ciStatus.notAvailable');
-                }
-            }
-            else {
-                logInfoI18n('ciStatus.notAvailable');
-                actions_io_logWarning(`CI status unavailable: ${ciStatusResult.error.message}`);
-            }
-            const commitMessagesResult = await fetchCommitMessages(octokit, prContext.owner, prContext.repo, prContext.pullNumber);
-            if (commitMessagesResult.isOk()) {
-                const messages = commitMessagesResult.value;
-                extendedPRContext.commitMessages = messages;
-                logInfoI18n('ciStatus.fetchedCommits', { count: messages.length });
-            }
-            else {
-                logInfoI18n('ciStatus.fetchCommitsFailed');
-                actions_io_logWarning(`Failed to fetch commit messages: ${commitMessagesResult.error.message}`);
-            }
-        }
+        await enrichContextWithCIStatus(octokit, prContext, labelerConfig, extendedPRContext);
         const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext);
         if (labelerDecisions.isOk()) {
             const decisions = labelerDecisions.value;
@@ -280388,11 +280547,7 @@ function applyLabelsStage(context, artifacts) {
             }
             else {
                 logInfoI18n('labels.applying');
-                const applyResult = await applyLabels(token, {
-                    owner: prContext.owner,
-                    repo: prContext.repo,
-                    pullNumber: prContext.pullNumber,
-                }, decisions, labelerConfig.labels);
+                const applyResult = await applyLabels(token, { owner: prContext.owner, repo: prContext.repo, pullNumber: prContext.pullNumber }, decisions, labelerConfig.labels);
                 if (applyResult.isErr()) {
                     if (applyResult.error.status === 403) {
                         logWarningI18n('labels.skipped');
@@ -280415,79 +280570,7 @@ function applyLabelsStage(context, artifacts) {
         if (!config.enableDirectoryLabeling) {
             return artifacts;
         }
-        logInfoI18n('directoryLabeling.starting');
-        const dirConfigResult = loadDirectoryLabelerConfig(config.directoryLabelerConfigPath);
-        let dirConfig;
-        if (dirConfigResult.isErr()) {
-            if (dirConfigResult.error.type === 'FileSystemError') {
-                logInfoI18n('directoryLabeling.configNotFound', { path: config.directoryLabelerConfigPath });
-                logInfoI18n('directoryLabeling.usingDefaultCategories');
-                dirConfig = convertCategoriesToDirectoryConfig(DEFAULT_CATEGORIES);
-            }
-            else {
-                logWarningI18n('directoryLabeling.configLoadFailed', { message: dirConfigResult.error.message });
-                logInfoI18n('directoryLabeling.skipped');
-                return artifacts;
-            }
-        }
-        else {
-            dirConfig = dirConfigResult.value;
-        }
-        dirConfig.useDefaultExcludes = config.useDefaultExcludes;
-        const fileList = files.map(file => file.filename);
-        const directoryDecisionsResult = decideLabelsForFiles(fileList, dirConfig);
-        if (directoryDecisionsResult.isErr()) {
-            logWarningI18n('directoryLabeling.decideFailed', { message: directoryDecisionsResult.error.message });
-            return artifacts;
-        }
-        const directoryDecisions = directoryDecisionsResult.value;
-        if (directoryDecisions.length === 0) {
-            logInfoI18n('directoryLabeling.noLabelsMatched');
-            return artifacts;
-        }
-        logInfoI18n('directoryLabeling.decided', { count: directoryDecisions.length });
-        const { selected, rejected } = filterByMaxLabels(directoryDecisions, config.maxLabels);
-        if (rejected.length > 0) {
-            logWarningI18n('directoryLabeling.rejected', { count: rejected.length });
-            for (const rejectedDecision of rejected) {
-                logDebugI18n('directoryLabeling.rejectedDetail', {
-                    label: rejectedDecision.label,
-                    reason: rejectedDecision.reason,
-                });
-            }
-        }
-        const applyDirectoryResult = await applyDirectoryLabels(octokit, {
-            repo: {
-                owner: prContext.owner,
-                repo: prContext.repo,
-            },
-            issue: {
-                number: prContext.pullNumber,
-            },
-        }, selected, dirConfig.namespaces || { exclusive: ['size', 'area', 'type'], additive: ['scope', 'meta'] });
-        if (applyDirectoryResult.isErr()) {
-            if (applyDirectoryResult.error.type === 'PermissionError') {
-                logWarningI18n('directoryLabeling.permissionError', { message: applyDirectoryResult.error.message });
-                logWarningI18n('directoryLabeling.permissionHint');
-            }
-            else {
-                logWarningI18n('directoryLabeling.applyFailed', { message: applyDirectoryResult.error.message });
-            }
-            return artifacts;
-        }
-        const result = applyDirectoryResult.value;
-        logInfoI18n('directoryLabeling.applyResult', {
-            applied: result.applied.length,
-            skipped: result.skipped.length,
-            removed: result.removed?.length || 0,
-            failed: result.failed.length,
-        });
-        if (result.failed.length > 0) {
-            for (const failed of result.failed) {
-                logWarningI18n('directoryLabeling.failedDetail', { label: failed.label, reason: failed.reason });
-            }
-        }
-        return artifacts;
+        return processDirectoryLabeling(octokit, prContext, config, files, artifacts);
     })(), toAppError);
 }
 function fetchCommitMessages(octokit, owner, repo, pullNumber) {
@@ -414392,7 +414475,7 @@ module.exports = {"rE":"2.6.1"};
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __nccwpck_require__(89926);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(53997);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
