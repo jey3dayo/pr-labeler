@@ -2,6 +2,8 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { describe, expect, it, vi } from 'vitest';
 
+vi.mock('@actions/github');
+
 import {
   getDefaultLabelerConfig,
   loadConfig,
@@ -352,7 +354,7 @@ size:
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const result = await loadConfig('token', 'owner', 'repo', 'ref');
       expect(result.isOk()).toBe(true);
@@ -375,7 +377,7 @@ size:
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const result = await loadConfig('token', 'owner', 'repo', 'ref');
       expect(result.isErr()).toBe(true);
@@ -399,7 +401,7 @@ size:
         },
       };
 
-      vi.spyOn(github, 'getOctokit').mockReturnValue(mockOctokit as any);
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
 
       const result = await loadConfig('token', 'owner', 'repo', 'ref');
       expect(result.isErr()).toBe(true);

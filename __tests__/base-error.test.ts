@@ -125,7 +125,7 @@ describe('BaseError', () => {
           expect(error.errorLevel).toBe('info');
           expect(error.message).toBe('Test error');
         } else {
-          throw new Error('Expected BaseError');
+          throw new Error('Expected BaseError', { cause: error });
         }
       }
     });

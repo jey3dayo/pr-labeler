@@ -107,7 +107,7 @@ export function getCIStatus(
           ref: headSha,
           per_page: 100,
         },
-        response => response.data.check_runs,
+        response => response.data,
       );
 
       const checkRuns: CheckRun[] = allCheckRuns.filter(isValidCheckRun).map(run => ({
