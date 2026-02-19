@@ -155,8 +155,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-changes
     if: needs.detect-changes.outputs['docs-only'] == 'false'
-    permissions:
-      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -248,33 +246,6 @@ jobs:
           else
             echo "❌ Build failed" >> $GITHUB_STEP_SUMMARY
             exit 1
-          fi
-
-      - name: Commit dist if changed
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-          if [[ -n "$(git status --porcelain dist/)" ]]; then
-            git add dist/
-            git commit -m "chore: update dist [skip ci]"
-
-            # Retry push up to 3 times to handle race conditions
-            for attempt in 1 2 3; do
-              if git push; then
-                echo "✅ dist/ committed and pushed" >> $GITHUB_STEP_SUMMARY
-                exit 0
-              elif [[ $attempt -lt 3 ]]; then
-                echo "Push attempt $attempt failed, retrying after delay..."
-                sleep $((attempt * 2))
-              else
-                echo "❌ Failed to push dist/ after 3 attempts" >> $GITHUB_STEP_SUMMARY
-                exit 1
-              fi
-            done
-          else
-            echo "ℹ️ No changes to dist/" >> $GITHUB_STEP_SUMMARY
           fi
 
   integration-test:
