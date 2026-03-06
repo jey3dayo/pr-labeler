@@ -846,7 +846,7 @@ class DecodedURL extends URL {
 
 /***/ }),
 
-/***/ 22632:
+/***/ 7093:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -1118,9 +1118,10 @@ function getFunctionHeadLocation(node, sourceCode) {
         start = arrowToken.loc.start;
         end = arrowToken.loc.end;
     } else if (
-        parent.type === "Property" ||
-        parent.type === "MethodDefinition" ||
-        parent.type === "PropertyDefinition"
+        parent &&
+        (parent.type === "Property" ||
+            parent.type === "MethodDefinition" ||
+            parent.type === "PropertyDefinition")
     ) {
         start = /** @type {SourceLocation} */ (parent.loc).start;
         end = getOpeningParenOfParams(node, sourceCode).loc.start;
@@ -2158,6 +2159,11 @@ function getPropertyName(node, initialScope) {
 // eslint-disable-next-line complexity
 function getFunctionNameWithKind(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent;
+
+    if (!parent) {
+        return ""
+    }
+
     const tokens = [];
     const isObjectMethod = parent.type === "Property" && parent.value === node;
     const isClassMethod =
@@ -2510,6 +2516,10 @@ function hasSideEffect(node, sourceCode, options = {}) {
 // eslint-disable-next-line complexity
 function getParentSyntaxParen(node, sourceCode) {
     const parent = /** @type {RuleNode} */ (node).parent;
+
+    if (!parent) {
+        return null
+    }
 
     switch (parent.type) {
         case "CallExpression":
@@ -3164,6 +3174,9 @@ class ReferenceTracker {
         }
 
         const parent = /** @type {RuleNode} */ (node).parent;
+        if (!parent) {
+            return
+        }
         if (parent.type === "MemberExpression") {
             if (parent.object === node) {
                 const key = getPropertyName(parent);
@@ -6511,13 +6524,13 @@ exports.visitRegExpAST = visitRegExpAST;
 
 /***/ }),
 
-/***/ 6181:
+/***/ 99414:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const XHTMLEntities = __nccwpck_require__(10268);
+const XHTMLEntities = __nccwpck_require__(23583);
 
 const hexNumber = /^[\da-fA-F]+$/;
 const decimalNumber = /^\d+$/;
@@ -6601,14 +6614,14 @@ module.exports = function(options) {
 // This can be different instances from the actual `tokTypes` this plugin uses.
 Object.defineProperty(module.exports, "tokTypes", ({
   get: function get_tokTypes() {
-    return getJsxTokens(__nccwpck_require__(57393)).tokTypes;
+    return getJsxTokens(__nccwpck_require__(61184)).tokTypes;
   },
   configurable: true,
   enumerable: true
 }));
 
 function plugin(options, Parser) {
-  const acorn = Parser.acorn || __nccwpck_require__(57393);
+  const acorn = Parser.acorn || __nccwpck_require__(61184);
   const acornJsx = getJsxTokens(acorn);
   const tt = acorn.tokTypes;
   const tok = acornJsx.tokTypes;
@@ -7007,7 +7020,7 @@ function plugin(options, Parser) {
 
 /***/ }),
 
-/***/ 10268:
+/***/ 23583:
 /***/ ((module) => {
 
 module.exports = {
@@ -7269,7 +7282,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 57393:
+/***/ 61184:
 /***/ (function(__unused_webpack_module, exports) {
 
 (function (global, factory) {
@@ -7278,16 +7291,16 @@ module.exports = {
 })(this, (function (exports) { 'use strict';
 
   // This file was generated. Do not modify manually!
-  var astralIdentifierCodes = [509, 0, 227, 0, 150, 4, 294, 9, 1368, 2, 2, 1, 6, 3, 41, 2, 5, 0, 166, 1, 574, 3, 9, 9, 7, 9, 32, 4, 318, 1, 80, 3, 71, 10, 50, 3, 123, 2, 54, 14, 32, 10, 3, 1, 11, 3, 46, 10, 8, 0, 46, 9, 7, 2, 37, 13, 2, 9, 6, 1, 45, 0, 13, 2, 49, 13, 9, 3, 2, 11, 83, 11, 7, 0, 3, 0, 158, 11, 6, 9, 7, 3, 56, 1, 2, 6, 3, 1, 3, 2, 10, 0, 11, 1, 3, 6, 4, 4, 68, 8, 2, 0, 3, 0, 2, 3, 2, 4, 2, 0, 15, 1, 83, 17, 10, 9, 5, 0, 82, 19, 13, 9, 214, 6, 3, 8, 28, 1, 83, 16, 16, 9, 82, 12, 9, 9, 7, 19, 58, 14, 5, 9, 243, 14, 166, 9, 71, 5, 2, 1, 3, 3, 2, 0, 2, 1, 13, 9, 120, 6, 3, 6, 4, 0, 29, 9, 41, 6, 2, 3, 9, 0, 10, 10, 47, 15, 343, 9, 54, 7, 2, 7, 17, 9, 57, 21, 2, 13, 123, 5, 4, 0, 2, 1, 2, 6, 2, 0, 9, 9, 49, 4, 2, 1, 2, 4, 9, 9, 330, 3, 10, 1, 2, 0, 49, 6, 4, 4, 14, 10, 5350, 0, 7, 14, 11465, 27, 2343, 9, 87, 9, 39, 4, 60, 6, 26, 9, 535, 9, 470, 0, 2, 54, 8, 3, 82, 0, 12, 1, 19628, 1, 4178, 9, 519, 45, 3, 22, 543, 4, 4, 5, 9, 7, 3, 6, 31, 3, 149, 2, 1418, 49, 513, 54, 5, 49, 9, 0, 15, 0, 23, 4, 2, 14, 1361, 6, 2, 16, 3, 6, 2, 1, 2, 4, 101, 0, 161, 6, 10, 9, 357, 0, 62, 13, 499, 13, 245, 1, 2, 9, 726, 6, 110, 6, 6, 9, 4759, 9, 787719, 239];
+  var astralIdentifierCodes = [509, 0, 227, 0, 150, 4, 294, 9, 1368, 2, 2, 1, 6, 3, 41, 2, 5, 0, 166, 1, 574, 3, 9, 9, 7, 9, 32, 4, 318, 1, 78, 5, 71, 10, 50, 3, 123, 2, 54, 14, 32, 10, 3, 1, 11, 3, 46, 10, 8, 0, 46, 9, 7, 2, 37, 13, 2, 9, 6, 1, 45, 0, 13, 2, 49, 13, 9, 3, 2, 11, 83, 11, 7, 0, 3, 0, 158, 11, 6, 9, 7, 3, 56, 1, 2, 6, 3, 1, 3, 2, 10, 0, 11, 1, 3, 6, 4, 4, 68, 8, 2, 0, 3, 0, 2, 3, 2, 4, 2, 0, 15, 1, 83, 17, 10, 9, 5, 0, 82, 19, 13, 9, 214, 6, 3, 8, 28, 1, 83, 16, 16, 9, 82, 12, 9, 9, 7, 19, 58, 14, 5, 9, 243, 14, 166, 9, 71, 5, 2, 1, 3, 3, 2, 0, 2, 1, 13, 9, 120, 6, 3, 6, 4, 0, 29, 9, 41, 6, 2, 3, 9, 0, 10, 10, 47, 15, 199, 7, 137, 9, 54, 7, 2, 7, 17, 9, 57, 21, 2, 13, 123, 5, 4, 0, 2, 1, 2, 6, 2, 0, 9, 9, 49, 4, 2, 1, 2, 4, 9, 9, 55, 9, 266, 3, 10, 1, 2, 0, 49, 6, 4, 4, 14, 10, 5350, 0, 7, 14, 11465, 27, 2343, 9, 87, 9, 39, 4, 60, 6, 26, 9, 535, 9, 470, 0, 2, 54, 8, 3, 82, 0, 12, 1, 19628, 1, 4178, 9, 519, 45, 3, 22, 543, 4, 4, 5, 9, 7, 3, 6, 31, 3, 149, 2, 1418, 49, 513, 54, 5, 49, 9, 0, 15, 0, 23, 4, 2, 14, 1361, 6, 2, 16, 3, 6, 2, 1, 2, 4, 101, 0, 161, 6, 10, 9, 357, 0, 62, 13, 499, 13, 245, 1, 2, 9, 233, 0, 3, 0, 8, 1, 6, 0, 475, 6, 110, 6, 6, 9, 4759, 9, 787719, 239];
 
   // This file was generated. Do not modify manually!
-  var astralIdentifierStartCodes = [0, 11, 2, 25, 2, 18, 2, 1, 2, 14, 3, 13, 35, 122, 70, 52, 268, 28, 4, 48, 48, 31, 14, 29, 6, 37, 11, 29, 3, 35, 5, 7, 2, 4, 43, 157, 19, 35, 5, 35, 5, 39, 9, 51, 13, 10, 2, 14, 2, 6, 2, 1, 2, 10, 2, 14, 2, 6, 2, 1, 4, 51, 13, 310, 10, 21, 11, 7, 25, 5, 2, 41, 2, 8, 70, 5, 3, 0, 2, 43, 2, 1, 4, 0, 3, 22, 11, 22, 10, 30, 66, 18, 2, 1, 11, 21, 11, 25, 71, 55, 7, 1, 65, 0, 16, 3, 2, 2, 2, 28, 43, 28, 4, 28, 36, 7, 2, 27, 28, 53, 11, 21, 11, 18, 14, 17, 111, 72, 56, 50, 14, 50, 14, 35, 39, 27, 10, 22, 251, 41, 7, 1, 17, 2, 60, 28, 11, 0, 9, 21, 43, 17, 47, 20, 28, 22, 13, 52, 58, 1, 3, 0, 14, 44, 33, 24, 27, 35, 30, 0, 3, 0, 9, 34, 4, 0, 13, 47, 15, 3, 22, 0, 2, 0, 36, 17, 2, 24, 20, 1, 64, 6, 2, 0, 2, 3, 2, 14, 2, 9, 8, 46, 39, 7, 3, 1, 3, 21, 2, 6, 2, 1, 2, 4, 4, 0, 19, 0, 13, 4, 31, 9, 2, 0, 3, 0, 2, 37, 2, 0, 26, 0, 2, 0, 45, 52, 19, 3, 21, 2, 31, 47, 21, 1, 2, 0, 185, 46, 42, 3, 37, 47, 21, 0, 60, 42, 14, 0, 72, 26, 38, 6, 186, 43, 117, 63, 32, 7, 3, 0, 3, 7, 2, 1, 2, 23, 16, 0, 2, 0, 95, 7, 3, 38, 17, 0, 2, 0, 29, 0, 11, 39, 8, 0, 22, 0, 12, 45, 20, 0, 19, 72, 200, 32, 32, 8, 2, 36, 18, 0, 50, 29, 113, 6, 2, 1, 2, 37, 22, 0, 26, 5, 2, 1, 2, 31, 15, 0, 328, 18, 16, 0, 2, 12, 2, 33, 125, 0, 80, 921, 103, 110, 18, 195, 2637, 96, 16, 1071, 18, 5, 26, 3994, 6, 582, 6842, 29, 1763, 568, 8, 30, 18, 78, 18, 29, 19, 47, 17, 3, 32, 20, 6, 18, 433, 44, 212, 63, 129, 74, 6, 0, 67, 12, 65, 1, 2, 0, 29, 6135, 9, 1237, 42, 9, 8936, 3, 2, 6, 2, 1, 2, 290, 16, 0, 30, 2, 3, 0, 15, 3, 9, 395, 2309, 106, 6, 12, 4, 8, 8, 9, 5991, 84, 2, 70, 2, 1, 3, 0, 3, 1, 3, 3, 2, 11, 2, 0, 2, 6, 2, 64, 2, 3, 3, 7, 2, 6, 2, 27, 2, 3, 2, 4, 2, 0, 4, 6, 2, 339, 3, 24, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 7, 1845, 30, 7, 5, 262, 61, 147, 44, 11, 6, 17, 0, 322, 29, 19, 43, 485, 27, 229, 29, 3, 0, 496, 6, 2, 3, 2, 1, 2, 14, 2, 196, 60, 67, 8, 0, 1205, 3, 2, 26, 2, 1, 2, 0, 3, 0, 2, 9, 2, 3, 2, 0, 2, 0, 7, 0, 5, 0, 2, 0, 2, 0, 2, 2, 2, 1, 2, 0, 3, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 2, 0, 3, 3, 2, 6, 2, 3, 2, 3, 2, 0, 2, 9, 2, 16, 6, 2, 2, 4, 2, 16, 4421, 42719, 33, 4153, 7, 221, 3, 5761, 15, 7472, 16, 621, 2467, 541, 1507, 4938, 6, 4191];
+  var astralIdentifierStartCodes = [0, 11, 2, 25, 2, 18, 2, 1, 2, 14, 3, 13, 35, 122, 70, 52, 268, 28, 4, 48, 48, 31, 14, 29, 6, 37, 11, 29, 3, 35, 5, 7, 2, 4, 43, 157, 19, 35, 5, 35, 5, 39, 9, 51, 13, 10, 2, 14, 2, 6, 2, 1, 2, 10, 2, 14, 2, 6, 2, 1, 4, 51, 13, 310, 10, 21, 11, 7, 25, 5, 2, 41, 2, 8, 70, 5, 3, 0, 2, 43, 2, 1, 4, 0, 3, 22, 11, 22, 10, 30, 66, 18, 2, 1, 11, 21, 11, 25, 7, 25, 39, 55, 7, 1, 65, 0, 16, 3, 2, 2, 2, 28, 43, 28, 4, 28, 36, 7, 2, 27, 28, 53, 11, 21, 11, 18, 14, 17, 111, 72, 56, 50, 14, 50, 14, 35, 39, 27, 10, 22, 251, 41, 7, 1, 17, 5, 57, 28, 11, 0, 9, 21, 43, 17, 47, 20, 28, 22, 13, 52, 58, 1, 3, 0, 14, 44, 33, 24, 27, 35, 30, 0, 3, 0, 9, 34, 4, 0, 13, 47, 15, 3, 22, 0, 2, 0, 36, 17, 2, 24, 20, 1, 64, 6, 2, 0, 2, 3, 2, 14, 2, 9, 8, 46, 39, 7, 3, 1, 3, 21, 2, 6, 2, 1, 2, 4, 4, 0, 19, 0, 13, 4, 31, 9, 2, 0, 3, 0, 2, 37, 2, 0, 26, 0, 2, 0, 45, 52, 19, 3, 21, 2, 31, 47, 21, 1, 2, 0, 185, 46, 42, 3, 37, 47, 21, 0, 60, 42, 14, 0, 72, 26, 38, 6, 186, 43, 117, 63, 32, 7, 3, 0, 3, 7, 2, 1, 2, 23, 16, 0, 2, 0, 95, 7, 3, 38, 17, 0, 2, 0, 29, 0, 11, 39, 8, 0, 22, 0, 12, 45, 20, 0, 19, 72, 200, 32, 32, 8, 2, 36, 18, 0, 50, 29, 113, 6, 2, 1, 2, 37, 22, 0, 26, 5, 2, 1, 2, 31, 15, 0, 24, 43, 261, 18, 16, 0, 2, 12, 2, 33, 125, 0, 80, 921, 103, 110, 18, 195, 2637, 96, 16, 1071, 18, 5, 26, 3994, 6, 582, 6842, 29, 1763, 568, 8, 30, 18, 78, 18, 29, 19, 47, 17, 3, 32, 20, 6, 18, 433, 44, 212, 63, 33, 24, 3, 24, 45, 74, 6, 0, 67, 12, 65, 1, 2, 0, 15, 4, 10, 7381, 42, 31, 98, 114, 8702, 3, 2, 6, 2, 1, 2, 290, 16, 0, 30, 2, 3, 0, 15, 3, 9, 395, 2309, 106, 6, 12, 4, 8, 8, 9, 5991, 84, 2, 70, 2, 1, 3, 0, 3, 1, 3, 3, 2, 11, 2, 0, 2, 6, 2, 64, 2, 3, 3, 7, 2, 6, 2, 27, 2, 3, 2, 4, 2, 0, 4, 6, 2, 339, 3, 24, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 30, 2, 24, 2, 7, 1845, 30, 7, 5, 262, 61, 147, 44, 11, 6, 17, 0, 322, 29, 19, 43, 485, 27, 229, 29, 3, 0, 208, 30, 2, 2, 2, 1, 2, 6, 3, 4, 10, 1, 225, 6, 2, 3, 2, 1, 2, 14, 2, 196, 60, 67, 8, 0, 1205, 3, 2, 26, 2, 1, 2, 0, 3, 0, 2, 9, 2, 3, 2, 0, 2, 0, 7, 0, 5, 0, 2, 0, 2, 0, 2, 2, 2, 1, 2, 0, 3, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 2, 0, 3, 3, 2, 6, 2, 3, 2, 3, 2, 0, 2, 9, 2, 16, 6, 2, 2, 4, 2, 16, 4421, 42719, 33, 4381, 3, 5773, 3, 7472, 16, 621, 2467, 541, 1507, 4938, 6, 8489];
 
   // This file was generated. Do not modify manually!
-  var nonASCIIidentifierChars = "\u200c\u200d\xb7\u0300-\u036f\u0387\u0483-\u0487\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u0610-\u061a\u064b-\u0669\u0670\u06d6-\u06dc\u06df-\u06e4\u06e7\u06e8\u06ea-\u06ed\u06f0-\u06f9\u0711\u0730-\u074a\u07a6-\u07b0\u07c0-\u07c9\u07eb-\u07f3\u07fd\u0816-\u0819\u081b-\u0823\u0825-\u0827\u0829-\u082d\u0859-\u085b\u0897-\u089f\u08ca-\u08e1\u08e3-\u0903\u093a-\u093c\u093e-\u094f\u0951-\u0957\u0962\u0963\u0966-\u096f\u0981-\u0983\u09bc\u09be-\u09c4\u09c7\u09c8\u09cb-\u09cd\u09d7\u09e2\u09e3\u09e6-\u09ef\u09fe\u0a01-\u0a03\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a66-\u0a71\u0a75\u0a81-\u0a83\u0abc\u0abe-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ae2\u0ae3\u0ae6-\u0aef\u0afa-\u0aff\u0b01-\u0b03\u0b3c\u0b3e-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b55-\u0b57\u0b62\u0b63\u0b66-\u0b6f\u0b82\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd7\u0be6-\u0bef\u0c00-\u0c04\u0c3c\u0c3e-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c62\u0c63\u0c66-\u0c6f\u0c81-\u0c83\u0cbc\u0cbe-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0ce2\u0ce3\u0ce6-\u0cef\u0cf3\u0d00-\u0d03\u0d3b\u0d3c\u0d3e-\u0d44\u0d46-\u0d48\u0d4a-\u0d4d\u0d57\u0d62\u0d63\u0d66-\u0d6f\u0d81-\u0d83\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0de6-\u0def\u0df2\u0df3\u0e31\u0e34-\u0e3a\u0e47-\u0e4e\u0e50-\u0e59\u0eb1\u0eb4-\u0ebc\u0ec8-\u0ece\u0ed0-\u0ed9\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e\u0f3f\u0f71-\u0f84\u0f86\u0f87\u0f8d-\u0f97\u0f99-\u0fbc\u0fc6\u102b-\u103e\u1040-\u1049\u1056-\u1059\u105e-\u1060\u1062-\u1064\u1067-\u106d\u1071-\u1074\u1082-\u108d\u108f-\u109d\u135d-\u135f\u1369-\u1371\u1712-\u1715\u1732-\u1734\u1752\u1753\u1772\u1773\u17b4-\u17d3\u17dd\u17e0-\u17e9\u180b-\u180d\u180f-\u1819\u18a9\u1920-\u192b\u1930-\u193b\u1946-\u194f\u19d0-\u19da\u1a17-\u1a1b\u1a55-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1ab0-\u1abd\u1abf-\u1ace\u1b00-\u1b04\u1b34-\u1b44\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1b82\u1ba1-\u1bad\u1bb0-\u1bb9\u1be6-\u1bf3\u1c24-\u1c37\u1c40-\u1c49\u1c50-\u1c59\u1cd0-\u1cd2\u1cd4-\u1ce8\u1ced\u1cf4\u1cf7-\u1cf9\u1dc0-\u1dff\u200c\u200d\u203f\u2040\u2054\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2cef-\u2cf1\u2d7f\u2de0-\u2dff\u302a-\u302f\u3099\u309a\u30fb\ua620-\ua629\ua66f\ua674-\ua67d\ua69e\ua69f\ua6f0\ua6f1\ua802\ua806\ua80b\ua823-\ua827\ua82c\ua880\ua881\ua8b4-\ua8c5\ua8d0-\ua8d9\ua8e0-\ua8f1\ua8ff-\ua909\ua926-\ua92d\ua947-\ua953\ua980-\ua983\ua9b3-\ua9c0\ua9d0-\ua9d9\ua9e5\ua9f0-\ua9f9\uaa29-\uaa36\uaa43\uaa4c\uaa4d\uaa50-\uaa59\uaa7b-\uaa7d\uaab0\uaab2-\uaab4\uaab7\uaab8\uaabe\uaabf\uaac1\uaaeb-\uaaef\uaaf5\uaaf6\uabe3-\uabea\uabec\uabed\uabf0-\uabf9\ufb1e\ufe00-\ufe0f\ufe20-\ufe2f\ufe33\ufe34\ufe4d-\ufe4f\uff10-\uff19\uff3f\uff65";
+  var nonASCIIidentifierChars = "\u200c\u200d\xb7\u0300-\u036f\u0387\u0483-\u0487\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u0610-\u061a\u064b-\u0669\u0670\u06d6-\u06dc\u06df-\u06e4\u06e7\u06e8\u06ea-\u06ed\u06f0-\u06f9\u0711\u0730-\u074a\u07a6-\u07b0\u07c0-\u07c9\u07eb-\u07f3\u07fd\u0816-\u0819\u081b-\u0823\u0825-\u0827\u0829-\u082d\u0859-\u085b\u0897-\u089f\u08ca-\u08e1\u08e3-\u0903\u093a-\u093c\u093e-\u094f\u0951-\u0957\u0962\u0963\u0966-\u096f\u0981-\u0983\u09bc\u09be-\u09c4\u09c7\u09c8\u09cb-\u09cd\u09d7\u09e2\u09e3\u09e6-\u09ef\u09fe\u0a01-\u0a03\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a66-\u0a71\u0a75\u0a81-\u0a83\u0abc\u0abe-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ae2\u0ae3\u0ae6-\u0aef\u0afa-\u0aff\u0b01-\u0b03\u0b3c\u0b3e-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b55-\u0b57\u0b62\u0b63\u0b66-\u0b6f\u0b82\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd7\u0be6-\u0bef\u0c00-\u0c04\u0c3c\u0c3e-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c62\u0c63\u0c66-\u0c6f\u0c81-\u0c83\u0cbc\u0cbe-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0ce2\u0ce3\u0ce6-\u0cef\u0cf3\u0d00-\u0d03\u0d3b\u0d3c\u0d3e-\u0d44\u0d46-\u0d48\u0d4a-\u0d4d\u0d57\u0d62\u0d63\u0d66-\u0d6f\u0d81-\u0d83\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0de6-\u0def\u0df2\u0df3\u0e31\u0e34-\u0e3a\u0e47-\u0e4e\u0e50-\u0e59\u0eb1\u0eb4-\u0ebc\u0ec8-\u0ece\u0ed0-\u0ed9\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e\u0f3f\u0f71-\u0f84\u0f86\u0f87\u0f8d-\u0f97\u0f99-\u0fbc\u0fc6\u102b-\u103e\u1040-\u1049\u1056-\u1059\u105e-\u1060\u1062-\u1064\u1067-\u106d\u1071-\u1074\u1082-\u108d\u108f-\u109d\u135d-\u135f\u1369-\u1371\u1712-\u1715\u1732-\u1734\u1752\u1753\u1772\u1773\u17b4-\u17d3\u17dd\u17e0-\u17e9\u180b-\u180d\u180f-\u1819\u18a9\u1920-\u192b\u1930-\u193b\u1946-\u194f\u19d0-\u19da\u1a17-\u1a1b\u1a55-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1ab0-\u1abd\u1abf-\u1add\u1ae0-\u1aeb\u1b00-\u1b04\u1b34-\u1b44\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1b82\u1ba1-\u1bad\u1bb0-\u1bb9\u1be6-\u1bf3\u1c24-\u1c37\u1c40-\u1c49\u1c50-\u1c59\u1cd0-\u1cd2\u1cd4-\u1ce8\u1ced\u1cf4\u1cf7-\u1cf9\u1dc0-\u1dff\u200c\u200d\u203f\u2040\u2054\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2cef-\u2cf1\u2d7f\u2de0-\u2dff\u302a-\u302f\u3099\u309a\u30fb\ua620-\ua629\ua66f\ua674-\ua67d\ua69e\ua69f\ua6f0\ua6f1\ua802\ua806\ua80b\ua823-\ua827\ua82c\ua880\ua881\ua8b4-\ua8c5\ua8d0-\ua8d9\ua8e0-\ua8f1\ua8ff-\ua909\ua926-\ua92d\ua947-\ua953\ua980-\ua983\ua9b3-\ua9c0\ua9d0-\ua9d9\ua9e5\ua9f0-\ua9f9\uaa29-\uaa36\uaa43\uaa4c\uaa4d\uaa50-\uaa59\uaa7b-\uaa7d\uaab0\uaab2-\uaab4\uaab7\uaab8\uaabe\uaabf\uaac1\uaaeb-\uaaef\uaaf5\uaaf6\uabe3-\uabea\uabec\uabed\uabf0-\uabf9\ufb1e\ufe00-\ufe0f\ufe20-\ufe2f\ufe33\ufe34\ufe4d-\ufe4f\uff10-\uff19\uff3f\uff65";
 
   // This file was generated. Do not modify manually!
-  var nonASCIIidentifierStartChars = "\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u037f\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u052f\u0531-\u0556\u0559\u0560-\u0588\u05d0-\u05ea\u05ef-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u0860-\u086a\u0870-\u0887\u0889-\u088e\u08a0-\u08c9\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u09fc\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0af9\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c39\u0c3d\u0c58-\u0c5a\u0c5d\u0c60\u0c61\u0c80\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cdd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d04-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d54-\u0d56\u0d5f-\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e86-\u0e8a\u0e8c-\u0ea3\u0ea5\u0ea7-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u1000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f5\u13f8-\u13fd\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f8\u1700-\u1711\u171f-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1878\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191e\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19b0-\u19c9\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4c\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1c80-\u1c8a\u1c90-\u1cba\u1cbd-\u1cbf\u1ce9-\u1cec\u1cee-\u1cf3\u1cf5\u1cf6\u1cfa\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2118-\u211d\u2124\u2126\u2128\u212a-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309b-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312f\u3131-\u318e\u31a0-\u31bf\u31f0-\u31ff\u3400-\u4dbf\u4e00-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua69d\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua7cd\ua7d0\ua7d1\ua7d3\ua7d5-\ua7dc\ua7f2-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua8fd\ua8fe\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\ua9e0-\ua9e4\ua9e6-\ua9ef\ua9fa-\ua9fe\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa7e-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uab30-\uab5a\uab5c-\uab69\uab70-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc";
+  var nonASCIIidentifierStartChars = "\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u037f\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u052f\u0531-\u0556\u0559\u0560-\u0588\u05d0-\u05ea\u05ef-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u0860-\u086a\u0870-\u0887\u0889-\u088f\u08a0-\u08c9\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u09fc\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0af9\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c39\u0c3d\u0c58-\u0c5a\u0c5c\u0c5d\u0c60\u0c61\u0c80\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cdc-\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d04-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d54-\u0d56\u0d5f-\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e86-\u0e8a\u0e8c-\u0ea3\u0ea5\u0ea7-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u1000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f5\u13f8-\u13fd\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f8\u1700-\u1711\u171f-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1878\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191e\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19b0-\u19c9\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4c\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1c80-\u1c8a\u1c90-\u1cba\u1cbd-\u1cbf\u1ce9-\u1cec\u1cee-\u1cf3\u1cf5\u1cf6\u1cfa\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2118-\u211d\u2124\u2126\u2128\u212a-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309b-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312f\u3131-\u318e\u31a0-\u31bf\u31f0-\u31ff\u3400-\u4dbf\u4e00-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua69d\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua7dc\ua7f1-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua8fd\ua8fe\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\ua9e0-\ua9e4\ua9e6-\ua9ef\ua9fa-\ua9fe\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa7e-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uab30-\uab5a\uab5c-\uab69\uab70-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc";
 
   // These are a run-length and offset encoded representation of the
   // >0xffff code points that are a valid part of identifiers. The
@@ -7612,7 +7625,7 @@ module.exports = {
     // for new syntax features.
     ecmaVersion: null,
     // `sourceType` indicates the mode the code should be parsed in.
-    // Can be either `"script"` or `"module"`. This influences global
+    // Can be either `"script"`, `"module"` or `"commonjs"`. This influences global
     // strict mode and parsing of `import` and `export` declarations.
     sourceType: "script",
     // `onInsertedSemicolon` can be a callback that will be called when
@@ -7736,6 +7749,9 @@ module.exports = {
     if (isArray(options.onComment))
       { options.onComment = pushComment(options, options.onComment); }
 
+    if (options.sourceType === "commonjs" && options.allowAwaitOutsideFunction)
+      { throw new Error("Cannot use allowAwaitOutsideFunction with sourceType: commonjs") }
+
     return options
   }
 
@@ -7767,6 +7783,7 @@ module.exports = {
       SCOPE_DIRECT_SUPER = 128,
       SCOPE_CLASS_STATIC_BLOCK = 256,
       SCOPE_CLASS_FIELD_INIT = 512,
+      SCOPE_SWITCH = 1024,
       SCOPE_VAR = SCOPE_TOP | SCOPE_FUNCTION | SCOPE_CLASS_STATIC_BLOCK;
 
   function functionFlags(async, generator) {
@@ -7856,7 +7873,12 @@ module.exports = {
 
     // Scope tracking for duplicate variable names (see scope.js)
     this.scopeStack = [];
-    this.enterScope(SCOPE_TOP);
+    this.enterScope(
+      this.options.sourceType === "commonjs"
+        // In commonjs, the top-level scope behaves like a function scope
+        ? SCOPE_FUNCTION
+        : SCOPE_TOP
+    );
 
     // For RegExp validation
     this.regexpState = null;
@@ -7867,7 +7889,7 @@ module.exports = {
     this.privateNameStack = [];
   };
 
-  var prototypeAccessors = { inFunction: { configurable: true },inGenerator: { configurable: true },inAsync: { configurable: true },canAwait: { configurable: true },allowSuper: { configurable: true },allowDirectSuper: { configurable: true },treatFunctionsAsVar: { configurable: true },allowNewDotTarget: { configurable: true },inClassStaticBlock: { configurable: true } };
+  var prototypeAccessors = { inFunction: { configurable: true },inGenerator: { configurable: true },inAsync: { configurable: true },canAwait: { configurable: true },allowReturn: { configurable: true },allowSuper: { configurable: true },allowDirectSuper: { configurable: true },treatFunctionsAsVar: { configurable: true },allowNewDotTarget: { configurable: true },allowUsing: { configurable: true },inClassStaticBlock: { configurable: true } };
 
   Parser.prototype.parse = function parse () {
     var node = this.options.program || this.startNode();
@@ -7891,6 +7913,12 @@ module.exports = {
     return (this.inModule && this.options.ecmaVersion >= 13) || this.options.allowAwaitOutsideFunction
   };
 
+  prototypeAccessors.allowReturn.get = function () {
+    if (this.inFunction) { return true }
+    if (this.options.allowReturnOutsideFunction && this.currentVarScope().flags & SCOPE_TOP) { return true }
+    return false
+  };
+
   prototypeAccessors.allowSuper.get = function () {
     var ref = this.currentThisScope();
       var flags = ref.flags;
@@ -7909,6 +7937,14 @@ module.exports = {
           ((flags & SCOPE_FUNCTION) && !(flags & SCOPE_ARROW))) { return true }
     }
     return false
+  };
+
+  prototypeAccessors.allowUsing.get = function () {
+    var ref = this.currentScope();
+      var flags = ref.flags;
+    if (flags & SCOPE_SWITCH) { return false }
+    if (!this.inModule && flags & SCOPE_TOP) { return false }
+    return true
   };
 
   prototypeAccessors.inClassStaticBlock.get = function () {
@@ -8115,7 +8151,7 @@ module.exports = {
         } }
     this.adaptDirectivePrologue(node.body);
     this.next();
-    node.sourceType = this.options.sourceType;
+    node.sourceType = this.options.sourceType === "commonjs" ? "script" : this.options.sourceType;
     return this.finishNode(node, "Program")
   };
 
@@ -8125,7 +8161,7 @@ module.exports = {
     if (this.options.ecmaVersion < 6 || !this.isContextual("let")) { return false }
     skipWhiteSpace.lastIndex = this.pos;
     var skip = skipWhiteSpace.exec(this.input);
-    var next = this.pos + skip[0].length, nextCh = this.input.charCodeAt(next);
+    var next = this.pos + skip[0].length, nextCh = this.fullCharCodeAt(next);
     // For ambiguous cases, determine if a LexicalDeclaration (or only a
     // Statement) is allowed here. If context is not empty then only a Statement
     // is allowed. However, `let [` is an explicit negative lookahead for
@@ -8133,12 +8169,13 @@ module.exports = {
     if (nextCh === 91 || nextCh === 92) { return true } // '[', '\'
     if (context) { return false }
 
-    if (nextCh === 123 || nextCh > 0xd7ff && nextCh < 0xdc00) { return true } // '{', astral
-    if (isIdentifierStart(nextCh, true)) {
-      var pos = next + 1;
-      while (isIdentifierChar(nextCh = this.input.charCodeAt(pos), true)) { ++pos; }
-      if (nextCh === 92 || nextCh > 0xd7ff && nextCh < 0xdc00) { return true }
-      var ident = this.input.slice(next, pos);
+    if (nextCh === 123) { return true } // '{'
+    if (isIdentifierStart(nextCh)) {
+      var start = next;
+      do { next += nextCh <= 0xffff ? 1 : 2; }
+      while (isIdentifierChar(nextCh = this.fullCharCodeAt(next)))
+      if (nextCh === 92) { return true }
+      var ident = this.input.slice(start, next);
       if (!keywordRelationalOperator.test(ident)) { return true }
     }
     return false
@@ -8157,7 +8194,7 @@ module.exports = {
     return !lineBreak.test(this.input.slice(this.pos, next)) &&
       this.input.slice(next, next + 8) === "function" &&
       (next + 8 === this.input.length ||
-       !(isIdentifierChar(after = this.input.charCodeAt(next + 8)) || after > 0xd7ff && after < 0xdc00))
+       !(isIdentifierChar(after = this.fullCharCodeAt(next + 8)) || after === 92 /* '\' */))
   };
 
   pp$8.isUsingKeyword = function(isAwaitUsing, isFor) {
@@ -8171,28 +8208,28 @@ module.exports = {
     if (lineBreak.test(this.input.slice(this.pos, next))) { return false }
 
     if (isAwaitUsing) {
-      var awaitEndPos = next + 5 /* await */, after;
-      if (this.input.slice(next, awaitEndPos) !== "using" ||
-        awaitEndPos === this.input.length ||
-        isIdentifierChar(after = this.input.charCodeAt(awaitEndPos)) ||
-        (after > 0xd7ff && after < 0xdc00)
+      var usingEndPos = next + 5 /* using */, after;
+      if (this.input.slice(next, usingEndPos) !== "using" ||
+        usingEndPos === this.input.length ||
+        isIdentifierChar(after = this.fullCharCodeAt(usingEndPos)) ||
+        after === 92 /* '\' */
       ) { return false }
 
-      skipWhiteSpace.lastIndex = awaitEndPos;
+      skipWhiteSpace.lastIndex = usingEndPos;
       var skipAfterUsing = skipWhiteSpace.exec(this.input);
-      if (skipAfterUsing && lineBreak.test(this.input.slice(awaitEndPos, awaitEndPos + skipAfterUsing[0].length))) { return false }
+      next = usingEndPos + skipAfterUsing[0].length;
+      if (skipAfterUsing && lineBreak.test(this.input.slice(usingEndPos, next))) { return false }
     }
 
-    if (isFor) {
-      var ofEndPos = next + 2 /* of */, after$1;
-      if (this.input.slice(next, ofEndPos) === "of") {
-        if (ofEndPos === this.input.length ||
-          (!isIdentifierChar(after$1 = this.input.charCodeAt(ofEndPos)) && !(after$1 > 0xd7ff && after$1 < 0xdc00))) { return false }
-      }
-    }
-
-    var ch = this.input.charCodeAt(next);
-    return isIdentifierStart(ch, true) || ch === 92 // '\'
+    var ch = this.fullCharCodeAt(next);
+    if (!isIdentifierStart(ch) && ch !== 92 /* '\' */) { return false }
+    var idStart = next;
+    do { next += ch <= 0xffff ? 1 : 2; }
+    while (isIdentifierChar(ch = this.fullCharCodeAt(next)))
+    if (ch === 92) { return true }
+    var id = this.input.slice(idStart, next);
+    if (keywordRelationalOperator.test(id) || isFor && id === "of") { return false }
+    return true
   };
 
   pp$8.isAwaitUsing = function(isFor) {
@@ -8281,8 +8318,8 @@ module.exports = {
 
       var usingKind = this.isAwaitUsing(false) ? "await using" : this.isUsing(false) ? "using" : null;
       if (usingKind) {
-        if (topLevel && this.options.sourceType === "script") {
-          this.raise(this.start, "Using declaration cannot appear in the top level when source type is `script`");
+        if (!this.allowUsing) {
+          this.raise(this.start, "Using declaration cannot appear in the top level when source type is `script` or in the bare case statement");
         }
         if (usingKind === "await using") {
           if (!this.canAwait) {
@@ -8379,7 +8416,12 @@ module.exports = {
     if (usingKind) {
       var init$2 = this.startNode();
       this.next();
-      if (usingKind === "await using") { this.next(); }
+      if (usingKind === "await using") {
+        if (!this.canAwait) {
+          this.raise(this.start, "Await using cannot appear outside of async function");
+        }
+        this.next();
+      }
       this.parseVar(init$2, true, usingKind);
       this.finishNode(init$2, "VariableDeclaration");
       return this.parseForAfterInit(node, init$2, awaitAt)
@@ -8438,7 +8480,7 @@ module.exports = {
   };
 
   pp$8.parseReturnStatement = function(node) {
-    if (!this.inFunction && !this.options.allowReturnOutsideFunction)
+    if (!this.allowReturn)
       { this.raise(this.start, "'return' outside of function"); }
     this.next();
 
@@ -8457,7 +8499,7 @@ module.exports = {
     node.cases = [];
     this.expect(types$1.braceL);
     this.labels.push(switchLabel);
-    this.enterScope(0);
+    this.enterScope(SCOPE_SWITCH);
 
     // Statements under must be grouped (by label) in SwitchCase
     // nodes. `cur` is used to keep the node that we are currently
@@ -11165,7 +11207,7 @@ module.exports = {
   };
 
   // This file was generated by "bin/generate-unicode-script-values.js". Do not modify manually!
-  var scriptValuesAddedInUnicode = "Gara Garay Gukh Gurung_Khema Hrkt Katakana_Or_Hiragana Kawi Kirat_Rai Krai Nag_Mundari Nagm Ol_Onal Onao Sunu Sunuwar Todhri Todr Tulu_Tigalari Tutg Unknown Zzzz";
+  var scriptValuesAddedInUnicode = "Berf Beria_Erfe Gara Garay Gukh Gurung_Khema Hrkt Katakana_Or_Hiragana Kawi Kirat_Rai Krai Nag_Mundari Nagm Ol_Onal Onao Sidetic Sidt Sunu Sunuwar Tai_Yo Tayo Todhri Todr Tolong_Siki Tols Tulu_Tigalari Tutg Unknown Zzzz";
 
   // This file contains Unicode properties extracted from the ECMAScript specification.
   // The lists are extracted like so:
@@ -12726,11 +12768,15 @@ module.exports = {
     return this.getTokenFromCode(code)
   };
 
-  pp.fullCharCodeAtPos = function() {
-    var code = this.input.charCodeAt(this.pos);
+  pp.fullCharCodeAt = function(pos) {
+    var code = this.input.charCodeAt(pos);
     if (code <= 0xd7ff || code >= 0xdc00) { return code }
-    var next = this.input.charCodeAt(this.pos + 1);
+    var next = this.input.charCodeAt(pos + 1);
     return next <= 0xdbff || next >= 0xe000 ? code : (code << 10) + next - 0x35fdc00
+  };
+
+  pp.fullCharCodeAtPos = function() {
+    return this.fullCharCodeAt(this.pos)
   };
 
   pp.skipBlockComment = function() {
@@ -13460,7 +13506,7 @@ module.exports = {
   // [ghbt]: https://github.com/acornjs/acorn/issues
 
 
-  var version = "8.15.0";
+  var version = "8.16.0";
 
   Parser.acorn = {
     Parser: Parser,
@@ -13537,21 +13583,21 @@ module.exports = {
 
 /***/ }),
 
-/***/ 56251:
+/***/ 53016:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var compileSchema = __nccwpck_require__(466)
-  , resolve = __nccwpck_require__(46718)
-  , Cache = __nccwpck_require__(77790)
-  , SchemaObject = __nccwpck_require__(609)
+var compileSchema = __nccwpck_require__(40770)
+  , resolve = __nccwpck_require__(3822)
+  , Cache = __nccwpck_require__(40110)
+  , SchemaObject = __nccwpck_require__(14833)
   , stableStringify = __nccwpck_require__(85458)
-  , formats = __nccwpck_require__(24454)
-  , rules = __nccwpck_require__(43885)
-  , $dataMetaSchema = __nccwpck_require__(29598)
-  , util = __nccwpck_require__(84316);
+  , formats = __nccwpck_require__(77622)
+  , rules = __nccwpck_require__(35709)
+  , $dataMetaSchema = __nccwpck_require__(50318)
+  , util = __nccwpck_require__(98124);
 
 module.exports = Ajv;
 
@@ -13568,14 +13614,14 @@ Ajv.prototype.errorsText = errorsText;
 Ajv.prototype._addSchema = _addSchema;
 Ajv.prototype._compile = _compile;
 
-Ajv.prototype.compileAsync = __nccwpck_require__(85366);
-var customKeyword = __nccwpck_require__(84683);
+Ajv.prototype.compileAsync = __nccwpck_require__(1862);
+var customKeyword = __nccwpck_require__(69499);
 Ajv.prototype.addKeyword = customKeyword.add;
 Ajv.prototype.getKeyword = customKeyword.get;
 Ajv.prototype.removeKeyword = customKeyword.remove;
 Ajv.prototype.validateKeyword = customKeyword.validate;
 
-var errorClasses = __nccwpck_require__(78879);
+var errorClasses = __nccwpck_require__(79791);
 Ajv.ValidationError = errorClasses.Validation;
 Ajv.MissingRefError = errorClasses.MissingRef;
 Ajv.$dataMetaSchema = $dataMetaSchema;
@@ -13984,11 +14030,11 @@ function addFormat(name, format) {
 function addDefaultMetaSchema(self) {
   var $dataSchema;
   if (self._opts.$data) {
-    $dataSchema = __nccwpck_require__(39746);
+    $dataSchema = __nccwpck_require__(58610);
     self.addMetaSchema($dataSchema, $dataSchema.$id, true);
   }
   if (self._opts.meta === false) return;
-  var metaSchema = __nccwpck_require__(17120);
+  var metaSchema = __nccwpck_require__(49808);
   if (self._opts.$data) metaSchema = $dataMetaSchema(metaSchema, META_SUPPORT_DATA);
   self.addMetaSchema(metaSchema, META_SCHEMA_ID, true);
   self._refs['http://json-schema.org/schema'] = META_SCHEMA_ID;
@@ -14051,7 +14097,7 @@ function noop() {}
 
 /***/ }),
 
-/***/ 77790:
+/***/ 40110:
 /***/ ((module) => {
 
 "use strict";
@@ -14085,13 +14131,13 @@ Cache.prototype.clear = function Cache_clear() {
 
 /***/ }),
 
-/***/ 85366:
+/***/ 1862:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var MissingRefError = (__nccwpck_require__(78879).MissingRef);
+var MissingRefError = (__nccwpck_require__(79791).MissingRef);
 
 module.exports = compileAsync;
 
@@ -14183,13 +14229,13 @@ function compileAsync(schema, meta, callback) {
 
 /***/ }),
 
-/***/ 78879:
+/***/ 79791:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var resolve = __nccwpck_require__(46718);
+var resolve = __nccwpck_require__(3822);
 
 module.exports = {
   Validation: errorSubclass(ValidationError),
@@ -14225,13 +14271,13 @@ function errorSubclass(Subclass) {
 
 /***/ }),
 
-/***/ 24454:
+/***/ 77622:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var util = __nccwpck_require__(84316);
+var util = __nccwpck_require__(98124);
 
 var DATE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
 var DAYS = [0,31,28,31,30,31,30,31,31,30,31,30,31];
@@ -14375,18 +14421,18 @@ function regex(str) {
 
 /***/ }),
 
-/***/ 466:
+/***/ 40770:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var resolve = __nccwpck_require__(46718)
-  , util = __nccwpck_require__(84316)
-  , errorClasses = __nccwpck_require__(78879)
+var resolve = __nccwpck_require__(3822)
+  , util = __nccwpck_require__(98124)
+  , errorClasses = __nccwpck_require__(79791)
   , stableStringify = __nccwpck_require__(85458);
 
-var validateGenerator = __nccwpck_require__(74841);
+var validateGenerator = __nccwpck_require__(46153);
 
 /**
  * Functions below are used inside compiled validations function
@@ -14422,6 +14468,11 @@ function compile(schema, root, localRefs, baseId) {
     , defaults = []
     , defaultsHash = {}
     , customRules = [];
+
+  function patternCode(i, patterns) {
+    var regExpCode = opts.regExp ? 'regExp' : 'new RegExp';
+    return 'var pattern' + i + ' = ' + regExpCode + '(' + util.toQuotedString(patterns[i]) + ');';
+  }
 
   root = root || { schema: schema, refVal: refVal, refs: refs };
 
@@ -14509,6 +14560,7 @@ function compile(schema, root, localRefs, baseId) {
         'equal',
         'ucs2length',
         'ValidationError',
+        'regExp',
         sourceCode
       );
 
@@ -14522,7 +14574,8 @@ function compile(schema, root, localRefs, baseId) {
         customRules,
         equal,
         ucs2length,
-        ValidationError
+        ValidationError,
+        opts.regExp
       );
 
       refVal[0] = validate;
@@ -14739,11 +14792,6 @@ function compIndex(schema, root, baseId) {
 }
 
 
-function patternCode(i, patterns) {
-  return 'var pattern' + i + ' = new RegExp(' + util.toQuotedString(patterns[i]) + ');';
-}
-
-
 function defaultCode(i) {
   return 'var default' + i + ' = defaults[' + i + '];';
 }
@@ -14770,7 +14818,7 @@ function vars(arr, statement) {
 
 /***/ }),
 
-/***/ 46718:
+/***/ 3822:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -14778,8 +14826,8 @@ function vars(arr, statement) {
 
 var URI = __nccwpck_require__(4494)
   , equal = __nccwpck_require__(50498)
-  , util = __nccwpck_require__(84316)
-  , SchemaObject = __nccwpck_require__(609)
+  , util = __nccwpck_require__(98124)
+  , SchemaObject = __nccwpck_require__(14833)
   , traverse = __nccwpck_require__(64832);
 
 module.exports = resolve;
@@ -15048,14 +15096,14 @@ function resolveIds(schema) {
 
 /***/ }),
 
-/***/ 43885:
+/***/ 35709:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var ruleModules = __nccwpck_require__(8355)
-  , toHash = (__nccwpck_require__(84316).toHash);
+var ruleModules = __nccwpck_require__(73587)
+  , toHash = (__nccwpck_require__(98124).toHash);
 
 module.exports = function rules() {
   var RULES = [
@@ -15122,13 +15170,13 @@ module.exports = function rules() {
 
 /***/ }),
 
-/***/ 609:
+/***/ 14833:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var util = __nccwpck_require__(84316);
+var util = __nccwpck_require__(98124);
 
 module.exports = SchemaObject;
 
@@ -15139,7 +15187,7 @@ function SchemaObject(obj) {
 
 /***/ }),
 
-/***/ 53253:
+/***/ 35541:
 /***/ ((module) => {
 
 "use strict";
@@ -15167,7 +15215,7 @@ module.exports = function ucs2length(str) {
 
 /***/ }),
 
-/***/ 84316:
+/***/ 98124:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -15183,7 +15231,7 @@ module.exports = {
   getProperty: getProperty,
   escapeQuotes: escapeQuotes,
   equal: __nccwpck_require__(50498),
-  ucs2length: __nccwpck_require__(53253),
+  ucs2length: __nccwpck_require__(35541),
   varOccurences: varOccurences,
   varReplace: varReplace,
   schemaHasRules: schemaHasRules,
@@ -15414,7 +15462,7 @@ function unescapeJsonPointer(str) {
 
 /***/ }),
 
-/***/ 29598:
+/***/ 50318:
 /***/ ((module) => {
 
 "use strict";
@@ -15471,13 +15519,13 @@ module.exports = function (metaSchema, keywordsJsonPointers) {
 
 /***/ }),
 
-/***/ 92313:
+/***/ 43817:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var metaSchema = __nccwpck_require__(17120);
+var metaSchema = __nccwpck_require__(49808);
 
 module.exports = {
   $id: 'https://github.com/ajv-validator/ajv/blob/master/lib/definition_schema.js',
@@ -15516,7 +15564,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3923:
+/***/ 83555:
 /***/ ((module) => {
 
 "use strict";
@@ -15687,7 +15735,7 @@ module.exports = function generate__limit(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 46383:
+/***/ 39263:
 /***/ ((module) => {
 
 "use strict";
@@ -15775,7 +15823,7 @@ module.exports = function generate__limitItems(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 88663:
+/***/ 24871:
 /***/ ((module) => {
 
 "use strict";
@@ -15868,7 +15916,7 @@ module.exports = function generate__limitLength(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 74186:
+/***/ 19130:
 /***/ ((module) => {
 
 "use strict";
@@ -15956,7 +16004,7 @@ module.exports = function generate__limitProperties(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 97177:
+/***/ 93961:
 /***/ ((module) => {
 
 "use strict";
@@ -16006,7 +16054,7 @@ module.exports = function generate_allOf(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 50080:
+/***/ 97744:
 /***/ ((module) => {
 
 "use strict";
@@ -16087,7 +16135,7 @@ module.exports = function generate_anyOf(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 2638:
+/***/ 87518:
 /***/ ((module) => {
 
 "use strict";
@@ -16109,7 +16157,7 @@ module.exports = function generate_comment(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 32024:
+/***/ 41512:
 /***/ ((module) => {
 
 "use strict";
@@ -16173,7 +16221,7 @@ module.exports = function generate_const(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 36882:
+/***/ 78818:
 /***/ ((module) => {
 
 "use strict";
@@ -16262,7 +16310,7 @@ module.exports = function generate_contains(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 92496:
+/***/ 79168:
 /***/ ((module) => {
 
 "use strict";
@@ -16498,7 +16546,7 @@ module.exports = function generate_custom(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 43886:
+/***/ 74558:
 /***/ ((module) => {
 
 "use strict";
@@ -16674,7 +16722,7 @@ module.exports = function generate_dependencies(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 97358:
+/***/ 22942:
 /***/ ((module) => {
 
 "use strict";
@@ -16748,7 +16796,7 @@ module.exports = function generate_enum(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 3048:
+/***/ 91704:
 /***/ ((module) => {
 
 "use strict";
@@ -16906,7 +16954,7 @@ module.exports = function generate_format(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 83663:
+/***/ 86124:
 /***/ ((module) => {
 
 "use strict";
@@ -17017,7 +17065,7 @@ module.exports = function generate_if(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 8355:
+/***/ 73587:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -17025,40 +17073,40 @@ module.exports = function generate_if(it, $keyword, $ruleType) {
 
 //all requires must be explicit because browserify won't work with dynamic requires
 module.exports = {
-  '$ref': __nccwpck_require__(40969),
-  allOf: __nccwpck_require__(97177),
-  anyOf: __nccwpck_require__(50080),
-  '$comment': __nccwpck_require__(2638),
-  const: __nccwpck_require__(32024),
-  contains: __nccwpck_require__(36882),
-  dependencies: __nccwpck_require__(43886),
-  'enum': __nccwpck_require__(97358),
-  format: __nccwpck_require__(3048),
-  'if': __nccwpck_require__(83663),
-  items: __nccwpck_require__(70859),
-  maximum: __nccwpck_require__(3923),
-  minimum: __nccwpck_require__(3923),
-  maxItems: __nccwpck_require__(46383),
-  minItems: __nccwpck_require__(46383),
-  maxLength: __nccwpck_require__(88663),
-  minLength: __nccwpck_require__(88663),
-  maxProperties: __nccwpck_require__(74186),
-  minProperties: __nccwpck_require__(74186),
-  multipleOf: __nccwpck_require__(25190),
-  not: __nccwpck_require__(55706),
-  oneOf: __nccwpck_require__(93046),
-  pattern: __nccwpck_require__(3221),
-  properties: __nccwpck_require__(10550),
-  propertyNames: __nccwpck_require__(35488),
-  required: __nccwpck_require__(58770),
-  uniqueItems: __nccwpck_require__(35602),
-  validate: __nccwpck_require__(74841)
+  '$ref': __nccwpck_require__(64742),
+  allOf: __nccwpck_require__(93961),
+  anyOf: __nccwpck_require__(97744),
+  '$comment': __nccwpck_require__(87518),
+  const: __nccwpck_require__(41512),
+  contains: __nccwpck_require__(78818),
+  dependencies: __nccwpck_require__(74558),
+  'enum': __nccwpck_require__(22942),
+  format: __nccwpck_require__(91704),
+  'if': __nccwpck_require__(86124),
+  items: __nccwpck_require__(16347),
+  maximum: __nccwpck_require__(83555),
+  minimum: __nccwpck_require__(83555),
+  maxItems: __nccwpck_require__(39263),
+  minItems: __nccwpck_require__(39263),
+  maxLength: __nccwpck_require__(24871),
+  minLength: __nccwpck_require__(24871),
+  maxProperties: __nccwpck_require__(19130),
+  minProperties: __nccwpck_require__(19130),
+  multipleOf: __nccwpck_require__(28278),
+  not: __nccwpck_require__(76682),
+  oneOf: __nccwpck_require__(8550),
+  pattern: __nccwpck_require__(47365),
+  properties: __nccwpck_require__(95238),
+  propertyNames: __nccwpck_require__(30480),
+  required: __nccwpck_require__(65154),
+  uniqueItems: __nccwpck_require__(48482),
+  validate: __nccwpck_require__(46153)
 };
 
 
 /***/ }),
 
-/***/ 70859:
+/***/ 16347:
 /***/ ((module) => {
 
 "use strict";
@@ -17206,7 +17254,7 @@ module.exports = function generate_items(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 25190:
+/***/ 28278:
 /***/ ((module) => {
 
 "use strict";
@@ -17294,7 +17342,7 @@ module.exports = function generate_multipleOf(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 55706:
+/***/ 76682:
 /***/ ((module) => {
 
 "use strict";
@@ -17386,7 +17434,7 @@ module.exports = function generate_not(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 93046:
+/***/ 8550:
 /***/ ((module) => {
 
 "use strict";
@@ -17467,7 +17515,7 @@ module.exports = function generate_oneOf(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 3221:
+/***/ 47365:
 /***/ ((module) => {
 
 "use strict";
@@ -17481,6 +17529,7 @@ module.exports = function generate_pattern(it, $keyword, $ruleType) {
   var $errSchemaPath = it.errSchemaPath + '/' + $keyword;
   var $breakOnError = !it.opts.allErrors;
   var $data = 'data' + ($dataLvl || '');
+  var $valid = 'valid' + $lvl;
   var $isData = it.opts.$data && $schema && $schema.$data,
     $schemaValue;
   if ($isData) {
@@ -17489,12 +17538,21 @@ module.exports = function generate_pattern(it, $keyword, $ruleType) {
   } else {
     $schemaValue = $schema;
   }
-  var $regexp = $isData ? '(new RegExp(' + $schemaValue + '))' : it.usePattern($schema);
-  out += 'if ( ';
+  var $regExpCode = it.opts.regExp ? 'regExp' : 'new RegExp';
   if ($isData) {
-    out += ' (' + ($schemaValue) + ' !== undefined && typeof ' + ($schemaValue) + ' != \'string\') || ';
+    out += ' var ' + ($valid) + ' = true; try { ' + ($valid) + ' = ' + ($regExpCode) + '(' + ($schemaValue) + ').test(' + ($data) + '); } catch(e) { ' + ($valid) + ' = false; } if ( ';
+    if ($isData) {
+      out += ' (' + ($schemaValue) + ' !== undefined && typeof ' + ($schemaValue) + ' != \'string\') || ';
+    }
+    out += ' !' + ($valid) + ') {';
+  } else {
+    var $regexp = it.usePattern($schema);
+    out += ' if ( ';
+    if ($isData) {
+      out += ' (' + ($schemaValue) + ' !== undefined && typeof ' + ($schemaValue) + ' != \'string\') || ';
+    }
+    out += ' !' + ($regexp) + '.test(' + ($data) + ') ) {';
   }
-  out += ' !' + ($regexp) + '.test(' + ($data) + ') ) {   ';
   var $$outStack = $$outStack || [];
   $$outStack.push(out);
   out = ''; /* istanbul ignore else */
@@ -17550,7 +17608,7 @@ module.exports = function generate_pattern(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 10550:
+/***/ 95238:
 /***/ ((module) => {
 
 "use strict";
@@ -17893,7 +17951,7 @@ module.exports = function generate_properties(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 35488:
+/***/ 30480:
 /***/ ((module) => {
 
 "use strict";
@@ -17982,7 +18040,7 @@ module.exports = function generate_propertyNames(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 40969:
+/***/ 64742:
 /***/ ((module) => {
 
 "use strict";
@@ -18114,7 +18172,7 @@ module.exports = function generate_ref(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 58770:
+/***/ 65154:
 /***/ ((module) => {
 
 "use strict";
@@ -18392,7 +18450,7 @@ module.exports = function generate_required(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 35602:
+/***/ 48482:
 /***/ ((module) => {
 
 "use strict";
@@ -18486,7 +18544,7 @@ module.exports = function generate_uniqueItems(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 74841:
+/***/ 46153:
 /***/ ((module) => {
 
 "use strict";
@@ -18976,15 +19034,15 @@ module.exports = function generate_validate(it, $keyword, $ruleType) {
 
 /***/ }),
 
-/***/ 84683:
+/***/ 69499:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 var IDENTIFIER = /^[a-z_$][a-z0-9_$-]*$/i;
-var customRuleCode = __nccwpck_require__(92496);
-var definitionSchema = __nccwpck_require__(92313);
+var customRuleCode = __nccwpck_require__(79168);
+var definitionSchema = __nccwpck_require__(43817);
 
 module.exports = {
   add: addKeyword,
@@ -19126,286 +19184,6 @@ function validateKeyword(definition, throwError) {
   else
     return false;
 }
-
-
-/***/ }),
-
-/***/ 90870:
-/***/ ((module) => {
-
-"use strict";
-
-module.exports = balanced;
-function balanced(a, b, str) {
-  if (a instanceof RegExp) a = maybeMatch(a, str);
-  if (b instanceof RegExp) b = maybeMatch(b, str);
-
-  var r = range(a, b, str);
-
-  return r && {
-    start: r[0],
-    end: r[1],
-    pre: str.slice(0, r[0]),
-    body: str.slice(r[0] + a.length, r[1]),
-    post: str.slice(r[1] + b.length)
-  };
-}
-
-function maybeMatch(reg, str) {
-  var m = str.match(reg);
-  return m ? m[0] : null;
-}
-
-balanced.range = range;
-function range(a, b, str) {
-  var begs, beg, left, right, result;
-  var ai = str.indexOf(a);
-  var bi = str.indexOf(b, ai + 1);
-  var i = ai;
-
-  if (ai >= 0 && bi > 0) {
-    if(a===b) {
-      return [ai, bi];
-    }
-    begs = [];
-    left = str.length;
-
-    while (i >= 0 && !result) {
-      if (i == ai) {
-        begs.push(i);
-        ai = str.indexOf(a, i + 1);
-      } else if (begs.length == 1) {
-        result = [ begs.pop(), bi ];
-      } else {
-        beg = begs.pop();
-        if (beg < left) {
-          left = beg;
-          right = bi;
-        }
-
-        bi = str.indexOf(b, i + 1);
-      }
-
-      i = ai < bi && ai >= 0 ? ai : bi;
-    }
-
-    if (begs.length) {
-      result = [ left, right ];
-    }
-  }
-
-  return result;
-}
-
-
-/***/ }),
-
-/***/ 23033:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var balanced = __nccwpck_require__(90870);
-
-module.exports = expandTop;
-
-var escSlash = '\0SLASH'+Math.random()+'\0';
-var escOpen = '\0OPEN'+Math.random()+'\0';
-var escClose = '\0CLOSE'+Math.random()+'\0';
-var escComma = '\0COMMA'+Math.random()+'\0';
-var escPeriod = '\0PERIOD'+Math.random()+'\0';
-
-function numeric(str) {
-  return parseInt(str, 10) == str
-    ? parseInt(str, 10)
-    : str.charCodeAt(0);
-}
-
-function escapeBraces(str) {
-  return str.split('\\\\').join(escSlash)
-            .split('\\{').join(escOpen)
-            .split('\\}').join(escClose)
-            .split('\\,').join(escComma)
-            .split('\\.').join(escPeriod);
-}
-
-function unescapeBraces(str) {
-  return str.split(escSlash).join('\\')
-            .split(escOpen).join('{')
-            .split(escClose).join('}')
-            .split(escComma).join(',')
-            .split(escPeriod).join('.');
-}
-
-
-// Basically just str.split(","), but handling cases
-// where we have nested braced sections, which should be
-// treated as individual members, like {a,{b,c},d}
-function parseCommaParts(str) {
-  if (!str)
-    return [''];
-
-  var parts = [];
-  var m = balanced('{', '}', str);
-
-  if (!m)
-    return str.split(',');
-
-  var pre = m.pre;
-  var body = m.body;
-  var post = m.post;
-  var p = pre.split(',');
-
-  p[p.length-1] += '{' + body + '}';
-  var postParts = parseCommaParts(post);
-  if (post.length) {
-    p[p.length-1] += postParts.shift();
-    p.push.apply(p, postParts);
-  }
-
-  parts.push.apply(parts, p);
-
-  return parts;
-}
-
-function expandTop(str) {
-  if (!str)
-    return [];
-
-  // I don't know why Bash 4.3 does this, but it does.
-  // Anything starting with {} will have the first two bytes preserved
-  // but *only* at the top level, so {},a}b will not expand to anything,
-  // but a{},b}c will be expanded to [a}c,abc].
-  // One could argue that this is a bug in Bash, but since the goal of
-  // this module is to match Bash's rules, we escape a leading {}
-  if (str.substr(0, 2) === '{}') {
-    str = '\\{\\}' + str.substr(2);
-  }
-
-  return expand(escapeBraces(str), true).map(unescapeBraces);
-}
-
-function embrace(str) {
-  return '{' + str + '}';
-}
-function isPadded(el) {
-  return /^-?0\d/.test(el);
-}
-
-function lte(i, y) {
-  return i <= y;
-}
-function gte(i, y) {
-  return i >= y;
-}
-
-function expand(str, isTop) {
-  var expansions = [];
-
-  var m = balanced('{', '}', str);
-  if (!m) return [str];
-
-  // no need to expand pre, since it is guaranteed to be free of brace-sets
-  var pre = m.pre;
-  var post = m.post.length
-    ? expand(m.post, false)
-    : [''];
-
-  if (/\$$/.test(m.pre)) {    
-    for (var k = 0; k < post.length; k++) {
-      var expansion = pre+ '{' + m.body + '}' + post[k];
-      expansions.push(expansion);
-    }
-  } else {
-    var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
-    var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
-    var isSequence = isNumericSequence || isAlphaSequence;
-    var isOptions = m.body.indexOf(',') >= 0;
-    if (!isSequence && !isOptions) {
-      // {a},b}
-      if (m.post.match(/,(?!,).*\}/)) {
-        str = m.pre + '{' + m.body + escClose + m.post;
-        return expand(str);
-      }
-      return [str];
-    }
-
-    var n;
-    if (isSequence) {
-      n = m.body.split(/\.\./);
-    } else {
-      n = parseCommaParts(m.body);
-      if (n.length === 1) {
-        // x{{a,b}}y ==> x{a}y x{b}y
-        n = expand(n[0], false).map(embrace);
-        if (n.length === 1) {
-          return post.map(function(p) {
-            return m.pre + n[0] + p;
-          });
-        }
-      }
-    }
-
-    // at this point, n is the parts, and we know it's not a comma set
-    // with a single entry.
-    var N;
-
-    if (isSequence) {
-      var x = numeric(n[0]);
-      var y = numeric(n[1]);
-      var width = Math.max(n[0].length, n[1].length)
-      var incr = n.length == 3
-        ? Math.abs(numeric(n[2]))
-        : 1;
-      var test = lte;
-      var reverse = y < x;
-      if (reverse) {
-        incr *= -1;
-        test = gte;
-      }
-      var pad = n.some(isPadded);
-
-      N = [];
-
-      for (var i = x; test(i, y); i += incr) {
-        var c;
-        if (isAlphaSequence) {
-          c = String.fromCharCode(i);
-          if (c === '\\')
-            c = '';
-        } else {
-          c = String(i);
-          if (pad) {
-            var need = width - c.length;
-            if (need > 0) {
-              var z = new Array(need + 1).join('0');
-              if (i < 0)
-                c = '-' + z + c.slice(1);
-              else
-                c = z + c;
-            }
-          }
-        }
-        N.push(c);
-      }
-    } else {
-      N = [];
-
-      for (var j = 0; j < n.length; j++) {
-        N.push.apply(N, expand(n[j], false));
-      }
-    }
-
-    for (var j = 0; j < N.length; j++) {
-      for (var k = 0; k < post.length; k++) {
-        var expansion = pre + N[j] + post[k];
-        if (!isTop || isSequence || expansion)
-          expansions.push(expansion);
-      }
-    }
-  }
-
-  return expansions;
-}
-
 
 
 /***/ }),
@@ -25640,7 +25418,7 @@ __webpack_unused_export__ = fromSafePromise;
 __webpack_unused_export__ = fromThrowable;
 exports.ok = ok;
 exports.Ph = okAsync;
-__webpack_unused_export__ = safeTry;
+exports.XB = safeTry;
 
 
 /***/ }),
@@ -29322,7 +29100,7 @@ function curry$(f, bound){
 
 /***/ }),
 
-/***/ 17029:
+/***/ 76222:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29463,17 +29241,17 @@ class Comparator {
 
 module.exports = Comparator
 
-const parseOptions = __nccwpck_require__(70574)
-const { safeRe: re, t } = __nccwpck_require__(23569)
-const cmp = __nccwpck_require__(66124)
-const debug = __nccwpck_require__(25897)
-const SemVer = __nccwpck_require__(7741)
-const Range = __nccwpck_require__(55327)
+const parseOptions = __nccwpck_require__(70977)
+const { safeRe: re, t } = __nccwpck_require__(25580)
+const cmp = __nccwpck_require__(92977)
+const debug = __nccwpck_require__(51542)
+const SemVer = __nccwpck_require__(84154)
+const Range = __nccwpck_require__(33137)
 
 
 /***/ }),
 
-/***/ 55327:
+/***/ 33137:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -29693,21 +29471,21 @@ class Range {
 
 module.exports = Range
 
-const LRU = __nccwpck_require__(94737)
+const LRU = __nccwpck_require__(75088)
 const cache = new LRU()
 
-const parseOptions = __nccwpck_require__(70574)
-const Comparator = __nccwpck_require__(17029)
-const debug = __nccwpck_require__(25897)
-const SemVer = __nccwpck_require__(7741)
+const parseOptions = __nccwpck_require__(70977)
+const Comparator = __nccwpck_require__(76222)
+const debug = __nccwpck_require__(51542)
+const SemVer = __nccwpck_require__(84154)
 const {
   safeRe: re,
   t,
   comparatorTrimReplace,
   tildeTrimReplace,
   caretTrimReplace,
-} = __nccwpck_require__(23569)
-const { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = __nccwpck_require__(33439)
+} = __nccwpck_require__(25580)
+const { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = __nccwpck_require__(14256)
 
 const isNullSet = c => c.value === '<0.0.0-0'
 const isAny = c => c.value === ''
@@ -30038,18 +29816,18 @@ const testSet = (set, version, options) => {
 
 /***/ }),
 
-/***/ 7741:
+/***/ 84154:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const debug = __nccwpck_require__(25897)
-const { MAX_LENGTH, MAX_SAFE_INTEGER } = __nccwpck_require__(33439)
-const { safeRe: re, t } = __nccwpck_require__(23569)
+const debug = __nccwpck_require__(51542)
+const { MAX_LENGTH, MAX_SAFE_INTEGER } = __nccwpck_require__(14256)
+const { safeRe: re, t } = __nccwpck_require__(25580)
 
-const parseOptions = __nccwpck_require__(70574)
-const { compareIdentifiers } = __nccwpck_require__(92070)
+const parseOptions = __nccwpck_require__(70977)
+const { compareIdentifiers } = __nccwpck_require__(61713)
 class SemVer {
   constructor (version, options) {
     options = parseOptions(options)
@@ -30379,13 +30157,13 @@ module.exports = SemVer
 
 /***/ }),
 
-/***/ 95969:
+/***/ 19956:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const parse = __nccwpck_require__(38091)
+const parse = __nccwpck_require__(43854)
 const clean = (version, options) => {
   const s = parse(version.trim().replace(/^[=v]+/, ''), options)
   return s ? s.version : null
@@ -30395,18 +30173,18 @@ module.exports = clean
 
 /***/ }),
 
-/***/ 66124:
+/***/ 92977:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const eq = __nccwpck_require__(74952)
-const neq = __nccwpck_require__(27220)
-const gt = __nccwpck_require__(9945)
-const gte = __nccwpck_require__(12842)
-const lt = __nccwpck_require__(49830)
-const lte = __nccwpck_require__(67551)
+const eq = __nccwpck_require__(22563)
+const neq = __nccwpck_require__(55969)
+const gt = __nccwpck_require__(32098)
+const gte = __nccwpck_require__(35851)
+const lt = __nccwpck_require__(35045)
+const lte = __nccwpck_require__(45462)
 
 const cmp = (a, op, b, loose) => {
   switch (op) {
@@ -30457,15 +30235,15 @@ module.exports = cmp
 
 /***/ }),
 
-/***/ 62871:
+/***/ 67420:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
-const parse = __nccwpck_require__(38091)
-const { safeRe: re, t } = __nccwpck_require__(23569)
+const SemVer = __nccwpck_require__(84154)
+const parse = __nccwpck_require__(43854)
+const { safeRe: re, t } = __nccwpck_require__(25580)
 
 const coerce = (version, options) => {
   if (version instanceof SemVer) {
@@ -30527,13 +30305,13 @@ module.exports = coerce
 
 /***/ }),
 
-/***/ 32626:
+/***/ 37083:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
+const SemVer = __nccwpck_require__(84154)
 const compareBuild = (a, b, loose) => {
   const versionA = new SemVer(a, loose)
   const versionB = new SemVer(b, loose)
@@ -30544,26 +30322,26 @@ module.exports = compareBuild
 
 /***/ }),
 
-/***/ 34988:
+/***/ 825:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const compareLoose = (a, b) => compare(a, b, true)
 module.exports = compareLoose
 
 
 /***/ }),
 
-/***/ 74291:
+/***/ 1306:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
+const SemVer = __nccwpck_require__(84154)
 const compare = (a, b, loose) =>
   new SemVer(a, loose).compare(new SemVer(b, loose))
 
@@ -30572,13 +30350,13 @@ module.exports = compare
 
 /***/ }),
 
-/***/ 81053:
+/***/ 64962:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const parse = __nccwpck_require__(38091)
+const parse = __nccwpck_require__(43854)
 
 const diff = (version1, version2) => {
   const v1 = parse(version1, null, true)
@@ -30631,7 +30409,7 @@ const diff = (version1, version2) => {
     return prefix + 'patch'
   }
 
-  // high and low are preleases
+  // high and low are prereleases
   return 'prerelease'
 }
 
@@ -30640,52 +30418,52 @@ module.exports = diff
 
 /***/ }),
 
-/***/ 74952:
+/***/ 22563:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const eq = (a, b, loose) => compare(a, b, loose) === 0
 module.exports = eq
 
 
 /***/ }),
 
-/***/ 9945:
+/***/ 32098:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const gt = (a, b, loose) => compare(a, b, loose) > 0
 module.exports = gt
 
 
 /***/ }),
 
-/***/ 12842:
+/***/ 35851:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const gte = (a, b, loose) => compare(a, b, loose) >= 0
 module.exports = gte
 
 
 /***/ }),
 
-/***/ 55356:
+/***/ 22341:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
+const SemVer = __nccwpck_require__(84154)
 
 const inc = (version, release, options, identifier, identifierBase) => {
   if (typeof (options) === 'string') {
@@ -30708,78 +30486,78 @@ module.exports = inc
 
 /***/ }),
 
-/***/ 49830:
+/***/ 35045:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const lt = (a, b, loose) => compare(a, b, loose) < 0
 module.exports = lt
 
 
 /***/ }),
 
-/***/ 67551:
+/***/ 45462:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const lte = (a, b, loose) => compare(a, b, loose) <= 0
 module.exports = lte
 
 
 /***/ }),
 
-/***/ 15429:
+/***/ 86468:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
+const SemVer = __nccwpck_require__(84154)
 const major = (a, loose) => new SemVer(a, loose).major
 module.exports = major
 
 
 /***/ }),
 
-/***/ 34017:
+/***/ 37032:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
+const SemVer = __nccwpck_require__(84154)
 const minor = (a, loose) => new SemVer(a, loose).minor
 module.exports = minor
 
 
 /***/ }),
 
-/***/ 27220:
+/***/ 55969:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const neq = (a, b, loose) => compare(a, b, loose) !== 0
 module.exports = neq
 
 
 /***/ }),
 
-/***/ 38091:
+/***/ 43854:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
+const SemVer = __nccwpck_require__(84154)
 const parse = (version, options, throwErrors = false) => {
   if (version instanceof SemVer) {
     return version
@@ -30799,26 +30577,26 @@ module.exports = parse
 
 /***/ }),
 
-/***/ 72650:
+/***/ 96447:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
+const SemVer = __nccwpck_require__(84154)
 const patch = (a, loose) => new SemVer(a, loose).patch
 module.exports = patch
 
 
 /***/ }),
 
-/***/ 28668:
+/***/ 48359:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const parse = __nccwpck_require__(38091)
+const parse = __nccwpck_require__(43854)
 const prerelease = (version, options) => {
   const parsed = parse(version, options)
   return (parsed && parsed.prerelease.length) ? parsed.prerelease : null
@@ -30828,39 +30606,39 @@ module.exports = prerelease
 
 /***/ }),
 
-/***/ 82395:
+/***/ 96156:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compare = __nccwpck_require__(74291)
+const compare = __nccwpck_require__(1306)
 const rcompare = (a, b, loose) => compare(b, a, loose)
 module.exports = rcompare
 
 
 /***/ }),
 
-/***/ 56874:
+/***/ 32659:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compareBuild = __nccwpck_require__(32626)
+const compareBuild = __nccwpck_require__(37083)
 const rsort = (list, loose) => list.sort((a, b) => compareBuild(b, a, loose))
 module.exports = rsort
 
 
 /***/ }),
 
-/***/ 59141:
+/***/ 29956:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Range = __nccwpck_require__(55327)
+const Range = __nccwpck_require__(33137)
 const satisfies = (version, range, options) => {
   try {
     range = new Range(range, options)
@@ -30874,26 +30652,26 @@ module.exports = satisfies
 
 /***/ }),
 
-/***/ 70594:
+/***/ 12397:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const compareBuild = __nccwpck_require__(32626)
+const compareBuild = __nccwpck_require__(37083)
 const sort = (list, loose) => list.sort((a, b) => compareBuild(a, b, loose))
 module.exports = sort
 
 
 /***/ }),
 
-/***/ 3490:
+/***/ 48691:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const parse = __nccwpck_require__(38091)
+const parse = __nccwpck_require__(43854)
 const valid = (version, options) => {
   const v = parse(version, options)
   return v ? v.version : null
@@ -30903,54 +30681,54 @@ module.exports = valid
 
 /***/ }),
 
-/***/ 27498:
+/***/ 29419:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 // just pre-load all the stuff that index.js lazily exports
-const internalRe = __nccwpck_require__(23569)
-const constants = __nccwpck_require__(33439)
-const SemVer = __nccwpck_require__(7741)
-const identifiers = __nccwpck_require__(92070)
-const parse = __nccwpck_require__(38091)
-const valid = __nccwpck_require__(3490)
-const clean = __nccwpck_require__(95969)
-const inc = __nccwpck_require__(55356)
-const diff = __nccwpck_require__(81053)
-const major = __nccwpck_require__(15429)
-const minor = __nccwpck_require__(34017)
-const patch = __nccwpck_require__(72650)
-const prerelease = __nccwpck_require__(28668)
-const compare = __nccwpck_require__(74291)
-const rcompare = __nccwpck_require__(82395)
-const compareLoose = __nccwpck_require__(34988)
-const compareBuild = __nccwpck_require__(32626)
-const sort = __nccwpck_require__(70594)
-const rsort = __nccwpck_require__(56874)
-const gt = __nccwpck_require__(9945)
-const lt = __nccwpck_require__(49830)
-const eq = __nccwpck_require__(74952)
-const neq = __nccwpck_require__(27220)
-const gte = __nccwpck_require__(12842)
-const lte = __nccwpck_require__(67551)
-const cmp = __nccwpck_require__(66124)
-const coerce = __nccwpck_require__(62871)
-const Comparator = __nccwpck_require__(17029)
-const Range = __nccwpck_require__(55327)
-const satisfies = __nccwpck_require__(59141)
-const toComparators = __nccwpck_require__(26308)
-const maxSatisfying = __nccwpck_require__(89191)
-const minSatisfying = __nccwpck_require__(59285)
-const minVersion = __nccwpck_require__(22536)
-const validRange = __nccwpck_require__(98595)
-const outside = __nccwpck_require__(10830)
-const gtr = __nccwpck_require__(78818)
-const ltr = __nccwpck_require__(83767)
-const intersects = __nccwpck_require__(90103)
-const simplifyRange = __nccwpck_require__(5102)
-const subset = __nccwpck_require__(39903)
+const internalRe = __nccwpck_require__(25580)
+const constants = __nccwpck_require__(14256)
+const SemVer = __nccwpck_require__(84154)
+const identifiers = __nccwpck_require__(61713)
+const parse = __nccwpck_require__(43854)
+const valid = __nccwpck_require__(48691)
+const clean = __nccwpck_require__(19956)
+const inc = __nccwpck_require__(22341)
+const diff = __nccwpck_require__(64962)
+const major = __nccwpck_require__(86468)
+const minor = __nccwpck_require__(37032)
+const patch = __nccwpck_require__(96447)
+const prerelease = __nccwpck_require__(48359)
+const compare = __nccwpck_require__(1306)
+const rcompare = __nccwpck_require__(96156)
+const compareLoose = __nccwpck_require__(825)
+const compareBuild = __nccwpck_require__(37083)
+const sort = __nccwpck_require__(12397)
+const rsort = __nccwpck_require__(32659)
+const gt = __nccwpck_require__(32098)
+const lt = __nccwpck_require__(35045)
+const eq = __nccwpck_require__(22563)
+const neq = __nccwpck_require__(55969)
+const gte = __nccwpck_require__(35851)
+const lte = __nccwpck_require__(45462)
+const cmp = __nccwpck_require__(92977)
+const coerce = __nccwpck_require__(67420)
+const Comparator = __nccwpck_require__(76222)
+const Range = __nccwpck_require__(33137)
+const satisfies = __nccwpck_require__(29956)
+const toComparators = __nccwpck_require__(54377)
+const maxSatisfying = __nccwpck_require__(4150)
+const minSatisfying = __nccwpck_require__(32420)
+const minVersion = __nccwpck_require__(47815)
+const validRange = __nccwpck_require__(8072)
+const outside = __nccwpck_require__(44421)
+const gtr = __nccwpck_require__(67173)
+const ltr = __nccwpck_require__(92156)
+const intersects = __nccwpck_require__(2150)
+const simplifyRange = __nccwpck_require__(83963)
+const subset = __nccwpck_require__(10826)
 module.exports = {
   parse,
   valid,
@@ -31002,7 +30780,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 33439:
+/***/ 14256:
 /***/ ((module) => {
 
 "use strict";
@@ -31047,7 +30825,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 25897:
+/***/ 51542:
 /***/ ((module) => {
 
 "use strict";
@@ -31066,7 +30844,7 @@ module.exports = debug
 
 /***/ }),
 
-/***/ 92070:
+/***/ 61713:
 /***/ ((module) => {
 
 "use strict";
@@ -31103,7 +30881,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 94737:
+/***/ 75088:
 /***/ ((module) => {
 
 "use strict";
@@ -31153,7 +30931,7 @@ module.exports = LRUCache
 
 /***/ }),
 
-/***/ 70574:
+/***/ 70977:
 /***/ ((module) => {
 
 "use strict";
@@ -31178,7 +30956,7 @@ module.exports = parseOptions
 
 /***/ }),
 
-/***/ 23569:
+/***/ 25580:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31188,8 +30966,8 @@ const {
   MAX_SAFE_COMPONENT_LENGTH,
   MAX_SAFE_BUILD_LENGTH,
   MAX_LENGTH,
-} = __nccwpck_require__(33439)
-const debug = __nccwpck_require__(25897)
+} = __nccwpck_require__(14256)
+const debug = __nccwpck_require__(51542)
 exports = module.exports = {}
 
 // The actual regexps go on exports.re
@@ -31262,8 +31040,8 @@ createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
 
 // ## Pre-release Version Identifier
 // A numeric identifier, or a non-numeric identifier.
-// Non-numberic identifiers include numberic identifiers but can be longer.
-// Therefore non-numberic identifiers must go first.
+// Non-numeric identifiers include numeric identifiers but can be longer.
+// Therefore non-numeric identifiers must go first.
 
 createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NONNUMERICIDENTIFIER]
 }|${src[t.NUMERICIDENTIFIER]})`)
@@ -31409,27 +31187,27 @@ createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$')
 
 /***/ }),
 
-/***/ 78818:
+/***/ 67173:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
 // Determine if version is greater than all the versions possible in the range.
-const outside = __nccwpck_require__(10830)
+const outside = __nccwpck_require__(44421)
 const gtr = (version, range, options) => outside(version, range, '>', options)
 module.exports = gtr
 
 
 /***/ }),
 
-/***/ 90103:
+/***/ 2150:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Range = __nccwpck_require__(55327)
+const Range = __nccwpck_require__(33137)
 const intersects = (r1, r2, options) => {
   r1 = new Range(r1, options)
   r2 = new Range(r2, options)
@@ -31440,13 +31218,13 @@ module.exports = intersects
 
 /***/ }),
 
-/***/ 83767:
+/***/ 92156:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const outside = __nccwpck_require__(10830)
+const outside = __nccwpck_require__(44421)
 // Determine if version is less than all the versions possible in the range
 const ltr = (version, range, options) => outside(version, range, '<', options)
 module.exports = ltr
@@ -31454,14 +31232,14 @@ module.exports = ltr
 
 /***/ }),
 
-/***/ 89191:
+/***/ 4150:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
-const Range = __nccwpck_require__(55327)
+const SemVer = __nccwpck_require__(84154)
+const Range = __nccwpck_require__(33137)
 
 const maxSatisfying = (versions, range, options) => {
   let max = null
@@ -31489,14 +31267,14 @@ module.exports = maxSatisfying
 
 /***/ }),
 
-/***/ 59285:
+/***/ 32420:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
-const Range = __nccwpck_require__(55327)
+const SemVer = __nccwpck_require__(84154)
+const Range = __nccwpck_require__(33137)
 const minSatisfying = (versions, range, options) => {
   let min = null
   let minSV = null
@@ -31523,15 +31301,15 @@ module.exports = minSatisfying
 
 /***/ }),
 
-/***/ 22536:
+/***/ 47815:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
-const Range = __nccwpck_require__(55327)
-const gt = __nccwpck_require__(9945)
+const SemVer = __nccwpck_require__(84154)
+const Range = __nccwpck_require__(33137)
+const gt = __nccwpck_require__(32098)
 
 const minVersion = (range, loose) => {
   range = new Range(range, loose)
@@ -31594,21 +31372,21 @@ module.exports = minVersion
 
 /***/ }),
 
-/***/ 10830:
+/***/ 44421:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SemVer = __nccwpck_require__(7741)
-const Comparator = __nccwpck_require__(17029)
+const SemVer = __nccwpck_require__(84154)
+const Comparator = __nccwpck_require__(76222)
 const { ANY } = Comparator
-const Range = __nccwpck_require__(55327)
-const satisfies = __nccwpck_require__(59141)
-const gt = __nccwpck_require__(9945)
-const lt = __nccwpck_require__(49830)
-const lte = __nccwpck_require__(67551)
-const gte = __nccwpck_require__(12842)
+const Range = __nccwpck_require__(33137)
+const satisfies = __nccwpck_require__(29956)
+const gt = __nccwpck_require__(32098)
+const lt = __nccwpck_require__(35045)
+const lte = __nccwpck_require__(45462)
+const gte = __nccwpck_require__(35851)
 
 const outside = (version, range, hilo, options) => {
   version = new SemVer(version, options)
@@ -31684,7 +31462,7 @@ module.exports = outside
 
 /***/ }),
 
-/***/ 5102:
+/***/ 83963:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -31693,8 +31471,8 @@ module.exports = outside
 // given a set of versions and a range, create a "simplified" range
 // that includes the same versions that the original range does
 // If the original range is shorter than the simplified one, return that.
-const satisfies = __nccwpck_require__(59141)
-const compare = __nccwpck_require__(74291)
+const satisfies = __nccwpck_require__(29956)
+const compare = __nccwpck_require__(1306)
 module.exports = (versions, range, options) => {
   const set = []
   let first = null
@@ -31741,17 +31519,17 @@ module.exports = (versions, range, options) => {
 
 /***/ }),
 
-/***/ 39903:
+/***/ 10826:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Range = __nccwpck_require__(55327)
-const Comparator = __nccwpck_require__(17029)
+const Range = __nccwpck_require__(33137)
+const Comparator = __nccwpck_require__(76222)
 const { ANY } = Comparator
-const satisfies = __nccwpck_require__(59141)
-const compare = __nccwpck_require__(74291)
+const satisfies = __nccwpck_require__(29956)
+const compare = __nccwpck_require__(1306)
 
 // Complex range `r1 || r2 || ...` is a subset of `R1 || R2 || ...` iff:
 // - Every simple range `r1, r2, ...` is a null set, OR
@@ -31785,7 +31563,7 @@ const compare = __nccwpck_require__(74291)
 // - If LT
 //   - If LT.semver is greater than any < or <= comp in C, return false
 //   - If LT is <=, and LT.semver does not satisfy every C, return false
-//   - If GT.semver has a prerelease, and not in prerelease mode
+//   - If LT.semver has a prerelease, and not in prerelease mode
 //     - If no C has a prerelease and the LT.semver tuple, return false
 // - Else return true
 
@@ -31998,13 +31776,13 @@ module.exports = subset
 
 /***/ }),
 
-/***/ 26308:
+/***/ 54377:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Range = __nccwpck_require__(55327)
+const Range = __nccwpck_require__(33137)
 
 // Mostly just for testing and legacy API reasons
 const toComparators = (range, options) =>
@@ -32016,13 +31794,13 @@ module.exports = toComparators
 
 /***/ }),
 
-/***/ 98595:
+/***/ 8072:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const Range = __nccwpck_require__(55327)
+const Range = __nccwpck_require__(33137)
 const validRange = (range, options) => {
   try {
     // Return '*' instead of '' so that truthiness works.
@@ -259812,7 +259590,7 @@ module.exports = Queue;
 
 /***/ }),
 
-/***/ 53997:
+/***/ 5427:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -266874,7 +266652,7 @@ class BaseError extends Error {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/i18next@25.8.11_typescript@5.9.3/node_modules/i18next/dist/esm/i18next.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/i18next@25.8.14_typescript@5.9.3/node_modules/i18next/dist/esm/i18next.js
 const isString = obj => typeof obj === 'string';
 const defer = () => {
   let res;
@@ -267065,7 +266843,7 @@ const deepFind = (obj, path, keySeparator = '.') => {
   }
   return current;
 };
-const getCleanedCode = code => code?.replace('_', '-');
+const getCleanedCode = code => code?.replace(/_/g, '-');
 
 const consoleLogger = {
   type: 'logger',
@@ -268574,12 +268352,20 @@ const bindMemberFunctions = inst => {
     }
   });
 };
-let supportNoticeShown = false;
+const SUPPORT_NOTICE_KEY = '__i18next_supportNoticeShown';
+const getSupportNoticeShown = () => typeof globalThis !== 'undefined' && !!globalThis[SUPPORT_NOTICE_KEY];
+const setSupportNoticeShown = () => {
+  if (typeof globalThis !== 'undefined') globalThis[SUPPORT_NOTICE_KEY] = true;
+};
 const usesLocize = inst => {
   if (inst?.modules?.backend?.name?.indexOf('Locize') > 0) return true;
   if (inst?.modules?.backend?.constructor?.name?.indexOf('Locize') > 0) return true;
   if (inst?.options?.backend?.backends) {
     if (inst.options.backend.backends.some(b => b?.name?.indexOf('Locize') > 0 || b?.constructor?.name?.indexOf('Locize') > 0)) return true;
+  }
+  if (inst?.options?.backend?.projectId) return true;
+  if (inst?.options?.backend?.backendOptions) {
+    if (inst.options.backend.backendOptions.some(b => b?.projectId)) return true;
   }
   return false;
 };
@@ -268635,9 +268421,9 @@ class I18n extends EventEmitter {
     if (typeof this.options.overloadTranslationOptionHandler !== 'function') {
       this.options.overloadTranslationOptionHandler = defOpts.overloadTranslationOptionHandler;
     }
-    if (this.options.showSupportNotice !== false && !usesLocize(this) && !supportNoticeShown) {
+    if (this.options.showSupportNotice !== false && !usesLocize(this) && !getSupportNoticeShown()) {
       if (typeof console !== 'undefined' && typeof console.info !== 'undefined') console.info('🌐 i18next is maintained with support from Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙');
-      supportNoticeShown = true;
+      setSupportNoticeShown();
     }
     const createClassOnDemand = ClassOrObject => {
       if (!ClassOrObject) return null;
@@ -270346,10 +270132,10 @@ var external_node_path_ = __nccwpck_require__(76760);
 // EXTERNAL MODULE: external "node:fs"
 var external_node_fs_ = __nccwpck_require__(73024);
 var external_node_fs_default = /*#__PURE__*/__nccwpck_require__.n(external_node_fs_);
-// EXTERNAL MODULE: ./node_modules/.pnpm/@typescript-eslint+parser@8.56.0_eslint@10.0.0_jiti@2.6.1__typescript@5.9.3/node_modules/@typescript-eslint/parser/dist/index.js
-var dist = __nccwpck_require__(65195);
-// EXTERNAL MODULE: ./node_modules/.pnpm/eslint@10.0.0_jiti@2.6.1/node_modules/eslint/lib/api.js
-var api = __nccwpck_require__(21541);
+// EXTERNAL MODULE: ./node_modules/.pnpm/@typescript-eslint+parser@8.56.1_eslint@10.0.2_jiti@2.6.1__typescript@5.9.3/node_modules/@typescript-eslint/parser/dist/index.js
+var dist = __nccwpck_require__(77040);
+// EXTERNAL MODULE: ./node_modules/.pnpm/eslint@10.0.2_jiti@2.6.1/node_modules/eslint/lib/api.js
+var api = __nccwpck_require__(76643);
 // EXTERNAL MODULE: ./node_modules/.pnpm/p-limit@3.1.0/node_modules/p-limit/index.js
 var p_limit = __nccwpck_require__(45537);
 var p_limit_default = /*#__PURE__*/__nccwpck_require__.n(p_limit);
@@ -271204,7 +270990,7 @@ function expand_(str, max, isTop) {
     return expansions;
 }
 //# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.1/node_modules/minimatch/dist/esm/assert-valid-pattern.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.4/node_modules/minimatch/dist/esm/assert-valid-pattern.js
 const MAX_PATTERN_LENGTH = 1024 * 64;
 const assertValidPattern = (pattern) => {
     if (typeof pattern !== 'string') {
@@ -271215,7 +271001,7 @@ const assertValidPattern = (pattern) => {
     }
 };
 //# sourceMappingURL=assert-valid-pattern.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.1/node_modules/minimatch/dist/esm/brace-expressions.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.4/node_modules/minimatch/dist/esm/brace-expressions.js
 // translate the various posix character classes into unicode properties
 // this works across all unicode locales
 // { <posix class>: [<translation>, /u flag required, negated]
@@ -271362,7 +271148,7 @@ const parseClass = (glob, position) => {
     return [comb, uflag, endPos - pos, true];
 };
 //# sourceMappingURL=brace-expressions.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.1/node_modules/minimatch/dist/esm/unescape.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.4/node_modules/minimatch/dist/esm/unescape.js
 /**
  * Un-escape a string that has been escaped with {@link escape}.
  *
@@ -271397,12 +271183,114 @@ const unescape_unescape = (s, { windowsPathsNoEscape = false, magicalBraces = tr
             .replace(/\\([^\/{}])/g, '$1');
 };
 //# sourceMappingURL=unescape.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.1/node_modules/minimatch/dist/esm/ast.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.4/node_modules/minimatch/dist/esm/ast.js
 // parse a single path portion
+var _a;
 
 
 const types = new Set(['!', '?', '+', '*', '@']);
 const isExtglobType = (c) => types.has(c);
+const isExtglobAST = (c) => isExtglobType(c.type);
+// Map of which extglob types can adopt the children of a nested extglob
+//
+// anything but ! can adopt a matching type:
+// +(a|+(b|c)|d) => +(a|b|c|d)
+// *(a|*(b|c)|d) => *(a|b|c|d)
+// @(a|@(b|c)|d) => @(a|b|c|d)
+// ?(a|?(b|c)|d) => ?(a|b|c|d)
+//
+// * can adopt anything, because 0 or repetition is allowed
+// *(a|?(b|c)|d) => *(a|b|c|d)
+// *(a|+(b|c)|d) => *(a|b|c|d)
+// *(a|@(b|c)|d) => *(a|b|c|d)
+//
+// + can adopt @, because 1 or repetition is allowed
+// +(a|@(b|c)|d) => +(a|b|c|d)
+//
+// + and @ CANNOT adopt *, because 0 would be allowed
+// +(a|*(b|c)|d) => would match "", on *(b|c)
+// @(a|*(b|c)|d) => would match "", on *(b|c)
+//
+// + and @ CANNOT adopt ?, because 0 would be allowed
+// +(a|?(b|c)|d) => would match "", on ?(b|c)
+// @(a|?(b|c)|d) => would match "", on ?(b|c)
+//
+// ? can adopt @, because 0 or 1 is allowed
+// ?(a|@(b|c)|d) => ?(a|b|c|d)
+//
+// ? and @ CANNOT adopt * or +, because >1 would be allowed
+// ?(a|*(b|c)|d) => would match bbb on *(b|c)
+// @(a|*(b|c)|d) => would match bbb on *(b|c)
+// ?(a|+(b|c)|d) => would match bbb on +(b|c)
+// @(a|+(b|c)|d) => would match bbb on +(b|c)
+//
+// ! CANNOT adopt ! (nothing else can either)
+// !(a|!(b|c)|d) => !(a|b|c|d) would fail to match on b (not not b|c)
+//
+// ! can adopt @
+// !(a|@(b|c)|d) => !(a|b|c|d)
+//
+// ! CANNOT adopt *
+// !(a|*(b|c)|d) => !(a|b|c|d) would match on bbb, not allowed
+//
+// ! CANNOT adopt +
+// !(a|+(b|c)|d) => !(a|b|c|d) would match on bbb, not allowed
+//
+// ! CANNOT adopt ?
+// x!(a|?(b|c)|d) => x!(a|b|c|d) would fail to match "x"
+const adoptionMap = new Map([
+    ['!', ['@']],
+    ['?', ['?', '@']],
+    ['@', ['@']],
+    ['*', ['*', '+', '?', '@']],
+    ['+', ['+', '@']],
+]);
+// nested extglobs that can be adopted in, but with the addition of
+// a blank '' element.
+const adoptionWithSpaceMap = new Map([
+    ['!', ['?']],
+    ['@', ['?']],
+    ['+', ['?', '*']],
+]);
+// union of the previous two maps
+const adoptionAnyMap = new Map([
+    ['!', ['?', '@']],
+    ['?', ['?', '@']],
+    ['@', ['?', '@']],
+    ['*', ['*', '+', '?', '@']],
+    ['+', ['+', '@', '?', '*']],
+]);
+// Extglobs that can take over their parent if they are the only child
+// the key is parent, value maps child to resulting extglob parent type
+// '@' is omitted because it's a special case. An `@` extglob with a single
+// member can always be usurped by that subpattern.
+const usurpMap = new Map([
+    ['!', new Map([['!', '@']])],
+    [
+        '?',
+        new Map([
+            ['*', '*'],
+            ['+', '*'],
+        ]),
+    ],
+    [
+        '@',
+        new Map([
+            ['!', '!'],
+            ['?', '?'],
+            ['@', '@'],
+            ['*', '*'],
+            ['+', '+'],
+        ]),
+    ],
+    [
+        '+',
+        new Map([
+            ['?', '*'],
+            ['*', '*'],
+        ]),
+    ],
+]);
 // Patterns that get prepended to bind to the start of either the
 // entire string, or just a single path portion, to prevent dots
 // and/or traversal patterns, when needed.
@@ -271426,6 +271314,7 @@ const star = qmark + '*?';
 const starNoEmpty = qmark + '+?';
 // remove the \ chars that we added if we end up doing a nonmagic compare
 // const deslash = (s: string) => s.replace(/\\(.)/g, '$1')
+let ID = 0;
 class AST {
     type;
     #root;
@@ -271441,6 +271330,22 @@ class AST {
     // set to true if it's an extglob with no children
     // (which really means one child of '')
     #emptyExt = false;
+    id = ++ID;
+    get depth() {
+        return (this.#parent?.depth ?? -1) + 1;
+    }
+    [Symbol.for('nodejs.util.inspect.custom')]() {
+        return {
+            '@@type': 'AST',
+            id: this.id,
+            type: this.type,
+            root: this.#root.id,
+            parent: this.#parent?.id,
+            depth: this.depth,
+            partsLength: this.#parts.length,
+            parts: this.#parts,
+        };
+    }
     constructor(type, parent, options = {}) {
         this.type = type;
         // extglobs are inherently magical
@@ -271520,7 +271425,7 @@ class AST {
                 continue;
             /* c8 ignore start */
             if (typeof p !== 'string' &&
-                !(p instanceof AST && p.#parent === this)) {
+                !(p instanceof _a && p.#parent === this)) {
                 throw new Error('invalid part: ' + p);
             }
             /* c8 ignore stop */
@@ -271554,7 +271459,7 @@ class AST {
         const p = this.#parent;
         for (let i = 0; i < this.#parentIndex; i++) {
             const pp = p.#parts[i];
-            if (!(pp instanceof AST && pp.type === '!')) {
+            if (!(pp instanceof _a && pp.type === '!')) {
                 return false;
             }
         }
@@ -271582,13 +271487,14 @@ class AST {
             this.push(part.clone(this));
     }
     clone(parent) {
-        const c = new AST(this.type, parent);
+        const c = new _a(this.type, parent);
         for (const p of this.#parts) {
             c.copyIn(p);
         }
         return c;
     }
-    static #parseAST(str, ast, pos, opt) {
+    static #parseAST(str, ast, pos, opt, extDepth) {
+        const maxDepth = opt.maxExtglobRecursion ?? 2;
         let escaping = false;
         let inBrace = false;
         let braceStart = -1;
@@ -271625,11 +271531,17 @@ class AST {
                     acc += c;
                     continue;
                 }
-                if (!opt.noext && isExtglobType(c) && str.charAt(i) === '(') {
+                // we don't have to check for adoption here, because that's
+                // done at the other recursion point.
+                const doRecurse = !opt.noext &&
+                    isExtglobType(c) &&
+                    str.charAt(i) === '(' &&
+                    extDepth <= maxDepth;
+                if (doRecurse) {
                     ast.push(acc);
                     acc = '';
-                    const ext = new AST(c, ast);
-                    i = AST.#parseAST(str, ext, i, opt);
+                    const ext = new _a(c, ast);
+                    i = _a.#parseAST(str, ext, i, opt, extDepth + 1);
                     ast.push(ext);
                     continue;
                 }
@@ -271641,7 +271553,7 @@ class AST {
         // some kind of extglob, pos is at the (
         // find the next | or )
         let i = pos + 1;
-        let part = new AST(null, ast);
+        let part = new _a(null, ast);
         const parts = [];
         let acc = '';
         while (i < str.length) {
@@ -271672,19 +271584,26 @@ class AST {
                 acc += c;
                 continue;
             }
-            if (isExtglobType(c) && str.charAt(i) === '(') {
+            const doRecurse = !opt.noext &&
+                isExtglobType(c) &&
+                str.charAt(i) === '(' &&
+                /* c8 ignore start - the maxDepth is sufficient here */
+                (extDepth <= maxDepth || (ast && ast.#canAdoptType(c)));
+            /* c8 ignore stop */
+            if (doRecurse) {
+                const depthAdd = ast && ast.#canAdoptType(c) ? 0 : 1;
                 part.push(acc);
                 acc = '';
-                const ext = new AST(c, part);
+                const ext = new _a(c, part);
                 part.push(ext);
-                i = AST.#parseAST(str, ext, i, opt);
+                i = _a.#parseAST(str, ext, i, opt, extDepth + depthAdd);
                 continue;
             }
             if (c === '|') {
                 part.push(acc);
                 acc = '';
                 parts.push(part);
-                part = new AST(null, ast);
+                part = new _a(null, ast);
                 continue;
             }
             if (c === ')') {
@@ -271706,9 +271625,82 @@ class AST {
         ast.#parts = [str.substring(pos - 1)];
         return i;
     }
+    #canAdoptWithSpace(child) {
+        return this.#canAdopt(child, adoptionWithSpaceMap);
+    }
+    #canAdopt(child, map = adoptionMap) {
+        if (!child ||
+            typeof child !== 'object' ||
+            child.type !== null ||
+            child.#parts.length !== 1 ||
+            this.type === null) {
+            return false;
+        }
+        const gc = child.#parts[0];
+        if (!gc || typeof gc !== 'object' || gc.type === null) {
+            return false;
+        }
+        return this.#canAdoptType(gc.type, map);
+    }
+    #canAdoptType(c, map = adoptionAnyMap) {
+        return !!map.get(this.type)?.includes(c);
+    }
+    #adoptWithSpace(child, index) {
+        const gc = child.#parts[0];
+        const blank = new _a(null, gc, this.options);
+        blank.#parts.push('');
+        gc.push(blank);
+        this.#adopt(child, index);
+    }
+    #adopt(child, index) {
+        const gc = child.#parts[0];
+        this.#parts.splice(index, 1, ...gc.#parts);
+        for (const p of gc.#parts) {
+            if (typeof p === 'object')
+                p.#parent = this;
+        }
+        this.#toString = undefined;
+    }
+    #canUsurpType(c) {
+        const m = usurpMap.get(this.type);
+        return !!(m?.has(c));
+    }
+    #canUsurp(child) {
+        if (!child ||
+            typeof child !== 'object' ||
+            child.type !== null ||
+            child.#parts.length !== 1 ||
+            this.type === null ||
+            this.#parts.length !== 1) {
+            return false;
+        }
+        const gc = child.#parts[0];
+        if (!gc || typeof gc !== 'object' || gc.type === null) {
+            return false;
+        }
+        return this.#canUsurpType(gc.type);
+    }
+    #usurp(child) {
+        const m = usurpMap.get(this.type);
+        const gc = child.#parts[0];
+        const nt = m?.get(gc.type);
+        /* c8 ignore start - impossible */
+        if (!nt)
+            return false;
+        /* c8 ignore stop */
+        this.#parts = gc.#parts;
+        for (const p of this.#parts) {
+            if (typeof p === 'object') {
+                p.#parent = this;
+            }
+        }
+        this.type = nt;
+        this.#toString = undefined;
+        this.#emptyExt = false;
+    }
     static fromGlob(pattern, options = {}) {
-        const ast = new AST(null, undefined, options);
-        AST.#parseAST(pattern, ast, 0, options);
+        const ast = new _a(null, undefined, options);
+        _a.#parseAST(pattern, ast, 0, options, 0);
         return ast;
     }
     // returns the regular expression if there's magic, or the unescaped
@@ -271812,16 +271804,18 @@ class AST {
     // or start or whatever) and prepend ^ or / at the Regexp construction.
     toRegExpSource(allowDot) {
         const dot = allowDot ?? !!this.#options.dot;
-        if (this.#root === this)
+        if (this.#root === this) {
+            this.#flatten();
             this.#fillNegs();
-        if (!this.type) {
+        }
+        if (!isExtglobAST(this)) {
             const noEmpty = this.isStart() &&
                 this.isEnd() &&
                 !this.#parts.some(s => typeof s !== 'string');
             const src = this.#parts
                 .map(p => {
                 const [re, _, hasMagic, uflag] = typeof p === 'string' ?
-                    AST.#parseGlob(p, this.#hasMagic, noEmpty)
+                    _a.#parseGlob(p, this.#hasMagic, noEmpty)
                     : p.toRegExpSource(allowDot);
                 this.#hasMagic = this.#hasMagic || hasMagic;
                 this.#uflag = this.#uflag || uflag;
@@ -271883,12 +271877,12 @@ class AST {
             // invalid extglob, has to at least be *something* present, if it's
             // the entire path portion.
             const s = this.toString();
-            this.#parts = [s];
-            this.type = null;
-            this.#hasMagic = undefined;
+            const me = this;
+            me.#parts = [s];
+            me.type = null;
+            me.#hasMagic = undefined;
             return [s, unescape_unescape(this.toString()), false, false];
         }
-        // XXX abstract out this map method
         let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot ?
             ''
             : this.#partsToRegExp(true);
@@ -271923,6 +271917,42 @@ class AST {
             (this.#hasMagic = !!this.#hasMagic),
             this.#uflag,
         ];
+    }
+    #flatten() {
+        if (!isExtglobAST(this)) {
+            for (const p of this.#parts) {
+                if (typeof p === 'object') {
+                    p.#flatten();
+                }
+            }
+        }
+        else {
+            // do up to 10 passes to flatten as much as possible
+            let iterations = 0;
+            let done = false;
+            do {
+                done = true;
+                for (let i = 0; i < this.#parts.length; i++) {
+                    const c = this.#parts[i];
+                    if (typeof c === 'object') {
+                        c.#flatten();
+                        if (this.#canAdopt(c)) {
+                            done = false;
+                            this.#adopt(c, i);
+                        }
+                        else if (this.#canAdoptWithSpace(c)) {
+                            done = false;
+                            this.#adoptWithSpace(c, i);
+                        }
+                        else if (this.#canUsurp(c)) {
+                            done = false;
+                            this.#usurp(c);
+                        }
+                    }
+                }
+            } while (!done && ++iterations < 10);
+        }
+        this.#toString = undefined;
     }
     #partsToRegExp(dot) {
         return this.#parts
@@ -271994,8 +272024,9 @@ class AST {
         return [re, unescape_unescape(glob), !!hasMagic, uflag];
     }
 }
+_a = AST;
 //# sourceMappingURL=ast.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.1/node_modules/minimatch/dist/esm/escape.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.4/node_modules/minimatch/dist/esm/escape.js
 /**
  * Escape all magic characters in a glob pattern.
  *
@@ -272022,7 +272053,7 @@ const escape_escape = (s, { windowsPathsNoEscape = false, magicalBraces = false,
         : s.replace(/[?*()[\]\\]/g, '\\$&');
 };
 //# sourceMappingURL=escape.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.1/node_modules/minimatch/dist/esm/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/minimatch@10.2.4/node_modules/minimatch/dist/esm/index.js
 
 
 
@@ -272218,11 +272249,13 @@ class Minimatch {
     isWindows;
     platform;
     windowsNoMagicRoot;
+    maxGlobstarRecursion;
     regexp;
     constructor(pattern, options = {}) {
         assertValidPattern(pattern);
         options = options || {};
         this.options = options;
+        this.maxGlobstarRecursion = options.maxGlobstarRecursion ?? 200;
         this.pattern = pattern;
         this.platform = options.platform || defaultPlatform;
         this.isWindows = this.platform === 'win32';
@@ -272627,7 +272660,8 @@ class Minimatch {
     // out of pattern, then that's fine, as long as all
     // the parts match.
     matchOne(file, pattern, partial = false) {
-        const options = this.options;
+        let fileStartIndex = 0;
+        let patternStartIndex = 0;
         // UNC paths like //?/X:/... can match X:/... and vice versa
         // Drive letters in absolute drive or unc paths are always compared
         // case-insensitively.
@@ -272656,14 +272690,11 @@ class Minimatch {
                     file[fdi],
                     pattern[pdi],
                 ];
+                // start matching at the drive letter index of each
                 if (fd.toLowerCase() === pd.toLowerCase()) {
                     pattern[pdi] = fd;
-                    if (pdi > fdi) {
-                        pattern = pattern.slice(pdi);
-                    }
-                    else if (fdi > pdi) {
-                        file = file.slice(fdi);
-                    }
+                    patternStartIndex = pdi;
+                    fileStartIndex = fdi;
                 }
             }
         }
@@ -272673,99 +272704,185 @@ class Minimatch {
         if (optimizationLevel >= 2) {
             file = this.levelTwoFileOptimize(file);
         }
-        this.debug('matchOne', this, { file, pattern });
-        this.debug('matchOne', file.length, pattern.length);
-        for (var fi = 0, pi = 0, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
+        if (pattern.includes(GLOBSTAR)) {
+            return this.#matchGlobstar(file, pattern, partial, fileStartIndex, patternStartIndex);
+        }
+        return this.#matchOne(file, pattern, partial, fileStartIndex, patternStartIndex);
+    }
+    #matchGlobstar(file, pattern, partial, fileIndex, patternIndex) {
+        // split the pattern into head, tail, and middle of ** delimited parts
+        const firstgs = pattern.indexOf(GLOBSTAR, patternIndex);
+        const lastgs = pattern.lastIndexOf(GLOBSTAR);
+        // split the pattern up into globstar-delimited sections
+        // the tail has to be at the end, and the others just have
+        // to be found in order from the head.
+        const [head, body, tail] = partial ? [
+            pattern.slice(patternIndex, firstgs),
+            pattern.slice(firstgs + 1),
+            [],
+        ] : [
+            pattern.slice(patternIndex, firstgs),
+            pattern.slice(firstgs + 1, lastgs),
+            pattern.slice(lastgs + 1),
+        ];
+        // check the head, from the current file/pattern index.
+        if (head.length) {
+            const fileHead = file.slice(fileIndex, fileIndex + head.length);
+            if (!this.#matchOne(fileHead, head, partial, 0, 0)) {
+                return false;
+            }
+            fileIndex += head.length;
+            patternIndex += head.length;
+        }
+        // now we know the head matches!
+        // if the last portion is not empty, it MUST match the end
+        // check the tail
+        let fileTailMatch = 0;
+        if (tail.length) {
+            // if head + tail > file, then we cannot possibly match
+            if (tail.length + fileIndex > file.length)
+                return false;
+            // try to match the tail
+            let tailStart = file.length - tail.length;
+            if (this.#matchOne(file, tail, partial, tailStart, 0)) {
+                fileTailMatch = tail.length;
+            }
+            else {
+                // affordance for stuff like a/**/* matching a/b/
+                // if the last file portion is '', and there's more to the pattern
+                // then try without the '' bit.
+                if (file[file.length - 1] !== '' ||
+                    fileIndex + tail.length === file.length) {
+                    return false;
+                }
+                tailStart--;
+                if (!this.#matchOne(file, tail, partial, tailStart, 0)) {
+                    return false;
+                }
+                fileTailMatch = tail.length + 1;
+            }
+        }
+        // now we know the tail matches!
+        // the middle is zero or more portions wrapped in **, possibly
+        // containing more ** sections.
+        // so a/**/b/**/c/**/d has become **/b/**/c/**
+        // if it's empty, it means a/**/b, just verify we have no bad dots
+        // if there's no tail, so it ends on /**, then we must have *something*
+        // after the head, or it's not a matc
+        if (!body.length) {
+            let sawSome = !!fileTailMatch;
+            for (let i = fileIndex; i < file.length - fileTailMatch; i++) {
+                const f = String(file[i]);
+                sawSome = true;
+                if (f === '.' ||
+                    f === '..' ||
+                    (!this.options.dot && f.startsWith('.'))) {
+                    return false;
+                }
+            }
+            // in partial mode, we just need to get past all file parts
+            return partial || sawSome;
+        }
+        // now we know that there's one or more body sections, which can
+        // be matched anywhere from the 0 index (because the head was pruned)
+        // through to the length-fileTailMatch index.
+        // split the body up into sections, and note the minimum index it can
+        // be found at (start with the length of all previous segments)
+        // [section, before, after]
+        const bodySegments = [[[], 0]];
+        let currentBody = bodySegments[0];
+        let nonGsParts = 0;
+        const nonGsPartsSums = [0];
+        for (const b of body) {
+            if (b === GLOBSTAR) {
+                nonGsPartsSums.push(nonGsParts);
+                currentBody = [[], 0];
+                bodySegments.push(currentBody);
+            }
+            else {
+                currentBody[0].push(b);
+                nonGsParts++;
+            }
+        }
+        let i = bodySegments.length - 1;
+        const fileLength = file.length - fileTailMatch;
+        for (const b of bodySegments) {
+            b[1] = fileLength - (nonGsPartsSums[i--] + b[0].length);
+        }
+        return !!this.#matchGlobStarBodySections(file, bodySegments, fileIndex, 0, partial, 0, !!fileTailMatch);
+    }
+    // return false for "nope, not matching"
+    // return null for "not matching, cannot keep trying"
+    #matchGlobStarBodySections(file, 
+    // pattern section, last possible position for it
+    bodySegments, fileIndex, bodyIndex, partial, globStarDepth, sawTail) {
+        // take the first body segment, and walk from fileIndex to its "after"
+        // value at the end
+        // If it doesn't match at that position, we increment, until we hit
+        // that final possible position, and give up.
+        // If it does match, then advance and try to rest.
+        // If any of them fail we keep walking forward.
+        // this is still a bit recursively painful, but it's more constrained
+        // than previous implementations, because we never test something that
+        // can't possibly be a valid matching condition.
+        const bs = bodySegments[bodyIndex];
+        if (!bs) {
+            // just make sure that there's no bad dots
+            for (let i = fileIndex; i < file.length; i++) {
+                sawTail = true;
+                const f = file[i];
+                if (f === '.' ||
+                    f === '..' ||
+                    (!this.options.dot && f.startsWith('.'))) {
+                    return false;
+                }
+            }
+            return sawTail;
+        }
+        // have a non-globstar body section to test
+        const [body, after] = bs;
+        while (fileIndex <= after) {
+            const m = this.#matchOne(file.slice(0, fileIndex + body.length), body, partial, fileIndex, 0);
+            // if limit exceeded, no match. intentional false negative,
+            // acceptable break in correctness for security.
+            if (m && globStarDepth < this.maxGlobstarRecursion) {
+                // match! see if the rest match. if so, we're done!
+                const sub = this.#matchGlobStarBodySections(file, bodySegments, fileIndex + body.length, bodyIndex + 1, partial, globStarDepth + 1, sawTail);
+                if (sub !== false) {
+                    return sub;
+                }
+            }
+            const f = file[fileIndex];
+            if (f === '.' ||
+                f === '..' ||
+                (!this.options.dot && f.startsWith('.'))) {
+                return false;
+            }
+            fileIndex++;
+        }
+        // walked off. no point continuing
+        return partial || null;
+    }
+    #matchOne(file, pattern, partial, fileIndex, patternIndex) {
+        let fi;
+        let pi;
+        let pl;
+        let fl;
+        for (fi = fileIndex,
+            pi = patternIndex,
+            fl = file.length,
+            pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
             this.debug('matchOne loop');
-            var p = pattern[pi];
-            var f = file[fi];
+            let p = pattern[pi];
+            let f = file[fi];
             this.debug(pattern, p, f);
             // should be impossible.
             // some invalid regexp stuff in the set.
             /* c8 ignore start */
-            if (p === false) {
+            if (p === false || p === GLOBSTAR) {
                 return false;
             }
             /* c8 ignore stop */
-            if (p === GLOBSTAR) {
-                this.debug('GLOBSTAR', [pattern, p, f]);
-                // "**"
-                // a/**/b/**/c would match the following:
-                // a/b/x/y/z/c
-                // a/x/y/z/b/c
-                // a/b/x/b/x/c
-                // a/b/c
-                // To do this, take the rest of the pattern after
-                // the **, and see if it would match the file remainder.
-                // If so, return success.
-                // If not, the ** "swallows" a segment, and try again.
-                // This is recursively awful.
-                //
-                // a/**/b/**/c matching a/b/x/y/z/c
-                // - a matches a
-                // - doublestar
-                //   - matchOne(b/x/y/z/c, b/**/c)
-                //     - b matches b
-                //     - doublestar
-                //       - matchOne(x/y/z/c, c) -> no
-                //       - matchOne(y/z/c, c) -> no
-                //       - matchOne(z/c, c) -> no
-                //       - matchOne(c, c) yes, hit
-                var fr = fi;
-                var pr = pi + 1;
-                if (pr === pl) {
-                    this.debug('** at the end');
-                    // a ** at the end will just swallow the rest.
-                    // We have found a match.
-                    // however, it will not swallow /.x, unless
-                    // options.dot is set.
-                    // . and .. are *never* matched by **, for explosively
-                    // exponential reasons.
-                    for (; fi < fl; fi++) {
-                        if (file[fi] === '.' ||
-                            file[fi] === '..' ||
-                            (!options.dot && file[fi].charAt(0) === '.'))
-                            return false;
-                    }
-                    return true;
-                }
-                // ok, let's see if we can swallow whatever we can.
-                while (fr < fl) {
-                    var swallowee = file[fr];
-                    this.debug('\nglobstar while', file, fr, pattern, pr, swallowee);
-                    // XXX remove this slice.  Just pass the start index.
-                    if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
-                        this.debug('globstar found match!', fr, fl, swallowee);
-                        // found a match.
-                        return true;
-                    }
-                    else {
-                        // can't swallow "." or ".." ever.
-                        // can only swallow ".foo" when explicitly asked.
-                        if (swallowee === '.' ||
-                            swallowee === '..' ||
-                            (!options.dot && swallowee.charAt(0) === '.')) {
-                            this.debug('dot detected!', file, fr, pattern, pr);
-                            break;
-                        }
-                        // ** swallows a segment, and continue.
-                        this.debug('globstar swallow a segment, and continue');
-                        fr++;
-                    }
-                }
-                // no match was found.
-                // However, in partial mode, we can't say this is necessarily over.
-                /* c8 ignore start */
-                if (partial) {
-                    // ran out of file
-                    this.debug('\n>>> no match, partial?', file, fr, pattern, pr);
-                    if (fr === fl) {
-                        return true;
-                    }
-                }
-                /* c8 ignore stop */
-                return false;
-            }
             // something other than **
             // non-magic patterns just have to match exactly
             // patterns with magic have been turned into regexps.
@@ -278957,75 +279074,39 @@ function parseSize(input) {
 
 
 function parseFileLimits(inputs) {
-    const fileSizeLimitResult = parseSize(inputs.file_size_limit);
-    if (fileSizeLimitResult.isErr()) {
-        return (0,index_cjs/* err */._q)(fileSizeLimitResult.error);
-    }
-    const fileSizeLimitEnabledResult = parseBooleanStrict(inputs.file_size_limit_enabled);
-    if (fileSizeLimitEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(fileSizeLimitEnabledResult.error);
-    }
-    const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
-    if (isNaN(fileLinesLimit)) {
-        return (0,index_cjs/* err */._q)(factories_createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'));
-    }
-    const fileLinesLimitEnabledResult = parseBooleanStrict(inputs.file_lines_limit_enabled);
-    if (fileLinesLimitEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(fileLinesLimitEnabledResult.error);
-    }
-    return (0,index_cjs.ok)({
-        fileSizeLimit: fileSizeLimitResult.value,
-        fileSizeLimitEnabled: fileSizeLimitEnabledResult.value,
-        fileLinesLimit,
-        fileLinesLimitEnabled: fileLinesLimitEnabledResult.value,
+    return (0,index_cjs/* safeTry */.XB)(function* () {
+        const fileSizeLimit = yield* parseSize(inputs.file_size_limit).safeUnwrap();
+        const fileSizeLimitEnabled = yield* parseBooleanStrict(inputs.file_size_limit_enabled).safeUnwrap();
+        const fileLinesLimit = parseInt(inputs.file_lines_limit, 10);
+        if (isNaN(fileLinesLimit)) {
+            return (0,index_cjs/* err */._q)(factories_createConfigurationError('file_lines_limit', inputs.file_lines_limit, 'File lines limit must be a number'));
+        }
+        const fileLinesLimitEnabled = yield* parseBooleanStrict(inputs.file_lines_limit_enabled).safeUnwrap();
+        return (0,index_cjs.ok)({ fileSizeLimit, fileSizeLimitEnabled, fileLinesLimit, fileLinesLimitEnabled });
     });
 }
 function parsePRLimits(inputs) {
-    const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
-    if (isNaN(prAdditionsLimit)) {
-        return (0,index_cjs/* err */._q)(factories_createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
-    }
-    const prAdditionsLimitEnabledResult = parseBooleanStrict(inputs.pr_additions_limit_enabled);
-    if (prAdditionsLimitEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(prAdditionsLimitEnabledResult.error);
-    }
-    const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
-    if (isNaN(prFilesLimit)) {
-        return (0,index_cjs/* err */._q)(factories_createConfigurationError('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
-    }
-    const prFilesLimitEnabledResult = parseBooleanStrict(inputs.pr_files_limit_enabled);
-    if (prFilesLimitEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(prFilesLimitEnabledResult.error);
-    }
-    return (0,index_cjs.ok)({
-        prAdditionsLimit,
-        prAdditionsLimitEnabled: prAdditionsLimitEnabledResult.value,
-        prFilesLimit,
-        prFilesLimitEnabled: prFilesLimitEnabledResult.value,
+    return (0,index_cjs/* safeTry */.XB)(function* () {
+        const prAdditionsLimit = parseInt(inputs.pr_additions_limit, 10);
+        if (isNaN(prAdditionsLimit)) {
+            return (0,index_cjs/* err */._q)(factories_createConfigurationError('pr_additions_limit', inputs.pr_additions_limit, 'PR additions limit must be a number'));
+        }
+        const prFilesLimit = parseInt(inputs.pr_files_limit, 10);
+        if (isNaN(prFilesLimit)) {
+            return (0,index_cjs/* err */._q)(factories_createConfigurationError('pr_files_limit', inputs.pr_files_limit, 'PR files limit must be a number'));
+        }
+        const prAdditionsLimitEnabled = yield* parseBooleanStrict(inputs.pr_additions_limit_enabled).safeUnwrap();
+        const prFilesLimitEnabled = yield* parseBooleanStrict(inputs.pr_files_limit_enabled).safeUnwrap();
+        return (0,index_cjs.ok)({ prAdditionsLimit, prAdditionsLimitEnabled, prFilesLimit, prFilesLimitEnabled });
     });
 }
 function parseFeatureFlags(inputs) {
-    const sizeEnabledResult = parseBooleanStrict(inputs.size_enabled);
-    if (sizeEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(sizeEnabledResult.error);
-    }
-    const complexityEnabledResult = parseBooleanStrict(inputs.complexity_enabled);
-    if (complexityEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(complexityEnabledResult.error);
-    }
-    const categoryEnabledResult = parseBooleanStrict(inputs.category_enabled);
-    if (categoryEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(categoryEnabledResult.error);
-    }
-    const riskEnabledResult = parseBooleanStrict(inputs.risk_enabled);
-    if (riskEnabledResult.isErr()) {
-        return (0,index_cjs/* err */._q)(riskEnabledResult.error);
-    }
-    return (0,index_cjs.ok)({
-        sizeEnabled: sizeEnabledResult.value,
-        complexityEnabled: complexityEnabledResult.value,
-        categoryEnabled: categoryEnabledResult.value,
-        riskEnabled: riskEnabledResult.value,
+    return (0,index_cjs/* safeTry */.XB)(function* () {
+        const sizeEnabled = yield* parseBooleanStrict(inputs.size_enabled).safeUnwrap();
+        const complexityEnabled = yield* parseBooleanStrict(inputs.complexity_enabled).safeUnwrap();
+        const categoryEnabled = yield* parseBooleanStrict(inputs.category_enabled).safeUnwrap();
+        const riskEnabled = yield* parseBooleanStrict(inputs.risk_enabled).safeUnwrap();
+        return (0,index_cjs.ok)({ sizeEnabled, complexityEnabled, categoryEnabled, riskEnabled });
     });
 }
 function parseFailureConditions(inputs, sizeEnabled) {
@@ -279382,15 +279463,18 @@ function parseRulesField(cfg) {
     }
     return (0,index_cjs.ok)({ rules: normalizedRules, warnings });
 }
-function parseBooleanOption(record, key, fieldPath) {
+function parseTypedOption(record, key, fieldPath, typeGuard, errorMessage, transform) {
     if (!(key in record) || record[key] === undefined) {
         return (0,index_cjs.ok)(undefined);
     }
     const value = record[key];
-    if (!isBoolean(value)) {
-        return (0,index_cjs/* err */._q)(factories_createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be a boolean`));
+    if (!typeGuard(value)) {
+        return (0,index_cjs/* err */._q)(factories_createConfigurationError(fieldPath, value, errorMessage));
     }
-    return (0,index_cjs.ok)(value);
+    return (0,index_cjs.ok)(transform ? transform(value) : value);
+}
+function parseBooleanOption(record, key, fieldPath) {
+    return parseTypedOption(record, key, fieldPath, isBoolean, `Field "${fieldPath}" must be a boolean`);
 }
 function parseOptionsField(cfg) {
     if (!('options' in cfg) || cfg['options'] === undefined) {
@@ -279426,14 +279510,7 @@ function parseOptionsField(cfg) {
     return (0,index_cjs.ok)(Object.keys(optionOverrides).length > 0 ? optionOverrides : undefined);
 }
 function parseStringArrayOption(record, key, fieldPath) {
-    if (!(key in record) || record[key] === undefined) {
-        return (0,index_cjs.ok)(undefined);
-    }
-    const value = record[key];
-    if (!isStringArray(value)) {
-        return (0,index_cjs/* err */._q)(factories_createConfigurationError(fieldPath, value, `Field "${fieldPath}" must be an array`));
-    }
-    return (0,index_cjs.ok)([...value]);
+    return parseTypedOption(record, key, fieldPath, isStringArray, `Field "${fieldPath}" must be an array`, v => [...v]);
 }
 function parseNamespacesField(cfg) {
     if (!('namespaces' in cfg) || cfg['namespaces'] === undefined) {
@@ -280689,7 +280766,7 @@ module.exports = eval("require")("source-map-support");
 
 /***/ }),
 
-/***/ 28872:
+/***/ 9186:
 /***/ ((module) => {
 
 function webpackEmptyAsyncContext(req) {
@@ -280703,12 +280780,12 @@ function webpackEmptyAsyncContext(req) {
 }
 webpackEmptyAsyncContext.keys = () => ([]);
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 28872;
+webpackEmptyAsyncContext.id = 9186;
 module.exports = webpackEmptyAsyncContext;
 
 /***/ }),
 
-/***/ 16415:
+/***/ 94029:
 /***/ ((module) => {
 
 function webpackEmptyAsyncContext(req) {
@@ -280722,7 +280799,7 @@ function webpackEmptyAsyncContext(req) {
 }
 webpackEmptyAsyncContext.keys = () => ([]);
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 16415;
+webpackEmptyAsyncContext.id = 94029;
 module.exports = webpackEmptyAsyncContext;
 
 /***/ }),
@@ -281087,7 +281164,7 @@ module.exports = require("util");
 
 /***/ }),
 
-/***/ 65195:
+/***/ 77040:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -281095,16 +281172,16 @@ var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 __webpack_unused_export__ = exports.version = __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = void 0;
-var parser_1 = __nccwpck_require__(69908);
+var parser_1 = __nccwpck_require__(37109);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return parser_1.parse; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return parser_1.parseForESLint; } });
-var typescript_estree_1 = __nccwpck_require__(97773);
+var typescript_estree_1 = __nccwpck_require__(34186);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return typescript_estree_1.clearCaches; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return typescript_estree_1.createProgram; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return typescript_estree_1.withoutProjectParserOptions; } });
 // note - cannot migrate this to an import statement because it will make TSC copy the package.json to the dist folder
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-exports.version = __nccwpck_require__(21242).version;
+exports.version = __nccwpck_require__(6383).version;
 __webpack_unused_export__ = {
     name: 'typescript-eslint/parser',
     version: exports.version,
@@ -281113,7 +281190,7 @@ __webpack_unused_export__ = {
 
 /***/ }),
 
-/***/ 69908:
+/***/ 37109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -281124,9 +281201,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parse = parse;
 exports.parseForESLint = parseForESLint;
-const scope_manager_1 = __nccwpck_require__(44110);
-const typescript_estree_1 = __nccwpck_require__(97773);
-const visitor_keys_1 = __nccwpck_require__(44552);
+const scope_manager_1 = __nccwpck_require__(45191);
+const typescript_estree_1 = __nccwpck_require__(34186);
+const visitor_keys_1 = __nccwpck_require__(97331);
 const debug_1 = __importDefault(__nccwpck_require__(18263));
 const typescript_1 = __nccwpck_require__(26995);
 const log = (0, debug_1.default)('typescript-eslint:parser:parser');
@@ -281260,7 +281337,7 @@ function parseForESLint(code, parserOptions) {
 
 /***/ }),
 
-/***/ 76957:
+/***/ 69164:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -281271,7 +281348,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createProjectService = createProjectService;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
-const getParsedConfigFileFromTSServer_js_1 = __nccwpck_require__(43450);
+const getParsedConfigFileFromTSServer_js_1 = __nccwpck_require__(21385);
 const DEFAULT_PROJECT_MATCHED_FILES_THRESHOLD = 8;
 const log = (0, debug_1.default)('typescript-eslint:project-service:createProjectService');
 const logTsserverErr = (0, debug_1.default)('typescript-eslint:project-service:tsserver:err');
@@ -281406,14 +281483,14 @@ function createProjectService({ host, jsDocParsingMode, options: optionsRaw = {}
 
 /***/ }),
 
-/***/ 43450:
+/***/ 21385:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getParsedConfigFileFromTSServer = getParsedConfigFileFromTSServer;
-const tsconfig_utils_1 = __nccwpck_require__(47955);
+const tsconfig_utils_1 = __nccwpck_require__(30062);
 function getParsedConfigFileFromTSServer(tsserver, defaultProject, throwOnFailure, tsconfigRootDir) {
     try {
         return (0, tsconfig_utils_1.getParsedConfigFile)(tsserver, defaultProject, tsconfigRootDir);
@@ -281429,7 +281506,7 @@ function getParsedConfigFileFromTSServer(tsserver, defaultProject, throwOnFailur
 
 /***/ }),
 
-/***/ 67001:
+/***/ 18838:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -281449,12 +281526,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(76957), exports);
+__exportStar(__nccwpck_require__(69164), exports);
 
 
 /***/ }),
 
-/***/ 17237:
+/***/ 1426:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -281481,17 +281558,17 @@ function resetIds() {
 
 /***/ }),
 
-/***/ 17987:
+/***/ 53924:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ScopeManager = void 0;
-const assert_1 = __nccwpck_require__(36050);
-const scope_1 = __nccwpck_require__(87485);
-const ClassFieldInitializerScope_1 = __nccwpck_require__(35077);
-const ClassStaticBlockScope_1 = __nccwpck_require__(16584);
+const assert_1 = __nccwpck_require__(23913);
+const scope_1 = __nccwpck_require__(96744);
+const ClassFieldInitializerScope_1 = __nccwpck_require__(56990);
+const ClassStaticBlockScope_1 = __nccwpck_require__(62969);
 /**
  * @see https://eslint.org/docs/latest/developer-guide/scope-manager-interface#scopemanager-interface
  */
@@ -281678,16 +281755,16 @@ exports.ScopeManager = ScopeManager;
 
 /***/ }),
 
-/***/ 74762:
+/***/ 42767:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.analyze = analyze;
-const visitor_keys_1 = __nccwpck_require__(44552);
-const referencer_1 = __nccwpck_require__(46398);
-const ScopeManager_1 = __nccwpck_require__(17987);
+const visitor_keys_1 = __nccwpck_require__(97331);
+const referencer_1 = __nccwpck_require__(76849);
+const ScopeManager_1 = __nccwpck_require__(53924);
 const DEFAULT_OPTIONS = {
     childVisitorKeys: visitor_keys_1.visitorKeys,
     emitDecoratorMetadata: false,
@@ -281727,7 +281804,7 @@ function analyze(tree, providedOptions) {
 
 /***/ }),
 
-/***/ 36050:
+/***/ 23913:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -281744,15 +281821,15 @@ function assert(value, message) {
 
 /***/ }),
 
-/***/ 84773:
+/***/ 13822:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CatchClauseDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class CatchClauseDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = false;
     isVariableDefinition = true;
@@ -281765,15 +281842,15 @@ exports.CatchClauseDefinition = CatchClauseDefinition;
 
 /***/ }),
 
-/***/ 89704:
+/***/ 45455:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassNameDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class ClassNameDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = true;
     isVariableDefinition = true;
@@ -281786,7 +281863,7 @@ exports.ClassNameDefinition = ClassNameDefinition;
 
 /***/ }),
 
-/***/ 9509:
+/***/ 51828:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -281796,14 +281873,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 17972:
+/***/ 69333:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DefinitionBase = void 0;
-const ID_1 = __nccwpck_require__(17237);
+const ID_1 = __nccwpck_require__(1426);
 const generator = (0, ID_1.createIdGenerator)();
 class DefinitionBase {
     /**
@@ -281838,7 +281915,7 @@ exports.DefinitionBase = DefinitionBase;
 
 /***/ }),
 
-/***/ 26853:
+/***/ 69580:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -281863,15 +281940,15 @@ var DefinitionType;
 
 /***/ }),
 
-/***/ 31518:
+/***/ 69227:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FunctionNameDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class FunctionNameDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = false;
     isVariableDefinition = true;
@@ -281884,15 +281961,15 @@ exports.FunctionNameDefinition = FunctionNameDefinition;
 
 /***/ }),
 
-/***/ 7517:
+/***/ 34716:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ImplicitGlobalVariableDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class ImplicitGlobalVariableDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = false;
     isVariableDefinition = true;
@@ -281905,15 +281982,15 @@ exports.ImplicitGlobalVariableDefinition = ImplicitGlobalVariableDefinition;
 
 /***/ }),
 
-/***/ 87193:
+/***/ 37814:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ImportBindingDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class ImportBindingDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = true;
     isVariableDefinition = true;
@@ -281926,15 +282003,15 @@ exports.ImportBindingDefinition = ImportBindingDefinition;
 
 /***/ }),
 
-/***/ 588:
+/***/ 65099:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ParameterDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class ParameterDefinition extends DefinitionBase_1.DefinitionBase {
     /**
      * Whether the parameter definition is a part of a rest parameter.
@@ -281952,15 +282029,15 @@ exports.ParameterDefinition = ParameterDefinition;
 
 /***/ }),
 
-/***/ 65991:
+/***/ 34730:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TSEnumMemberDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class TSEnumMemberDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = true;
     isVariableDefinition = true;
@@ -281973,15 +282050,15 @@ exports.TSEnumMemberDefinition = TSEnumMemberDefinition;
 
 /***/ }),
 
-/***/ 59518:
+/***/ 67799:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TSEnumNameDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class TSEnumNameDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = true;
     isVariableDefinition = true;
@@ -281994,15 +282071,15 @@ exports.TSEnumNameDefinition = TSEnumNameDefinition;
 
 /***/ }),
 
-/***/ 26803:
+/***/ 17410:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TSModuleNameDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class TSModuleNameDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = true;
     isVariableDefinition = true;
@@ -282015,15 +282092,15 @@ exports.TSModuleNameDefinition = TSModuleNameDefinition;
 
 /***/ }),
 
-/***/ 93725:
+/***/ 77316:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TypeDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class TypeDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = true;
     isVariableDefinition = false;
@@ -282036,15 +282113,15 @@ exports.TypeDefinition = TypeDefinition;
 
 /***/ }),
 
-/***/ 57313:
+/***/ 83944:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VariableDefinition = void 0;
-const DefinitionBase_1 = __nccwpck_require__(17972);
-const DefinitionType_1 = __nccwpck_require__(26853);
+const DefinitionBase_1 = __nccwpck_require__(69333);
+const DefinitionType_1 = __nccwpck_require__(69580);
 class VariableDefinition extends DefinitionBase_1.DefinitionBase {
     isTypeDefinition = false;
     isVariableDefinition = true;
@@ -282057,7 +282134,7 @@ exports.VariableDefinition = VariableDefinition;
 
 /***/ }),
 
-/***/ 44558:
+/***/ 13613:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -282077,24 +282154,24 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(84773), exports);
-__exportStar(__nccwpck_require__(89704), exports);
-__exportStar(__nccwpck_require__(9509), exports);
-__exportStar(__nccwpck_require__(26853), exports);
-__exportStar(__nccwpck_require__(31518), exports);
-__exportStar(__nccwpck_require__(7517), exports);
-__exportStar(__nccwpck_require__(87193), exports);
-__exportStar(__nccwpck_require__(588), exports);
-__exportStar(__nccwpck_require__(65991), exports);
-__exportStar(__nccwpck_require__(59518), exports);
-__exportStar(__nccwpck_require__(26803), exports);
-__exportStar(__nccwpck_require__(93725), exports);
-__exportStar(__nccwpck_require__(57313), exports);
+__exportStar(__nccwpck_require__(13822), exports);
+__exportStar(__nccwpck_require__(45455), exports);
+__exportStar(__nccwpck_require__(51828), exports);
+__exportStar(__nccwpck_require__(69580), exports);
+__exportStar(__nccwpck_require__(69227), exports);
+__exportStar(__nccwpck_require__(34716), exports);
+__exportStar(__nccwpck_require__(37814), exports);
+__exportStar(__nccwpck_require__(65099), exports);
+__exportStar(__nccwpck_require__(34730), exports);
+__exportStar(__nccwpck_require__(67799), exports);
+__exportStar(__nccwpck_require__(17410), exports);
+__exportStar(__nccwpck_require__(77316), exports);
+__exportStar(__nccwpck_require__(83944), exports);
 
 
 /***/ }),
 
-/***/ 44110:
+/***/ 45191:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -282115,24 +282192,24 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ScopeManager = exports.Visitor = exports.Reference = exports.PatternVisitor = exports.analyze = void 0;
-var analyze_1 = __nccwpck_require__(74762);
+var analyze_1 = __nccwpck_require__(42767);
 Object.defineProperty(exports, "analyze", ({ enumerable: true, get: function () { return analyze_1.analyze; } }));
-__exportStar(__nccwpck_require__(44558), exports);
-var PatternVisitor_1 = __nccwpck_require__(9788);
+__exportStar(__nccwpck_require__(13613), exports);
+var PatternVisitor_1 = __nccwpck_require__(5853);
 Object.defineProperty(exports, "PatternVisitor", ({ enumerable: true, get: function () { return PatternVisitor_1.PatternVisitor; } }));
-var Reference_1 = __nccwpck_require__(17411);
+var Reference_1 = __nccwpck_require__(75500);
 Object.defineProperty(exports, "Reference", ({ enumerable: true, get: function () { return Reference_1.Reference; } }));
-var Visitor_1 = __nccwpck_require__(79316);
+var Visitor_1 = __nccwpck_require__(27071);
 Object.defineProperty(exports, "Visitor", ({ enumerable: true, get: function () { return Visitor_1.Visitor; } }));
-__exportStar(__nccwpck_require__(87485), exports);
-var ScopeManager_1 = __nccwpck_require__(17987);
+__exportStar(__nccwpck_require__(96744), exports);
+var ScopeManager_1 = __nccwpck_require__(53924);
 Object.defineProperty(exports, "ScopeManager", ({ enumerable: true, get: function () { return ScopeManager_1.ScopeManager; } }));
-__exportStar(__nccwpck_require__(51775), exports);
+__exportStar(__nccwpck_require__(8412), exports);
 
 
 /***/ }),
 
-/***/ 81464:
+/***/ 99557:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -282162,7 +282239,7 @@ exports.TYPE_VALUE = Object.freeze({
 
 /***/ }),
 
-/***/ 53662:
+/***/ 12073:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -282173,7 +282250,7 @@ exports.TYPE_VALUE = Object.freeze({
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decorators = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.decorators = {
     libs: [],
     variables: [
@@ -282195,7 +282272,7 @@ exports.decorators = {
 
 /***/ }),
 
-/***/ 14885:
+/***/ 61508:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -282206,7 +282283,7 @@ exports.decorators = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decorators_legacy = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.decorators_legacy = {
     libs: [],
     variables: [
@@ -282220,7 +282297,7 @@ exports.decorators_legacy = {
 
 /***/ }),
 
-/***/ 47622:
+/***/ 4271:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -282231,7 +282308,7 @@ exports.decorators_legacy = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.dom_asynciterable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.dom_asynciterable = {
     libs: [],
     variables: [
@@ -282245,7 +282322,7 @@ exports.dom_asynciterable = {
 
 /***/ }),
 
-/***/ 79848:
+/***/ 79267:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -282256,7 +282333,7 @@ exports.dom_asynciterable = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.dom_iterable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.dom_iterable = {
     libs: [],
     variables: [
@@ -282341,7 +282418,7 @@ exports.dom_iterable = {
 
 /***/ }),
 
-/***/ 6418:
+/***/ 40711:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -282352,7 +282429,7 @@ exports.dom_iterable = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.dom = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.dom = {
     libs: [],
     variables: [
@@ -283905,7 +283982,7 @@ exports.dom = {
 
 /***/ }),
 
-/***/ 46096:
+/***/ 38145:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -283916,7 +283993,7 @@ exports.dom = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_collection = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2015_collection = {
     libs: [],
     variables: [
@@ -283936,7 +284013,7 @@ exports.es2015_collection = {
 
 /***/ }),
 
-/***/ 83439:
+/***/ 64482:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -283947,7 +284024,7 @@ exports.es2015_collection = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_core = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2015_core = {
     libs: [],
     variables: [
@@ -283978,7 +284055,7 @@ exports.es2015_core = {
 
 /***/ }),
 
-/***/ 61175:
+/***/ 86632:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -283989,8 +284066,8 @@ exports.es2015_core = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_generator = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
 exports.es2015_generator = {
     libs: [es2015_iterable_1.es2015_iterable],
     variables: [
@@ -284003,7 +284080,7 @@ exports.es2015_generator = {
 
 /***/ }),
 
-/***/ 90138:
+/***/ 83391:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284014,8 +284091,8 @@ exports.es2015_generator = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_iterable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_symbol_1 = __nccwpck_require__(2952);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_symbol_1 = __nccwpck_require__(3041);
 exports.es2015_iterable = {
     libs: [es2015_symbol_1.es2015_symbol],
     variables: [
@@ -284073,7 +284150,7 @@ exports.es2015_iterable = {
 
 /***/ }),
 
-/***/ 54292:
+/***/ 99283:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284084,16 +284161,16 @@ exports.es2015_iterable = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015 = void 0;
-const es5_1 = __nccwpck_require__(68909);
-const es2015_collection_1 = __nccwpck_require__(46096);
-const es2015_core_1 = __nccwpck_require__(83439);
-const es2015_generator_1 = __nccwpck_require__(61175);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_promise_1 = __nccwpck_require__(82935);
-const es2015_proxy_1 = __nccwpck_require__(66294);
-const es2015_reflect_1 = __nccwpck_require__(69751);
-const es2015_symbol_1 = __nccwpck_require__(2952);
-const es2015_symbol_wellknown_1 = __nccwpck_require__(58721);
+const es5_1 = __nccwpck_require__(88732);
+const es2015_collection_1 = __nccwpck_require__(38145);
+const es2015_core_1 = __nccwpck_require__(64482);
+const es2015_generator_1 = __nccwpck_require__(86632);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_promise_1 = __nccwpck_require__(62500);
+const es2015_proxy_1 = __nccwpck_require__(88565);
+const es2015_reflect_1 = __nccwpck_require__(52352);
+const es2015_symbol_1 = __nccwpck_require__(3041);
+const es2015_symbol_wellknown_1 = __nccwpck_require__(32572);
 exports.es2015 = {
     libs: [
         es5_1.es5,
@@ -284113,7 +284190,7 @@ exports.es2015 = {
 
 /***/ }),
 
-/***/ 82935:
+/***/ 62500:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284124,7 +284201,7 @@ exports.es2015 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_promise = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2015_promise = {
     libs: [],
     variables: [['PromiseConstructor', base_config_1.TYPE]],
@@ -284133,7 +284210,7 @@ exports.es2015_promise = {
 
 /***/ }),
 
-/***/ 66294:
+/***/ 88565:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284144,7 +284221,7 @@ exports.es2015_promise = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_proxy = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2015_proxy = {
     libs: [],
     variables: [
@@ -284156,7 +284233,7 @@ exports.es2015_proxy = {
 
 /***/ }),
 
-/***/ 69751:
+/***/ 52352:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284167,7 +284244,7 @@ exports.es2015_proxy = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_reflect = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2015_reflect = {
     libs: [],
     variables: [['Reflect', base_config_1.TYPE_VALUE]],
@@ -284176,7 +284253,7 @@ exports.es2015_reflect = {
 
 /***/ }),
 
-/***/ 2952:
+/***/ 3041:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284187,7 +284264,7 @@ exports.es2015_reflect = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_symbol = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2015_symbol = {
     libs: [],
     variables: [['SymbolConstructor', base_config_1.TYPE]],
@@ -284196,7 +284273,7 @@ exports.es2015_symbol = {
 
 /***/ }),
 
-/***/ 58721:
+/***/ 32572:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284207,8 +284284,8 @@ exports.es2015_symbol = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2015_symbol_wellknown = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_symbol_1 = __nccwpck_require__(2952);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_symbol_1 = __nccwpck_require__(3041);
 exports.es2015_symbol_wellknown = {
     libs: [es2015_symbol_1.es2015_symbol],
     variables: [
@@ -284251,7 +284328,7 @@ exports.es2015_symbol_wellknown = {
 
 /***/ }),
 
-/***/ 39636:
+/***/ 42247:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284262,7 +284339,7 @@ exports.es2015_symbol_wellknown = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2016_array_include = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2016_array_include = {
     libs: [],
     variables: [
@@ -284283,7 +284360,7 @@ exports.es2016_array_include = {
 
 /***/ }),
 
-/***/ 74346:
+/***/ 94519:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284294,11 +284371,11 @@ exports.es2016_array_include = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2016_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2016_1 = __nccwpck_require__(75709);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2016_1 = __nccwpck_require__(29110);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2016_full = {
     libs: [es2016_1.es2016, dom_1.dom, webworker_importscripts_1.webworker_importscripts, scripthost_1.scripthost, dom_iterable_1.dom_iterable],
     variables: [],
@@ -284307,7 +284384,7 @@ exports.es2016_full = {
 
 /***/ }),
 
-/***/ 95096:
+/***/ 88645:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284318,7 +284395,7 @@ exports.es2016_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2016_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2016_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -284327,7 +284404,7 @@ exports.es2016_intl = {
 
 /***/ }),
 
-/***/ 75709:
+/***/ 29110:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284338,9 +284415,9 @@ exports.es2016_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2016 = void 0;
-const es2015_1 = __nccwpck_require__(54292);
-const es2016_array_include_1 = __nccwpck_require__(39636);
-const es2016_intl_1 = __nccwpck_require__(95096);
+const es2015_1 = __nccwpck_require__(99283);
+const es2016_array_include_1 = __nccwpck_require__(42247);
+const es2016_intl_1 = __nccwpck_require__(88645);
 exports.es2016 = {
     libs: [es2015_1.es2015, es2016_array_include_1.es2016_array_include, es2016_intl_1.es2016_intl],
     variables: [],
@@ -284349,7 +284426,7 @@ exports.es2016 = {
 
 /***/ }),
 
-/***/ 54171:
+/***/ 77732:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284360,7 +284437,7 @@ exports.es2016 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_arraybuffer = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2017_arraybuffer = {
     libs: [],
     variables: [['ArrayBufferConstructor', base_config_1.TYPE]],
@@ -284369,7 +284446,7 @@ exports.es2017_arraybuffer = {
 
 /***/ }),
 
-/***/ 95342:
+/***/ 43927:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284380,7 +284457,7 @@ exports.es2017_arraybuffer = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_date = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2017_date = {
     libs: [],
     variables: [['DateConstructor', base_config_1.TYPE]],
@@ -284389,7 +284466,7 @@ exports.es2017_date = {
 
 /***/ }),
 
-/***/ 35327:
+/***/ 99234:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284400,11 +284477,11 @@ exports.es2017_date = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2017_1 = __nccwpck_require__(26142);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2017_1 = __nccwpck_require__(57301);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2017_full = {
     libs: [es2017_1.es2017, dom_1.dom, webworker_importscripts_1.webworker_importscripts, scripthost_1.scripthost, dom_iterable_1.dom_iterable],
     variables: [],
@@ -284413,7 +284490,7 @@ exports.es2017_full = {
 
 /***/ }),
 
-/***/ 65917:
+/***/ 60416:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284424,7 +284501,7 @@ exports.es2017_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2017_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -284433,7 +284510,7 @@ exports.es2017_intl = {
 
 /***/ }),
 
-/***/ 26142:
+/***/ 57301:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284444,14 +284521,14 @@ exports.es2017_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017 = void 0;
-const es2016_1 = __nccwpck_require__(75709);
-const es2017_arraybuffer_1 = __nccwpck_require__(54171);
-const es2017_date_1 = __nccwpck_require__(95342);
-const es2017_intl_1 = __nccwpck_require__(65917);
-const es2017_object_1 = __nccwpck_require__(66713);
-const es2017_sharedmemory_1 = __nccwpck_require__(71216);
-const es2017_string_1 = __nccwpck_require__(58595);
-const es2017_typedarrays_1 = __nccwpck_require__(36990);
+const es2016_1 = __nccwpck_require__(29110);
+const es2017_arraybuffer_1 = __nccwpck_require__(77732);
+const es2017_date_1 = __nccwpck_require__(43927);
+const es2017_intl_1 = __nccwpck_require__(60416);
+const es2017_object_1 = __nccwpck_require__(18992);
+const es2017_sharedmemory_1 = __nccwpck_require__(60333);
+const es2017_string_1 = __nccwpck_require__(99838);
+const es2017_typedarrays_1 = __nccwpck_require__(10085);
 exports.es2017 = {
     libs: [
         es2016_1.es2016,
@@ -284469,7 +284546,7 @@ exports.es2017 = {
 
 /***/ }),
 
-/***/ 66713:
+/***/ 18992:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284480,7 +284557,7 @@ exports.es2017 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_object = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2017_object = {
     libs: [],
     variables: [['ObjectConstructor', base_config_1.TYPE]],
@@ -284489,7 +284566,7 @@ exports.es2017_object = {
 
 /***/ }),
 
-/***/ 71216:
+/***/ 60333:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284500,9 +284577,9 @@ exports.es2017_object = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_sharedmemory = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_symbol_1 = __nccwpck_require__(2952);
-const es2015_symbol_wellknown_1 = __nccwpck_require__(58721);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_symbol_1 = __nccwpck_require__(3041);
+const es2015_symbol_wellknown_1 = __nccwpck_require__(32572);
 exports.es2017_sharedmemory = {
     libs: [es2015_symbol_1.es2015_symbol, es2015_symbol_wellknown_1.es2015_symbol_wellknown],
     variables: [
@@ -284516,7 +284593,7 @@ exports.es2017_sharedmemory = {
 
 /***/ }),
 
-/***/ 58595:
+/***/ 99838:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284527,7 +284604,7 @@ exports.es2017_sharedmemory = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_string = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2017_string = {
     libs: [],
     variables: [['String', base_config_1.TYPE]],
@@ -284536,7 +284613,7 @@ exports.es2017_string = {
 
 /***/ }),
 
-/***/ 36990:
+/***/ 10085:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284547,7 +284624,7 @@ exports.es2017_string = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2017_typedarrays = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2017_typedarrays = {
     libs: [],
     variables: [
@@ -284566,7 +284643,7 @@ exports.es2017_typedarrays = {
 
 /***/ }),
 
-/***/ 45992:
+/***/ 50321:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284577,8 +284654,8 @@ exports.es2017_typedarrays = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2018_asyncgenerator = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2018_asynciterable_1 = __nccwpck_require__(76799);
+const base_config_1 = __nccwpck_require__(99557);
+const es2018_asynciterable_1 = __nccwpck_require__(20644);
 exports.es2018_asyncgenerator = {
     libs: [es2018_asynciterable_1.es2018_asynciterable],
     variables: [
@@ -284591,7 +284668,7 @@ exports.es2018_asyncgenerator = {
 
 /***/ }),
 
-/***/ 76799:
+/***/ 20644:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284602,9 +284679,9 @@ exports.es2018_asyncgenerator = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2018_asynciterable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_symbol_1 = __nccwpck_require__(2952);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_symbol_1 = __nccwpck_require__(3041);
 exports.es2018_asynciterable = {
     libs: [es2015_symbol_1.es2015_symbol, es2015_iterable_1.es2015_iterable],
     variables: [
@@ -284619,7 +284696,7 @@ exports.es2018_asynciterable = {
 
 /***/ }),
 
-/***/ 96848:
+/***/ 36709:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284630,12 +284707,12 @@ exports.es2018_asynciterable = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2018_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2018_1 = __nccwpck_require__(39703);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2018_1 = __nccwpck_require__(78120);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2018_full = {
     libs: [
         es2018_1.es2018,
@@ -284651,7 +284728,7 @@ exports.es2018_full = {
 
 /***/ }),
 
-/***/ 84286:
+/***/ 13339:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284662,7 +284739,7 @@ exports.es2018_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2018_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2018_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -284671,7 +284748,7 @@ exports.es2018_intl = {
 
 /***/ }),
 
-/***/ 39703:
+/***/ 78120:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284682,12 +284759,12 @@ exports.es2018_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2018 = void 0;
-const es2017_1 = __nccwpck_require__(26142);
-const es2018_asyncgenerator_1 = __nccwpck_require__(45992);
-const es2018_asynciterable_1 = __nccwpck_require__(76799);
-const es2018_intl_1 = __nccwpck_require__(84286);
-const es2018_promise_1 = __nccwpck_require__(51896);
-const es2018_regexp_1 = __nccwpck_require__(70572);
+const es2017_1 = __nccwpck_require__(57301);
+const es2018_asyncgenerator_1 = __nccwpck_require__(50321);
+const es2018_asynciterable_1 = __nccwpck_require__(20644);
+const es2018_intl_1 = __nccwpck_require__(13339);
+const es2018_promise_1 = __nccwpck_require__(23083);
+const es2018_regexp_1 = __nccwpck_require__(22877);
 exports.es2018 = {
     libs: [
         es2017_1.es2017,
@@ -284703,7 +284780,7 @@ exports.es2018 = {
 
 /***/ }),
 
-/***/ 51896:
+/***/ 23083:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284714,7 +284791,7 @@ exports.es2018 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2018_promise = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2018_promise = {
     libs: [],
     variables: [['Promise', base_config_1.TYPE]],
@@ -284723,7 +284800,7 @@ exports.es2018_promise = {
 
 /***/ }),
 
-/***/ 70572:
+/***/ 22877:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284734,7 +284811,7 @@ exports.es2018_promise = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2018_regexp = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2018_regexp = {
     libs: [],
     variables: [
@@ -284747,7 +284824,7 @@ exports.es2018_regexp = {
 
 /***/ }),
 
-/***/ 26347:
+/***/ 76824:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284758,7 +284835,7 @@ exports.es2018_regexp = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2019_array = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2019_array = {
     libs: [],
     variables: [
@@ -284771,7 +284848,7 @@ exports.es2019_array = {
 
 /***/ }),
 
-/***/ 64669:
+/***/ 63832:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284782,12 +284859,12 @@ exports.es2019_array = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2019_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2019_1 = __nccwpck_require__(24576);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2019_1 = __nccwpck_require__(12735);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2019_full = {
     libs: [
         es2019_1.es2019,
@@ -284803,7 +284880,7 @@ exports.es2019_full = {
 
 /***/ }),
 
-/***/ 77475:
+/***/ 54550:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284814,7 +284891,7 @@ exports.es2019_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2019_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2019_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -284823,7 +284900,7 @@ exports.es2019_intl = {
 
 /***/ }),
 
-/***/ 24576:
+/***/ 12735:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284834,12 +284911,12 @@ exports.es2019_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2019 = void 0;
-const es2018_1 = __nccwpck_require__(39703);
-const es2019_array_1 = __nccwpck_require__(26347);
-const es2019_intl_1 = __nccwpck_require__(77475);
-const es2019_object_1 = __nccwpck_require__(20555);
-const es2019_string_1 = __nccwpck_require__(46517);
-const es2019_symbol_1 = __nccwpck_require__(940);
+const es2018_1 = __nccwpck_require__(78120);
+const es2019_array_1 = __nccwpck_require__(76824);
+const es2019_intl_1 = __nccwpck_require__(54550);
+const es2019_object_1 = __nccwpck_require__(48498);
+const es2019_string_1 = __nccwpck_require__(24576);
+const es2019_symbol_1 = __nccwpck_require__(31061);
 exports.es2019 = {
     libs: [
         es2018_1.es2018,
@@ -284855,7 +284932,7 @@ exports.es2019 = {
 
 /***/ }),
 
-/***/ 20555:
+/***/ 48498:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284866,8 +284943,8 @@ exports.es2019 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2019_object = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
 exports.es2019_object = {
     libs: [es2015_iterable_1.es2015_iterable],
     variables: [['ObjectConstructor', base_config_1.TYPE]],
@@ -284876,7 +284953,7 @@ exports.es2019_object = {
 
 /***/ }),
 
-/***/ 46517:
+/***/ 24576:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284887,7 +284964,7 @@ exports.es2019_object = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2019_string = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2019_string = {
     libs: [],
     variables: [['String', base_config_1.TYPE]],
@@ -284896,7 +284973,7 @@ exports.es2019_string = {
 
 /***/ }),
 
-/***/ 940:
+/***/ 31061:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284907,7 +284984,7 @@ exports.es2019_string = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2019_symbol = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2019_symbol = {
     libs: [],
     variables: [['Symbol', base_config_1.TYPE]],
@@ -284916,7 +284993,7 @@ exports.es2019_symbol = {
 
 /***/ }),
 
-/***/ 3983:
+/***/ 56958:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284927,8 +285004,8 @@ exports.es2019_symbol = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_bigint = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2020_intl_1 = __nccwpck_require__(16563);
+const base_config_1 = __nccwpck_require__(99557);
+const es2020_intl_1 = __nccwpck_require__(9190);
 exports.es2020_bigint = {
     libs: [es2020_intl_1.es2020_intl],
     variables: [
@@ -284947,7 +285024,7 @@ exports.es2020_bigint = {
 
 /***/ }),
 
-/***/ 62920:
+/***/ 49041:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284958,8 +285035,8 @@ exports.es2020_bigint = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_date = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2020_intl_1 = __nccwpck_require__(16563);
+const base_config_1 = __nccwpck_require__(99557);
+const es2020_intl_1 = __nccwpck_require__(9190);
 exports.es2020_date = {
     libs: [es2020_intl_1.es2020_intl],
     variables: [['Date', base_config_1.TYPE]],
@@ -284968,7 +285045,7 @@ exports.es2020_date = {
 
 /***/ }),
 
-/***/ 65677:
+/***/ 43272:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -284979,12 +285056,12 @@ exports.es2020_date = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2020_1 = __nccwpck_require__(89104);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2020_1 = __nccwpck_require__(57263);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2020_full = {
     libs: [
         es2020_1.es2020,
@@ -285000,7 +285077,7 @@ exports.es2020_full = {
 
 /***/ }),
 
-/***/ 16563:
+/***/ 9190:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285011,8 +285088,8 @@ exports.es2020_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2018_intl_1 = __nccwpck_require__(84286);
+const base_config_1 = __nccwpck_require__(99557);
+const es2018_intl_1 = __nccwpck_require__(13339);
 exports.es2020_intl = {
     libs: [es2018_intl_1.es2018_intl],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -285021,7 +285098,7 @@ exports.es2020_intl = {
 
 /***/ }),
 
-/***/ 89104:
+/***/ 57263:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285032,15 +285109,15 @@ exports.es2020_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020 = void 0;
-const es2019_1 = __nccwpck_require__(24576);
-const es2020_bigint_1 = __nccwpck_require__(3983);
-const es2020_date_1 = __nccwpck_require__(62920);
-const es2020_intl_1 = __nccwpck_require__(16563);
-const es2020_number_1 = __nccwpck_require__(73881);
-const es2020_promise_1 = __nccwpck_require__(19731);
-const es2020_sharedmemory_1 = __nccwpck_require__(9930);
-const es2020_string_1 = __nccwpck_require__(73989);
-const es2020_symbol_wellknown_1 = __nccwpck_require__(92957);
+const es2019_1 = __nccwpck_require__(12735);
+const es2020_bigint_1 = __nccwpck_require__(56958);
+const es2020_date_1 = __nccwpck_require__(49041);
+const es2020_intl_1 = __nccwpck_require__(9190);
+const es2020_number_1 = __nccwpck_require__(97316);
+const es2020_promise_1 = __nccwpck_require__(35856);
+const es2020_sharedmemory_1 = __nccwpck_require__(15655);
+const es2020_string_1 = __nccwpck_require__(62224);
+const es2020_symbol_wellknown_1 = __nccwpck_require__(92440);
 exports.es2020 = {
     libs: [
         es2019_1.es2019,
@@ -285059,7 +285136,7 @@ exports.es2020 = {
 
 /***/ }),
 
-/***/ 73881:
+/***/ 97316:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285070,8 +285147,8 @@ exports.es2020 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_number = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2020_intl_1 = __nccwpck_require__(16563);
+const base_config_1 = __nccwpck_require__(99557);
+const es2020_intl_1 = __nccwpck_require__(9190);
 exports.es2020_number = {
     libs: [es2020_intl_1.es2020_intl],
     variables: [['Number', base_config_1.TYPE]],
@@ -285080,7 +285157,7 @@ exports.es2020_number = {
 
 /***/ }),
 
-/***/ 19731:
+/***/ 35856:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285091,7 +285168,7 @@ exports.es2020_number = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_promise = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2020_promise = {
     libs: [],
     variables: [
@@ -285105,7 +285182,7 @@ exports.es2020_promise = {
 
 /***/ }),
 
-/***/ 9930:
+/***/ 15655:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285116,8 +285193,8 @@ exports.es2020_promise = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_sharedmemory = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2020_bigint_1 = __nccwpck_require__(3983);
+const base_config_1 = __nccwpck_require__(99557);
+const es2020_bigint_1 = __nccwpck_require__(56958);
 exports.es2020_sharedmemory = {
     libs: [es2020_bigint_1.es2020_bigint],
     variables: [['Atomics', base_config_1.TYPE]],
@@ -285126,7 +285203,7 @@ exports.es2020_sharedmemory = {
 
 /***/ }),
 
-/***/ 73989:
+/***/ 62224:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285137,10 +285214,10 @@ exports.es2020_sharedmemory = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_string = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2020_intl_1 = __nccwpck_require__(16563);
-const es2020_symbol_wellknown_1 = __nccwpck_require__(92957);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2020_intl_1 = __nccwpck_require__(9190);
+const es2020_symbol_wellknown_1 = __nccwpck_require__(92440);
 exports.es2020_string = {
     libs: [es2015_iterable_1.es2015_iterable, es2020_intl_1.es2020_intl, es2020_symbol_wellknown_1.es2020_symbol_wellknown],
     variables: [['String', base_config_1.TYPE]],
@@ -285149,7 +285226,7 @@ exports.es2020_string = {
 
 /***/ }),
 
-/***/ 92957:
+/***/ 92440:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285160,9 +285237,9 @@ exports.es2020_string = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2020_symbol_wellknown = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_symbol_1 = __nccwpck_require__(2952);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_symbol_1 = __nccwpck_require__(3041);
 exports.es2020_symbol_wellknown = {
     libs: [es2015_iterable_1.es2015_iterable, es2015_symbol_1.es2015_symbol],
     variables: [
@@ -285175,7 +285252,7 @@ exports.es2020_symbol_wellknown = {
 
 /***/ }),
 
-/***/ 5952:
+/***/ 84373:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285186,12 +285263,12 @@ exports.es2020_symbol_wellknown = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2021_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2021_1 = __nccwpck_require__(12327);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2021_1 = __nccwpck_require__(13336);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2021_full = {
     libs: [
         es2021_1.es2021,
@@ -285207,7 +285284,7 @@ exports.es2021_full = {
 
 /***/ }),
 
-/***/ 63918:
+/***/ 77163:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285218,7 +285295,7 @@ exports.es2021_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2021_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2021_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -285227,7 +285304,7 @@ exports.es2021_intl = {
 
 /***/ }),
 
-/***/ 12327:
+/***/ 13336:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285238,11 +285315,11 @@ exports.es2021_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2021 = void 0;
-const es2020_1 = __nccwpck_require__(89104);
-const es2021_intl_1 = __nccwpck_require__(63918);
-const es2021_promise_1 = __nccwpck_require__(62632);
-const es2021_string_1 = __nccwpck_require__(20328);
-const es2021_weakref_1 = __nccwpck_require__(38616);
+const es2020_1 = __nccwpck_require__(57263);
+const es2021_intl_1 = __nccwpck_require__(77163);
+const es2021_promise_1 = __nccwpck_require__(51643);
+const es2021_string_1 = __nccwpck_require__(76685);
+const es2021_weakref_1 = __nccwpck_require__(77563);
 exports.es2021 = {
     libs: [es2020_1.es2020, es2021_promise_1.es2021_promise, es2021_string_1.es2021_string, es2021_weakref_1.es2021_weakref, es2021_intl_1.es2021_intl],
     variables: [],
@@ -285251,7 +285328,7 @@ exports.es2021 = {
 
 /***/ }),
 
-/***/ 62632:
+/***/ 51643:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285262,7 +285339,7 @@ exports.es2021 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2021_promise = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2021_promise = {
     libs: [],
     variables: [
@@ -285275,7 +285352,7 @@ exports.es2021_promise = {
 
 /***/ }),
 
-/***/ 20328:
+/***/ 76685:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285286,7 +285363,7 @@ exports.es2021_promise = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2021_string = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2021_string = {
     libs: [],
     variables: [['String', base_config_1.TYPE]],
@@ -285295,7 +285372,7 @@ exports.es2021_string = {
 
 /***/ }),
 
-/***/ 38616:
+/***/ 77563:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285306,8 +285383,8 @@ exports.es2021_string = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2021_weakref = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_symbol_wellknown_1 = __nccwpck_require__(58721);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_symbol_wellknown_1 = __nccwpck_require__(32572);
 exports.es2021_weakref = {
     libs: [es2015_symbol_wellknown_1.es2015_symbol_wellknown],
     variables: [
@@ -285321,7 +285398,7 @@ exports.es2021_weakref = {
 
 /***/ }),
 
-/***/ 80337:
+/***/ 30206:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285332,7 +285409,7 @@ exports.es2021_weakref = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022_array = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2022_array = {
     libs: [],
     variables: [
@@ -285355,7 +285432,7 @@ exports.es2022_array = {
 
 /***/ }),
 
-/***/ 56906:
+/***/ 89921:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285366,8 +285443,8 @@ exports.es2022_array = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022_error = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2021_promise_1 = __nccwpck_require__(62632);
+const base_config_1 = __nccwpck_require__(99557);
+const es2021_promise_1 = __nccwpck_require__(51643);
 exports.es2022_error = {
     libs: [es2021_promise_1.es2021_promise],
     variables: [
@@ -285387,7 +285464,7 @@ exports.es2022_error = {
 
 /***/ }),
 
-/***/ 70875:
+/***/ 56206:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285398,12 +285475,12 @@ exports.es2022_error = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2022_1 = __nccwpck_require__(85306);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2022_1 = __nccwpck_require__(27665);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2022_full = {
     libs: [
         es2022_1.es2022,
@@ -285419,7 +285496,7 @@ exports.es2022_full = {
 
 /***/ }),
 
-/***/ 77761:
+/***/ 16996:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285430,7 +285507,7 @@ exports.es2022_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2022_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -285439,7 +285516,7 @@ exports.es2022_intl = {
 
 /***/ }),
 
-/***/ 85306:
+/***/ 27665:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285450,13 +285527,13 @@ exports.es2022_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022 = void 0;
-const es2021_1 = __nccwpck_require__(12327);
-const es2022_array_1 = __nccwpck_require__(80337);
-const es2022_error_1 = __nccwpck_require__(56906);
-const es2022_intl_1 = __nccwpck_require__(77761);
-const es2022_object_1 = __nccwpck_require__(38829);
-const es2022_regexp_1 = __nccwpck_require__(16215);
-const es2022_string_1 = __nccwpck_require__(327);
+const es2021_1 = __nccwpck_require__(13336);
+const es2022_array_1 = __nccwpck_require__(30206);
+const es2022_error_1 = __nccwpck_require__(89921);
+const es2022_intl_1 = __nccwpck_require__(16996);
+const es2022_object_1 = __nccwpck_require__(20756);
+const es2022_regexp_1 = __nccwpck_require__(33566);
+const es2022_string_1 = __nccwpck_require__(23954);
 exports.es2022 = {
     libs: [
         es2021_1.es2021,
@@ -285473,7 +285550,7 @@ exports.es2022 = {
 
 /***/ }),
 
-/***/ 38829:
+/***/ 20756:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285484,7 +285561,7 @@ exports.es2022 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022_object = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2022_object = {
     libs: [],
     variables: [['ObjectConstructor', base_config_1.TYPE]],
@@ -285493,7 +285570,7 @@ exports.es2022_object = {
 
 /***/ }),
 
-/***/ 16215:
+/***/ 33566:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285504,7 +285581,7 @@ exports.es2022_object = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022_regexp = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2022_regexp = {
     libs: [],
     variables: [
@@ -285518,7 +285595,7 @@ exports.es2022_regexp = {
 
 /***/ }),
 
-/***/ 327:
+/***/ 23954:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285529,7 +285606,7 @@ exports.es2022_regexp = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2022_string = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2022_string = {
     libs: [],
     variables: [['String', base_config_1.TYPE]],
@@ -285538,7 +285615,7 @@ exports.es2022_string = {
 
 /***/ }),
 
-/***/ 72342:
+/***/ 35193:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285549,7 +285626,7 @@ exports.es2022_string = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2023_array = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2023_array = {
     libs: [],
     variables: [
@@ -285572,7 +285649,7 @@ exports.es2023_array = {
 
 /***/ }),
 
-/***/ 43611:
+/***/ 83138:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285583,7 +285660,7 @@ exports.es2023_array = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2023_collection = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2023_collection = {
     libs: [],
     variables: [['WeakKeyTypes', base_config_1.TYPE]],
@@ -285592,7 +285669,7 @@ exports.es2023_collection = {
 
 /***/ }),
 
-/***/ 5478:
+/***/ 11555:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285603,12 +285680,12 @@ exports.es2023_collection = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2023_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2023_1 = __nccwpck_require__(39465);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2023_1 = __nccwpck_require__(59778);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2023_full = {
     libs: [
         es2023_1.es2023,
@@ -285624,7 +285701,7 @@ exports.es2023_full = {
 
 /***/ }),
 
-/***/ 44172:
+/***/ 9945:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285635,7 +285712,7 @@ exports.es2023_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2023_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2023_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -285644,7 +285721,7 @@ exports.es2023_intl = {
 
 /***/ }),
 
-/***/ 39465:
+/***/ 59778:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285655,10 +285732,10 @@ exports.es2023_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2023 = void 0;
-const es2022_1 = __nccwpck_require__(85306);
-const es2023_array_1 = __nccwpck_require__(72342);
-const es2023_collection_1 = __nccwpck_require__(43611);
-const es2023_intl_1 = __nccwpck_require__(44172);
+const es2022_1 = __nccwpck_require__(27665);
+const es2023_array_1 = __nccwpck_require__(35193);
+const es2023_collection_1 = __nccwpck_require__(83138);
+const es2023_intl_1 = __nccwpck_require__(9945);
 exports.es2023 = {
     libs: [es2022_1.es2022, es2023_array_1.es2023_array, es2023_collection_1.es2023_collection, es2023_intl_1.es2023_intl],
     variables: [],
@@ -285667,7 +285744,7 @@ exports.es2023 = {
 
 /***/ }),
 
-/***/ 84765:
+/***/ 18742:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285678,7 +285755,7 @@ exports.es2023 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_arraybuffer = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2024_arraybuffer = {
     libs: [],
     variables: [
@@ -285690,7 +285767,7 @@ exports.es2024_arraybuffer = {
 
 /***/ }),
 
-/***/ 45048:
+/***/ 75929:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285701,7 +285778,7 @@ exports.es2024_arraybuffer = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_collection = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2024_collection = {
     libs: [],
     variables: [['MapConstructor', base_config_1.TYPE]],
@@ -285710,7 +285787,7 @@ exports.es2024_collection = {
 
 /***/ }),
 
-/***/ 68537:
+/***/ 90804:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285721,12 +285798,12 @@ exports.es2024_collection = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es2024_1 = __nccwpck_require__(64828);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es2024_1 = __nccwpck_require__(3211);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.es2024_full = {
     libs: [
         es2024_1.es2024,
@@ -285742,7 +285819,7 @@ exports.es2024_full = {
 
 /***/ }),
 
-/***/ 64828:
+/***/ 3211:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285753,14 +285830,14 @@ exports.es2024_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024 = void 0;
-const es2023_1 = __nccwpck_require__(39465);
-const es2024_arraybuffer_1 = __nccwpck_require__(84765);
-const es2024_collection_1 = __nccwpck_require__(45048);
-const es2024_object_1 = __nccwpck_require__(76639);
-const es2024_promise_1 = __nccwpck_require__(38207);
-const es2024_regexp_1 = __nccwpck_require__(84425);
-const es2024_sharedmemory_1 = __nccwpck_require__(66822);
-const es2024_string_1 = __nccwpck_require__(18185);
+const es2023_1 = __nccwpck_require__(59778);
+const es2024_arraybuffer_1 = __nccwpck_require__(18742);
+const es2024_collection_1 = __nccwpck_require__(75929);
+const es2024_object_1 = __nccwpck_require__(97014);
+const es2024_promise_1 = __nccwpck_require__(80764);
+const es2024_regexp_1 = __nccwpck_require__(12632);
+const es2024_sharedmemory_1 = __nccwpck_require__(49955);
+const es2024_string_1 = __nccwpck_require__(14932);
 exports.es2024 = {
     libs: [
         es2023_1.es2023,
@@ -285778,7 +285855,7 @@ exports.es2024 = {
 
 /***/ }),
 
-/***/ 76639:
+/***/ 97014:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285789,7 +285866,7 @@ exports.es2024 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_object = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2024_object = {
     libs: [],
     variables: [['ObjectConstructor', base_config_1.TYPE]],
@@ -285798,7 +285875,7 @@ exports.es2024_object = {
 
 /***/ }),
 
-/***/ 38207:
+/***/ 80764:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285809,7 +285886,7 @@ exports.es2024_object = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_promise = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2024_promise = {
     libs: [],
     variables: [
@@ -285821,7 +285898,7 @@ exports.es2024_promise = {
 
 /***/ }),
 
-/***/ 84425:
+/***/ 12632:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285832,7 +285909,7 @@ exports.es2024_promise = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_regexp = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2024_regexp = {
     libs: [],
     variables: [['RegExp', base_config_1.TYPE]],
@@ -285841,7 +285918,7 @@ exports.es2024_regexp = {
 
 /***/ }),
 
-/***/ 66822:
+/***/ 49955:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285852,8 +285929,8 @@ exports.es2024_regexp = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_sharedmemory = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2020_bigint_1 = __nccwpck_require__(3983);
+const base_config_1 = __nccwpck_require__(99557);
+const es2020_bigint_1 = __nccwpck_require__(56958);
 exports.es2024_sharedmemory = {
     libs: [es2020_bigint_1.es2020_bigint],
     variables: [
@@ -285866,7 +285943,7 @@ exports.es2024_sharedmemory = {
 
 /***/ }),
 
-/***/ 18185:
+/***/ 14932:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285877,7 +285954,7 @@ exports.es2024_sharedmemory = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es2024_string = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.es2024_string = {
     libs: [],
     variables: [['String', base_config_1.TYPE]],
@@ -285886,7 +285963,7 @@ exports.es2024_string = {
 
 /***/ }),
 
-/***/ 68909:
+/***/ 88732:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -285897,9 +285974,9 @@ exports.es2024_string = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es5 = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const decorators_1 = __nccwpck_require__(53662);
-const decorators_legacy_1 = __nccwpck_require__(14885);
+const base_config_1 = __nccwpck_require__(99557);
+const decorators_1 = __nccwpck_require__(12073);
+const decorators_legacy_1 = __nccwpck_require__(61508);
 exports.es5 = {
     libs: [decorators_1.decorators, decorators_legacy_1.decorators_legacy],
     variables: [
@@ -286012,7 +286089,7 @@ exports.es5 = {
 
 /***/ }),
 
-/***/ 44324:
+/***/ 53157:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286023,16 +286100,16 @@ exports.es5 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es6 = void 0;
-const es5_1 = __nccwpck_require__(68909);
-const es2015_collection_1 = __nccwpck_require__(46096);
-const es2015_core_1 = __nccwpck_require__(83439);
-const es2015_generator_1 = __nccwpck_require__(61175);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_promise_1 = __nccwpck_require__(82935);
-const es2015_proxy_1 = __nccwpck_require__(66294);
-const es2015_reflect_1 = __nccwpck_require__(69751);
-const es2015_symbol_1 = __nccwpck_require__(2952);
-const es2015_symbol_wellknown_1 = __nccwpck_require__(58721);
+const es5_1 = __nccwpck_require__(88732);
+const es2015_collection_1 = __nccwpck_require__(38145);
+const es2015_core_1 = __nccwpck_require__(64482);
+const es2015_generator_1 = __nccwpck_require__(86632);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_promise_1 = __nccwpck_require__(62500);
+const es2015_proxy_1 = __nccwpck_require__(88565);
+const es2015_reflect_1 = __nccwpck_require__(52352);
+const es2015_symbol_1 = __nccwpck_require__(3041);
+const es2015_symbol_wellknown_1 = __nccwpck_require__(32572);
 exports.es6 = {
     libs: [
         es5_1.es5,
@@ -286052,7 +286129,7 @@ exports.es6 = {
 
 /***/ }),
 
-/***/ 43595:
+/***/ 22438:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286063,9 +286140,9 @@ exports.es6 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.es7 = void 0;
-const es2015_1 = __nccwpck_require__(54292);
-const es2016_array_include_1 = __nccwpck_require__(39636);
-const es2016_intl_1 = __nccwpck_require__(95096);
+const es2015_1 = __nccwpck_require__(99283);
+const es2016_array_include_1 = __nccwpck_require__(42247);
+const es2016_intl_1 = __nccwpck_require__(88645);
 exports.es7 = {
     libs: [es2015_1.es2015, es2016_array_include_1.es2016_array_include, es2016_intl_1.es2016_intl],
     variables: [],
@@ -286074,7 +286151,7 @@ exports.es7 = {
 
 /***/ }),
 
-/***/ 76706:
+/***/ 91209:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286085,7 +286162,7 @@ exports.es7 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_array = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_array = {
     libs: [],
     variables: [['ArrayConstructor', base_config_1.TYPE]],
@@ -286094,7 +286171,7 @@ exports.esnext_array = {
 
 /***/ }),
 
-/***/ 59781:
+/***/ 99462:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286105,9 +286182,9 @@ exports.esnext_array = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_asynciterable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_symbol_1 = __nccwpck_require__(2952);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_symbol_1 = __nccwpck_require__(3041);
 exports.esnext_asynciterable = {
     libs: [es2015_symbol_1.es2015_symbol, es2015_iterable_1.es2015_iterable],
     variables: [
@@ -286122,7 +286199,7 @@ exports.esnext_asynciterable = {
 
 /***/ }),
 
-/***/ 33648:
+/***/ 76885:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286133,8 +286210,8 @@ exports.esnext_asynciterable = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_bigint = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2020_intl_1 = __nccwpck_require__(16563);
+const base_config_1 = __nccwpck_require__(99557);
+const es2020_intl_1 = __nccwpck_require__(9190);
 exports.esnext_bigint = {
     libs: [es2020_intl_1.es2020_intl],
     variables: [
@@ -286153,7 +286230,7 @@ exports.esnext_bigint = {
 
 /***/ }),
 
-/***/ 88487:
+/***/ 92754:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286164,8 +286241,8 @@ exports.esnext_bigint = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_collection = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2024_collection_1 = __nccwpck_require__(45048);
+const base_config_1 = __nccwpck_require__(99557);
+const es2024_collection_1 = __nccwpck_require__(75929);
 exports.esnext_collection = {
     libs: [es2024_collection_1.es2024_collection],
     variables: [
@@ -286178,7 +286255,7 @@ exports.esnext_collection = {
 
 /***/ }),
 
-/***/ 43257:
+/***/ 73404:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286189,9 +286266,9 @@ exports.esnext_collection = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_decorators = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const decorators_1 = __nccwpck_require__(53662);
-const es2015_symbol_1 = __nccwpck_require__(2952);
+const base_config_1 = __nccwpck_require__(99557);
+const decorators_1 = __nccwpck_require__(12073);
+const es2015_symbol_1 = __nccwpck_require__(3041);
 exports.esnext_decorators = {
     libs: [es2015_symbol_1.es2015_symbol, decorators_1.decorators],
     variables: [
@@ -286203,7 +286280,7 @@ exports.esnext_decorators = {
 
 /***/ }),
 
-/***/ 56313:
+/***/ 72936:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286214,10 +286291,10 @@ exports.esnext_decorators = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_disposable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_symbol_1 = __nccwpck_require__(2952);
-const es2018_asynciterable_1 = __nccwpck_require__(76799);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_symbol_1 = __nccwpck_require__(3041);
+const es2018_asynciterable_1 = __nccwpck_require__(20644);
 exports.esnext_disposable = {
     libs: [es2015_symbol_1.es2015_symbol, es2015_iterable_1.es2015_iterable, es2018_asynciterable_1.es2018_asynciterable],
     variables: [
@@ -286238,7 +286315,7 @@ exports.esnext_disposable = {
 
 /***/ }),
 
-/***/ 16309:
+/***/ 98402:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286249,7 +286326,7 @@ exports.esnext_disposable = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_error = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_error = {
     libs: [],
     variables: [['ErrorConstructor', base_config_1.TYPE]],
@@ -286258,7 +286335,7 @@ exports.esnext_error = {
 
 /***/ }),
 
-/***/ 19994:
+/***/ 99561:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286269,9 +286346,9 @@ exports.esnext_error = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_float16 = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_symbol_1 = __nccwpck_require__(2952);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_symbol_1 = __nccwpck_require__(3041);
 exports.esnext_float16 = {
     libs: [es2015_symbol_1.es2015_symbol, es2015_iterable_1.es2015_iterable],
     variables: [
@@ -286285,7 +286362,7 @@ exports.esnext_float16 = {
 
 /***/ }),
 
-/***/ 27562:
+/***/ 35251:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286296,12 +286373,12 @@ exports.esnext_float16 = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_full = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const esnext_1 = __nccwpck_require__(77597);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const esnext_1 = __nccwpck_require__(51602);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.esnext_full = {
     libs: [
         esnext_1.esnext,
@@ -286317,7 +286394,7 @@ exports.esnext_full = {
 
 /***/ }),
 
-/***/ 63224:
+/***/ 13929:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286328,7 +286405,7 @@ exports.esnext_full = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_intl = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_intl = {
     libs: [],
     variables: [['Intl', base_config_1.TYPE_VALUE]],
@@ -286337,7 +286414,7 @@ exports.esnext_intl = {
 
 /***/ }),
 
-/***/ 87441:
+/***/ 45260:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286348,8 +286425,8 @@ exports.esnext_intl = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_iterator = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_iterable_1 = __nccwpck_require__(90138);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_iterable_1 = __nccwpck_require__(83391);
 exports.esnext_iterator = {
     libs: [es2015_iterable_1.es2015_iterable],
     variables: [
@@ -286361,7 +286438,7 @@ exports.esnext_iterator = {
 
 /***/ }),
 
-/***/ 77597:
+/***/ 51602:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286372,17 +286449,17 @@ exports.esnext_iterator = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext = void 0;
-const es2024_1 = __nccwpck_require__(64828);
-const esnext_array_1 = __nccwpck_require__(76706);
-const esnext_collection_1 = __nccwpck_require__(88487);
-const esnext_decorators_1 = __nccwpck_require__(43257);
-const esnext_disposable_1 = __nccwpck_require__(56313);
-const esnext_error_1 = __nccwpck_require__(16309);
-const esnext_float16_1 = __nccwpck_require__(19994);
-const esnext_intl_1 = __nccwpck_require__(63224);
-const esnext_iterator_1 = __nccwpck_require__(87441);
-const esnext_promise_1 = __nccwpck_require__(81254);
-const esnext_sharedmemory_1 = __nccwpck_require__(9893);
+const es2024_1 = __nccwpck_require__(3211);
+const esnext_array_1 = __nccwpck_require__(91209);
+const esnext_collection_1 = __nccwpck_require__(92754);
+const esnext_decorators_1 = __nccwpck_require__(73404);
+const esnext_disposable_1 = __nccwpck_require__(72936);
+const esnext_error_1 = __nccwpck_require__(98402);
+const esnext_float16_1 = __nccwpck_require__(99561);
+const esnext_intl_1 = __nccwpck_require__(13929);
+const esnext_iterator_1 = __nccwpck_require__(45260);
+const esnext_promise_1 = __nccwpck_require__(35685);
+const esnext_sharedmemory_1 = __nccwpck_require__(67988);
 exports.esnext = {
     libs: [
         es2024_1.es2024,
@@ -286403,7 +286480,7 @@ exports.esnext = {
 
 /***/ }),
 
-/***/ 53688:
+/***/ 9573:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286414,7 +286491,7 @@ exports.esnext = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_object = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_object = {
     libs: [],
     variables: [['ObjectConstructor', base_config_1.TYPE]],
@@ -286423,7 +286500,7 @@ exports.esnext_object = {
 
 /***/ }),
 
-/***/ 81254:
+/***/ 35685:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286434,7 +286511,7 @@ exports.esnext_object = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_promise = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_promise = {
     libs: [],
     variables: [['PromiseConstructor', base_config_1.TYPE]],
@@ -286443,7 +286520,7 @@ exports.esnext_promise = {
 
 /***/ }),
 
-/***/ 66770:
+/***/ 50527:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286454,7 +286531,7 @@ exports.esnext_promise = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_regexp = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_regexp = {
     libs: [],
     variables: [['RegExp', base_config_1.TYPE]],
@@ -286463,7 +286540,7 @@ exports.esnext_regexp = {
 
 /***/ }),
 
-/***/ 9893:
+/***/ 67988:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286474,7 +286551,7 @@ exports.esnext_regexp = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_sharedmemory = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_sharedmemory = {
     libs: [],
     variables: [['Atomics', base_config_1.TYPE]],
@@ -286483,7 +286560,7 @@ exports.esnext_sharedmemory = {
 
 /***/ }),
 
-/***/ 29542:
+/***/ 21471:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286494,7 +286571,7 @@ exports.esnext_sharedmemory = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_string = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_string = {
     libs: [],
     variables: [['String', base_config_1.TYPE]],
@@ -286503,7 +286580,7 @@ exports.esnext_string = {
 
 /***/ }),
 
-/***/ 13407:
+/***/ 62194:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286514,7 +286591,7 @@ exports.esnext_string = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_symbol = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.esnext_symbol = {
     libs: [],
     variables: [['Symbol', base_config_1.TYPE]],
@@ -286523,7 +286600,7 @@ exports.esnext_symbol = {
 
 /***/ }),
 
-/***/ 86986:
+/***/ 29153:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286534,8 +286611,8 @@ exports.esnext_symbol = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.esnext_weakref = void 0;
-const base_config_1 = __nccwpck_require__(81464);
-const es2015_symbol_wellknown_1 = __nccwpck_require__(58721);
+const base_config_1 = __nccwpck_require__(99557);
+const es2015_symbol_wellknown_1 = __nccwpck_require__(32572);
 exports.esnext_weakref = {
     libs: [es2015_symbol_wellknown_1.es2015_symbol_wellknown],
     variables: [
@@ -286549,7 +286626,7 @@ exports.esnext_weakref = {
 
 /***/ }),
 
-/***/ 52210:
+/***/ 99831:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286560,114 +286637,114 @@ exports.esnext_weakref = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.lib = void 0;
-const decorators_1 = __nccwpck_require__(53662);
-const decorators_legacy_1 = __nccwpck_require__(14885);
-const dom_1 = __nccwpck_require__(6418);
-const dom_asynciterable_1 = __nccwpck_require__(47622);
-const dom_iterable_1 = __nccwpck_require__(79848);
-const es5_1 = __nccwpck_require__(68909);
-const es6_1 = __nccwpck_require__(44324);
-const es7_1 = __nccwpck_require__(43595);
-const es2015_1 = __nccwpck_require__(54292);
-const es2015_collection_1 = __nccwpck_require__(46096);
-const es2015_core_1 = __nccwpck_require__(83439);
-const es2015_generator_1 = __nccwpck_require__(61175);
-const es2015_iterable_1 = __nccwpck_require__(90138);
-const es2015_promise_1 = __nccwpck_require__(82935);
-const es2015_proxy_1 = __nccwpck_require__(66294);
-const es2015_reflect_1 = __nccwpck_require__(69751);
-const es2015_symbol_1 = __nccwpck_require__(2952);
-const es2015_symbol_wellknown_1 = __nccwpck_require__(58721);
-const es2016_1 = __nccwpck_require__(75709);
-const es2016_array_include_1 = __nccwpck_require__(39636);
-const es2016_full_1 = __nccwpck_require__(74346);
-const es2016_intl_1 = __nccwpck_require__(95096);
-const es2017_1 = __nccwpck_require__(26142);
-const es2017_arraybuffer_1 = __nccwpck_require__(54171);
-const es2017_date_1 = __nccwpck_require__(95342);
-const es2017_full_1 = __nccwpck_require__(35327);
-const es2017_intl_1 = __nccwpck_require__(65917);
-const es2017_object_1 = __nccwpck_require__(66713);
-const es2017_sharedmemory_1 = __nccwpck_require__(71216);
-const es2017_string_1 = __nccwpck_require__(58595);
-const es2017_typedarrays_1 = __nccwpck_require__(36990);
-const es2018_1 = __nccwpck_require__(39703);
-const es2018_asyncgenerator_1 = __nccwpck_require__(45992);
-const es2018_asynciterable_1 = __nccwpck_require__(76799);
-const es2018_full_1 = __nccwpck_require__(96848);
-const es2018_intl_1 = __nccwpck_require__(84286);
-const es2018_promise_1 = __nccwpck_require__(51896);
-const es2018_regexp_1 = __nccwpck_require__(70572);
-const es2019_1 = __nccwpck_require__(24576);
-const es2019_array_1 = __nccwpck_require__(26347);
-const es2019_full_1 = __nccwpck_require__(64669);
-const es2019_intl_1 = __nccwpck_require__(77475);
-const es2019_object_1 = __nccwpck_require__(20555);
-const es2019_string_1 = __nccwpck_require__(46517);
-const es2019_symbol_1 = __nccwpck_require__(940);
-const es2020_1 = __nccwpck_require__(89104);
-const es2020_bigint_1 = __nccwpck_require__(3983);
-const es2020_date_1 = __nccwpck_require__(62920);
-const es2020_full_1 = __nccwpck_require__(65677);
-const es2020_intl_1 = __nccwpck_require__(16563);
-const es2020_number_1 = __nccwpck_require__(73881);
-const es2020_promise_1 = __nccwpck_require__(19731);
-const es2020_sharedmemory_1 = __nccwpck_require__(9930);
-const es2020_string_1 = __nccwpck_require__(73989);
-const es2020_symbol_wellknown_1 = __nccwpck_require__(92957);
-const es2021_1 = __nccwpck_require__(12327);
-const es2021_full_1 = __nccwpck_require__(5952);
-const es2021_intl_1 = __nccwpck_require__(63918);
-const es2021_promise_1 = __nccwpck_require__(62632);
-const es2021_string_1 = __nccwpck_require__(20328);
-const es2021_weakref_1 = __nccwpck_require__(38616);
-const es2022_1 = __nccwpck_require__(85306);
-const es2022_array_1 = __nccwpck_require__(80337);
-const es2022_error_1 = __nccwpck_require__(56906);
-const es2022_full_1 = __nccwpck_require__(70875);
-const es2022_intl_1 = __nccwpck_require__(77761);
-const es2022_object_1 = __nccwpck_require__(38829);
-const es2022_regexp_1 = __nccwpck_require__(16215);
-const es2022_string_1 = __nccwpck_require__(327);
-const es2023_1 = __nccwpck_require__(39465);
-const es2023_array_1 = __nccwpck_require__(72342);
-const es2023_collection_1 = __nccwpck_require__(43611);
-const es2023_full_1 = __nccwpck_require__(5478);
-const es2023_intl_1 = __nccwpck_require__(44172);
-const es2024_1 = __nccwpck_require__(64828);
-const es2024_arraybuffer_1 = __nccwpck_require__(84765);
-const es2024_collection_1 = __nccwpck_require__(45048);
-const es2024_full_1 = __nccwpck_require__(68537);
-const es2024_object_1 = __nccwpck_require__(76639);
-const es2024_promise_1 = __nccwpck_require__(38207);
-const es2024_regexp_1 = __nccwpck_require__(84425);
-const es2024_sharedmemory_1 = __nccwpck_require__(66822);
-const es2024_string_1 = __nccwpck_require__(18185);
-const esnext_1 = __nccwpck_require__(77597);
-const esnext_array_1 = __nccwpck_require__(76706);
-const esnext_asynciterable_1 = __nccwpck_require__(59781);
-const esnext_bigint_1 = __nccwpck_require__(33648);
-const esnext_collection_1 = __nccwpck_require__(88487);
-const esnext_decorators_1 = __nccwpck_require__(43257);
-const esnext_disposable_1 = __nccwpck_require__(56313);
-const esnext_error_1 = __nccwpck_require__(16309);
-const esnext_float16_1 = __nccwpck_require__(19994);
-const esnext_full_1 = __nccwpck_require__(27562);
-const esnext_intl_1 = __nccwpck_require__(63224);
-const esnext_iterator_1 = __nccwpck_require__(87441);
-const esnext_object_1 = __nccwpck_require__(53688);
-const esnext_promise_1 = __nccwpck_require__(81254);
-const esnext_regexp_1 = __nccwpck_require__(66770);
-const esnext_sharedmemory_1 = __nccwpck_require__(9893);
-const esnext_string_1 = __nccwpck_require__(29542);
-const esnext_symbol_1 = __nccwpck_require__(13407);
-const esnext_weakref_1 = __nccwpck_require__(86986);
-const lib_1 = __nccwpck_require__(38813);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_1 = __nccwpck_require__(66058);
-const webworker_asynciterable_1 = __nccwpck_require__(81454);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
-const webworker_iterable_1 = __nccwpck_require__(86208);
+const decorators_1 = __nccwpck_require__(12073);
+const decorators_legacy_1 = __nccwpck_require__(61508);
+const dom_1 = __nccwpck_require__(40711);
+const dom_asynciterable_1 = __nccwpck_require__(4271);
+const dom_iterable_1 = __nccwpck_require__(79267);
+const es5_1 = __nccwpck_require__(88732);
+const es6_1 = __nccwpck_require__(53157);
+const es7_1 = __nccwpck_require__(22438);
+const es2015_1 = __nccwpck_require__(99283);
+const es2015_collection_1 = __nccwpck_require__(38145);
+const es2015_core_1 = __nccwpck_require__(64482);
+const es2015_generator_1 = __nccwpck_require__(86632);
+const es2015_iterable_1 = __nccwpck_require__(83391);
+const es2015_promise_1 = __nccwpck_require__(62500);
+const es2015_proxy_1 = __nccwpck_require__(88565);
+const es2015_reflect_1 = __nccwpck_require__(52352);
+const es2015_symbol_1 = __nccwpck_require__(3041);
+const es2015_symbol_wellknown_1 = __nccwpck_require__(32572);
+const es2016_1 = __nccwpck_require__(29110);
+const es2016_array_include_1 = __nccwpck_require__(42247);
+const es2016_full_1 = __nccwpck_require__(94519);
+const es2016_intl_1 = __nccwpck_require__(88645);
+const es2017_1 = __nccwpck_require__(57301);
+const es2017_arraybuffer_1 = __nccwpck_require__(77732);
+const es2017_date_1 = __nccwpck_require__(43927);
+const es2017_full_1 = __nccwpck_require__(99234);
+const es2017_intl_1 = __nccwpck_require__(60416);
+const es2017_object_1 = __nccwpck_require__(18992);
+const es2017_sharedmemory_1 = __nccwpck_require__(60333);
+const es2017_string_1 = __nccwpck_require__(99838);
+const es2017_typedarrays_1 = __nccwpck_require__(10085);
+const es2018_1 = __nccwpck_require__(78120);
+const es2018_asyncgenerator_1 = __nccwpck_require__(50321);
+const es2018_asynciterable_1 = __nccwpck_require__(20644);
+const es2018_full_1 = __nccwpck_require__(36709);
+const es2018_intl_1 = __nccwpck_require__(13339);
+const es2018_promise_1 = __nccwpck_require__(23083);
+const es2018_regexp_1 = __nccwpck_require__(22877);
+const es2019_1 = __nccwpck_require__(12735);
+const es2019_array_1 = __nccwpck_require__(76824);
+const es2019_full_1 = __nccwpck_require__(63832);
+const es2019_intl_1 = __nccwpck_require__(54550);
+const es2019_object_1 = __nccwpck_require__(48498);
+const es2019_string_1 = __nccwpck_require__(24576);
+const es2019_symbol_1 = __nccwpck_require__(31061);
+const es2020_1 = __nccwpck_require__(57263);
+const es2020_bigint_1 = __nccwpck_require__(56958);
+const es2020_date_1 = __nccwpck_require__(49041);
+const es2020_full_1 = __nccwpck_require__(43272);
+const es2020_intl_1 = __nccwpck_require__(9190);
+const es2020_number_1 = __nccwpck_require__(97316);
+const es2020_promise_1 = __nccwpck_require__(35856);
+const es2020_sharedmemory_1 = __nccwpck_require__(15655);
+const es2020_string_1 = __nccwpck_require__(62224);
+const es2020_symbol_wellknown_1 = __nccwpck_require__(92440);
+const es2021_1 = __nccwpck_require__(13336);
+const es2021_full_1 = __nccwpck_require__(84373);
+const es2021_intl_1 = __nccwpck_require__(77163);
+const es2021_promise_1 = __nccwpck_require__(51643);
+const es2021_string_1 = __nccwpck_require__(76685);
+const es2021_weakref_1 = __nccwpck_require__(77563);
+const es2022_1 = __nccwpck_require__(27665);
+const es2022_array_1 = __nccwpck_require__(30206);
+const es2022_error_1 = __nccwpck_require__(89921);
+const es2022_full_1 = __nccwpck_require__(56206);
+const es2022_intl_1 = __nccwpck_require__(16996);
+const es2022_object_1 = __nccwpck_require__(20756);
+const es2022_regexp_1 = __nccwpck_require__(33566);
+const es2022_string_1 = __nccwpck_require__(23954);
+const es2023_1 = __nccwpck_require__(59778);
+const es2023_array_1 = __nccwpck_require__(35193);
+const es2023_collection_1 = __nccwpck_require__(83138);
+const es2023_full_1 = __nccwpck_require__(11555);
+const es2023_intl_1 = __nccwpck_require__(9945);
+const es2024_1 = __nccwpck_require__(3211);
+const es2024_arraybuffer_1 = __nccwpck_require__(18742);
+const es2024_collection_1 = __nccwpck_require__(75929);
+const es2024_full_1 = __nccwpck_require__(90804);
+const es2024_object_1 = __nccwpck_require__(97014);
+const es2024_promise_1 = __nccwpck_require__(80764);
+const es2024_regexp_1 = __nccwpck_require__(12632);
+const es2024_sharedmemory_1 = __nccwpck_require__(49955);
+const es2024_string_1 = __nccwpck_require__(14932);
+const esnext_1 = __nccwpck_require__(51602);
+const esnext_array_1 = __nccwpck_require__(91209);
+const esnext_asynciterable_1 = __nccwpck_require__(99462);
+const esnext_bigint_1 = __nccwpck_require__(76885);
+const esnext_collection_1 = __nccwpck_require__(92754);
+const esnext_decorators_1 = __nccwpck_require__(73404);
+const esnext_disposable_1 = __nccwpck_require__(72936);
+const esnext_error_1 = __nccwpck_require__(98402);
+const esnext_float16_1 = __nccwpck_require__(99561);
+const esnext_full_1 = __nccwpck_require__(35251);
+const esnext_intl_1 = __nccwpck_require__(13929);
+const esnext_iterator_1 = __nccwpck_require__(45260);
+const esnext_object_1 = __nccwpck_require__(9573);
+const esnext_promise_1 = __nccwpck_require__(35685);
+const esnext_regexp_1 = __nccwpck_require__(50527);
+const esnext_sharedmemory_1 = __nccwpck_require__(67988);
+const esnext_string_1 = __nccwpck_require__(21471);
+const esnext_symbol_1 = __nccwpck_require__(62194);
+const esnext_weakref_1 = __nccwpck_require__(29153);
+const lib_1 = __nccwpck_require__(3728);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_1 = __nccwpck_require__(62411);
+const webworker_asynciterable_1 = __nccwpck_require__(8883);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
+const webworker_iterable_1 = __nccwpck_require__(41239);
 exports.lib = new Map([
     ['es5', es5_1.es5],
     ['es6', es6_1.es6],
@@ -286782,7 +286859,7 @@ exports.lib = new Map([
 
 /***/ }),
 
-/***/ 38813:
+/***/ 3728:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286793,10 +286870,10 @@ exports.lib = new Map([
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.lib = void 0;
-const dom_1 = __nccwpck_require__(6418);
-const es5_1 = __nccwpck_require__(68909);
-const scripthost_1 = __nccwpck_require__(56105);
-const webworker_importscripts_1 = __nccwpck_require__(6715);
+const dom_1 = __nccwpck_require__(40711);
+const es5_1 = __nccwpck_require__(88732);
+const scripthost_1 = __nccwpck_require__(94290);
+const webworker_importscripts_1 = __nccwpck_require__(56430);
 exports.lib = {
     libs: [es5_1.es5, dom_1.dom, webworker_importscripts_1.webworker_importscripts, scripthost_1.scripthost],
     variables: [],
@@ -286805,7 +286882,7 @@ exports.lib = {
 
 /***/ }),
 
-/***/ 56105:
+/***/ 94290:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286816,7 +286893,7 @@ exports.lib = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.scripthost = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.scripthost = {
     libs: [],
     variables: [
@@ -286839,7 +286916,7 @@ exports.scripthost = {
 
 /***/ }),
 
-/***/ 81454:
+/***/ 8883:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286850,7 +286927,7 @@ exports.scripthost = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.webworker_asynciterable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.webworker_asynciterable = {
     libs: [],
     variables: [
@@ -286864,7 +286941,7 @@ exports.webworker_asynciterable = {
 
 /***/ }),
 
-/***/ 6715:
+/***/ 56430:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -286883,7 +286960,7 @@ exports.webworker_importscripts = {
 
 /***/ }),
 
-/***/ 86208:
+/***/ 41239:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286894,7 +286971,7 @@ exports.webworker_importscripts = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.webworker_iterable = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.webworker_iterable = {
     libs: [],
     variables: [
@@ -286933,7 +287010,7 @@ exports.webworker_iterable = {
 
 /***/ }),
 
-/***/ 66058:
+/***/ 62411:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -286944,7 +287021,7 @@ exports.webworker_iterable = {
 // npx nx generate-lib repo
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.webworker = void 0;
-const base_config_1 = __nccwpck_require__(81464);
+const base_config_1 = __nccwpck_require__(99557);
 exports.webworker = {
     libs: [],
     variables: [
@@ -287591,17 +287668,17 @@ exports.webworker = {
 
 /***/ }),
 
-/***/ 51318:
+/***/ 22111:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassVisitor = void 0;
-const types_1 = __nccwpck_require__(80248);
-const definition_1 = __nccwpck_require__(44558);
-const TypeVisitor_1 = __nccwpck_require__(36172);
-const Visitor_1 = __nccwpck_require__(79316);
+const types_1 = __nccwpck_require__(49353);
+const definition_1 = __nccwpck_require__(13613);
+const TypeVisitor_1 = __nccwpck_require__(55007);
+const Visitor_1 = __nccwpck_require__(27071);
 class ClassVisitor extends Visitor_1.Visitor {
     #referencer;
     constructor(referencer) {
@@ -287777,15 +287854,15 @@ exports.ClassVisitor = ClassVisitor;
 
 /***/ }),
 
-/***/ 28178:
+/***/ 38773:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ExportVisitor = void 0;
-const types_1 = __nccwpck_require__(80248);
-const Visitor_1 = __nccwpck_require__(79316);
+const types_1 = __nccwpck_require__(49353);
+const Visitor_1 = __nccwpck_require__(27071);
 class ExportVisitor extends Visitor_1.Visitor {
     #exportNode;
     #referencer;
@@ -287856,15 +287933,15 @@ exports.ExportVisitor = ExportVisitor;
 
 /***/ }),
 
-/***/ 33971:
+/***/ 68388:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ImportVisitor = void 0;
-const definition_1 = __nccwpck_require__(44558);
-const Visitor_1 = __nccwpck_require__(79316);
+const definition_1 = __nccwpck_require__(13613);
+const Visitor_1 = __nccwpck_require__(27071);
 class ImportVisitor extends Visitor_1.Visitor {
     #declaration;
     #referencer;
@@ -287900,15 +287977,15 @@ exports.ImportVisitor = ImportVisitor;
 
 /***/ }),
 
-/***/ 9788:
+/***/ 5853:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PatternVisitor = void 0;
-const types_1 = __nccwpck_require__(80248);
-const VisitorBase_1 = __nccwpck_require__(19797);
+const types_1 = __nccwpck_require__(49353);
+const VisitorBase_1 = __nccwpck_require__(4638);
 class PatternVisitor extends VisitorBase_1.VisitorBase {
     #assignments = [];
     #callback;
@@ -288002,14 +288079,14 @@ exports.PatternVisitor = PatternVisitor;
 
 /***/ }),
 
-/***/ 17411:
+/***/ 75500:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Reference = exports.ReferenceTypeFlag = exports.ReferenceFlag = void 0;
-const ID_1 = __nccwpck_require__(17237);
+const ID_1 = __nccwpck_require__(1426);
 var ReferenceFlag;
 (function (ReferenceFlag) {
     ReferenceFlag[ReferenceFlag["Read"] = 1] = "Read";
@@ -288129,24 +288206,24 @@ exports.Reference = Reference;
 
 /***/ }),
 
-/***/ 47877:
+/***/ 26236:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Referencer = void 0;
-const types_1 = __nccwpck_require__(80248);
-const assert_1 = __nccwpck_require__(36050);
-const definition_1 = __nccwpck_require__(44558);
-const lib_1 = __nccwpck_require__(52210);
-const ClassVisitor_1 = __nccwpck_require__(51318);
-const ExportVisitor_1 = __nccwpck_require__(28178);
-const ImportVisitor_1 = __nccwpck_require__(33971);
-const PatternVisitor_1 = __nccwpck_require__(9788);
-const Reference_1 = __nccwpck_require__(17411);
-const TypeVisitor_1 = __nccwpck_require__(36172);
-const Visitor_1 = __nccwpck_require__(79316);
+const types_1 = __nccwpck_require__(49353);
+const assert_1 = __nccwpck_require__(23913);
+const definition_1 = __nccwpck_require__(13613);
+const lib_1 = __nccwpck_require__(99831);
+const ClassVisitor_1 = __nccwpck_require__(22111);
+const ExportVisitor_1 = __nccwpck_require__(38773);
+const ImportVisitor_1 = __nccwpck_require__(68388);
+const PatternVisitor_1 = __nccwpck_require__(5853);
+const Reference_1 = __nccwpck_require__(75500);
+const TypeVisitor_1 = __nccwpck_require__(55007);
+const Visitor_1 = __nccwpck_require__(27071);
 // Referencing variables and creating bindings.
 class Referencer extends Visitor_1.Visitor {
     #hasReferencedJsxFactory = false;
@@ -288686,17 +288763,17 @@ exports.Referencer = Referencer;
 
 /***/ }),
 
-/***/ 36172:
+/***/ 55007:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TypeVisitor = void 0;
-const types_1 = __nccwpck_require__(80248);
-const definition_1 = __nccwpck_require__(44558);
-const scope_1 = __nccwpck_require__(87485);
-const Visitor_1 = __nccwpck_require__(79316);
+const types_1 = __nccwpck_require__(49353);
+const definition_1 = __nccwpck_require__(13613);
+const scope_1 = __nccwpck_require__(96744);
+const Visitor_1 = __nccwpck_require__(27071);
 class TypeVisitor extends Visitor_1.Visitor {
     #referencer;
     constructor(referencer) {
@@ -288915,15 +288992,15 @@ exports.TypeVisitor = TypeVisitor;
 
 /***/ }),
 
-/***/ 79316:
+/***/ 27071:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VisitorBase = exports.Visitor = void 0;
-const PatternVisitor_1 = __nccwpck_require__(9788);
-const VisitorBase_1 = __nccwpck_require__(19797);
+const PatternVisitor_1 = __nccwpck_require__(5853);
+const VisitorBase_1 = __nccwpck_require__(4638);
 class Visitor extends VisitorBase_1.VisitorBase {
     #options;
     constructor(optionsOrVisitor) {
@@ -288946,20 +289023,20 @@ class Visitor extends VisitorBase_1.VisitorBase {
     }
 }
 exports.Visitor = Visitor;
-var VisitorBase_2 = __nccwpck_require__(19797);
+var VisitorBase_2 = __nccwpck_require__(4638);
 Object.defineProperty(exports, "VisitorBase", ({ enumerable: true, get: function () { return VisitorBase_2.VisitorBase; } }));
 
 
 /***/ }),
 
-/***/ 19797:
+/***/ 4638:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VisitorBase = void 0;
-const visitor_keys_1 = __nccwpck_require__(44552);
+const visitor_keys_1 = __nccwpck_require__(97331);
 function isObject(obj) {
     return typeof obj === 'object' && obj != null;
 }
@@ -289027,28 +289104,28 @@ exports.VisitorBase = VisitorBase;
 
 /***/ }),
 
-/***/ 46398:
+/***/ 76849:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Referencer = void 0;
-var Referencer_1 = __nccwpck_require__(47877);
+var Referencer_1 = __nccwpck_require__(26236);
 Object.defineProperty(exports, "Referencer", ({ enumerable: true, get: function () { return Referencer_1.Referencer; } }));
 
 
 /***/ }),
 
-/***/ 85826:
+/***/ 22729:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BlockScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class BlockScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.block, upperScope, block, false);
@@ -289059,15 +289136,15 @@ exports.BlockScope = BlockScope;
 
 /***/ }),
 
-/***/ 80140:
+/***/ 23031:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CatchScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class CatchScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.catch, upperScope, block, false);
@@ -289078,15 +289155,15 @@ exports.CatchScope = CatchScope;
 
 /***/ }),
 
-/***/ 35077:
+/***/ 56990:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassFieldInitializerScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class ClassFieldInitializerScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.classFieldInitializer, upperScope, block, false);
@@ -289097,15 +289174,15 @@ exports.ClassFieldInitializerScope = ClassFieldInitializerScope;
 
 /***/ }),
 
-/***/ 9229:
+/***/ 82510:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class ClassScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.class, upperScope, block, false);
@@ -289116,15 +289193,15 @@ exports.ClassScope = ClassScope;
 
 /***/ }),
 
-/***/ 16584:
+/***/ 62969:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClassStaticBlockScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class ClassStaticBlockScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.classStaticBlock, upperScope, block, false);
@@ -289135,15 +289212,15 @@ exports.ClassStaticBlockScope = ClassStaticBlockScope;
 
 /***/ }),
 
-/***/ 79765:
+/***/ 72874:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ConditionalTypeScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class ConditionalTypeScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.conditionalType, upperScope, block, false);
@@ -289154,15 +289231,15 @@ exports.ConditionalTypeScope = ConditionalTypeScope;
 
 /***/ }),
 
-/***/ 20568:
+/***/ 70051:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ForScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class ForScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.for, upperScope, block, false);
@@ -289173,16 +289250,16 @@ exports.ForScope = ForScope;
 
 /***/ }),
 
-/***/ 65386:
+/***/ 2703:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FunctionExpressionNameScope = void 0;
-const definition_1 = __nccwpck_require__(44558);
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const definition_1 = __nccwpck_require__(13613);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class FunctionExpressionNameScope extends ScopeBase_1.ScopeBase {
     functionExpressionScope;
     constructor(scopeManager, upperScope, block) {
@@ -289198,16 +289275,16 @@ exports.FunctionExpressionNameScope = FunctionExpressionNameScope;
 
 /***/ }),
 
-/***/ 41297:
+/***/ 12148:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FunctionScope = void 0;
-const types_1 = __nccwpck_require__(80248);
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const types_1 = __nccwpck_require__(49353);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class FunctionScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block, isMethodDefinition) {
         super(scopeManager, ScopeType_1.ScopeType.function, upperScope, block, isMethodDefinition);
@@ -289241,15 +289318,15 @@ exports.FunctionScope = FunctionScope;
 
 /***/ }),
 
-/***/ 35649:
+/***/ 54444:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FunctionTypeScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class FunctionTypeScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.functionType, upperScope, block, false);
@@ -289260,19 +289337,19 @@ exports.FunctionTypeScope = FunctionTypeScope;
 
 /***/ }),
 
-/***/ 5044:
+/***/ 70765:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GlobalScope = void 0;
-const types_1 = __nccwpck_require__(80248);
-const assert_1 = __nccwpck_require__(36050);
-const ImplicitGlobalVariableDefinition_1 = __nccwpck_require__(7517);
-const variable_1 = __nccwpck_require__(51775);
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const types_1 = __nccwpck_require__(49353);
+const assert_1 = __nccwpck_require__(23913);
+const ImplicitGlobalVariableDefinition_1 = __nccwpck_require__(34716);
+const variable_1 = __nccwpck_require__(8412);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class GlobalScope extends ScopeBase_1.ScopeBase {
     // note this is accessed in used in the legacy eslint-scope tests, so it can't be true private
     implicit;
@@ -289328,15 +289405,15 @@ exports.GlobalScope = GlobalScope;
 
 /***/ }),
 
-/***/ 84196:
+/***/ 67225:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MappedTypeScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class MappedTypeScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.mappedType, upperScope, block, false);
@@ -289347,15 +289424,15 @@ exports.MappedTypeScope = MappedTypeScope;
 
 /***/ }),
 
-/***/ 44857:
+/***/ 83368:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ModuleScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class ModuleScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.module, upperScope, block, false);
@@ -289366,7 +289443,7 @@ exports.ModuleScope = ModuleScope;
 
 /***/ }),
 
-/***/ 2333:
+/***/ 26432:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -289376,19 +289453,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 24204:
+/***/ 68457:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ScopeBase = void 0;
-const types_1 = __nccwpck_require__(80248);
-const assert_1 = __nccwpck_require__(36050);
-const ID_1 = __nccwpck_require__(17237);
-const Reference_1 = __nccwpck_require__(17411);
-const variable_1 = __nccwpck_require__(51775);
-const ScopeType_1 = __nccwpck_require__(55405);
+const types_1 = __nccwpck_require__(49353);
+const assert_1 = __nccwpck_require__(23913);
+const ID_1 = __nccwpck_require__(1426);
+const Reference_1 = __nccwpck_require__(75500);
+const variable_1 = __nccwpck_require__(8412);
+const ScopeType_1 = __nccwpck_require__(26008);
 /**
  * Test if scope is strict
  */
@@ -289692,7 +289769,7 @@ exports.ScopeBase = ScopeBase;
 
 /***/ }),
 
-/***/ 55405:
+/***/ 26008:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -289724,15 +289801,15 @@ var ScopeType;
 
 /***/ }),
 
-/***/ 72421:
+/***/ 90172:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SwitchScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class SwitchScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.switch, upperScope, block, false);
@@ -289743,15 +289820,15 @@ exports.SwitchScope = SwitchScope;
 
 /***/ }),
 
-/***/ 36661:
+/***/ 96272:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TSEnumScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class TSEnumScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.tsEnum, upperScope, block, false);
@@ -289762,15 +289839,15 @@ exports.TSEnumScope = TSEnumScope;
 
 /***/ }),
 
-/***/ 85034:
+/***/ 15723:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TSModuleScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class TSModuleScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.tsModule, upperScope, block, false);
@@ -289781,15 +289858,15 @@ exports.TSModuleScope = TSModuleScope;
 
 /***/ }),
 
-/***/ 63341:
+/***/ 11640:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TypeScope = void 0;
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class TypeScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.type, upperScope, block, false);
@@ -289800,16 +289877,16 @@ exports.TypeScope = TypeScope;
 
 /***/ }),
 
-/***/ 13641:
+/***/ 41604:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WithScope = void 0;
-const assert_1 = __nccwpck_require__(36050);
-const ScopeBase_1 = __nccwpck_require__(24204);
-const ScopeType_1 = __nccwpck_require__(55405);
+const assert_1 = __nccwpck_require__(23913);
+const ScopeBase_1 = __nccwpck_require__(68457);
+const ScopeType_1 = __nccwpck_require__(26008);
 class WithScope extends ScopeBase_1.ScopeBase {
     constructor(scopeManager, upperScope, block) {
         super(scopeManager, ScopeType_1.ScopeType.with, upperScope, block, false);
@@ -289829,7 +289906,7 @@ exports.WithScope = WithScope;
 
 /***/ }),
 
-/***/ 87485:
+/***/ 96744:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -289849,37 +289926,37 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(85826), exports);
-__exportStar(__nccwpck_require__(80140), exports);
-__exportStar(__nccwpck_require__(35077), exports);
-__exportStar(__nccwpck_require__(9229), exports);
-__exportStar(__nccwpck_require__(79765), exports);
-__exportStar(__nccwpck_require__(20568), exports);
-__exportStar(__nccwpck_require__(65386), exports);
-__exportStar(__nccwpck_require__(41297), exports);
-__exportStar(__nccwpck_require__(35649), exports);
-__exportStar(__nccwpck_require__(5044), exports);
-__exportStar(__nccwpck_require__(84196), exports);
-__exportStar(__nccwpck_require__(44857), exports);
-__exportStar(__nccwpck_require__(2333), exports);
-__exportStar(__nccwpck_require__(55405), exports);
-__exportStar(__nccwpck_require__(72421), exports);
-__exportStar(__nccwpck_require__(36661), exports);
-__exportStar(__nccwpck_require__(85034), exports);
-__exportStar(__nccwpck_require__(63341), exports);
-__exportStar(__nccwpck_require__(13641), exports);
+__exportStar(__nccwpck_require__(22729), exports);
+__exportStar(__nccwpck_require__(23031), exports);
+__exportStar(__nccwpck_require__(56990), exports);
+__exportStar(__nccwpck_require__(82510), exports);
+__exportStar(__nccwpck_require__(72874), exports);
+__exportStar(__nccwpck_require__(70051), exports);
+__exportStar(__nccwpck_require__(2703), exports);
+__exportStar(__nccwpck_require__(12148), exports);
+__exportStar(__nccwpck_require__(54444), exports);
+__exportStar(__nccwpck_require__(70765), exports);
+__exportStar(__nccwpck_require__(67225), exports);
+__exportStar(__nccwpck_require__(83368), exports);
+__exportStar(__nccwpck_require__(26432), exports);
+__exportStar(__nccwpck_require__(26008), exports);
+__exportStar(__nccwpck_require__(90172), exports);
+__exportStar(__nccwpck_require__(96272), exports);
+__exportStar(__nccwpck_require__(15723), exports);
+__exportStar(__nccwpck_require__(11640), exports);
+__exportStar(__nccwpck_require__(41604), exports);
 
 
 /***/ }),
 
-/***/ 30316:
+/***/ 12111:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ESLintScopeVariable = void 0;
-const VariableBase_1 = __nccwpck_require__(18978);
+const VariableBase_1 = __nccwpck_require__(29891);
 /**
  * ESLint defines global variables using the eslint-scope Variable class
  * This is declared here for consumers to use
@@ -289915,14 +289992,14 @@ exports.ESLintScopeVariable = ESLintScopeVariable;
 
 /***/ }),
 
-/***/ 64849:
+/***/ 72114:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ImplicitLibVariable = void 0;
-const ESLintScopeVariable_1 = __nccwpck_require__(30316);
+const ESLintScopeVariable_1 = __nccwpck_require__(12111);
 /**
  * An variable implicitly defined by the TS Lib
  */
@@ -289949,14 +290026,14 @@ exports.ImplicitLibVariable = ImplicitLibVariable;
 
 /***/ }),
 
-/***/ 40075:
+/***/ 73730:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Variable = void 0;
-const VariableBase_1 = __nccwpck_require__(18978);
+const VariableBase_1 = __nccwpck_require__(29891);
 /**
  * A Variable represents a locally scoped identifier. These include arguments to functions.
  */
@@ -289989,14 +290066,14 @@ exports.Variable = Variable;
 
 /***/ }),
 
-/***/ 18978:
+/***/ 29891:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VariableBase = void 0;
-const ID_1 = __nccwpck_require__(17237);
+const ID_1 = __nccwpck_require__(1426);
 const generator = (0, ID_1.createIdGenerator)();
 class VariableBase {
     /**
@@ -290044,24 +290121,24 @@ exports.VariableBase = VariableBase;
 
 /***/ }),
 
-/***/ 51775:
+/***/ 8412:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Variable = exports.ImplicitLibVariable = exports.ESLintScopeVariable = void 0;
-var ESLintScopeVariable_1 = __nccwpck_require__(30316);
+var ESLintScopeVariable_1 = __nccwpck_require__(12111);
 Object.defineProperty(exports, "ESLintScopeVariable", ({ enumerable: true, get: function () { return ESLintScopeVariable_1.ESLintScopeVariable; } }));
-var ImplicitLibVariable_1 = __nccwpck_require__(64849);
+var ImplicitLibVariable_1 = __nccwpck_require__(72114);
 Object.defineProperty(exports, "ImplicitLibVariable", ({ enumerable: true, get: function () { return ImplicitLibVariable_1.ImplicitLibVariable; } }));
-var Variable_1 = __nccwpck_require__(40075);
+var Variable_1 = __nccwpck_require__(73730);
 Object.defineProperty(exports, "Variable", ({ enumerable: true, get: function () { return Variable_1.Variable; } }));
 
 
 /***/ }),
 
-/***/ 40398:
+/***/ 15843:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -290082,7 +290159,7 @@ exports.CORE_COMPILER_OPTIONS = {
 
 /***/ }),
 
-/***/ 89874:
+/***/ 77203:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -290124,7 +290201,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getParsedConfigFile = getParsedConfigFile;
 const fs = __importStar(__nccwpck_require__(73024));
 const path = __importStar(__nccwpck_require__(76760));
-const compilerOptions_1 = __nccwpck_require__(40398);
+const compilerOptions_1 = __nccwpck_require__(15843);
 /**
  * Parses a TSConfig file using the same logic as tsserver.
  *
@@ -290169,7 +290246,7 @@ function getParsedConfigFile(tsserver, configFile, projectDirectory) {
 
 /***/ }),
 
-/***/ 47955:
+/***/ 30062:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -290189,13 +290266,13 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__nccwpck_require__(40398), exports);
-__exportStar(__nccwpck_require__(89874), exports);
+__exportStar(__nccwpck_require__(15843), exports);
+__exportStar(__nccwpck_require__(77203), exports);
 
 
 /***/ }),
 
-/***/ 41976:
+/***/ 26431:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -290403,7 +290480,7 @@ var AST_TOKEN_TYPES;
 
 /***/ }),
 
-/***/ 80248:
+/***/ 49353:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -290424,17 +290501,17 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AST_TOKEN_TYPES = exports.AST_NODE_TYPES = void 0;
-var ast_spec_1 = __nccwpck_require__(41976);
+var ast_spec_1 = __nccwpck_require__(26431);
 Object.defineProperty(exports, "AST_NODE_TYPES", ({ enumerable: true, get: function () { return ast_spec_1.AST_NODE_TYPES; } }));
 Object.defineProperty(exports, "AST_TOKEN_TYPES", ({ enumerable: true, get: function () { return ast_spec_1.AST_TOKEN_TYPES; } }));
-__exportStar(__nccwpck_require__(97483), exports);
-__exportStar(__nccwpck_require__(40782), exports);
-__exportStar(__nccwpck_require__(68040), exports);
+__exportStar(__nccwpck_require__(75634), exports);
+__exportStar(__nccwpck_require__(21481), exports);
+__exportStar(__nccwpck_require__(41329), exports);
 
 
 /***/ }),
 
-/***/ 97483:
+/***/ 75634:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -290448,7 +290525,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 40782:
+/***/ 21481:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -290458,7 +290535,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 68040:
+/***/ 41329:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -290498,22 +290575,22 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TSESTree = void 0;
-exports.TSESTree = __importStar(__nccwpck_require__(41976));
+exports.TSESTree = __importStar(__nccwpck_require__(26431));
 
 
 /***/ }),
 
-/***/ 14748:
+/***/ 68943:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.astConverter = astConverter;
-const convert_1 = __nccwpck_require__(47798);
-const convert_comments_1 = __nccwpck_require__(30445);
-const node_utils_1 = __nccwpck_require__(83857);
-const simple_traverse_1 = __nccwpck_require__(47874);
+const convert_1 = __nccwpck_require__(83921);
+const convert_comments_1 = __nccwpck_require__(52408);
+const node_utils_1 = __nccwpck_require__(66828);
+const simple_traverse_1 = __nccwpck_require__(50085);
 function astConverter(ast, parseSettings, shouldPreserveNodeMaps) {
     /**
      * The TypeScript compiler produced fundamental parse errors when parsing the
@@ -290571,7 +290648,7 @@ function astConverter(ast, parseSettings, shouldPreserveNodeMaps) {
 
 /***/ }),
 
-/***/ 9510:
+/***/ 60969:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -290612,8 +290689,8 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkModifiers = checkModifiers;
 const ts = __importStar(__nccwpck_require__(26995));
-const getModifiers_1 = __nccwpck_require__(65275);
-const node_utils_1 = __nccwpck_require__(83857);
+const getModifiers_1 = __nccwpck_require__(67586);
+const node_utils_1 = __nccwpck_require__(66828);
 const SyntaxKind = ts.SyntaxKind;
 // `ts.nodeIsMissing`
 function nodeIsMissing(node) {
@@ -290853,7 +290930,7 @@ function checkModifiers(node) {
 
 /***/ }),
 
-/***/ 11885:
+/***/ 24726:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -290894,8 +290971,8 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkSyntaxError = checkSyntaxError;
 const ts = __importStar(__nccwpck_require__(26995));
-const check_modifiers_1 = __nccwpck_require__(9510);
-const node_utils_1 = __nccwpck_require__(83857);
+const check_modifiers_1 = __nccwpck_require__(60969);
+const node_utils_1 = __nccwpck_require__(66828);
 const SyntaxKind = ts.SyntaxKind;
 function checkSyntaxError(tsNode, parent, allowPattern) {
     (0, check_modifiers_1.checkModifiers)(tsNode);
@@ -291301,7 +291378,7 @@ function assertModuleSpecifier(node, allowNull) {
 
 /***/ }),
 
-/***/ 72318:
+/***/ 32379:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -291309,11 +291386,11 @@ function assertModuleSpecifier(node, allowNull) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.clearProgramCache = void 0;
 exports.clearCaches = clearCaches;
-const getWatchProgramsForProjects_1 = __nccwpck_require__(53200);
-const parser_1 = __nccwpck_require__(6562);
-const candidateTSConfigRootDirs_1 = __nccwpck_require__(48974);
-const createParseSettings_1 = __nccwpck_require__(39070);
-const resolveProjectList_1 = __nccwpck_require__(37123);
+const getWatchProgramsForProjects_1 = __nccwpck_require__(66305);
+const parser_1 = __nccwpck_require__(37891);
+const candidateTSConfigRootDirs_1 = __nccwpck_require__(47333);
+const createParseSettings_1 = __nccwpck_require__(18373);
+const resolveProjectList_1 = __nccwpck_require__(75834);
 /**
  * Clears all of the internal caches.
  * Generally you shouldn't need or want to use this.
@@ -291336,7 +291413,7 @@ exports.clearProgramCache = clearCaches;
 
 /***/ }),
 
-/***/ 30445:
+/***/ 52408:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -291378,8 +291455,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.convertComments = convertComments;
 const tsutils = __importStar(__nccwpck_require__(19279));
 const ts = __importStar(__nccwpck_require__(26995));
-const node_utils_1 = __nccwpck_require__(83857);
-const ts_estree_1 = __nccwpck_require__(20742);
+const node_utils_1 = __nccwpck_require__(66828);
+const ts_estree_1 = __nccwpck_require__(9489);
 /**
  * Convert all comments for the given AST.
  * @param ast the AST object
@@ -291405,7 +291482,7 @@ function convertComments(ast) {
 
 /***/ }),
 
-/***/ 47798:
+/***/ 83921:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -291449,10 +291526,10 @@ exports.convertError = convertError;
 // There's lots of funny stuff due to the typing of ts.Node
 /* eslint-disable @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-condition, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access */
 const ts = __importStar(__nccwpck_require__(26995));
-const check_syntax_errors_1 = __nccwpck_require__(11885);
-const getModifiers_1 = __nccwpck_require__(65275);
-const node_utils_1 = __nccwpck_require__(83857);
-const ts_estree_1 = __nccwpck_require__(20742);
+const check_syntax_errors_1 = __nccwpck_require__(24726);
+const getModifiers_1 = __nccwpck_require__(67586);
+const node_utils_1 = __nccwpck_require__(66828);
+const ts_estree_1 = __nccwpck_require__(9489);
 const SyntaxKind = ts.SyntaxKind;
 /**
  * Extends and formats a given error object
@@ -293789,7 +293866,7 @@ exports.Converter = Converter;
 
 /***/ }),
 
-/***/ 75154:
+/***/ 53207:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -293834,8 +293911,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createIsolatedProgram = createIsolatedProgram;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
 const ts = __importStar(__nccwpck_require__(26995));
-const getScriptKind_1 = __nccwpck_require__(34882);
-const shared_1 = __nccwpck_require__(754);
+const getScriptKind_1 = __nccwpck_require__(44735);
+const shared_1 = __nccwpck_require__(28897);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:create-program:createIsolatedProgram');
 /**
  * @returns Returns a new source file and program corresponding to the linted code
@@ -293893,7 +293970,7 @@ function createIsolatedProgram(parseSettings) {
 
 /***/ }),
 
-/***/ 36608:
+/***/ 86119:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -293904,9 +293981,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createProjectProgram = createProjectProgram;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
-const node_utils_1 = __nccwpck_require__(83857);
-const createProjectProgramError_1 = __nccwpck_require__(99312);
-const shared_1 = __nccwpck_require__(754);
+const node_utils_1 = __nccwpck_require__(66828);
+const createProjectProgramError_1 = __nccwpck_require__(52017);
+const shared_1 = __nccwpck_require__(28897);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:create-program:createProjectProgram');
 /**
  * @param parseSettings Internal settings for parsing the file
@@ -293924,7 +294001,7 @@ function createProjectProgram(parseSettings, programsForProjects) {
 
 /***/ }),
 
-/***/ 99312:
+/***/ 52017:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -293935,8 +294012,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createProjectProgramError = createProjectProgramError;
 const node_path_1 = __importDefault(__nccwpck_require__(76760));
-const describeFilePath_1 = __nccwpck_require__(86555);
-const shared_1 = __nccwpck_require__(754);
+const describeFilePath_1 = __nccwpck_require__(76192);
+const shared_1 = __nccwpck_require__(28897);
 function createProjectProgramError(parseSettings, programsForProjects) {
     const describedFilePath = (0, describeFilePath_1.describeFilePath)(parseSettings.filePath, parseSettings.tsconfigRootDir);
     return [
@@ -294006,7 +294083,7 @@ function getErrorDetails(describedFilePath, parseSettings, programsForProjects) 
 
 /***/ }),
 
-/***/ 48024:
+/***/ 41363:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294052,8 +294129,8 @@ exports.createSourceFile = createSourceFile;
 exports.createNoProgram = createNoProgram;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
 const ts = __importStar(__nccwpck_require__(26995));
-const source_files_1 = __nccwpck_require__(59550);
-const getScriptKind_1 = __nccwpck_require__(34882);
+const source_files_1 = __nccwpck_require__(46163);
+const getScriptKind_1 = __nccwpck_require__(44735);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:create-program:createSourceFile');
 function createSourceFile(parseSettings) {
     log('Getting AST without type information in %s mode for: %s', parseSettings.jsx ? 'TSX' : 'TS', parseSettings.filePath);
@@ -294076,7 +294153,7 @@ function createNoProgram(parseSettings) {
 
 /***/ }),
 
-/***/ 86555:
+/***/ 76192:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294114,7 +294191,7 @@ function describeFilePath(filePath, tsconfigRootDir) {
 
 /***/ }),
 
-/***/ 34882:
+/***/ 44735:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294202,7 +294279,7 @@ function getLanguageVariant(scriptKind) {
 
 /***/ }),
 
-/***/ 53200:
+/***/ 66305:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294249,8 +294326,8 @@ exports.getWatchProgramsForProjects = getWatchProgramsForProjects;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
 const node_fs_1 = __importDefault(__nccwpck_require__(73024));
 const ts = __importStar(__nccwpck_require__(26995));
-const source_files_1 = __nccwpck_require__(59550);
-const shared_1 = __nccwpck_require__(754);
+const source_files_1 = __nccwpck_require__(46163);
+const shared_1 = __nccwpck_require__(28897);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:create-program:getWatchProgramsForProjects');
 /**
  * Maps tsconfig paths to their corresponding file contents and resulting watches
@@ -294590,7 +294667,7 @@ function maybeInvalidateProgram(existingWatch, filePath, tsconfigPath) {
 
 /***/ }),
 
-/***/ 754:
+/***/ 28897:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294639,7 +294716,7 @@ exports.ensureAbsolutePath = ensureAbsolutePath;
 exports.canonicalDirname = canonicalDirname;
 exports.getAstFromProgram = getAstFromProgram;
 exports.createHash = createHash;
-const tsconfig_utils_1 = __nccwpck_require__(47955);
+const tsconfig_utils_1 = __nccwpck_require__(30062);
 const node_path_1 = __importDefault(__nccwpck_require__(76760));
 const ts = __importStar(__nccwpck_require__(26995));
 /**
@@ -294728,7 +294805,7 @@ function createHash(content) {
 
 /***/ }),
 
-/***/ 3298:
+/***/ 10111:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294772,11 +294849,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.useProvidedPrograms = useProvidedPrograms;
 exports.createProgramFromConfigFile = createProgramFromConfigFile;
-const tsconfig_utils_1 = __nccwpck_require__(47955);
+const tsconfig_utils_1 = __nccwpck_require__(30062);
 const debug_1 = __importDefault(__nccwpck_require__(18263));
 const path = __importStar(__nccwpck_require__(76760));
 const ts = __importStar(__nccwpck_require__(26995));
-const shared_1 = __nccwpck_require__(754);
+const shared_1 = __nccwpck_require__(28897);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:create-program:useProvidedPrograms');
 function useProvidedPrograms(programInstances, parseSettings) {
     log('Retrieving ast for %s from provided program instance(s)', parseSettings.filePath);
@@ -294817,7 +294894,7 @@ function createProgramFromConfigFile(configFile, projectDirectory) {
 
 /***/ }),
 
-/***/ 19615:
+/***/ 16412:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -294848,7 +294925,7 @@ function validateDefaultProjectForFilesGlob(allowDefaultProject) {
 
 /***/ }),
 
-/***/ 73694:
+/***/ 67499:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -294889,7 +294966,7 @@ function createParserServices(astMaps, program) {
 
 /***/ }),
 
-/***/ 65275:
+/***/ 67586:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294931,7 +295008,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getModifiers = getModifiers;
 exports.getDecorators = getDecorators;
 const ts = __importStar(__nccwpck_require__(26995));
-const version_check_1 = __nccwpck_require__(40076);
+const version_check_1 = __nccwpck_require__(26183);
 const isAtLeast48 = version_check_1.typescriptVersionIsAtLeast['4.8'];
 function getModifiers(node, includeIllegalModifiers = false) {
     if (node == null) {
@@ -294971,7 +295048,7 @@ function getDecorators(node, includeIllegalDecorators = false) {
 
 /***/ }),
 
-/***/ 97773:
+/***/ 34186:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -294992,35 +295069,35 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.withoutProjectParserOptions = exports.version = exports.typescriptVersionIsAtLeast = exports.simpleTraverse = exports.clearCandidateTSConfigRootDirs = exports.addCandidateTSConfigRootDir = exports.parseAndGenerateServices = exports.parse = exports.TSError = exports.createProgram = exports.getCanonicalFileName = void 0;
-__exportStar(__nccwpck_require__(72318), exports);
-__exportStar(__nccwpck_require__(34882), exports);
-var shared_1 = __nccwpck_require__(754);
+__exportStar(__nccwpck_require__(32379), exports);
+__exportStar(__nccwpck_require__(44735), exports);
+var shared_1 = __nccwpck_require__(28897);
 Object.defineProperty(exports, "getCanonicalFileName", ({ enumerable: true, get: function () { return shared_1.getCanonicalFileName; } }));
-var useProvidedPrograms_1 = __nccwpck_require__(3298);
+var useProvidedPrograms_1 = __nccwpck_require__(10111);
 Object.defineProperty(exports, "createProgram", ({ enumerable: true, get: function () { return useProvidedPrograms_1.createProgramFromConfigFile; } }));
-__exportStar(__nccwpck_require__(65275), exports);
-var node_utils_1 = __nccwpck_require__(83857);
+__exportStar(__nccwpck_require__(67586), exports);
+var node_utils_1 = __nccwpck_require__(66828);
 Object.defineProperty(exports, "TSError", ({ enumerable: true, get: function () { return node_utils_1.TSError; } }));
-var parser_1 = __nccwpck_require__(6562);
+var parser_1 = __nccwpck_require__(37891);
 Object.defineProperty(exports, "parse", ({ enumerable: true, get: function () { return parser_1.parse; } }));
 Object.defineProperty(exports, "parseAndGenerateServices", ({ enumerable: true, get: function () { return parser_1.parseAndGenerateServices; } }));
-var candidateTSConfigRootDirs_1 = __nccwpck_require__(48974);
+var candidateTSConfigRootDirs_1 = __nccwpck_require__(47333);
 Object.defineProperty(exports, "addCandidateTSConfigRootDir", ({ enumerable: true, get: function () { return candidateTSConfigRootDirs_1.addCandidateTSConfigRootDir; } }));
 Object.defineProperty(exports, "clearCandidateTSConfigRootDirs", ({ enumerable: true, get: function () { return candidateTSConfigRootDirs_1.clearCandidateTSConfigRootDirs; } }));
-var simple_traverse_1 = __nccwpck_require__(47874);
+var simple_traverse_1 = __nccwpck_require__(50085);
 Object.defineProperty(exports, "simpleTraverse", ({ enumerable: true, get: function () { return simple_traverse_1.simpleTraverse; } }));
-__exportStar(__nccwpck_require__(20742), exports);
-var version_check_1 = __nccwpck_require__(40076);
+__exportStar(__nccwpck_require__(9489), exports);
+var version_check_1 = __nccwpck_require__(26183);
 Object.defineProperty(exports, "typescriptVersionIsAtLeast", ({ enumerable: true, get: function () { return version_check_1.typescriptVersionIsAtLeast; } }));
-var version_1 = __nccwpck_require__(48357);
+var version_1 = __nccwpck_require__(16734);
 Object.defineProperty(exports, "version", ({ enumerable: true, get: function () { return version_1.version; } }));
-var withoutProjectParserOptions_1 = __nccwpck_require__(47441);
+var withoutProjectParserOptions_1 = __nccwpck_require__(84522);
 Object.defineProperty(exports, "withoutProjectParserOptions", ({ enumerable: true, get: function () { return withoutProjectParserOptions_1.withoutProjectParserOptions; } }));
 
 
 /***/ }),
 
-/***/ 38376:
+/***/ 70397:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -295286,7 +295363,7 @@ exports.xhtmlEntities = {
 
 /***/ }),
 
-/***/ 83857:
+/***/ 66828:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -295364,10 +295441,10 @@ exports.getNamespaceModifiers = getNamespaceModifiers;
 exports.declarationNameToString = declarationNameToString;
 exports.isEntityNameExpression = isEntityNameExpression;
 const ts = __importStar(__nccwpck_require__(26995));
-const getModifiers_1 = __nccwpck_require__(65275);
-const xhtml_entities_1 = __nccwpck_require__(38376);
-const ts_estree_1 = __nccwpck_require__(20742);
-const version_check_1 = __nccwpck_require__(40076);
+const getModifiers_1 = __nccwpck_require__(67586);
+const xhtml_entities_1 = __nccwpck_require__(70397);
+const ts_estree_1 = __nccwpck_require__(9489);
+const version_check_1 = __nccwpck_require__(26183);
 const isAtLeast50 = version_check_1.typescriptVersionIsAtLeast['5.0'];
 const SyntaxKind = ts.SyntaxKind;
 const LOGICAL_OPERATORS = new Set([
@@ -295967,7 +296044,7 @@ function isEntityNameExpression(node) {
 
 /***/ }),
 
-/***/ 5586:
+/***/ 46161:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -296021,7 +296098,7 @@ exports.ExpiringCache = ExpiringCache;
 
 /***/ }),
 
-/***/ 48974:
+/***/ 47333:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -296057,7 +296134,7 @@ function getInferredTSConfigRootDir() {
 
 /***/ }),
 
-/***/ 39070:
+/***/ 18373:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -296102,19 +296179,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createParseSettings = createParseSettings;
 exports.clearTSConfigMatchCache = clearTSConfigMatchCache;
 exports.clearTSServerProjectService = clearTSServerProjectService;
-const project_service_1 = __nccwpck_require__(67001);
+const project_service_1 = __nccwpck_require__(18838);
 const debug_1 = __importDefault(__nccwpck_require__(18263));
 const node_path_1 = __importDefault(__nccwpck_require__(76760));
 const ts = __importStar(__nccwpck_require__(26995));
-const shared_1 = __nccwpck_require__(754);
-const validateDefaultProjectForFilesGlob_1 = __nccwpck_require__(19615);
-const source_files_1 = __nccwpck_require__(59550);
-const candidateTSConfigRootDirs_1 = __nccwpck_require__(48974);
-const ExpiringCache_1 = __nccwpck_require__(5586);
-const getProjectConfigFiles_1 = __nccwpck_require__(23010);
-const inferSingleRun_1 = __nccwpck_require__(53611);
-const resolveProjectList_1 = __nccwpck_require__(37123);
-const warnAboutTSVersion_1 = __nccwpck_require__(54690);
+const shared_1 = __nccwpck_require__(28897);
+const validateDefaultProjectForFilesGlob_1 = __nccwpck_require__(16412);
+const source_files_1 = __nccwpck_require__(46163);
+const candidateTSConfigRootDirs_1 = __nccwpck_require__(47333);
+const ExpiringCache_1 = __nccwpck_require__(46161);
+const getProjectConfigFiles_1 = __nccwpck_require__(11657);
+const inferSingleRun_1 = __nccwpck_require__(54422);
+const resolveProjectList_1 = __nccwpck_require__(75834);
+const warnAboutTSVersion_1 = __nccwpck_require__(69699);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:parseSettings:createParseSettings');
 let TSCONFIG_MATCH_CACHE;
 let TSSERVER_PROJECT_SERVICE = null;
@@ -296317,7 +296394,7 @@ function populateProjectService(optionsRaw, settings) {
 
 /***/ }),
 
-/***/ 23010:
+/***/ 11657:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -296407,7 +296484,7 @@ function getProjectConfigFiles(parseSettings, project) {
 
 /***/ }),
 
-/***/ 53611:
+/***/ 54422:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -296477,7 +296554,7 @@ function inferSingleRun(options) {
 
 /***/ }),
 
-/***/ 37123:
+/***/ 75834:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -296491,8 +296568,8 @@ exports.resolveProjectList = resolveProjectList;
 exports.clearGlobResolutionCache = clearGlobResolutionCache;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
 const tinyglobby_1 = __nccwpck_require__(36931);
-const shared_1 = __nccwpck_require__(754);
-const ExpiringCache_1 = __nccwpck_require__(5586);
+const shared_1 = __nccwpck_require__(28897);
+const ExpiringCache_1 = __nccwpck_require__(46161);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:parseSettings:resolveProjectList');
 let RESOLUTION_CACHE = null;
 function clearGlobCache() {
@@ -296580,7 +296657,7 @@ function clearGlobResolutionCache() {
 
 /***/ }),
 
-/***/ 54690:
+/***/ 69699:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -296624,9 +296701,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SUPPORTED_TYPESCRIPT_VERSIONS = void 0;
 exports.warnAboutTSVersion = warnAboutTSVersion;
-const semver_1 = __importDefault(__nccwpck_require__(27498));
+const semver_1 = __importDefault(__nccwpck_require__(29419));
 const ts = __importStar(__nccwpck_require__(26995));
-const version_1 = __nccwpck_require__(48357);
+const version_1 = __nccwpck_require__(16734);
 /**
  * This needs to be kept in sync with package.json in the typescript-eslint monorepo
  */
@@ -296669,7 +296746,7 @@ function warnAboutTSVersion(parseSettings, passedLoggerFn) {
 
 /***/ }),
 
-/***/ 6562:
+/***/ 37891:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -296684,17 +296761,17 @@ exports.parse = parse;
 exports.clearParseAndGenerateServicesCalls = clearParseAndGenerateServicesCalls;
 exports.parseAndGenerateServices = parseAndGenerateServices;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
-const ast_converter_1 = __nccwpck_require__(14748);
-const convert_1 = __nccwpck_require__(47798);
-const createIsolatedProgram_1 = __nccwpck_require__(75154);
-const createProjectProgram_1 = __nccwpck_require__(36608);
-const createSourceFile_1 = __nccwpck_require__(48024);
-const getWatchProgramsForProjects_1 = __nccwpck_require__(53200);
-const useProvidedPrograms_1 = __nccwpck_require__(3298);
-const createParserServices_1 = __nccwpck_require__(73694);
-const createParseSettings_1 = __nccwpck_require__(39070);
-const semantic_or_syntactic_errors_1 = __nccwpck_require__(24674);
-const useProgramFromProjectService_1 = __nccwpck_require__(55264);
+const ast_converter_1 = __nccwpck_require__(68943);
+const convert_1 = __nccwpck_require__(83921);
+const createIsolatedProgram_1 = __nccwpck_require__(53207);
+const createProjectProgram_1 = __nccwpck_require__(86119);
+const createSourceFile_1 = __nccwpck_require__(41363);
+const getWatchProgramsForProjects_1 = __nccwpck_require__(66305);
+const useProvidedPrograms_1 = __nccwpck_require__(10111);
+const createParserServices_1 = __nccwpck_require__(67499);
+const createParseSettings_1 = __nccwpck_require__(18373);
+const semantic_or_syntactic_errors_1 = __nccwpck_require__(84535);
+const useProgramFromProjectService_1 = __nccwpck_require__(49349);
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:parser');
 /**
  * Cache existing programs for the single run use-case.
@@ -296854,7 +296931,7 @@ function parseAndGenerateServices(code, tsestreeOptions) {
 
 /***/ }),
 
-/***/ 24674:
+/***/ 84535:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -296956,14 +297033,14 @@ function convertDiagnosticToSemanticOrSyntacticError(diagnostic) {
 
 /***/ }),
 
-/***/ 47874:
+/***/ 50085:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.simpleTraverse = simpleTraverse;
-const visitor_keys_1 = __nccwpck_require__(44552);
+const visitor_keys_1 = __nccwpck_require__(97331);
 function isValidNode(x) {
     return (typeof x === 'object' &&
         x != null &&
@@ -297022,7 +297099,7 @@ function simpleTraverse(startingNode, options, setParentPointers = false) {
 
 /***/ }),
 
-/***/ 59550:
+/***/ 46163:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -297079,7 +297156,7 @@ function getCodeText(code) {
 
 /***/ }),
 
-/***/ 20365:
+/***/ 71014:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -297089,7 +297166,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 20742:
+/***/ 9489:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -297111,9 +297188,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TSESTree = exports.AST_TOKEN_TYPES = exports.AST_NODE_TYPES = void 0;
 // for simplicity and backwards-compatibility
-__exportStar(__nccwpck_require__(20365), exports);
-__exportStar(__nccwpck_require__(42329), exports);
-var types_1 = __nccwpck_require__(80248);
+__exportStar(__nccwpck_require__(71014), exports);
+__exportStar(__nccwpck_require__(26412), exports);
+var types_1 = __nccwpck_require__(49353);
 Object.defineProperty(exports, "AST_NODE_TYPES", ({ enumerable: true, get: function () { return types_1.AST_NODE_TYPES; } }));
 Object.defineProperty(exports, "AST_TOKEN_TYPES", ({ enumerable: true, get: function () { return types_1.AST_TOKEN_TYPES; } }));
 Object.defineProperty(exports, "TSESTree", ({ enumerable: true, get: function () { return types_1.TSESTree; } }));
@@ -297121,7 +297198,7 @@ Object.defineProperty(exports, "TSESTree", ({ enumerable: true, get: function ()
 
 /***/ }),
 
-/***/ 42329:
+/***/ 26412:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -297131,7 +297208,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 /***/ }),
 
-/***/ 55264:
+/***/ 49349:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -297175,14 +297252,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.useProgramFromProjectService = useProgramFromProjectService;
 const debug_1 = __importDefault(__nccwpck_require__(18263));
-const minimatch_1 = __nccwpck_require__(76362);
+const minimatch_1 = __nccwpck_require__(48655);
 const node_path_1 = __importDefault(__nccwpck_require__(76760));
 const node_util_1 = __importDefault(__nccwpck_require__(57975));
 const ts = __importStar(__nccwpck_require__(26995));
-const createProjectProgram_1 = __nccwpck_require__(36608);
-const createSourceFile_1 = __nccwpck_require__(48024);
-const shared_1 = __nccwpck_require__(754);
-const validateDefaultProjectForFilesGlob_1 = __nccwpck_require__(19615);
+const createProjectProgram_1 = __nccwpck_require__(86119);
+const createSourceFile_1 = __nccwpck_require__(41363);
+const shared_1 = __nccwpck_require__(28897);
+const validateDefaultProjectForFilesGlob_1 = __nccwpck_require__(16412);
 const RELOAD_THROTTLE_MS = 250;
 const log = (0, debug_1.default)('typescript-eslint:typescript-estree:useProgramFromProjectService');
 const serviceFileExtensions = new WeakMap();
@@ -297344,7 +297421,7 @@ function filePathMatchedBy(filePath, allowDefaultProject) {
 
 /***/ }),
 
-/***/ 40076:
+/***/ 26183:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -297384,7 +297461,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.typescriptVersionIsAtLeast = void 0;
-const semver = __importStar(__nccwpck_require__(27498));
+const semver = __importStar(__nccwpck_require__(29419));
 const ts = __importStar(__nccwpck_require__(26995));
 function semverCheck(version) {
     return semver.satisfies(ts.version, `>= ${version}.0 || >= ${version}.1-rc || >= ${version}.0-beta`, {
@@ -297409,7 +297486,7 @@ for (const version of versions) {
 
 /***/ }),
 
-/***/ 48357:
+/***/ 16734:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -297418,12 +297495,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.version = void 0;
 // note - cannot migrate this to an import statement because it will make TSC copy the package.json to the dist folder
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-exports.version = __nccwpck_require__(34704).version;
+exports.version = __nccwpck_require__(52897).version;
 
 
 /***/ }),
 
-/***/ 47441:
+/***/ 84522:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -297447,7 +297524,7 @@ function withoutProjectParserOptions(opts) {
 
 /***/ }),
 
-/***/ 90357:
+/***/ 92568:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -297460,22 +297537,22 @@ exports.getKeys = eslint_visitor_keys_1.getKeys;
 
 /***/ }),
 
-/***/ 44552:
+/***/ 97331:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.visitorKeys = exports.getKeys = void 0;
-var get_keys_1 = __nccwpck_require__(90357);
+var get_keys_1 = __nccwpck_require__(92568);
 Object.defineProperty(exports, "getKeys", ({ enumerable: true, get: function () { return get_keys_1.getKeys; } }));
-var visitor_keys_1 = __nccwpck_require__(34911);
+var visitor_keys_1 = __nccwpck_require__(77894);
 Object.defineProperty(exports, "visitorKeys", ({ enumerable: true, get: function () { return visitor_keys_1.visitorKeys; } }));
 
 
 /***/ }),
 
-/***/ 34911:
+/***/ 77894:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -297949,7 +298026,7 @@ function expand_(str, max, isTop) {
 
 /***/ }),
 
-/***/ 85729:
+/***/ 53171:
 /***/ ((module) => {
 
 "use strict";
@@ -297973,7 +298050,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 61408:
+/***/ 13542:
 /***/ ((module) => {
 
 "use strict";
@@ -298150,7 +298227,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 21541:
+/***/ 76643:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -298165,10 +298242,10 @@ module.exports = {
 // Requirements
 //-----------------------------------------------------------------------------
 
-const { ESLint } = __nccwpck_require__(9250);
-const { Linter } = __nccwpck_require__(1356);
-const { RuleTester } = __nccwpck_require__(62200);
-const { SourceCode } = __nccwpck_require__(47363);
+const { ESLint } = __nccwpck_require__(34604);
+const { Linter } = __nccwpck_require__(94070);
+const { RuleTester } = __nccwpck_require__(37226);
+const { SourceCode } = __nccwpck_require__(46461);
 
 //-----------------------------------------------------------------------------
 // Functions
@@ -298197,7 +298274,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 92161:
+/***/ 21727:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -298240,7 +298317,7 @@ module.exports = hash;
 
 /***/ }),
 
-/***/ 5151:
+/***/ 9609:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -298257,9 +298334,9 @@ module.exports = hash;
 const fs = __nccwpck_require__(73024);
 const fileEntryCache = __nccwpck_require__(22829);
 const stringify = __nccwpck_require__(79675);
-const pkg = __nccwpck_require__(60985);
-const assert = __nccwpck_require__(95265);
-const hash = __nccwpck_require__(92161);
+const pkg = __nccwpck_require__(41575);
+const assert = __nccwpck_require__(56423);
+const hash = __nccwpck_require__(21727);
 
 const debug = __nccwpck_require__(18263)("eslint:lint-result-cache");
 
@@ -298468,7 +298545,7 @@ module.exports = LintResultCache;
 
 /***/ }),
 
-/***/ 53938:
+/***/ 89360:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -298488,8 +298565,8 @@ const fs = __nccwpck_require__(51455);
 const findUp = __nccwpck_require__(60076);
 const { pathToFileURL } = __nccwpck_require__(73136);
 const debug = __nccwpck_require__(18263)("eslint:config-loader");
-const { FlatConfigArray } = __nccwpck_require__(79220);
-const { WarningService } = __nccwpck_require__(16628);
+const { FlatConfigArray } = __nccwpck_require__(25422);
+const { WarningService } = __nccwpck_require__(68842);
 
 //-----------------------------------------------------------------------------
 // Types
@@ -298656,7 +298733,7 @@ async function loadTypeScriptConfigFileWithJiti(filePath, fileURL, mtime) {
  * @since 9.24.0
  */
 async function dynamicImportConfig(filePath, fileURL, mtime) {
-	const module = await __nccwpck_require__(28872)(fileURL.href);
+	const module = await __nccwpck_require__(9186)(fileURL.href);
 
 	importedConfigFileModificationTime.set(filePath, mtime);
 
@@ -299144,7 +299221,7 @@ module.exports = { ConfigLoader };
 
 /***/ }),
 
-/***/ 23476:
+/***/ 62222:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -299159,12 +299236,12 @@ module.exports = { ConfigLoader };
 // Requirements
 //-----------------------------------------------------------------------------
 
-const { deepMergeArrays } = __nccwpck_require__(85827);
-const { flatConfigSchema, hasMethod } = __nccwpck_require__(71530);
-const { ObjectSchema } = __nccwpck_require__(71002);
-const ajvImport = __nccwpck_require__(496);
+const { deepMergeArrays } = __nccwpck_require__(58845);
+const { flatConfigSchema, hasMethod } = __nccwpck_require__(4824);
+const { ObjectSchema } = __nccwpck_require__(83215);
+const ajvImport = __nccwpck_require__(34990);
 const ajv = ajvImport();
-const ruleReplacements = __nccwpck_require__(54183);
+const ruleReplacements = __nccwpck_require__(12813);
 
 //-----------------------------------------------------------------------------
 // Typedefs
@@ -299826,7 +299903,7 @@ module.exports = { Config };
 
 /***/ }),
 
-/***/ 26168:
+/***/ 85110:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -299841,7 +299918,7 @@ module.exports = { Config };
 // Requirements
 //-----------------------------------------------------------------------------
 
-const Rules = __nccwpck_require__(77001);
+const Rules = __nccwpck_require__(28271);
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -299866,7 +299943,7 @@ exports.defaultConfig = Object.freeze([
 		plugins: {
 			"@": {
 				languages: {
-					js: __nccwpck_require__(82349),
+					js: __nccwpck_require__(39539),
 				},
 
 				/*
@@ -299912,7 +299989,7 @@ exports.defaultRuleTesterConfig = Object.freeze([
 
 /***/ }),
 
-/***/ 79220:
+/***/ 25422:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -299927,10 +300004,10 @@ exports.defaultRuleTesterConfig = Object.freeze([
 // Requirements
 //-----------------------------------------------------------------------------
 
-const { ConfigArray, ConfigArraySymbol } = __nccwpck_require__(71002);
-const { flatConfigSchema } = __nccwpck_require__(71530);
-const { defaultConfig } = __nccwpck_require__(26168);
-const { Config } = __nccwpck_require__(23476);
+const { ConfigArray, ConfigArraySymbol } = __nccwpck_require__(83215);
+const { flatConfigSchema } = __nccwpck_require__(4824);
+const { defaultConfig } = __nccwpck_require__(85110);
+const { Config } = __nccwpck_require__(62222);
 
 //-----------------------------------------------------------------------------
 // Helpers
@@ -300137,7 +300214,7 @@ exports.FlatConfigArray = FlatConfigArray;
 
 /***/ }),
 
-/***/ 71530:
+/***/ 4824:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -300152,7 +300229,7 @@ exports.FlatConfigArray = FlatConfigArray;
 // Requirements
 //-----------------------------------------------------------------------------
 
-const { normalizeSeverityToNumber } = __nccwpck_require__(77888);
+const { normalizeSeverityToNumber } = __nccwpck_require__(85038);
 
 //-----------------------------------------------------------------------------
 // Type Definitions
@@ -300743,7 +300820,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 598:
+/***/ 41464:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -300763,13 +300840,13 @@ const fs = __nccwpck_require__(73024);
 const { isMainThread, threadId } = __nccwpck_require__(75919);
 const fsp = fs.promises;
 const isGlob = __nccwpck_require__(76722);
-const hash = __nccwpck_require__(92161);
-const minimatch = __nccwpck_require__(78481);
+const hash = __nccwpck_require__(21727);
+const minimatch = __nccwpck_require__(48655);
 const globParent = __nccwpck_require__(18317);
-const { Linter } = __nccwpck_require__(1356);
-const { getShorthandName } = __nccwpck_require__(10919);
-const LintResultCache = __nccwpck_require__(5151);
-const { ConfigLoader } = __nccwpck_require__(53938);
+const { Linter } = __nccwpck_require__(94070);
+const { getShorthandName } = __nccwpck_require__(77421);
+const LintResultCache = __nccwpck_require__(9609);
+const { ConfigLoader } = __nccwpck_require__(89360);
 const createDebug = __nccwpck_require__(18263);
 
 //-----------------------------------------------------------------------------
@@ -301760,7 +301837,7 @@ function processOptions({
  * @returns {Promise<ESLintOptions>} ESLint constructor options.
  */
 async function loadOptionsFromModule(optionsURL) {
-	return (await __nccwpck_require__(16415)(optionsURL)).default;
+	return (await __nccwpck_require__(94029)(optionsURL)).default;
 }
 
 //-----------------------------------------------------------------------------
@@ -302213,7 +302290,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9250:
+/***/ 34604:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -302234,9 +302311,9 @@ const os = __nccwpck_require__(48161);
 const path = __nccwpck_require__(76760);
 const { pathToFileURL } = __nccwpck_require__(73136);
 const { SHARE_ENV, Worker } = __nccwpck_require__(75919);
-const { version } = __nccwpck_require__(60985);
-const { defaultConfig } = __nccwpck_require__(26168);
-const timing = __nccwpck_require__(960);
+const { version } = __nccwpck_require__(41575);
+const { defaultConfig } = __nccwpck_require__(85110);
+const timing = __nccwpck_require__(19074);
 
 const {
 	createDebug,
@@ -302261,17 +302338,17 @@ const {
 	createLintResultCache,
 	createDefaultConfigs,
 	createConfigLoader,
-} = __nccwpck_require__(598);
+} = __nccwpck_require__(41464);
 const { Retrier } = __nccwpck_require__(21425);
-const { ConfigLoader } = __nccwpck_require__(53938);
-const { WarningService } = __nccwpck_require__(16628);
-const { Config } = __nccwpck_require__(23476);
+const { ConfigLoader } = __nccwpck_require__(89360);
+const { WarningService } = __nccwpck_require__(68842);
+const { Config } = __nccwpck_require__(62222);
 const {
 	getShorthandName,
 	getNamespaceFromTerm,
 	normalizePackageName,
-} = __nccwpck_require__(10919);
-const { resolve } = __nccwpck_require__(94059);
+} = __nccwpck_require__(77421);
+const { resolve } = __nccwpck_require__(25205);
 
 //------------------------------------------------------------------------------
 // Typedefs
@@ -303455,7 +303532,7 @@ class ESLint {
 		let formatter;
 
 		try {
-			formatter = (await __nccwpck_require__(16415)(pathToFileURL(formatterPath))).default;
+			formatter = (await __nccwpck_require__(94029)(pathToFileURL(formatterPath))).default;
 		} catch (ex) {
 			// check for formatters that have been removed
 			if (isBuiltInFormatter && removedFormatters.has(name)) {
@@ -303585,7 +303662,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 82349:
+/***/ 39539:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -303600,14 +303677,14 @@ module.exports = {
 // Requirements
 //-----------------------------------------------------------------------------
 
-const { SourceCode } = __nccwpck_require__(47363);
+const { SourceCode } = __nccwpck_require__(46461);
 const createDebug = __nccwpck_require__(18263);
-const astUtils = __nccwpck_require__(84255);
-const espree = __nccwpck_require__(86156);
-const eslintScope = __nccwpck_require__(12633);
-const evk = __nccwpck_require__(11763);
-const { validateLanguageOptions } = __nccwpck_require__(5069);
-const { LATEST_ECMA_VERSION } = __nccwpck_require__(85729);
+const astUtils = __nccwpck_require__(49893);
+const espree = __nccwpck_require__(48409);
+const eslintScope = __nccwpck_require__(2988);
+const evk = __nccwpck_require__(5910);
+const { validateLanguageOptions } = __nccwpck_require__(34959);
+const { LATEST_ECMA_VERSION } = __nccwpck_require__(53171);
 
 //-----------------------------------------------------------------------------
 // Type Definitions
@@ -303929,13 +304006,13 @@ module.exports = {
 
 /***/ }),
 
-/***/ 47363:
+/***/ 46461:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const SourceCode = __nccwpck_require__(27454);
+const SourceCode = __nccwpck_require__(92476);
 
 module.exports = {
 	SourceCode,
@@ -303944,7 +304021,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 27454:
+/***/ 92476:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -303958,12 +304035,12 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const TokenStore = __nccwpck_require__(56425),
-	astUtils = __nccwpck_require__(84255),
-	Traverser = __nccwpck_require__(1687),
-	globals = __nccwpck_require__(61408),
-	{ directivesPattern } = __nccwpck_require__(67241),
-	CodePathAnalyzer = __nccwpck_require__(30781),
+const TokenStore = __nccwpck_require__(81807),
+	astUtils = __nccwpck_require__(49893),
+	Traverser = __nccwpck_require__(18793),
+	globals = __nccwpck_require__(13542),
+	{ directivesPattern } = __nccwpck_require__(42219),
+	CodePathAnalyzer = __nccwpck_require__(94647),
 	{
 		ConfigCommentParser,
 		VisitNodeStep,
@@ -305130,7 +305207,7 @@ module.exports = SourceCode;
 
 /***/ }),
 
-/***/ 11947:
+/***/ 48453:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305144,8 +305221,8 @@ module.exports = SourceCode;
 // Requirements
 //------------------------------------------------------------------------------
 
-const Cursor = __nccwpck_require__(53719);
-const utils = __nccwpck_require__(74788);
+const Cursor = __nccwpck_require__(12017);
+const utils = __nccwpck_require__(9898);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -305199,7 +305276,7 @@ module.exports = class BackwardTokenCommentCursor extends Cursor {
 
 /***/ }),
 
-/***/ 11687:
+/***/ 56933:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305213,8 +305290,8 @@ module.exports = class BackwardTokenCommentCursor extends Cursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const Cursor = __nccwpck_require__(53719);
-const { getLastIndex, getFirstIndex } = __nccwpck_require__(74788);
+const Cursor = __nccwpck_require__(12017);
+const { getLastIndex, getFirstIndex } = __nccwpck_require__(9898);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -305264,7 +305341,7 @@ module.exports = class BackwardTokenCursor extends Cursor {
 
 /***/ }),
 
-/***/ 53719:
+/***/ 12017:
 /***/ ((module) => {
 
 "use strict";
@@ -305348,7 +305425,7 @@ module.exports = class Cursor {
 
 /***/ }),
 
-/***/ 35362:
+/***/ 6436:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305362,13 +305439,13 @@ module.exports = class Cursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const BackwardTokenCommentCursor = __nccwpck_require__(11947);
-const BackwardTokenCursor = __nccwpck_require__(11687);
-const FilterCursor = __nccwpck_require__(77250);
-const ForwardTokenCommentCursor = __nccwpck_require__(52723);
-const ForwardTokenCursor = __nccwpck_require__(50495);
-const LimitCursor = __nccwpck_require__(69353);
-const SkipCursor = __nccwpck_require__(53137);
+const BackwardTokenCommentCursor = __nccwpck_require__(48453);
+const BackwardTokenCursor = __nccwpck_require__(56933);
+const FilterCursor = __nccwpck_require__(35696);
+const ForwardTokenCommentCursor = __nccwpck_require__(96993);
+const ForwardTokenCursor = __nccwpck_require__(58025);
+const LimitCursor = __nccwpck_require__(18995);
+const SkipCursor = __nccwpck_require__(28703);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -305476,7 +305553,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 310:
+/***/ 44500:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305490,7 +305567,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const Cursor = __nccwpck_require__(53719);
+const Cursor = __nccwpck_require__(12017);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -305522,7 +305599,7 @@ module.exports = class DecorativeCursor extends Cursor {
 
 /***/ }),
 
-/***/ 77250:
+/***/ 35696:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305536,7 +305613,7 @@ module.exports = class DecorativeCursor extends Cursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const DecorativeCursor = __nccwpck_require__(310);
+const DecorativeCursor = __nccwpck_require__(44500);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -305572,7 +305649,7 @@ module.exports = class FilterCursor extends DecorativeCursor {
 
 /***/ }),
 
-/***/ 52723:
+/***/ 96993:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305586,8 +305663,8 @@ module.exports = class FilterCursor extends DecorativeCursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const Cursor = __nccwpck_require__(53719);
-const { getFirstIndex, search } = __nccwpck_require__(74788);
+const Cursor = __nccwpck_require__(12017);
+const { getFirstIndex, search } = __nccwpck_require__(9898);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -305645,7 +305722,7 @@ module.exports = class ForwardTokenCommentCursor extends Cursor {
 
 /***/ }),
 
-/***/ 50495:
+/***/ 58025:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305659,8 +305736,8 @@ module.exports = class ForwardTokenCommentCursor extends Cursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const Cursor = __nccwpck_require__(53719);
-const { getFirstIndex, getLastIndex } = __nccwpck_require__(74788);
+const Cursor = __nccwpck_require__(12017);
+const { getFirstIndex, getLastIndex } = __nccwpck_require__(9898);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -305715,7 +305792,7 @@ module.exports = class ForwardTokenCursor extends Cursor {
 
 /***/ }),
 
-/***/ 56425:
+/***/ 81807:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -305729,12 +305806,12 @@ module.exports = class ForwardTokenCursor extends Cursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { isCommentToken } = __nccwpck_require__(22632);
-const assert = __nccwpck_require__(95265);
-const cursors = __nccwpck_require__(35362);
-const ForwardTokenCursor = __nccwpck_require__(50495);
-const PaddedTokenCursor = __nccwpck_require__(9878);
-const utils = __nccwpck_require__(74788);
+const { isCommentToken } = __nccwpck_require__(7093);
+const assert = __nccwpck_require__(56423);
+const cursors = __nccwpck_require__(6436);
+const ForwardTokenCursor = __nccwpck_require__(58025);
+const PaddedTokenCursor = __nccwpck_require__(71400);
+const utils = __nccwpck_require__(9898);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -306418,7 +306495,7 @@ module.exports = class TokenStore {
 
 /***/ }),
 
-/***/ 69353:
+/***/ 18995:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -306432,7 +306509,7 @@ module.exports = class TokenStore {
 // Requirements
 //------------------------------------------------------------------------------
 
-const DecorativeCursor = __nccwpck_require__(310);
+const DecorativeCursor = __nccwpck_require__(44500);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -306465,7 +306542,7 @@ module.exports = class LimitCursor extends DecorativeCursor {
 
 /***/ }),
 
-/***/ 9878:
+/***/ 71400:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -306479,7 +306556,7 @@ module.exports = class LimitCursor extends DecorativeCursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const ForwardTokenCursor = __nccwpck_require__(50495);
+const ForwardTokenCursor = __nccwpck_require__(58025);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -306518,7 +306595,7 @@ module.exports = class PaddedTokenCursor extends ForwardTokenCursor {
 
 /***/ }),
 
-/***/ 53137:
+/***/ 28703:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -306532,7 +306609,7 @@ module.exports = class PaddedTokenCursor extends ForwardTokenCursor {
 // Requirements
 //------------------------------------------------------------------------------
 
-const DecorativeCursor = __nccwpck_require__(310);
+const DecorativeCursor = __nccwpck_require__(44500);
 
 //------------------------------------------------------------------------------
 // Exports
@@ -306567,7 +306644,7 @@ module.exports = class SkipCursor extends DecorativeCursor {
 
 /***/ }),
 
-/***/ 74788:
+/***/ 9898:
 /***/ ((module) => {
 
 "use strict";
@@ -306706,7 +306783,7 @@ module.exports = { search, getFirstIndex, getLastIndex };
 
 /***/ }),
 
-/***/ 5069:
+/***/ 34959:
 /***/ ((module) => {
 
 "use strict";
@@ -306910,7 +306987,7 @@ module.exports = { validateLanguageOptions };
 
 /***/ }),
 
-/***/ 48988:
+/***/ 14062:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -306935,7 +307012,7 @@ module.exports = { validateLanguageOptions };
 //------------------------------------------------------------------------------
 
 const escapeRegExp = __nccwpck_require__(99839);
-const { Config } = __nccwpck_require__(23476);
+const { Config } = __nccwpck_require__(62222);
 
 /**
  * Compares the locations of two objects in a source file
@@ -307501,7 +307578,7 @@ module.exports = ({
 
 /***/ }),
 
-/***/ 30781:
+/***/ 94647:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -307516,12 +307593,12 @@ module.exports = ({
 // Requirements
 //------------------------------------------------------------------------------
 
-const assert = __nccwpck_require__(95265),
-	{ breakableTypePattern } = __nccwpck_require__(84255),
-	CodePath = __nccwpck_require__(74542),
-	CodePathSegment = __nccwpck_require__(18530),
-	IdGenerator = __nccwpck_require__(28848),
-	debug = __nccwpck_require__(79410);
+const assert = __nccwpck_require__(56423),
+	{ breakableTypePattern } = __nccwpck_require__(49893),
+	CodePath = __nccwpck_require__(29008),
+	CodePathSegment = __nccwpck_require__(1840),
+	IdGenerator = __nccwpck_require__(40578),
+	debug = __nccwpck_require__(16468);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -308337,7 +308414,7 @@ module.exports = CodePathAnalyzer;
 
 /***/ }),
 
-/***/ 18530:
+/***/ 1840:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -308352,7 +308429,7 @@ module.exports = CodePathAnalyzer;
 // Requirements
 //------------------------------------------------------------------------------
 
-const debug = __nccwpck_require__(79410);
+const debug = __nccwpck_require__(16468);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -308607,7 +308684,7 @@ module.exports = CodePathSegment;
 
 /***/ }),
 
-/***/ 70806:
+/***/ 2756:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -308622,8 +308699,8 @@ module.exports = CodePathSegment;
 // Requirements
 //------------------------------------------------------------------------------
 
-const CodePathSegment = __nccwpck_require__(18530),
-	ForkContext = __nccwpck_require__(28271);
+const CodePathSegment = __nccwpck_require__(1840),
+	ForkContext = __nccwpck_require__(63710);
 
 //-----------------------------------------------------------------------------
 // Contexts
@@ -310985,7 +311062,7 @@ module.exports = CodePathState;
 
 /***/ }),
 
-/***/ 74542:
+/***/ 29008:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -311000,8 +311077,8 @@ module.exports = CodePathState;
 // Requirements
 //------------------------------------------------------------------------------
 
-const CodePathState = __nccwpck_require__(70806);
-const IdGenerator = __nccwpck_require__(28848);
+const CodePathState = __nccwpck_require__(2756);
+const IdGenerator = __nccwpck_require__(40578);
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -311325,7 +311402,7 @@ module.exports = CodePath;
 
 /***/ }),
 
-/***/ 79410:
+/***/ 16468:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -311556,7 +311633,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 28271:
+/***/ 63710:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -311575,8 +311652,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const assert = __nccwpck_require__(95265),
-	CodePathSegment = __nccwpck_require__(18530);
+const assert = __nccwpck_require__(56423),
+	CodePathSegment = __nccwpck_require__(1840);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -311938,7 +312015,7 @@ module.exports = ForkContext;
 
 /***/ }),
 
-/***/ 28848:
+/***/ 40578:
 /***/ ((module) => {
 
 "use strict";
@@ -311990,7 +312067,7 @@ module.exports = IdGenerator;
 
 /***/ }),
 
-/***/ 49928:
+/***/ 52606:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -312330,7 +312407,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 75970:
+/***/ 85756:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -312426,7 +312503,7 @@ exports.FileContext = FileContext;
 
 /***/ }),
 
-/***/ 97835:
+/***/ 75553:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -312441,10 +312518,10 @@ exports.FileContext = FileContext;
 // Requirements
 //------------------------------------------------------------------------------
 
-const assert = __nccwpck_require__(95265);
-const { RuleFixer } = __nccwpck_require__(58197);
-const { interpolate } = __nccwpck_require__(7115);
-const ruleReplacements = __nccwpck_require__(54183);
+const assert = __nccwpck_require__(56423);
+const { RuleFixer } = __nccwpck_require__(30075);
+const { interpolate } = __nccwpck_require__(2421);
+const ruleReplacements = __nccwpck_require__(12813);
 
 //------------------------------------------------------------------------------
 // Typedefs
@@ -313038,14 +313115,14 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1356:
+/***/ 94070:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const { Linter } = __nccwpck_require__(64148);
-const SourceCodeFixer = __nccwpck_require__(62972);
+const { Linter } = __nccwpck_require__(37982);
+const SourceCodeFixer = __nccwpck_require__(94117);
 
 module.exports = {
 	Linter,
@@ -313057,7 +313134,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7115:
+/***/ 2421:
 /***/ ((module) => {
 
 "use strict";
@@ -313115,7 +313192,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 64148:
+/***/ 37982:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -313132,42 +313209,42 @@ module.exports = {
 //------------------------------------------------------------------------------
 
 const path = __nccwpck_require__(76760),
-	eslintScope = __nccwpck_require__(12633),
-	evk = __nccwpck_require__(11763),
-	pkg = __nccwpck_require__(60985),
-	Traverser = __nccwpck_require__(1687),
-	{ SourceCode } = __nccwpck_require__(47363),
-	applyDisableDirectives = __nccwpck_require__(48988),
+	eslintScope = __nccwpck_require__(2988),
+	evk = __nccwpck_require__(5910),
+	pkg = __nccwpck_require__(41575),
+	Traverser = __nccwpck_require__(18793),
+	{ SourceCode } = __nccwpck_require__(46461),
+	applyDisableDirectives = __nccwpck_require__(14062),
 	{ ConfigCommentParser } = __nccwpck_require__(49130),
-	SourceCodeFixer = __nccwpck_require__(62972),
-	{ SourceCodeVisitor } = __nccwpck_require__(44866),
-	timing = __nccwpck_require__(960);
-const { FlatConfigArray } = __nccwpck_require__(79220);
-const { startTime, endTime } = __nccwpck_require__(3620);
-const { assertIsRuleSeverity } = __nccwpck_require__(71530);
+	SourceCodeFixer = __nccwpck_require__(94117),
+	{ SourceCodeVisitor } = __nccwpck_require__(43376),
+	timing = __nccwpck_require__(19074);
+const { FlatConfigArray } = __nccwpck_require__(25422);
+const { startTime, endTime } = __nccwpck_require__(93778);
+const { assertIsRuleSeverity } = __nccwpck_require__(4824);
 const {
 	normalizeSeverityToString,
 	normalizeSeverityToNumber,
-} = __nccwpck_require__(77888);
-const { deepMergeArrays } = __nccwpck_require__(85827);
+} = __nccwpck_require__(85038);
+const { deepMergeArrays } = __nccwpck_require__(58845);
 const {
 	activeFlags,
 	inactiveFlags,
 	getInactivityReasonMessage,
-} = __nccwpck_require__(68740);
+} = __nccwpck_require__(37886);
 const debug = __nccwpck_require__(18263)("eslint:linter");
 const MAX_AUTOFIX_PASSES = 10;
 const DEFAULT_ECMA_VERSION = 5;
 const commentParser = new ConfigCommentParser();
-const { VFile } = __nccwpck_require__(41432);
-const { ParserService } = __nccwpck_require__(69013);
-const { FileContext } = __nccwpck_require__(75970);
-const { ProcessorService } = __nccwpck_require__(64612);
-const { containsDifferentProperty } = __nccwpck_require__(42846);
-const { Config } = __nccwpck_require__(23476);
-const { WarningService } = __nccwpck_require__(16628);
-const { SourceCodeTraverser } = __nccwpck_require__(13136);
-const { FileReport, updateLocationInformation } = __nccwpck_require__(97835);
+const { VFile } = __nccwpck_require__(44366);
+const { ParserService } = __nccwpck_require__(2631);
+const { FileContext } = __nccwpck_require__(85756);
+const { ProcessorService } = __nccwpck_require__(35522);
+const { containsDifferentProperty } = __nccwpck_require__(10000);
+const { Config } = __nccwpck_require__(62222);
+const { WarningService } = __nccwpck_require__(68842);
+const { SourceCodeTraverser } = __nccwpck_require__(37250);
+const { FileReport, updateLocationInformation } = __nccwpck_require__(75553);
 
 //------------------------------------------------------------------------------
 // Typedefs
@@ -314737,7 +314814,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 58197:
+/***/ 30075:
 /***/ ((module) => {
 
 "use strict";
@@ -314944,7 +315021,7 @@ module.exports = { RuleFixer };
 
 /***/ }),
 
-/***/ 62972:
+/***/ 94117:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -315106,7 +315183,7 @@ module.exports = SourceCodeFixer;
 
 /***/ }),
 
-/***/ 13136:
+/***/ 37250:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -315121,8 +315198,8 @@ module.exports = SourceCodeFixer;
 // Requirements
 //------------------------------------------------------------------------------
 
-const { parse, matches } = __nccwpck_require__(49928);
-const vk = __nccwpck_require__(11763);
+const { parse, matches } = __nccwpck_require__(52606);
+const vk = __nccwpck_require__(5910);
 
 //-----------------------------------------------------------------------------
 // Typedefs
@@ -315447,7 +315524,7 @@ module.exports = { SourceCodeTraverser };
 
 /***/ }),
 
-/***/ 44866:
+/***/ 43376:
 /***/ ((module) => {
 
 "use strict";
@@ -315536,7 +315613,7 @@ module.exports = { SourceCodeVisitor };
 
 /***/ }),
 
-/***/ 960:
+/***/ 19074:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -315547,7 +315624,7 @@ module.exports = { SourceCodeVisitor };
 
 
 
-const { startTime, endTime } = __nccwpck_require__(3620);
+const { startTime, endTime } = __nccwpck_require__(93778);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -315753,7 +315830,7 @@ module.exports = (function () {
 
 /***/ }),
 
-/***/ 41432:
+/***/ 44366:
 /***/ ((module) => {
 
 "use strict";
@@ -315876,13 +315953,13 @@ module.exports = { VFile };
 
 /***/ }),
 
-/***/ 62200:
+/***/ 37226:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-const RuleTester = __nccwpck_require__(59470);
+const RuleTester = __nccwpck_require__(94088);
 
 module.exports = {
 	RuleTester,
@@ -315891,7 +315968,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 59470:
+/***/ 94088:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -315912,26 +315989,26 @@ const assert = __nccwpck_require__(34589),
 	util = __nccwpck_require__(57975),
 	path = __nccwpck_require__(76760),
 	equal = __nccwpck_require__(50498),
-	Traverser = __nccwpck_require__(1687),
-	{ Config } = __nccwpck_require__(23476),
-	{ Linter, SourceCodeFixer } = __nccwpck_require__(1356),
-	{ interpolate, getPlaceholderMatcher } = __nccwpck_require__(7115),
+	Traverser = __nccwpck_require__(18793),
+	{ Config } = __nccwpck_require__(62222),
+	{ Linter, SourceCodeFixer } = __nccwpck_require__(94070),
+	{ interpolate, getPlaceholderMatcher } = __nccwpck_require__(2421),
 	stringify = __nccwpck_require__(79675),
-	{ isSerializable } = __nccwpck_require__(53359);
+	{ isSerializable } = __nccwpck_require__(60169);
 
-const { FlatConfigArray } = __nccwpck_require__(79220);
+const { FlatConfigArray } = __nccwpck_require__(25422);
 const {
 	defaultConfig,
 	defaultRuleTesterConfig,
-} = __nccwpck_require__(26168);
+} = __nccwpck_require__(85110);
 
-const ajv = __nccwpck_require__(496)({ strictDefaults: true });
+const ajv = __nccwpck_require__(34990)({ strictDefaults: true });
 
 const parserSymbol = Symbol.for("eslint.RuleTester.parser");
-const { ConfigArraySymbol } = __nccwpck_require__(71002);
+const { ConfigArraySymbol } = __nccwpck_require__(83215);
 
-const jslang = __nccwpck_require__(82349);
-const { SourceCode } = __nccwpck_require__(47363);
+const jslang = __nccwpck_require__(39539);
+const { SourceCode } = __nccwpck_require__(46461);
 
 //------------------------------------------------------------------------------
 // Typedefs
@@ -317895,7 +317972,7 @@ module.exports = RuleTester;
 
 /***/ }),
 
-/***/ 82242:
+/***/ 45208:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -317910,7 +317987,7 @@ module.exports = RuleTester;
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Typedefs
@@ -318323,7 +318400,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 10984:
+/***/ 53390:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -318335,7 +318412,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -318622,7 +318699,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 22337:
+/***/ 46083:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -318633,7 +318710,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -318931,7 +319008,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2817:
+/***/ 80111:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -318946,7 +319023,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -319449,7 +319526,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 16720:
+/***/ 70106:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -319461,7 +319538,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -319831,7 +319908,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 27553:
+/***/ 77483:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -319845,7 +319922,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -320257,7 +320334,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 80412:
+/***/ 92806:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -320272,7 +320349,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -320502,7 +320579,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 98664:
+/***/ 16498:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -320517,7 +320594,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -320698,7 +320775,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9969:
+/***/ 76387:
 /***/ ((module) => {
 
 "use strict";
@@ -320707,6 +320784,13 @@ module.exports = {
  * @author Matt DuVall <http://www.mattduvall.com>
  */
 
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Definition} Definition */
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -320755,8 +320839,8 @@ module.exports = {
 
 		/**
 		 * Reports a given reference.
-		 * @param {eslint-scope.Reference} reference A reference to report.
-		 * @param {eslint-scope.Definition} definition A definition for which to report reference.
+		 * @param {Reference} reference A reference to report.
+		 * @param {Definition} definition A definition for which to report reference.
 		 * @returns {void}
 		 */
 		function report(reference, definition) {
@@ -320843,7 +320927,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2000:
+/***/ 27898:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -320855,7 +320939,7 @@ module.exports = {
 
 
 
-const util = __nccwpck_require__(22443);
+const util = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -321053,7 +321137,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 69510:
+/***/ 44192:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -321065,7 +321149,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -321339,7 +321423,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 32289:
+/***/ 42431:
 /***/ ((module) => {
 
 "use strict";
@@ -321563,7 +321647,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 36243:
+/***/ 36761:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -321578,7 +321662,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -321993,7 +322077,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 43818:
+/***/ 3416:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -322007,7 +322091,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -322326,7 +322410,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 80161:
+/***/ 88267:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -322341,7 +322425,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -322584,7 +322668,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 29264:
+/***/ 93326:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -322600,7 +322684,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -323016,7 +323100,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 30326:
+/***/ 35296:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -323027,7 +323111,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -323229,7 +323313,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 67938:
+/***/ 98664:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -323241,7 +323325,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -323628,7 +323712,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 69533:
+/***/ 98403:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -323644,8 +323728,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { upperCaseFirst } = __nccwpck_require__(93006);
+const astUtils = __nccwpck_require__(37917);
+const { upperCaseFirst } = __nccwpck_require__(55892);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -323837,7 +323921,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 24210:
+/***/ 70600:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -323848,7 +323932,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -324096,7 +324180,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 80556:
+/***/ 36594:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -324110,8 +324194,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { upperCaseFirst } = __nccwpck_require__(93006);
+const astUtils = __nccwpck_require__(37917);
+const { upperCaseFirst } = __nccwpck_require__(55892);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -324325,7 +324409,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 43538:
+/***/ 13568:
 /***/ ((module) => {
 
 "use strict";
@@ -324512,7 +324596,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 46979:
+/***/ 93069:
 /***/ ((module) => {
 
 "use strict";
@@ -324973,7 +325057,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 70820:
+/***/ 17134:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -324987,7 +325071,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -325406,7 +325490,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 81578:
+/***/ 21508:
 /***/ ((module) => {
 
 "use strict";
@@ -325465,7 +325549,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 79845:
+/***/ 50191:
 /***/ ((module) => {
 
 "use strict";
@@ -325576,7 +325660,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 14581:
+/***/ 56567:
 /***/ ((module) => {
 
 "use strict";
@@ -325662,7 +325746,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 66304:
+/***/ 18354:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -325674,7 +325758,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -325808,7 +325892,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 93561:
+/***/ 28955:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -325822,8 +325906,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const keywords = __nccwpck_require__(23767);
+const astUtils = __nccwpck_require__(37917);
+const keywords = __nccwpck_require__(44449);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -326032,7 +326116,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6158:
+/***/ 2220:
 /***/ ((module) => {
 
 "use strict";
@@ -326175,7 +326259,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 68031:
+/***/ 57629:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -326190,7 +326274,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -326393,7 +326477,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 62342:
+/***/ 77308:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -326408,7 +326492,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { getStaticValue } = __nccwpck_require__(22632);
+const { getStaticValue } = __nccwpck_require__(7093);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -326569,7 +326653,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 43268:
+/***/ 68078:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -326585,7 +326669,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -326858,7 +326942,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 50287:
+/***/ 3929:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -326873,7 +326957,7 @@ module.exports = {
 // Requirements
 //--------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 const esutils = __nccwpck_require__(30273);
 
 //--------------------------------------------------------------------------
@@ -327204,7 +327288,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 70098:
+/***/ 42156:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -327219,11 +327303,21 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Variable} Variable */
+
+//------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
 
 /**
  * Checks whether or not a given variable is a function name.
- * @param {eslint-scope.Variable} variable A variable to check.
+ * @param {Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is a function name.
  */
 function isFunctionName(variable) {
@@ -327406,7 +327500,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 66403:
+/***/ 86769:
 /***/ ((module) => {
 
 "use strict";
@@ -327635,7 +327729,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 11093:
+/***/ 29643:
 /***/ ((module) => {
 
 "use strict";
@@ -327809,7 +327903,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 49957:
+/***/ 74059:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -327824,7 +327918,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -328185,7 +328279,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 34245:
+/***/ 31639:
 /***/ ((module) => {
 
 "use strict";
@@ -328439,7 +328533,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 73317:
+/***/ 97579:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -328454,7 +328548,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -328689,7 +328783,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 68012:
+/***/ 94126:
 /***/ ((module) => {
 
 "use strict";
@@ -328814,7 +328908,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 31283:
+/***/ 21525:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -328829,7 +328923,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Typedefs
@@ -329090,7 +329184,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 75448:
+/***/ 49734:
 /***/ ((module) => {
 
 "use strict";
@@ -329183,7 +329277,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 79849:
+/***/ 97751:
 /***/ ((module) => {
 
 "use strict";
@@ -329313,7 +329407,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 59006:
+/***/ 26444:
 /***/ ((module) => {
 
 "use strict";
@@ -329562,7 +329656,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 31675:
+/***/ 13749:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -329578,7 +329672,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -329793,7 +329887,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 65629:
+/***/ 11231:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -329809,11 +329903,11 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { getGraphemeCount } = __nccwpck_require__(93006);
+const { getGraphemeCount } = __nccwpck_require__(55892);
 const {
 	getModuleExportName,
 	isImportAttributeKey,
-} = __nccwpck_require__(22443);
+} = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -330018,7 +330112,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 87860:
+/***/ 52822:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -330033,7 +330127,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -330389,7 +330483,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 56478:
+/***/ 75672:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -330400,7 +330494,7 @@ module.exports = {
  */
 
 
-const { isCommentToken, isNotOpeningParenToken } = __nccwpck_require__(22443);
+const { isCommentToken, isNotOpeningParenToken } = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -330522,7 +330616,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 94751:
+/***/ 46817:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -330541,7 +330635,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -331899,7 +331993,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 51127:
+/***/ 72717:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -331918,7 +332012,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -334241,7 +334335,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 77001:
+/***/ 28271:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -334255,333 +334349,333 @@ module.exports = {
 
 /* eslint sort-keys: ["error", "asc"] -- More readable for long list */
 
-const { LazyLoadingRuleMap } = __nccwpck_require__(34140);
+const { LazyLoadingRuleMap } = __nccwpck_require__(48898);
 
 /** @type {Map<string, import("../types").Rule.RuleModule>} */
 module.exports = new LazyLoadingRuleMap(
 	Object.entries({
-		"accessor-pairs": () => __nccwpck_require__(82242),
-		"array-bracket-newline": () => __nccwpck_require__(10984),
-		"array-bracket-spacing": () => __nccwpck_require__(22337),
-		"array-callback-return": () => __nccwpck_require__(2817),
-		"array-element-newline": () => __nccwpck_require__(16720),
-		"arrow-body-style": () => __nccwpck_require__(27553),
-		"arrow-parens": () => __nccwpck_require__(80412),
-		"arrow-spacing": () => __nccwpck_require__(98664),
-		"block-scoped-var": () => __nccwpck_require__(9969),
-		"block-spacing": () => __nccwpck_require__(2000),
-		"brace-style": () => __nccwpck_require__(69510),
-		"callback-return": () => __nccwpck_require__(32289),
-		camelcase: () => __nccwpck_require__(36243),
-		"capitalized-comments": () => __nccwpck_require__(43818),
-		"class-methods-use-this": () => __nccwpck_require__(80161),
-		"comma-dangle": () => __nccwpck_require__(29264),
-		"comma-spacing": () => __nccwpck_require__(30326),
-		"comma-style": () => __nccwpck_require__(67938),
-		complexity: () => __nccwpck_require__(69533),
+		"accessor-pairs": () => __nccwpck_require__(45208),
+		"array-bracket-newline": () => __nccwpck_require__(53390),
+		"array-bracket-spacing": () => __nccwpck_require__(46083),
+		"array-callback-return": () => __nccwpck_require__(80111),
+		"array-element-newline": () => __nccwpck_require__(70106),
+		"arrow-body-style": () => __nccwpck_require__(77483),
+		"arrow-parens": () => __nccwpck_require__(92806),
+		"arrow-spacing": () => __nccwpck_require__(16498),
+		"block-scoped-var": () => __nccwpck_require__(76387),
+		"block-spacing": () => __nccwpck_require__(27898),
+		"brace-style": () => __nccwpck_require__(44192),
+		"callback-return": () => __nccwpck_require__(42431),
+		camelcase: () => __nccwpck_require__(36761),
+		"capitalized-comments": () => __nccwpck_require__(3416),
+		"class-methods-use-this": () => __nccwpck_require__(88267),
+		"comma-dangle": () => __nccwpck_require__(93326),
+		"comma-spacing": () => __nccwpck_require__(35296),
+		"comma-style": () => __nccwpck_require__(98664),
+		complexity: () => __nccwpck_require__(98403),
 		"computed-property-spacing": () =>
-			__nccwpck_require__(24210),
-		"consistent-return": () => __nccwpck_require__(80556),
-		"consistent-this": () => __nccwpck_require__(43538),
-		"constructor-super": () => __nccwpck_require__(46979),
-		curly: () => __nccwpck_require__(70820),
-		"default-case": () => __nccwpck_require__(79845),
-		"default-case-last": () => __nccwpck_require__(81578),
-		"default-param-last": () => __nccwpck_require__(14581),
-		"dot-location": () => __nccwpck_require__(66304),
-		"dot-notation": () => __nccwpck_require__(93561),
-		"eol-last": () => __nccwpck_require__(6158),
-		eqeqeq: () => __nccwpck_require__(68031),
-		"for-direction": () => __nccwpck_require__(62342),
-		"func-call-spacing": () => __nccwpck_require__(43268),
-		"func-name-matching": () => __nccwpck_require__(50287),
-		"func-names": () => __nccwpck_require__(70098),
-		"func-style": () => __nccwpck_require__(66403),
+			__nccwpck_require__(70600),
+		"consistent-return": () => __nccwpck_require__(36594),
+		"consistent-this": () => __nccwpck_require__(13568),
+		"constructor-super": () => __nccwpck_require__(93069),
+		curly: () => __nccwpck_require__(17134),
+		"default-case": () => __nccwpck_require__(50191),
+		"default-case-last": () => __nccwpck_require__(21508),
+		"default-param-last": () => __nccwpck_require__(56567),
+		"dot-location": () => __nccwpck_require__(18354),
+		"dot-notation": () => __nccwpck_require__(28955),
+		"eol-last": () => __nccwpck_require__(2220),
+		eqeqeq: () => __nccwpck_require__(57629),
+		"for-direction": () => __nccwpck_require__(77308),
+		"func-call-spacing": () => __nccwpck_require__(68078),
+		"func-name-matching": () => __nccwpck_require__(3929),
+		"func-names": () => __nccwpck_require__(42156),
+		"func-style": () => __nccwpck_require__(86769),
 		"function-call-argument-newline": () =>
-			__nccwpck_require__(11093),
-		"function-paren-newline": () => __nccwpck_require__(49957),
-		"generator-star-spacing": () => __nccwpck_require__(34245),
-		"getter-return": () => __nccwpck_require__(73317),
-		"global-require": () => __nccwpck_require__(68012),
-		"grouped-accessor-pairs": () => __nccwpck_require__(31283),
-		"guard-for-in": () => __nccwpck_require__(75448),
-		"handle-callback-err": () => __nccwpck_require__(79849),
-		"id-blacklist": () => __nccwpck_require__(59006),
-		"id-denylist": () => __nccwpck_require__(31675),
-		"id-length": () => __nccwpck_require__(65629),
-		"id-match": () => __nccwpck_require__(87860),
-		"implicit-arrow-linebreak": () => __nccwpck_require__(56478),
-		indent: () => __nccwpck_require__(51127),
-		"indent-legacy": () => __nccwpck_require__(94751),
-		"init-declarations": () => __nccwpck_require__(67249),
-		"jsx-quotes": () => __nccwpck_require__(18596),
-		"key-spacing": () => __nccwpck_require__(10502),
-		"keyword-spacing": () => __nccwpck_require__(5758),
-		"line-comment-position": () => __nccwpck_require__(41731),
-		"linebreak-style": () => __nccwpck_require__(42288),
-		"lines-around-comment": () => __nccwpck_require__(44750),
-		"lines-around-directive": () => __nccwpck_require__(89406),
+			__nccwpck_require__(29643),
+		"function-paren-newline": () => __nccwpck_require__(74059),
+		"generator-star-spacing": () => __nccwpck_require__(31639),
+		"getter-return": () => __nccwpck_require__(97579),
+		"global-require": () => __nccwpck_require__(94126),
+		"grouped-accessor-pairs": () => __nccwpck_require__(21525),
+		"guard-for-in": () => __nccwpck_require__(49734),
+		"handle-callback-err": () => __nccwpck_require__(97751),
+		"id-blacklist": () => __nccwpck_require__(26444),
+		"id-denylist": () => __nccwpck_require__(13749),
+		"id-length": () => __nccwpck_require__(11231),
+		"id-match": () => __nccwpck_require__(52822),
+		"implicit-arrow-linebreak": () => __nccwpck_require__(75672),
+		indent: () => __nccwpck_require__(72717),
+		"indent-legacy": () => __nccwpck_require__(46817),
+		"init-declarations": () => __nccwpck_require__(12179),
+		"jsx-quotes": () => __nccwpck_require__(46242),
+		"key-spacing": () => __nccwpck_require__(98444),
+		"keyword-spacing": () => __nccwpck_require__(32944),
+		"line-comment-position": () => __nccwpck_require__(6085),
+		"linebreak-style": () => __nccwpck_require__(65646),
+		"lines-around-comment": () => __nccwpck_require__(17748),
+		"lines-around-directive": () => __nccwpck_require__(77444),
 		"lines-between-class-members": () =>
-			__nccwpck_require__(61152),
+			__nccwpck_require__(51982),
 		"logical-assignment-operators": () =>
-			__nccwpck_require__(56982),
-		"max-classes-per-file": () => __nccwpck_require__(83),
-		"max-depth": () => __nccwpck_require__(4595),
-		"max-len": () => __nccwpck_require__(97717),
-		"max-lines": () => __nccwpck_require__(52281),
-		"max-lines-per-function": () => __nccwpck_require__(71404),
-		"max-nested-callbacks": () => __nccwpck_require__(80794),
-		"max-params": () => __nccwpck_require__(56026),
-		"max-statements": () => __nccwpck_require__(36034),
-		"max-statements-per-line": () => __nccwpck_require__(23343),
-		"multiline-comment-style": () => __nccwpck_require__(40202),
-		"multiline-ternary": () => __nccwpck_require__(86692),
-		"new-cap": () => __nccwpck_require__(46914),
-		"new-parens": () => __nccwpck_require__(32629),
-		"newline-after-var": () => __nccwpck_require__(70330),
-		"newline-before-return": () => __nccwpck_require__(63972),
-		"newline-per-chained-call": () => __nccwpck_require__(21655),
-		"no-alert": () => __nccwpck_require__(41613),
-		"no-array-constructor": () => __nccwpck_require__(1071),
+			__nccwpck_require__(74824),
+		"max-classes-per-file": () => __nccwpck_require__(12329),
+		"max-depth": () => __nccwpck_require__(53237),
+		"max-len": () => __nccwpck_require__(91659),
+		"max-lines": () => __nccwpck_require__(91979),
+		"max-lines-per-function": () => __nccwpck_require__(26146),
+		"max-nested-callbacks": () => __nccwpck_require__(28324),
+		"max-params": () => __nccwpck_require__(48008),
+		"max-statements": () => __nccwpck_require__(33500),
+		"max-statements-per-line": () => __nccwpck_require__(9677),
+		"multiline-comment-style": () => __nccwpck_require__(26152),
+		"multiline-ternary": () => __nccwpck_require__(1774),
+		"new-cap": () => __nccwpck_require__(93744),
+		"new-parens": () => __nccwpck_require__(62431),
+		"newline-after-var": () => __nccwpck_require__(73984),
+		"newline-before-return": () => __nccwpck_require__(6206),
+		"newline-per-chained-call": () => __nccwpck_require__(75105),
+		"no-alert": () => __nccwpck_require__(47607),
+		"no-array-constructor": () => __nccwpck_require__(40717),
 		"no-async-promise-executor": () =>
-			__nccwpck_require__(5801),
-		"no-await-in-loop": () => __nccwpck_require__(20280),
-		"no-bitwise": () => __nccwpck_require__(6468),
-		"no-buffer-constructor": () => __nccwpck_require__(24192),
-		"no-caller": () => __nccwpck_require__(2520),
-		"no-case-declarations": () => __nccwpck_require__(84873),
-		"no-catch-shadow": () => __nccwpck_require__(44685),
-		"no-class-assign": () => __nccwpck_require__(34229),
-		"no-compare-neg-zero": () => __nccwpck_require__(83014),
-		"no-cond-assign": () => __nccwpck_require__(78013),
-		"no-confusing-arrow": () => __nccwpck_require__(21405),
-		"no-console": () => __nccwpck_require__(11526),
-		"no-const-assign": () => __nccwpck_require__(96844),
+			__nccwpck_require__(27559),
+		"no-await-in-loop": () => __nccwpck_require__(64006),
+		"no-bitwise": () => __nccwpck_require__(13886),
+		"no-buffer-constructor": () => __nccwpck_require__(31146),
+		"no-caller": () => __nccwpck_require__(84858),
+		"no-case-declarations": () => __nccwpck_require__(28779),
+		"no-catch-shadow": () => __nccwpck_require__(72259),
+		"no-class-assign": () => __nccwpck_require__(99859),
+		"no-compare-neg-zero": () => __nccwpck_require__(43728),
+		"no-cond-assign": () => __nccwpck_require__(6719),
+		"no-confusing-arrow": () => __nccwpck_require__(65855),
+		"no-console": () => __nccwpck_require__(64312),
+		"no-const-assign": () => __nccwpck_require__(46982),
 		"no-constant-binary-expression": () =>
-			__nccwpck_require__(37320),
-		"no-constant-condition": () => __nccwpck_require__(60631),
-		"no-constructor-return": () => __nccwpck_require__(94070),
-		"no-continue": () => __nccwpck_require__(60974),
-		"no-control-regex": () => __nccwpck_require__(93064),
-		"no-debugger": () => __nccwpck_require__(78424),
-		"no-delete-var": () => __nccwpck_require__(21680),
-		"no-div-regex": () => __nccwpck_require__(94690),
-		"no-dupe-args": () => __nccwpck_require__(50181),
-		"no-dupe-class-members": () => __nccwpck_require__(54932),
-		"no-dupe-else-if": () => __nccwpck_require__(1909),
-		"no-dupe-keys": () => __nccwpck_require__(90148),
-		"no-duplicate-case": () => __nccwpck_require__(88155),
-		"no-duplicate-imports": () => __nccwpck_require__(88973),
-		"no-else-return": () => __nccwpck_require__(32785),
-		"no-empty": () => __nccwpck_require__(19006),
-		"no-empty-character-class": () => __nccwpck_require__(28457),
-		"no-empty-function": () => __nccwpck_require__(8759),
-		"no-empty-pattern": () => __nccwpck_require__(16389),
-		"no-empty-static-block": () => __nccwpck_require__(35721),
-		"no-eq-null": () => __nccwpck_require__(58495),
-		"no-eval": () => __nccwpck_require__(6517),
-		"no-ex-assign": () => __nccwpck_require__(22806),
-		"no-extend-native": () => __nccwpck_require__(84671),
-		"no-extra-bind": () => __nccwpck_require__(24305),
-		"no-extra-boolean-cast": () => __nccwpck_require__(90862),
-		"no-extra-label": () => __nccwpck_require__(9382),
-		"no-extra-parens": () => __nccwpck_require__(30495),
-		"no-extra-semi": () => __nccwpck_require__(38640),
-		"no-fallthrough": () => __nccwpck_require__(57925),
-		"no-floating-decimal": () => __nccwpck_require__(11059),
-		"no-func-assign": () => __nccwpck_require__(66523),
-		"no-global-assign": () => __nccwpck_require__(99928),
-		"no-implicit-coercion": () => __nccwpck_require__(64673),
-		"no-implicit-globals": () => __nccwpck_require__(1381),
-		"no-implied-eval": () => __nccwpck_require__(11550),
-		"no-import-assign": () => __nccwpck_require__(81550),
-		"no-inline-comments": () => __nccwpck_require__(31337),
-		"no-inner-declarations": () => __nccwpck_require__(48725),
-		"no-invalid-regexp": () => __nccwpck_require__(66776),
-		"no-invalid-this": () => __nccwpck_require__(7193),
-		"no-irregular-whitespace": () => __nccwpck_require__(38130),
-		"no-iterator": () => __nccwpck_require__(36977),
-		"no-label-var": () => __nccwpck_require__(3561),
-		"no-labels": () => __nccwpck_require__(95512),
-		"no-lone-blocks": () => __nccwpck_require__(42534),
-		"no-lonely-if": () => __nccwpck_require__(71438),
-		"no-loop-func": () => __nccwpck_require__(4076),
-		"no-loss-of-precision": () => __nccwpck_require__(47001),
-		"no-magic-numbers": () => __nccwpck_require__(26247),
+			__nccwpck_require__(64662),
+		"no-constant-condition": () => __nccwpck_require__(72937),
+		"no-constructor-return": () => __nccwpck_require__(39196),
+		"no-continue": () => __nccwpck_require__(78200),
+		"no-control-regex": () => __nccwpck_require__(96634),
+		"no-debugger": () => __nccwpck_require__(44258),
+		"no-delete-var": () => __nccwpck_require__(79138),
+		"no-div-regex": () => __nccwpck_require__(6836),
+		"no-dupe-args": () => __nccwpck_require__(52015),
+		"no-dupe-class-members": () => __nccwpck_require__(94094),
+		"no-dupe-else-if": () => __nccwpck_require__(44855),
+		"no-dupe-keys": () => __nccwpck_require__(21530),
+		"no-duplicate-case": () => __nccwpck_require__(81953),
+		"no-duplicate-imports": () => __nccwpck_require__(37323),
+		"no-else-return": () => __nccwpck_require__(39015),
+		"no-empty": () => __nccwpck_require__(64508),
+		"no-empty-character-class": () => __nccwpck_require__(75739),
+		"no-empty-function": () => __nccwpck_require__(13549),
+		"no-empty-pattern": () => __nccwpck_require__(19107),
+		"no-empty-static-block": () => __nccwpck_require__(84579),
+		"no-eq-null": () => __nccwpck_require__(15329),
+		"no-eval": () => __nccwpck_require__(87603),
+		"no-ex-assign": () => __nccwpck_require__(5492),
+		"no-extend-native": () => __nccwpck_require__(72585),
+		"no-extra-bind": () => __nccwpck_require__(65711),
+		"no-extra-boolean-cast": () => __nccwpck_require__(18444),
+		"no-extra-label": () => __nccwpck_require__(76892),
+		"no-extra-parens": () => __nccwpck_require__(9),
+		"no-extra-semi": () => __nccwpck_require__(29850),
+		"no-fallthrough": () => __nccwpck_require__(34859),
+		"no-floating-decimal": () => __nccwpck_require__(55369),
+		"no-func-assign": () => __nccwpck_require__(76741),
+		"no-global-assign": () => __nccwpck_require__(27842),
+		"no-implicit-coercion": () => __nccwpck_require__(50187),
+		"no-implicit-globals": () => __nccwpck_require__(27808),
+		"no-implied-eval": () => __nccwpck_require__(52788),
+		"no-import-assign": () => __nccwpck_require__(81164),
+		"no-inline-comments": () => __nccwpck_require__(41087),
+		"no-inner-declarations": () => __nccwpck_require__(78527),
+		"no-invalid-regexp": () => __nccwpck_require__(58210),
+		"no-invalid-this": () => __nccwpck_require__(79503),
+		"no-irregular-whitespace": () => __nccwpck_require__(97192),
+		"no-iterator": () => __nccwpck_require__(67295),
+		"no-label-var": () => __nccwpck_require__(54723),
+		"no-labels": () => __nccwpck_require__(58986),
+		"no-lone-blocks": () => __nccwpck_require__(82648),
+		"no-lonely-if": () => __nccwpck_require__(36776),
+		"no-loop-func": () => __nccwpck_require__(94494),
+		"no-loss-of-precision": () => __nccwpck_require__(13263),
+		"no-magic-numbers": () => __nccwpck_require__(2309),
 		"no-misleading-character-class": () =>
-			__nccwpck_require__(90611),
-		"no-mixed-operators": () => __nccwpck_require__(57464),
-		"no-mixed-requires": () => __nccwpck_require__(88621),
-		"no-mixed-spaces-and-tabs": () => __nccwpck_require__(90503),
-		"no-multi-assign": () => __nccwpck_require__(98550),
-		"no-multi-spaces": () => __nccwpck_require__(19336),
-		"no-multi-str": () => __nccwpck_require__(28728),
-		"no-multiple-empty-lines": () => __nccwpck_require__(44577),
-		"no-native-reassign": () => __nccwpck_require__(64565),
-		"no-negated-condition": () => __nccwpck_require__(55261),
-		"no-negated-in-lhs": () => __nccwpck_require__(55945),
-		"no-nested-ternary": () => __nccwpck_require__(14354),
-		"no-new": () => __nccwpck_require__(89133),
-		"no-new-func": () => __nccwpck_require__(18684),
+			__nccwpck_require__(17925),
+		"no-mixed-operators": () => __nccwpck_require__(84050),
+		"no-mixed-requires": () => __nccwpck_require__(60787),
+		"no-mixed-spaces-and-tabs": () => __nccwpck_require__(25797),
+		"no-multi-assign": () => __nccwpck_require__(51176),
+		"no-multi-spaces": () => __nccwpck_require__(80254),
+		"no-multi-str": () => __nccwpck_require__(85182),
+		"no-multiple-empty-lines": () => __nccwpck_require__(41488),
+		"no-native-reassign": () => __nccwpck_require__(3535),
+		"no-negated-condition": () => __nccwpck_require__(29047),
+		"no-negated-in-lhs": () => __nccwpck_require__(60147),
+		"no-nested-ternary": () => __nccwpck_require__(84584),
+		"no-new": () => __nccwpck_require__(59419),
+		"no-new-func": () => __nccwpck_require__(83890),
 		"no-new-native-nonconstructor": () =>
-			__nccwpck_require__(21215),
-		"no-new-object": () => __nccwpck_require__(89685),
-		"no-new-require": () => __nccwpck_require__(78251),
-		"no-new-symbol": () => __nccwpck_require__(39234),
-		"no-new-wrappers": () => __nccwpck_require__(32694),
+			__nccwpck_require__(18193),
+		"no-new-object": () => __nccwpck_require__(73255),
+		"no-new-require": () => __nccwpck_require__(75249),
+		"no-new-symbol": () => __nccwpck_require__(83320),
+		"no-new-wrappers": () => __nccwpck_require__(5040),
 		"no-nonoctal-decimal-escape": () =>
-			__nccwpck_require__(65843),
-		"no-obj-calls": () => __nccwpck_require__(73614),
-		"no-object-constructor": () => __nccwpck_require__(50045),
-		"no-octal": () => __nccwpck_require__(16856),
-		"no-octal-escape": () => __nccwpck_require__(69598),
-		"no-param-reassign": () => __nccwpck_require__(98855),
-		"no-path-concat": () => __nccwpck_require__(95077),
-		"no-plusplus": () => __nccwpck_require__(69459),
-		"no-process-env": () => __nccwpck_require__(99584),
-		"no-process-exit": () => __nccwpck_require__(19315),
+			__nccwpck_require__(47257),
+		"no-obj-calls": () => __nccwpck_require__(27504),
+		"no-object-constructor": () => __nccwpck_require__(13103),
+		"no-octal": () => __nccwpck_require__(74494),
+		"no-octal-escape": () => __nccwpck_require__(5592),
+		"no-param-reassign": () => __nccwpck_require__(81241),
+		"no-path-concat": () => __nccwpck_require__(93811),
+		"no-plusplus": () => __nccwpck_require__(18629),
+		"no-process-env": () => __nccwpck_require__(29730),
+		"no-process-exit": () => __nccwpck_require__(41081),
 		"no-promise-executor-return": () =>
-			__nccwpck_require__(42273),
-		"no-proto": () => __nccwpck_require__(7045),
-		"no-prototype-builtins": () => __nccwpck_require__(82154),
-		"no-redeclare": () => __nccwpck_require__(49678),
-		"no-regex-spaces": () => __nccwpck_require__(89974),
-		"no-restricted-exports": () => __nccwpck_require__(9220),
-		"no-restricted-globals": () => __nccwpck_require__(26259),
-		"no-restricted-imports": () => __nccwpck_require__(88053),
-		"no-restricted-modules": () => __nccwpck_require__(7530),
-		"no-restricted-properties": () => __nccwpck_require__(34622),
-		"no-restricted-syntax": () => __nccwpck_require__(1192),
-		"no-return-assign": () => __nccwpck_require__(78347),
-		"no-return-await": () => __nccwpck_require__(3806),
-		"no-script-url": () => __nccwpck_require__(98556),
-		"no-self-assign": () => __nccwpck_require__(82295),
-		"no-self-compare": () => __nccwpck_require__(38671),
-		"no-sequences": () => __nccwpck_require__(61329),
-		"no-setter-return": () => __nccwpck_require__(50439),
-		"no-shadow": () => __nccwpck_require__(97039),
+			__nccwpck_require__(49523),
+		"no-proto": () => __nccwpck_require__(98431),
+		"no-prototype-builtins": () => __nccwpck_require__(81460),
+		"no-redeclare": () => __nccwpck_require__(6184),
+		"no-regex-spaces": () => __nccwpck_require__(65052),
+		"no-restricted-exports": () => __nccwpck_require__(1874),
+		"no-restricted-globals": () => __nccwpck_require__(82837),
+		"no-restricted-imports": () => __nccwpck_require__(66923),
+		"no-restricted-modules": () => __nccwpck_require__(93180),
+		"no-restricted-properties": () => __nccwpck_require__(76092),
+		"no-restricted-syntax": () => __nccwpck_require__(32638),
+		"no-return-assign": () => __nccwpck_require__(99013),
+		"no-return-await": () => __nccwpck_require__(1312),
+		"no-script-url": () => __nccwpck_require__(58782),
+		"no-self-assign": () => __nccwpck_require__(15013),
+		"no-self-compare": () => __nccwpck_require__(42461),
+		"no-sequences": () => __nccwpck_require__(35935),
+		"no-setter-return": () => __nccwpck_require__(50001),
+		"no-shadow": () => __nccwpck_require__(74541),
 		"no-shadow-restricted-names": () =>
-			__nccwpck_require__(77712),
-		"no-spaced-func": () => __nccwpck_require__(61815),
-		"no-sparse-arrays": () => __nccwpck_require__(48090),
-		"no-sync": () => __nccwpck_require__(17044),
-		"no-tabs": () => __nccwpck_require__(33487),
+			__nccwpck_require__(130),
+		"no-spaced-func": () => __nccwpck_require__(50670),
+		"no-sparse-arrays": () => __nccwpck_require__(77088),
+		"no-sync": () => __nccwpck_require__(34562),
+		"no-tabs": () => __nccwpck_require__(16817),
 		"no-template-curly-in-string": () =>
-			__nccwpck_require__(36227),
-		"no-ternary": () => __nccwpck_require__(48092),
-		"no-this-before-super": () => __nccwpck_require__(91125),
-		"no-throw-literal": () => __nccwpck_require__(62341),
-		"no-trailing-spaces": () => __nccwpck_require__(68911),
-		"no-unassigned-vars": () => __nccwpck_require__(57791),
-		"no-undef": () => __nccwpck_require__(8265),
-		"no-undef-init": () => __nccwpck_require__(51652),
-		"no-undefined": () => __nccwpck_require__(11295),
-		"no-underscore-dangle": () => __nccwpck_require__(76643),
-		"no-unexpected-multiline": () => __nccwpck_require__(41574),
+			__nccwpck_require__(67841),
+		"no-ternary": () => __nccwpck_require__(32358),
+		"no-this-before-super": () => __nccwpck_require__(50287),
+		"no-throw-literal": () => __nccwpck_require__(75555),
+		"no-trailing-spaces": () => __nccwpck_require__(88581),
+		"no-unassigned-vars": () => __nccwpck_require__(95293),
+		"no-undef": () => __nccwpck_require__(46767),
+		"no-undef-init": () => __nccwpck_require__(47850),
+		"no-undefined": () => __nccwpck_require__(89793),
+		"no-underscore-dangle": () => __nccwpck_require__(233),
+		"no-unexpected-multiline": () => __nccwpck_require__(92452),
 		"no-unmodified-loop-condition": () =>
-			__nccwpck_require__(7818),
-		"no-unneeded-ternary": () => __nccwpck_require__(31527),
-		"no-unreachable": () => __nccwpck_require__(1237),
-		"no-unreachable-loop": () => __nccwpck_require__(39984),
-		"no-unsafe-finally": () => __nccwpck_require__(21919),
-		"no-unsafe-negation": () => __nccwpck_require__(69709),
+			__nccwpck_require__(89336),
+		"no-unneeded-ternary": () => __nccwpck_require__(37221),
+		"no-unreachable": () => __nccwpck_require__(58651),
+		"no-unreachable-loop": () => __nccwpck_require__(67690),
+		"no-unsafe-finally": () => __nccwpck_require__(92493),
+		"no-unsafe-negation": () => __nccwpck_require__(31527),
 		"no-unsafe-optional-chaining": () =>
-			__nccwpck_require__(27136),
-		"no-unused-expressions": () => __nccwpck_require__(16083),
-		"no-unused-labels": () => __nccwpck_require__(16713),
+			__nccwpck_require__(35706),
+		"no-unused-expressions": () => __nccwpck_require__(39925),
+		"no-unused-labels": () => __nccwpck_require__(74247),
 		"no-unused-private-class-members": () =>
-			__nccwpck_require__(83820),
-		"no-unused-vars": () => __nccwpck_require__(76528),
-		"no-use-before-define": () => __nccwpck_require__(36988),
-		"no-useless-assignment": () => __nccwpck_require__(55191),
-		"no-useless-backreference": () => __nccwpck_require__(69412),
-		"no-useless-call": () => __nccwpck_require__(85994),
-		"no-useless-catch": () => __nccwpck_require__(43115),
-		"no-useless-computed-key": () => __nccwpck_require__(99931),
-		"no-useless-concat": () => __nccwpck_require__(52798),
-		"no-useless-constructor": () => __nccwpck_require__(6044),
-		"no-useless-escape": () => __nccwpck_require__(22921),
-		"no-useless-rename": () => __nccwpck_require__(49440),
-		"no-useless-return": () => __nccwpck_require__(12324),
-		"no-var": () => __nccwpck_require__(14238),
-		"no-void": () => __nccwpck_require__(37953),
-		"no-warning-comments": () => __nccwpck_require__(54090),
+			__nccwpck_require__(29958),
+		"no-unused-vars": () => __nccwpck_require__(59290),
+		"no-use-before-define": () => __nccwpck_require__(7214),
+		"no-useless-assignment": () => __nccwpck_require__(72785),
+		"no-useless-backreference": () => __nccwpck_require__(27934),
+		"no-useless-call": () => __nccwpck_require__(44860),
+		"no-useless-catch": () => __nccwpck_require__(90733),
+		"no-useless-computed-key": () => __nccwpck_require__(76773),
+		"no-useless-concat": () => __nccwpck_require__(14948),
+		"no-useless-constructor": () => __nccwpck_require__(97694),
+		"no-useless-escape": () => __nccwpck_require__(87967),
+		"no-useless-rename": () => __nccwpck_require__(75046),
+		"no-useless-return": () => __nccwpck_require__(62206),
+		"no-var": () => __nccwpck_require__(14452),
+		"no-void": () => __nccwpck_require__(88835),
+		"no-warning-comments": () => __nccwpck_require__(44896),
 		"no-whitespace-before-property": () =>
-			__nccwpck_require__(1272),
-		"no-with": () => __nccwpck_require__(46347),
+			__nccwpck_require__(15874),
+		"no-with": () => __nccwpck_require__(91105),
 		"nonblock-statement-body-position": () =>
-			__nccwpck_require__(27956),
-		"object-curly-newline": () => __nccwpck_require__(93419),
-		"object-curly-spacing": () => __nccwpck_require__(88906),
-		"object-property-newline": () => __nccwpck_require__(7579),
-		"object-shorthand": () => __nccwpck_require__(42456),
-		"one-var": () => __nccwpck_require__(89297),
+			__nccwpck_require__(12094),
+		"object-curly-newline": () => __nccwpck_require__(31701),
+		"object-curly-spacing": () => __nccwpck_require__(74648),
+		"object-property-newline": () => __nccwpck_require__(97957),
+		"object-shorthand": () => __nccwpck_require__(47710),
+		"one-var": () => __nccwpck_require__(58971),
 		"one-var-declaration-per-line": () =>
-			__nccwpck_require__(67309),
-		"operator-assignment": () => __nccwpck_require__(399),
-		"operator-linebreak": () => __nccwpck_require__(93941),
-		"padded-blocks": () => __nccwpck_require__(83174),
+			__nccwpck_require__(82539),
+		"operator-assignment": () => __nccwpck_require__(85589),
+		"operator-linebreak": () => __nccwpck_require__(37475),
+		"padded-blocks": () => __nccwpck_require__(28988),
 		"padding-line-between-statements": () =>
-			__nccwpck_require__(45841),
-		"prefer-arrow-callback": () => __nccwpck_require__(82207),
-		"prefer-const": () => __nccwpck_require__(12281),
-		"prefer-destructuring": () => __nccwpck_require__(85745),
+			__nccwpck_require__(43791),
+		"prefer-arrow-callback": () => __nccwpck_require__(26901),
+		"prefer-const": () => __nccwpck_require__(94595),
+		"prefer-destructuring": () => __nccwpck_require__(71315),
 		"prefer-exponentiation-operator": () =>
-			__nccwpck_require__(87836),
+			__nccwpck_require__(5954),
 		"prefer-named-capture-group": () =>
-			__nccwpck_require__(7670),
-		"prefer-numeric-literals": () => __nccwpck_require__(52234),
-		"prefer-object-has-own": () => __nccwpck_require__(15775),
-		"prefer-object-spread": () => __nccwpck_require__(83223),
+			__nccwpck_require__(66680),
+		"prefer-numeric-literals": () => __nccwpck_require__(78732),
+		"prefer-object-has-own": () => __nccwpck_require__(47533),
+		"prefer-object-spread": () => __nccwpck_require__(82681),
 		"prefer-promise-reject-errors": () =>
-			__nccwpck_require__(71143),
-		"prefer-reflect": () => __nccwpck_require__(11743),
-		"prefer-regex-literals": () => __nccwpck_require__(26510),
-		"prefer-rest-params": () => __nccwpck_require__(38929),
-		"prefer-spread": () => __nccwpck_require__(50971),
-		"prefer-template": () => __nccwpck_require__(77274),
-		"preserve-caught-error": () => __nccwpck_require__(49393),
-		"quote-props": () => __nccwpck_require__(20710),
-		quotes: () => __nccwpck_require__(4620),
-		radix: () => __nccwpck_require__(31779),
-		"require-atomic-updates": () => __nccwpck_require__(90917),
-		"require-await": () => __nccwpck_require__(28893),
-		"require-unicode-regexp": () => __nccwpck_require__(90940),
-		"require-yield": () => __nccwpck_require__(14706),
-		"rest-spread-spacing": () => __nccwpck_require__(75907),
-		semi: () => __nccwpck_require__(18827),
-		"semi-spacing": () => __nccwpck_require__(13239),
-		"semi-style": () => __nccwpck_require__(70163),
-		"sort-imports": () => __nccwpck_require__(5430),
-		"sort-keys": () => __nccwpck_require__(52838),
-		"sort-vars": () => __nccwpck_require__(50908),
-		"space-before-blocks": () => __nccwpck_require__(75174),
+			__nccwpck_require__(46989),
+		"prefer-reflect": () => __nccwpck_require__(74613),
+		"prefer-regex-literals": () => __nccwpck_require__(27460),
+		"prefer-rest-params": () => __nccwpck_require__(51195),
+		"prefer-spread": () => __nccwpck_require__(86993),
+		"prefer-template": () => __nccwpck_require__(7800),
+		"preserve-caught-error": () => __nccwpck_require__(78499),
+		"quote-props": () => __nccwpck_require__(84168),
+		quotes: () => __nccwpck_require__(3794),
+		radix: () => __nccwpck_require__(30401),
+		"require-atomic-updates": () => __nccwpck_require__(96671),
+		"require-await": () => __nccwpck_require__(58211),
+		"require-unicode-regexp": () => __nccwpck_require__(7174),
+		"require-yield": () => __nccwpck_require__(70940),
+		"rest-spread-spacing": () => __nccwpck_require__(55565),
+		semi: () => __nccwpck_require__(70205),
+		"semi-spacing": () => __nccwpck_require__(28049),
+		"semi-style": () => __nccwpck_require__(26401),
+		"sort-imports": () => __nccwpck_require__(19052),
+		"sort-keys": () => __nccwpck_require__(83596),
+		"sort-vars": () => __nccwpck_require__(69958),
+		"space-before-blocks": () => __nccwpck_require__(56228),
 		"space-before-function-paren": () =>
-			__nccwpck_require__(26805),
-		"space-in-parens": () => __nccwpck_require__(5641),
-		"space-infix-ops": () => __nccwpck_require__(36149),
-		"space-unary-ops": () => __nccwpck_require__(45344),
-		"spaced-comment": () => __nccwpck_require__(71959),
-		strict: () => __nccwpck_require__(94992),
-		"switch-colon-spacing": () => __nccwpck_require__(19999),
-		"symbol-description": () => __nccwpck_require__(4346),
-		"template-curly-spacing": () => __nccwpck_require__(92819),
-		"template-tag-spacing": () => __nccwpck_require__(21246),
-		"unicode-bom": () => __nccwpck_require__(16949),
-		"use-isnan": () => __nccwpck_require__(73494),
-		"valid-typeof": () => __nccwpck_require__(50681),
-		"vars-on-top": () => __nccwpck_require__(15255),
-		"wrap-iife": () => __nccwpck_require__(1161),
-		"wrap-regex": () => __nccwpck_require__(64347),
-		"yield-star-spacing": () => __nccwpck_require__(22445),
-		yoda: () => __nccwpck_require__(29538),
+			__nccwpck_require__(60275),
+		"space-in-parens": () => __nccwpck_require__(67419),
+		"space-infix-ops": () => __nccwpck_require__(59383),
+		"space-unary-ops": () => __nccwpck_require__(75682),
+		"spaced-comment": () => __nccwpck_require__(7057),
+		strict: () => __nccwpck_require__(5858),
+		"switch-colon-spacing": () => __nccwpck_require__(18313),
+		"symbol-description": () => __nccwpck_require__(59336),
+		"template-curly-spacing": () => __nccwpck_require__(47153),
+		"template-tag-spacing": () => __nccwpck_require__(14064),
+		"unicode-bom": () => __nccwpck_require__(71667),
+		"use-isnan": () => __nccwpck_require__(97888),
+		"valid-typeof": () => __nccwpck_require__(77171),
+		"vars-on-top": () => __nccwpck_require__(50921),
+		"wrap-iife": () => __nccwpck_require__(44143),
+		"wrap-regex": () => __nccwpck_require__(6841),
+		"yield-star-spacing": () => __nccwpck_require__(92003),
+		yoda: () => __nccwpck_require__(78380),
 	}),
 );
 
 
 /***/ }),
 
-/***/ 67249:
+/***/ 12179:
 /***/ ((module) => {
 
 "use strict";
@@ -334761,7 +334855,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 18596:
+/***/ 46242:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -334777,7 +334871,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Constants
@@ -334897,7 +334991,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 10502:
+/***/ 98444:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -334912,8 +335006,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { getGraphemeCount } = __nccwpck_require__(93006);
+const astUtils = __nccwpck_require__(37917);
+const { getGraphemeCount } = __nccwpck_require__(55892);
 
 /**
  * Checks whether a string contains a line terminator as defined in
@@ -335727,7 +335821,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5758:
+/***/ 32944:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -335743,8 +335837,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443),
-	keywords = __nccwpck_require__(23767);
+const astUtils = __nccwpck_require__(37917),
+	keywords = __nccwpck_require__(44449);
 
 //------------------------------------------------------------------------------
 // Constants
@@ -336436,7 +336530,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 41731:
+/***/ 6085:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -336447,7 +336541,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -336601,7 +336695,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 42288:
+/***/ 65646:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -336625,7 +336719,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -336744,7 +336838,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 44750:
+/***/ 17748:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -336759,7 +336853,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -337333,7 +337427,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 89406:
+/***/ 77444:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -337345,7 +337439,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -337590,7 +337684,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 61152:
+/***/ 51982:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -337605,7 +337699,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -337956,7 +338050,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 56982:
+/***/ 74824:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -337969,7 +338063,7 @@ module.exports = {
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -338652,7 +338746,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 83:
+/***/ 12329:
 /***/ ((module) => {
 
 "use strict";
@@ -338750,7 +338844,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4595:
+/***/ 53237:
 /***/ ((module) => {
 
 "use strict";
@@ -338917,7 +339011,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 97717:
+/***/ 91659:
 /***/ ((module) => {
 
 "use strict";
@@ -339422,7 +339516,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 71404:
+/***/ 26146:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -339436,8 +339530,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { upperCaseFirst } = __nccwpck_require__(93006);
+const astUtils = __nccwpck_require__(37917);
+const { upperCaseFirst } = __nccwpck_require__(55892);
 
 //------------------------------------------------------------------------------
 // Constants
@@ -339668,7 +339762,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 52281:
+/***/ 91979:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -339682,7 +339776,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -339865,7 +339959,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 80794:
+/***/ 28324:
 /***/ ((module) => {
 
 "use strict";
@@ -339988,7 +340082,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 56026:
+/***/ 48008:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -340003,8 +340097,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { upperCaseFirst } = __nccwpck_require__(93006);
+const astUtils = __nccwpck_require__(37917);
+const { upperCaseFirst } = __nccwpck_require__(55892);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -340144,7 +340238,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 23343:
+/***/ 9677:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -340159,7 +340253,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -340376,7 +340470,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 36034:
+/***/ 33500:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -340391,8 +340485,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { upperCaseFirst } = __nccwpck_require__(93006);
+const astUtils = __nccwpck_require__(37917);
+const { upperCaseFirst } = __nccwpck_require__(55892);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -340572,7 +340666,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 40202:
+/***/ 26152:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -340583,7 +340677,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -341232,7 +341326,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 86692:
+/***/ 1774:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -341244,7 +341338,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -341497,7 +341591,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 46914:
+/***/ 93744:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -341512,7 +341606,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -341782,7 +341876,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 32629:
+/***/ 62431:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -341798,7 +341892,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -341910,7 +342004,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 70330:
+/***/ 73984:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -341926,7 +342020,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -342225,7 +342319,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 63972:
+/***/ 6206:
 /***/ ((module) => {
 
 "use strict";
@@ -342475,7 +342569,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 21655:
+/***/ 75105:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -342488,7 +342582,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -342642,7 +342736,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 41613:
+/***/ 47607:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -342660,7 +342754,7 @@ const {
 	getStaticPropertyName: getPropertyName,
 	getVariableByName,
 	skipChainExpression,
-} = __nccwpck_require__(22443);
+} = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -342799,7 +342893,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1071:
+/***/ 40717:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -342820,7 +342914,7 @@ const {
 	isOpeningParenToken,
 	isStartOfExpressionStatement,
 	needsPrecedingSemicolon,
-} = __nccwpck_require__(22443);
+} = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -343002,7 +343096,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5801:
+/***/ 27559:
 /***/ ((module) => {
 
 "use strict";
@@ -343055,7 +343149,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 20280:
+/***/ 64006:
 /***/ ((module) => {
 
 "use strict";
@@ -343178,7 +343272,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6468:
+/***/ 13886:
 /***/ ((module) => {
 
 "use strict";
@@ -343331,7 +343425,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 24192:
+/***/ 31146:
 /***/ ((module) => {
 
 "use strict";
@@ -343413,7 +343507,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2520:
+/***/ 84858:
 /***/ ((module) => {
 
 "use strict";
@@ -343473,7 +343567,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 84873:
+/***/ 28779:
 /***/ ((module) => {
 
 "use strict";
@@ -343561,7 +343655,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 44685:
+/***/ 72259:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -343577,7 +343671,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -343665,7 +343759,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 34229:
+/***/ 99859:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -343676,7 +343770,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -343739,7 +343833,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 83014:
+/***/ 43728:
 /***/ ((module) => {
 
 "use strict";
@@ -343821,7 +343915,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 78013:
+/***/ 6719:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -343836,7 +343930,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -344004,7 +344098,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 21405:
+/***/ 65855:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -344017,7 +344111,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -344139,7 +344233,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 11526:
+/***/ 64312:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -344154,7 +344248,13 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -344207,7 +344307,7 @@ module.exports = {
 
 		/**
 		 * Checks whether the given reference is 'console' or not.
-		 * @param {eslint-scope.Reference} reference The reference to check.
+		 * @param {Reference} reference The reference to check.
 		 * @returns {boolean} `true` if the reference is 'console'.
 		 */
 		function isConsole(reference) {
@@ -344231,7 +344331,7 @@ module.exports = {
 		/**
 		 * Checks whether the given reference is a member access which is not
 		 * allowed by options or not.
-		 * @param {eslint-scope.Reference} reference The reference to check.
+		 * @param {Reference} reference The reference to check.
 		 * @returns {boolean} `true` if the reference is a member access which
 		 *      is not allowed by options.
 		 */
@@ -344308,7 +344408,7 @@ module.exports = {
 
 		/**
 		 * Reports the given reference as a violation.
-		 * @param {eslint-scope.Reference} reference The reference to report.
+		 * @param {Reference} reference The reference to report.
 		 * @returns {void}
 		 */
 		function report(reference) {
@@ -344368,7 +344468,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 96844:
+/***/ 46982:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -344383,7 +344483,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -344449,7 +344549,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 37320:
+/***/ 64662:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -344466,7 +344566,7 @@ const {
 	isReferenceToGlobalVariable,
 	isLogicalAssignmentOperator,
 	ECMASCRIPT_GLOBALS,
-} = __nccwpck_require__(22443);
+} = __nccwpck_require__(37917);
 
 const NUMERIC_OR_STRING_BINARY_OPERATORS = new Set([
 	"+",
@@ -345060,7 +345160,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 60631:
+/***/ 72937:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -345071,7 +345171,7 @@ module.exports = {
 
 
 
-const { isConstant } = __nccwpck_require__(22443);
+const { isConstant } = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -345245,7 +345345,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 94070:
+/***/ 39196:
 /***/ ((module) => {
 
 "use strict";
@@ -345315,7 +345415,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 60974:
+/***/ 78200:
 /***/ ((module) => {
 
 "use strict";
@@ -345361,7 +345461,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 93064:
+/***/ 96634:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -345511,7 +345611,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 78424:
+/***/ 44258:
 /***/ ((module) => {
 
 "use strict";
@@ -345560,7 +345660,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 21680:
+/***/ 79138:
 /***/ ((module) => {
 
 "use strict";
@@ -345610,7 +345710,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 94690:
+/***/ 6836:
 /***/ ((module) => {
 
 "use strict";
@@ -345678,7 +345778,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 50181:
+/***/ 52015:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -345693,7 +345793,13 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Definition} Definition */
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -345727,7 +345833,7 @@ module.exports = {
 
 		/**
 		 * Checks whether or not a given definition is a parameter's.
-		 * @param {eslint-scope.DefEntry} def A definition to check.
+		 * @param {Definition} def A definition to check.
 		 * @returns {boolean} `true` if the definition is a parameter's.
 		 */
 		function isParameter(def) {
@@ -345778,7 +345884,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 54932:
+/***/ 94094:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -345789,7 +345895,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -345903,7 +346009,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1909:
+/***/ 44855:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -345918,7 +346024,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -346056,7 +346162,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 90148:
+/***/ 21530:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -346071,7 +346177,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -346229,7 +346335,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 88155:
+/***/ 81953:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -346245,7 +346351,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -346315,7 +346421,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 88973:
+/***/ 37323:
 /***/ ((module) => {
 
 "use strict";
@@ -346691,7 +346797,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 32785:
+/***/ 39015:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -346706,8 +346812,14 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const FixTracker = __nccwpck_require__(86445);
+const astUtils = __nccwpck_require__(37917);
+const FixTracker = __nccwpck_require__(27915);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -346763,7 +346875,7 @@ module.exports = {
 		 * This is not a generic function. In particular, it is assumed that the scope is a function scope or
 		 * a function's inner scope, and that the names can be valid identifiers in the given scope.
 		 * @param {string[]} names Array of variable names.
-		 * @param {eslint-scope.Scope} scope Function scope or a function's inner scope.
+		 * @param {Scope} scope Function scope or a function's inner scope.
 		 * @returns {boolean} True if all names can be safely declared, false otherwise.
 		 */
 		function isSafeToDeclare(names, scope) {
@@ -346855,7 +346967,7 @@ module.exports = {
 		/**
 		 * Checks whether the removal of `else` and its braces is safe from variable name collisions.
 		 * @param {Node} node The 'else' node.
-		 * @param {eslint-scope.Scope} scope The scope in which the node and the whole 'if' statement is.
+		 * @param {Scope} scope The scope in which the node and the whole 'if' statement is.
 		 * @returns {boolean} True if it is safe, false otherwise.
 		 */
 		function isSafeFromNameCollisions(node, scope) {
@@ -347149,7 +347261,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 28457:
+/***/ 75739:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -347240,7 +347352,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8759:
+/***/ 13549:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -347255,7 +347367,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -347484,7 +347596,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 16389:
+/***/ 19107:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -347494,7 +347606,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -347577,7 +347689,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 35721:
+/***/ 84579:
 /***/ ((module) => {
 
 "use strict";
@@ -347658,7 +347770,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 19006:
+/***/ 64508:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -347672,7 +347784,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -347819,7 +347931,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 58495:
+/***/ 15329:
 /***/ ((module) => {
 
 "use strict";
@@ -347878,7 +347990,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6517:
+/***/ 87603:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -347893,7 +348005,13 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -348022,7 +348140,7 @@ module.exports = {
 
 		/**
 		 * Reports accesses of `eval` via the global object.
-		 * @param {eslint-scope.Scope} globalScope The global scope.
+		 * @param {Scope} globalScope The global scope.
 		 * @returns {void}
 		 */
 		function reportAccessingEvalViaGlobalObject(globalScope) {
@@ -348055,7 +348173,7 @@ module.exports = {
 
 		/**
 		 * Reports all accesses of `eval` (excludes direct calls to eval).
-		 * @param {eslint-scope.Scope} globalScope The global scope.
+		 * @param {Scope} globalScope The global scope.
 		 * @returns {void}
 		 */
 		function reportAccessingEval(globalScope) {
@@ -348181,7 +348299,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 22806:
+/***/ 5492:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -348192,7 +348310,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -348246,7 +348364,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 84671:
+/***/ 72585:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -348261,7 +348379,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -348434,7 +348552,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 24305:
+/***/ 65711:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -348448,7 +348566,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -348666,7 +348784,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 90862:
+/***/ 18444:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -348681,8 +348799,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const eslintUtils = __nccwpck_require__(22632);
+const astUtils = __nccwpck_require__(37917);
+const eslintUtils = __nccwpck_require__(7093);
 
 const precedence = astUtils.getPrecedence;
 
@@ -349094,7 +349212,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9382:
+/***/ 76892:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -349109,7 +349227,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -349271,7 +349389,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 30495:
+/***/ 9:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -349288,8 +349406,8 @@ module.exports = {
 
 const {
 	isParenthesized: isParenthesizedRaw,
-} = __nccwpck_require__(22632);
-const astUtils = __nccwpck_require__(22443);
+} = __nccwpck_require__(7093);
+const astUtils = __nccwpck_require__(37917);
 
 /** @type {import('../types').Rule.RuleModule} */
 module.exports = {
@@ -350948,7 +351066,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 38640:
+/***/ 29850:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -350964,8 +351082,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const FixTracker = __nccwpck_require__(86445);
-const astUtils = __nccwpck_require__(22443);
+const FixTracker = __nccwpck_require__(27915);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -351123,7 +351241,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 57925:
+/***/ 34859:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -351137,7 +351255,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { directivesPattern } = __nccwpck_require__(67241);
+const { directivesPattern } = __nccwpck_require__(42219);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -351391,7 +351509,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 11059:
+/***/ 55369:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -351407,7 +351525,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -351498,7 +351616,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 66523:
+/***/ 76741:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -351509,7 +351627,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -351583,7 +351701,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 99928:
+/***/ 27842:
 /***/ ((module) => {
 
 "use strict";
@@ -351692,7 +351810,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 64673:
+/***/ 50187:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -351703,7 +351821,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -352168,7 +352286,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1381:
+/***/ 27808:
 /***/ ((module) => {
 
 "use strict";
@@ -352363,7 +352481,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 11550:
+/***/ 52788:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -352378,8 +352496,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { getStaticValue } = __nccwpck_require__(22632);
+const astUtils = __nccwpck_require__(37917);
+const { getStaticValue } = __nccwpck_require__(7093);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -352542,7 +352660,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 81550:
+/***/ 81164:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -352557,8 +352675,8 @@ module.exports = {
 // Helpers
 //------------------------------------------------------------------------------
 
-const { findVariable } = __nccwpck_require__(22632);
-const astUtils = __nccwpck_require__(22443);
+const { findVariable } = __nccwpck_require__(7093);
+const astUtils = __nccwpck_require__(37917);
 
 const WellKnownMutationFunctions = {
 	Object: /^(?:assign|definePropert(?:y|ies)|freeze|setPrototypeOf)$/u,
@@ -352777,7 +352895,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 31337:
+/***/ 41087:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -352787,7 +352905,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -352900,7 +353018,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 48725:
+/***/ 78527:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -352915,7 +353033,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -353055,7 +353173,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 66776:
+/***/ 58210:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -353307,7 +353425,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7193:
+/***/ 79503:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -353322,7 +353440,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -353493,7 +353611,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 38130:
+/***/ 97192:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -353509,7 +353627,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Constants
@@ -353793,7 +353911,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 36977:
+/***/ 67295:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -353808,7 +353926,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { getStaticPropertyName } = __nccwpck_require__(22443);
+const { getStaticPropertyName } = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -353849,7 +353967,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3561:
+/***/ 54723:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -353864,7 +353982,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -353935,7 +354053,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 95512:
+/***/ 58986:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -353949,7 +354067,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -354099,7 +354217,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 42534:
+/***/ 82648:
 /***/ ((module) => {
 
 "use strict";
@@ -354247,7 +354365,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 71438:
+/***/ 36776:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -354261,7 +354379,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -354381,7 +354499,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4076:
+/***/ 94494:
 /***/ ((module) => {
 
 "use strict";
@@ -354391,6 +354509,12 @@ module.exports = {
  */
 
 
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -354525,7 +354649,7 @@ module.exports = {
 		 * Checks whether a given reference which refers to an upper scope's variable is
 		 * safe or not.
 		 * @param {ASTNode} loopNode A containing loop node.
-		 * @param {eslint-scope.Reference} reference A reference to check.
+		 * @param {Reference} reference A reference to check.
 		 * @returns {boolean} `true` if the reference is safe or not.
 		 */
 		function isSafe(loopNode, reference) {
@@ -354571,7 +354695,7 @@ module.exports = {
 			 * It's safe if the reference matches one of the following condition.
 			 * - is readonly.
 			 * - doesn't exist inside a local function and after the border.
-			 * @param {eslint-scope.Reference} upperRef A reference to check.
+			 * @param {Reference} upperRef A reference to check.
 			 * @returns {boolean} `true` if the reference is safe.
 			 */
 			function isSafeReference(upperRef) {
@@ -354656,7 +354780,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 47001:
+/***/ 13263:
 /***/ ((module) => {
 
 "use strict";
@@ -354913,7 +355037,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 26247:
+/***/ 2309:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -354924,7 +355048,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 // Maximum array length by the ECMAScript Specification.
 const MAX_ARRAY_LENGTH = 2 ** 32 - 1;
@@ -355286,7 +355410,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 90611:
+/***/ 17925:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -355301,20 +355425,20 @@ const {
 	ReferenceTracker,
 	getStaticValue,
 	getStringIfConstant,
-} = __nccwpck_require__(22632);
+} = __nccwpck_require__(7093);
 const { RegExpParser, visitRegExpAST } = __nccwpck_require__(44562);
 const {
 	isCombiningCharacter,
 	isEmojiModifier,
 	isRegionalIndicatorSymbol,
 	isSurrogatePair,
-} = __nccwpck_require__(55383);
-const astUtils = __nccwpck_require__(22443);
-const { isValidWithUnicodeFlag } = __nccwpck_require__(18685);
+} = __nccwpck_require__(18229);
+const astUtils = __nccwpck_require__(37917);
+const { isValidWithUnicodeFlag } = __nccwpck_require__(93851);
 const {
 	parseStringLiteral,
 	parseTemplateToken,
-} = __nccwpck_require__(74593);
+} = __nccwpck_require__(1955);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -355889,7 +356013,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 57464:
+/***/ 84050:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -355905,7 +356029,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -356150,7 +356274,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 88621:
+/***/ 60787:
 /***/ ((module) => {
 
 "use strict";
@@ -356425,7 +356549,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 90503:
+/***/ 25797:
 /***/ ((module) => {
 
 "use strict";
@@ -356581,7 +356705,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 98550:
+/***/ 51176:
 /***/ ((module) => {
 
 "use strict";
@@ -356655,7 +356779,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 19336:
+/***/ 80254:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -356667,7 +356791,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -356842,7 +356966,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 28728:
+/***/ 85182:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -356857,7 +356981,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -356917,7 +357041,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 44577:
+/***/ 41488:
 /***/ ((module) => {
 
 "use strict";
@@ -357135,7 +357259,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 64565:
+/***/ 3535:
 /***/ ((module) => {
 
 "use strict";
@@ -357257,7 +357381,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 55261:
+/***/ 29047:
 /***/ ((module) => {
 
 "use strict";
@@ -357365,7 +357489,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 55945:
+/***/ 60147:
 /***/ ((module) => {
 
 "use strict";
@@ -357432,7 +357556,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 14354:
+/***/ 84584:
 /***/ ((module) => {
 
 "use strict";
@@ -357486,7 +357610,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 18684:
+/***/ 83890:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -357501,7 +357625,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -357590,7 +357714,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 21215:
+/***/ 18193:
 /***/ ((module) => {
 
 "use strict";
@@ -357668,7 +357792,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 89685:
+/***/ 73255:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -357684,7 +357808,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -357752,7 +357876,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 78251:
+/***/ 75249:
 /***/ ((module) => {
 
 "use strict";
@@ -357827,7 +357951,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 39234:
+/***/ 83320:
 /***/ ((module) => {
 
 "use strict";
@@ -357909,7 +358033,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 32694:
+/***/ 5040:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -357924,7 +358048,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { getVariableByName } = __nccwpck_require__(22443);
+const { getVariableByName } = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -357979,7 +358103,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 89133:
+/***/ 59419:
 /***/ ((module) => {
 
 "use strict";
@@ -358029,7 +358153,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 65843:
+/***/ 47257:
 /***/ ((module) => {
 
 "use strict";
@@ -358213,7 +358337,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 73614:
+/***/ 27504:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -358232,8 +358356,8 @@ const {
 	CALL,
 	CONSTRUCT,
 	ReferenceTracker,
-} = __nccwpck_require__(22632);
-const getPropertyName = (__nccwpck_require__(22443).getStaticPropertyName);
+} = __nccwpck_require__(7093);
+const getPropertyName = (__nccwpck_require__(37917).getStaticPropertyName);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -358320,7 +358444,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 50045:
+/***/ 13103:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -358340,7 +358464,7 @@ const {
 	isArrowToken,
 	isStartOfExpressionStatement,
 	needsPrecedingSemicolon,
-} = __nccwpck_require__(22443);
+} = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -358452,7 +358576,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 69598:
+/***/ 5592:
 /***/ ((module) => {
 
 "use strict";
@@ -358513,7 +358637,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 16856:
+/***/ 74494:
 /***/ ((module) => {
 
 "use strict";
@@ -358563,7 +358687,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 98855:
+/***/ 81241:
 /***/ ((module) => {
 
 "use strict";
@@ -358819,7 +358943,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 95077:
+/***/ 93811:
 /***/ ((module) => {
 
 "use strict";
@@ -358906,7 +359030,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 69459:
+/***/ 18629:
 /***/ ((module) => {
 
 "use strict";
@@ -359016,7 +359140,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 99584:
+/***/ 29730:
 /***/ ((module) => {
 
 "use strict";
@@ -359092,7 +359216,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 19315:
+/***/ 41081:
 /***/ ((module) => {
 
 "use strict";
@@ -359167,7 +359291,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 42273:
+/***/ 49523:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -359182,7 +359306,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -359439,7 +359563,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7045:
+/***/ 98431:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -359454,7 +359578,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { getStaticPropertyName } = __nccwpck_require__(22443);
+const { getStaticPropertyName } = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -359492,7 +359616,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 82154:
+/***/ 81460:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -359506,7 +359630,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -359681,7 +359805,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 49678:
+/***/ 6184:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -359696,7 +359820,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -359862,7 +359986,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 89974:
+/***/ 65052:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -359877,7 +360001,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 const regexpp = __nccwpck_require__(44562);
 
 //------------------------------------------------------------------------------
@@ -360089,7 +360213,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 9220:
+/***/ 1874:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -360104,7 +360228,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -360324,7 +360448,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 26259:
+/***/ 82837:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -360338,7 +360462,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -360598,7 +360722,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 88053:
+/***/ 66923:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -360612,7 +360736,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -361498,7 +361622,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7530:
+/***/ 93180:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -361513,7 +361637,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -361755,7 +361879,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 34622:
+/***/ 76092:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -361766,7 +361890,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -361996,7 +362120,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1192:
+/***/ 32638:
 /***/ ((module) => {
 
 "use strict";
@@ -362078,7 +362202,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 78347:
+/***/ 99013:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -362092,7 +362216,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -362173,7 +362297,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3806:
+/***/ 1312:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -362184,7 +362308,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -362343,7 +362467,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 98556:
+/***/ 58782:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -362355,7 +362479,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -362419,7 +362543,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 82295:
+/***/ 15013:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -362434,7 +362558,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -362613,7 +362737,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 38671:
+/***/ 42461:
 /***/ ((module) => {
 
 "use strict";
@@ -362698,7 +362822,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 61329:
+/***/ 35935:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -362713,7 +362837,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -362864,7 +362988,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 50439:
+/***/ 50001:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -362879,7 +363003,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -363096,7 +363220,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 77712:
+/***/ 130:
 /***/ ((module) => {
 
 "use strict";
@@ -363217,7 +363341,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 97039:
+/***/ 74541:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -363232,7 +363356,13 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Variable} Variable */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -363675,7 +363805,7 @@ module.exports = {
 
 		/**
 		 * Get declared line and column of a variable.
-		 * @param {eslint-scope.Variable} variable The variable to get.
+		 * @param {Variable} variable The variable to get.
 		 * @returns {Object} The declared line and column of the variable.
 		 */
 		function getDeclaredLocation(variable) {
@@ -363914,7 +364044,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 61815:
+/***/ 50670:
 /***/ ((module) => {
 
 "use strict";
@@ -364027,7 +364157,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 48090:
+/***/ 77088:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -364037,7 +364167,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -364103,7 +364233,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 17044:
+/***/ 34562:
 /***/ ((module) => {
 
 "use strict";
@@ -364192,7 +364322,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 33487:
+/***/ 16817:
 /***/ ((module) => {
 
 "use strict";
@@ -364310,7 +364440,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 36227:
+/***/ 67841:
 /***/ ((module) => {
 
 "use strict";
@@ -364363,7 +364493,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 48092:
+/***/ 32358:
 /***/ ((module) => {
 
 "use strict";
@@ -364409,7 +364539,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 91125:
+/***/ 50287:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -364424,7 +364554,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -364782,7 +364912,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 62341:
+/***/ 75555:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -364793,7 +364923,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -364836,7 +364966,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 68911:
+/***/ 88581:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -364859,7 +364989,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -365071,7 +365201,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 57791:
+/***/ 95293:
 /***/ ((module) => {
 
 "use strict";
@@ -365159,7 +365289,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 51652:
+/***/ 47850:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -365174,7 +365304,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -365268,7 +365398,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8265:
+/***/ 46767:
 /***/ ((module) => {
 
 "use strict";
@@ -365360,7 +365490,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 11295:
+/***/ 89793:
 /***/ ((module) => {
 
 "use strict";
@@ -365369,6 +365499,12 @@ module.exports = {
  * @author Michael Ficarra
  */
 
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -365411,7 +365547,7 @@ module.exports = {
 		/**
 		 * Checks the given scope for references to `undefined` and reports
 		 * all references found.
-		 * @param {eslint-scope.Scope} scope The scope to check.
+		 * @param {Scope} scope The scope to check.
 		 * @returns {void}
 		 */
 		function checkScope(scope) {
@@ -365453,7 +365589,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 76643:
+/***/ 233:
 /***/ ((module) => {
 
 "use strict";
@@ -365844,7 +365980,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 41574:
+/***/ 92452:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -365858,7 +365994,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -365982,7 +366118,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7818:
+/***/ 89336:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -365997,8 +366133,15 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const Traverser = __nccwpck_require__(1687),
-	astUtils = __nccwpck_require__(22443);
+const Traverser = __nccwpck_require__(18793),
+	astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Variable} Variable */
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -366013,7 +366156,7 @@ const DYNAMIC_PATTERN = /^(?:Call|Member|New|TaggedTemplate|Yield)Expression$/u;
 
 /**
  * @typedef {Object} LoopConditionInfo
- * @property {eslint-scope.Reference} reference - The reference.
+ * @property {Reference} reference - The reference.
  * @property {ASTNode} group - BinaryExpression or ConditionalExpression nodes
  *      that the reference is belonging to.
  * @property {Function} isInLoop - The predicate which checks a given reference
@@ -366024,7 +366167,7 @@ const DYNAMIC_PATTERN = /^(?:Call|Member|New|TaggedTemplate|Yield)Expression$/u;
 
 /**
  * Checks whether or not a given reference is a write reference.
- * @param {eslint-scope.Reference} reference A reference to check.
+ * @param {Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is a write reference.
  */
 function isWriteReference(reference) {
@@ -366061,7 +366204,7 @@ function isUnmodifiedAndNotBelongToGroup(condition) {
 /**
  * Checks whether or not a given reference is inside of a given node.
  * @param {ASTNode} node A node to check.
- * @param {eslint-scope.Reference} reference A reference to check.
+ * @param {Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is inside of the node.
  */
 function isInRange(node, reference) {
@@ -366074,7 +366217,7 @@ function isInRange(node, reference) {
 /**
  * Checks whether or not a given reference is inside of a loop node's condition.
  * @param {ASTNode} node A node to check.
- * @param {eslint-scope.Reference} reference A reference to check.
+ * @param {Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is inside of the loop node's
  *      condition.
  */
@@ -366092,7 +366235,7 @@ const isInLoop = {
 /**
  * Gets the function which encloses a given reference.
  * This supports only FunctionDeclaration.
- * @param {eslint-scope.Reference} reference A reference to get.
+ * @param {Reference} reference A reference to get.
  * @returns {ASTNode|null} The function node or null.
  */
 function getEncloseFunctionDeclaration(reference) {
@@ -366112,7 +366255,7 @@ function getEncloseFunctionDeclaration(reference) {
 /**
  * Updates the "modified" flags of given loop conditions with given modifiers.
  * @param {LoopConditionInfo[]} conditions The loop conditions to be updated.
- * @param {eslint-scope.Reference[]} modifiers The references to update.
+ * @param {Reference[]} modifiers The references to update.
  * @returns {void}
  */
 function updateModifiedFlag(conditions, modifiers) {
@@ -366246,7 +366389,7 @@ module.exports = {
 
 		/**
 		 * Creates the loop condition information from a given reference.
-		 * @param {eslint-scope.Reference} reference A reference to create.
+		 * @param {Reference} reference A reference to create.
 		 * @returns {LoopConditionInfo|null} Created loop condition info, or null.
 		 */
 		function toLoopCondition(reference) {
@@ -366297,7 +366440,7 @@ module.exports = {
 		/**
 		 * Finds unmodified references which are inside of a loop condition.
 		 * Then reports the references which are outside of groups.
-		 * @param {eslint-scope.Variable} variable A variable to report.
+		 * @param {Variable} variable A variable to report.
 		 * @returns {void}
 		 */
 		function checkReferences(variable) {
@@ -366350,7 +366493,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 31527:
+/***/ 37221:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -366361,7 +366504,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 // Operators that always result in a boolean value
 const BOOLEAN_OPERATORS = new Set([
@@ -366590,7 +366733,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 39984:
+/***/ 67690:
 /***/ ((module) => {
 
 "use strict";
@@ -366788,7 +366931,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1237:
+/***/ 58651:
 /***/ ((module) => {
 
 "use strict";
@@ -367096,7 +367239,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 21919:
+/***/ 92493:
 /***/ ((module) => {
 
 "use strict";
@@ -367223,7 +367366,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 69709:
+/***/ 31527:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -367238,7 +367381,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -367383,7 +367526,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 27136:
+/***/ 35706:
 /***/ ((module) => {
 
 "use strict";
@@ -367612,7 +367755,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 16083:
+/***/ 39925:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -367622,7 +367765,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -367847,7 +367990,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 16713:
+/***/ 74247:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -367862,7 +368005,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -368013,7 +368156,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 83820:
+/***/ 29958:
 /***/ ((module) => {
 
 "use strict";
@@ -368240,7 +368383,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 76528:
+/***/ 59290:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -368255,7 +368398,14 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Variable} Variable */
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Typedefs
@@ -368770,7 +368920,7 @@ module.exports = {
 		 * - The reference is inside of a loop.
 		 * - The reference is inside of a function scope which is different from
 		 *   the declaration.
-		 * @param {eslint-scope.Reference} ref A reference to check.
+		 * @param {Reference} ref A reference to check.
 		 * @param {ASTNode} prevRhsNode The previous RHS node.
 		 * @returns {ASTNode|null} The RHS node or null.
 		 * @private
@@ -368877,7 +369027,7 @@ module.exports = {
 
 		/**
 		 * Checks whether a given reference is a read to update itself or not.
-		 * @param {eslint-scope.Reference} ref A reference to check.
+		 * @param {Reference} ref A reference to check.
 		 * @param {ASTNode} rhsNode The RHS node of the previous assignment.
 		 * @returns {boolean} The reference is a read to update itself.
 		 * @private
@@ -368978,7 +369128,7 @@ module.exports = {
 
 		/**
 		 * Checks whether the given variable is after the last used parameter.
-		 * @param {eslint-scope.Variable} variable The variable to check.
+		 * @param {Variable} variable The variable to check.
 		 * @returns {boolean} `true` if the variable is defined after the last
 		 * used parameter.
 		 */
@@ -369987,7 +370137,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 36988:
+/***/ 7214:
 /***/ ((module) => {
 
 "use strict";
@@ -369997,6 +370147,13 @@ module.exports = {
  */
 
 
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -370061,7 +370218,7 @@ function isInClassStaticInitializerRange(node, location) {
 /**
  * Checks whether a given scope is the scope of a class static initializer.
  * Static initializers are static blocks and initializers of static fields.
- * @param {eslint-scope.Scope} scope A scope to check.
+ * @param {Scope} scope A scope to check.
  * @returns {boolean} `true` if the scope is a class static initializer scope.
  */
 function isClassStaticInitializerScope(scope) {
@@ -370112,7 +370269,7 @@ function isClassStaticInitializerScope(scope) {
  *           x; // returns `false`
  *       }
  *   }
- * @param {eslint-scope.Reference} reference A reference to check.
+ * @param {Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is from a separate execution context.
  */
 function isFromSeparateExecutionContext(reference) {
@@ -370326,7 +370483,7 @@ module.exports = {
 		 * - referring to a variable that is defined, but not in the given source code
 		 *   (e.g., global environment variable or `arguments` in functions).
 		 * - allowed by options.
-		 * @param {eslint-scope.Reference} reference The reference
+		 * @param {Reference} reference The reference
 		 * @returns {boolean} `true` if the reference should be checked
 		 */
 		function shouldCheck(reference) {
@@ -370405,7 +370562,7 @@ module.exports = {
 
 		/**
 		 * Finds and validates all references in a given scope and its child scopes.
-		 * @param {eslint-scope.Scope} scope The scope object.
+		 * @param {Scope} scope The scope object.
 		 * @returns {void}
 		 */
 		function checkReferencesInScope(scope) {
@@ -370441,7 +370598,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 55191:
+/***/ 72785:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -370452,7 +370609,7 @@ module.exports = {
 
 
 
-const { findVariable } = __nccwpck_require__(22632);
+const { findVariable } = __nccwpck_require__(7093);
 
 //------------------------------------------------------------------------------
 // Types
@@ -371106,7 +371263,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 69412:
+/***/ 27934:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -371126,7 +371283,7 @@ const {
 	CONSTRUCT,
 	ReferenceTracker,
 	getStringIfConstant,
-} = __nccwpck_require__(22632);
+} = __nccwpck_require__(7093);
 const { RegExpParser, visitRegExpAST } = __nccwpck_require__(44562);
 
 //------------------------------------------------------------------------------
@@ -371377,7 +371534,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 85994:
+/***/ 44860:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -371388,7 +371545,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -371480,7 +371637,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 43115:
+/***/ 90733:
 /***/ ((module) => {
 
 "use strict";
@@ -371545,7 +371702,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 99931:
+/***/ 76773:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -371559,7 +371716,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -371757,7 +371914,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 52798:
+/***/ 14948:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -371771,7 +371928,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -371886,7 +372043,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6044:
+/***/ 97694:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -371896,7 +372053,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -372156,7 +372313,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 22921:
+/***/ 87967:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -372167,7 +372324,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 const { RegExpParser, visitRegExpAST } = __nccwpck_require__(44562);
 
 /**
@@ -372570,7 +372727,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 49440:
+/***/ 75046:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -372585,7 +372742,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -372780,7 +372937,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 12324:
+/***/ 62206:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -372794,8 +372951,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443),
-	FixTracker = __nccwpck_require__(86445);
+const astUtils = __nccwpck_require__(37917),
+	FixTracker = __nccwpck_require__(27915);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -373189,7 +373346,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 14238:
+/***/ 14452:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -373204,7 +373361,15 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
+/** @typedef {import("eslint-scope").Variable} Variable */
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -373212,7 +373377,7 @@ const astUtils = __nccwpck_require__(22443);
 
 /**
  * Check whether a given variable is a global variable or not.
- * @param {eslint-scope.Variable} variable The variable to check.
+ * @param {Variable} variable The variable to check.
  * @returns {boolean} `true` if the variable is a global variable.
  */
 function isGlobal(variable) {
@@ -373222,8 +373387,8 @@ function isGlobal(variable) {
 /**
  * Finds the nearest function scope or global scope walking up the scope
  * hierarchy.
- * @param {eslint-scope.Scope} scope The scope to traverse.
- * @returns {eslint-scope.Scope} a function scope or global scope containing the given
+ * @param {Scope} scope The scope to traverse.
+ * @returns {Scope} a function scope or global scope containing the given
  *      scope.
  */
 function getEnclosingFunctionScope(scope) {
@@ -373238,7 +373403,7 @@ function getEnclosingFunctionScope(scope) {
 /**
  * Checks whether the given variable has any references from a more specific
  * function expression (i.e. a closure).
- * @param {eslint-scope.Variable} variable A variable to check.
+ * @param {Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is used from a closure.
  */
 function isReferencedInClosure(variable) {
@@ -373302,7 +373467,7 @@ function getScopeNode(node) {
 
 /**
  * Checks whether a given variable is redeclared or not.
- * @param {eslint-scope.Variable} variable A variable to check.
+ * @param {Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is redeclared.
  */
 function isRedeclared(variable) {
@@ -373318,7 +373483,7 @@ function isRedeclared(variable) {
 function isUsedFromOutsideOf(scopeNode) {
 	/**
 	 * Checks whether a given reference is inside of the specified scope or not.
-	 * @param {eslint-scope.Reference} reference A reference to check.
+	 * @param {Reference} reference A reference to check.
 	 * @returns {boolean} `true` if the reference is inside of the specified
 	 *      scope.
 	 */
@@ -373379,7 +373544,7 @@ function hasReferenceInTDZ(node) {
 /**
  * Checks whether a given variable has name that is allowed for 'var' declarations,
  * but disallowed for `let` declarations.
- * @param {eslint-scope.Variable} variable The variable to check.
+ * @param {Variable} variable The variable to check.
  * @returns {boolean} `true` if the variable has a disallowed name.
  */
 function hasNameDisallowedForLetDeclarations(variable) {
@@ -373564,7 +373729,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 37953:
+/***/ 88835:
 /***/ ((module) => {
 
 "use strict";
@@ -373641,7 +373806,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 54090:
+/***/ 44896:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -373653,7 +373818,7 @@ module.exports = {
 
 
 const escapeRegExp = __nccwpck_require__(99839);
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 const CHAR_LIMIT = 40;
 
@@ -373858,7 +374023,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1272:
+/***/ 15874:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -373873,7 +374038,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -374016,7 +374181,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 46347:
+/***/ 91105:
 /***/ ((module) => {
 
 "use strict";
@@ -374061,7 +374226,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 27956:
+/***/ 12094:
 /***/ ((module) => {
 
 "use strict";
@@ -374233,7 +374398,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 93419:
+/***/ 31701:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -374249,7 +374414,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -374624,7 +374789,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 88906:
+/***/ 74648:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -374635,7 +374800,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -375001,7 +375166,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7579:
+/***/ 97957:
 /***/ ((module) => {
 
 "use strict";
@@ -375160,7 +375325,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 42456:
+/***/ 47710:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -375183,7 +375348,7 @@ const OPTIONS = {
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //--------------------------------------------------------------------------
 // Helpers
@@ -375820,7 +375985,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 67309:
+/***/ 82539:
 /***/ ((module) => {
 
 "use strict";
@@ -375945,7 +376110,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 89297:
+/***/ 58971:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -375960,7 +376125,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -376670,7 +376835,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 399:
+/***/ 85589:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -376684,7 +376849,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -376948,7 +377113,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 93941:
+/***/ 37475:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -376964,7 +377129,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -377271,7 +377436,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 83174:
+/***/ 28988:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -377287,7 +377452,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -377645,7 +377810,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 45841:
+/***/ 43791:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -377661,7 +377826,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -378265,7 +378430,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 82207:
+/***/ 26901:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -378276,7 +378441,14 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
+/** @typedef {import("eslint-scope").Variable} Variable */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -378284,7 +378456,7 @@ const astUtils = __nccwpck_require__(22443);
 
 /**
  * Checks whether or not a given variable is a function name.
- * @param {eslint-scope.Variable} variable A variable to check.
+ * @param {Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is a function name.
  */
 function isFunctionName(variable) {
@@ -378304,8 +378476,8 @@ function checkMetaProperty(node, metaName, propertyName) {
 
 /**
  * Gets the variable object of `arguments` which is defined implicitly.
- * @param {eslint-scope.Scope} scope A scope to get.
- * @returns {eslint-scope.Variable} The found variable object.
+ * @param {Scope} scope A scope to get.
+ * @returns {Variable} The found variable object.
  */
 function getVariableOfArguments(scope) {
 	const variables = scope.variables;
@@ -378710,7 +378882,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 12281:
+/***/ 94595:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -378725,8 +378897,16 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const FixTracker = __nccwpck_require__(86445);
-const astUtils = __nccwpck_require__(22443);
+const FixTracker = __nccwpck_require__(27915);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
+/** @typedef {import("eslint-scope").Variable} Variable */
+/** @typedef {import("eslint-scope").Reference} Reference */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -378772,7 +378952,7 @@ function canBecomeVariableDeclaration(identifier) {
  * Checks if an property or element is from outer scope or function parameters
  * in destructing pattern.
  * @param {string} name A variable name to be checked.
- * @param {eslint-scope.Scope} initScope A scope to start find.
+ * @param {Scope} initScope A scope to start find.
  * @returns {boolean} Indicates if the variable is from outer scope or function parameters.
  */
 function isOuterVariableInDestructing(name, initScope) {
@@ -378798,7 +378978,7 @@ function isOuterVariableInDestructing(name, initScope) {
  * belongs to.
  * This is used to detect a mix of reassigned and never reassigned in a
  * destructuring.
- * @param {eslint-scope.Reference} reference A reference to get.
+ * @param {Reference} reference A reference to get.
  * @returns {ASTNode|null} A VariableDeclarator/AssignmentExpression node or
  *      null.
  */
@@ -378884,7 +379064,7 @@ function hasMemberExpressionAssignment(node) {
  *   `/*exported foo` directive comment makes such variables. This rule does not
  *   warn such variables because this rule cannot distinguish whether the
  *   exported variables are reassigned or not.
- * @param {eslint-scope.Variable} variable A variable to get.
+ * @param {Variable} variable A variable to get.
  * @param {boolean} ignoreReadBeforeAssign
  *      The value of `ignoreReadBeforeAssign` option.
  * @returns {ASTNode|null}
@@ -378984,7 +379164,7 @@ function getIdentifierIfShouldBeConst(variable, ignoreReadBeforeAssign) {
  * reference of given variables belongs to.
  * This is used to detect a mix of reassigned and never reassigned in a
  * destructuring.
- * @param {eslint-scope.Variable[]} variables Variables to group by destructuring.
+ * @param {Variable[]} variables Variables to group by destructuring.
  * @param {boolean} ignoreReadBeforeAssign
  *      The value of `ignoreReadBeforeAssign` option.
  * @returns {Map<ASTNode, ASTNode[]>} Grouped identifier nodes.
@@ -379105,7 +379285,7 @@ module.exports = {
 		 * nullable. In simple declaration or assignment cases, the length of
 		 * the array is 1. In destructuring cases, the length of the array can
 		 * be 2 or more.
-		 * @param {(eslint-scope.Reference|null)[]} nodes
+		 * @param {(Reference|null)[]} nodes
 		 *      References which are grouped by destructuring to report.
 		 * @returns {void}
 		 */
@@ -379264,7 +379444,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 85745:
+/***/ 71315:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -379278,7 +379458,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -379604,7 +379784,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 87836:
+/***/ 5954:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -379619,8 +379799,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const { CALL, ReferenceTracker } = __nccwpck_require__(22632);
+const astUtils = __nccwpck_require__(37917);
+const { CALL, ReferenceTracker } = __nccwpck_require__(7093);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -379847,7 +380027,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 7670:
+/***/ 66680:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -379867,7 +380047,7 @@ const {
 	CONSTRUCT,
 	ReferenceTracker,
 	getStringIfConstant,
-} = __nccwpck_require__(22632);
+} = __nccwpck_require__(7093);
 const regexpp = __nccwpck_require__(44562);
 
 //------------------------------------------------------------------------------
@@ -380052,7 +380232,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 52234:
+/***/ 78732:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -380067,7 +380247,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -380217,7 +380397,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 15775:
+/***/ 47533:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -380233,7 +380413,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -380373,7 +380553,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 83223:
+/***/ 82681:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -380384,13 +380564,13 @@ module.exports = {
 
 
 
-const { CALL, ReferenceTracker } = __nccwpck_require__(22632);
+const { CALL, ReferenceTracker } = __nccwpck_require__(7093);
 const {
 	isCommaToken,
 	isOpeningParenToken,
 	isClosingParenToken,
 	isParenthesised,
-} = __nccwpck_require__(22443);
+} = __nccwpck_require__(37917);
 
 const ANY_SPACE = /\s/u;
 
@@ -380700,7 +380880,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 71143:
+/***/ 46989:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -380710,7 +380890,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -380862,7 +381042,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 11743:
+/***/ 74613:
 /***/ ((module) => {
 
 "use strict";
@@ -381020,7 +381200,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 26510:
+/***/ 27460:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -381035,19 +381215,19 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 const {
 	CALL,
 	CONSTRUCT,
 	ReferenceTracker,
-} = __nccwpck_require__(22632);
+} = __nccwpck_require__(7093);
 const {
 	RegExpValidator,
 	visitRegExpAST,
 	RegExpParser,
 } = __nccwpck_require__(44562);
-const { canTokensBeAdjacent } = __nccwpck_require__(22443);
-const { REGEXPP_LATEST_ECMA_VERSION } = __nccwpck_require__(18685);
+const { canTokensBeAdjacent } = __nccwpck_require__(37917);
+const { REGEXPP_LATEST_ECMA_VERSION } = __nccwpck_require__(93851);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -381633,7 +381813,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 38929:
+/***/ 51195:
 /***/ ((module) => {
 
 "use strict";
@@ -381645,13 +381825,21 @@ module.exports = {
 
 
 //------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
+/** @typedef {import("eslint-scope").Variable} Variable */
+/** @typedef {import("eslint-scope").Reference} Reference */
+
+//------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 
 /**
  * Gets the variable object of `arguments` which is defined implicitly.
- * @param {eslint-scope.Scope} scope A scope to get.
- * @returns {eslint-scope.Variable} The found variable object.
+ * @param {Scope} scope A scope to get.
+ * @returns {Variable} The found variable object.
  */
 function getVariableOfArguments(scope) {
 	const variables = scope.variables;
@@ -381679,7 +381867,7 @@ function getVariableOfArguments(scope) {
  * - arguments[i]      .... true    // computed member access
  * - arguments[0]      .... true    // computed member access
  * - arguments.length  .... false   // normal member access
- * @param {eslint-scope.Reference} reference The reference to check.
+ * @param {Reference} reference The reference to check.
  * @returns {boolean} `true` if the reference is not normal member access.
  */
 function isNotNormalMemberAccess(reference) {
@@ -381720,7 +381908,7 @@ module.exports = {
 
 		/**
 		 * Reports a given reference.
-		 * @param {eslint-scope.Reference} reference A reference to report.
+		 * @param {Reference} reference A reference to report.
 		 * @returns {void}
 		 */
 		function report(reference) {
@@ -381758,7 +381946,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 50971:
+/***/ 86993:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -381769,7 +381957,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -381857,7 +382045,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 77274:
+/***/ 7800:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -381872,7 +382060,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -382212,7 +382400,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 49393:
+/***/ 78499:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -382226,7 +382414,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Types
@@ -382755,7 +382943,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 20710:
+/***/ 84168:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -382770,9 +382958,9 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const espree = __nccwpck_require__(86156);
-const astUtils = __nccwpck_require__(22443);
-const keywords = __nccwpck_require__(23767);
+const espree = __nccwpck_require__(48409);
+const astUtils = __nccwpck_require__(37917);
+const keywords = __nccwpck_require__(44449);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -383157,7 +383345,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4620:
+/***/ 3794:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -383173,7 +383361,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Constants
@@ -383581,7 +383769,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 31779:
+/***/ 30401:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -383596,7 +383784,13 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Variable} Variable */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -383608,7 +383802,7 @@ const validRadixValues = new Set(
 
 /**
  * Checks whether a given variable is shadowed or not.
- * @param {eslint-scope.Variable} variable A variable to check.
+ * @param {Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is shadowed.
  */
 function isShadowed(variable) {
@@ -383782,7 +383976,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 90917:
+/***/ 96671:
 /***/ ((module) => {
 
 "use strict";
@@ -384155,7 +384349,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 28893:
+/***/ 58211:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -384170,7 +384364,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -384347,7 +384541,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 90940:
+/***/ 7174:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -384367,9 +384561,9 @@ const {
 	CONSTRUCT,
 	ReferenceTracker,
 	getStringIfConstant,
-} = __nccwpck_require__(22632);
-const astUtils = __nccwpck_require__(22443);
-const { isValidWithUnicodeFlag } = __nccwpck_require__(18685);
+} = __nccwpck_require__(7093);
+const astUtils = __nccwpck_require__(37917);
+const { isValidWithUnicodeFlag } = __nccwpck_require__(93851);
 
 /**
  * Checks whether the flag configuration should be treated as a missing flag.
@@ -384672,7 +384866,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 14706:
+/***/ 70940:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -384687,7 +384881,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -384766,7 +384960,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 75907:
+/***/ 55565:
 /***/ ((module) => {
 
 "use strict";
@@ -384924,7 +385118,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 13239:
+/***/ 28049:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -384936,7 +385130,7 @@ module.exports = {
 
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -385229,7 +385423,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 70163:
+/***/ 26401:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -385245,7 +385439,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -385455,7 +385649,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 18827:
+/***/ 70205:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -385470,8 +385664,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const FixTracker = __nccwpck_require__(86445);
-const astUtils = __nccwpck_require__(22443);
+const FixTracker = __nccwpck_require__(27915);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -385939,7 +386133,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5430:
+/***/ 19052:
 /***/ ((module) => {
 
 "use strict";
@@ -386266,7 +386460,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 52838:
+/***/ 83596:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -386281,7 +386475,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443),
+const astUtils = __nccwpck_require__(37917),
 	naturalCompare = __nccwpck_require__(98440);
 
 //------------------------------------------------------------------------------
@@ -386542,7 +386736,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 50908:
+/***/ 69958:
 /***/ ((module) => {
 
 "use strict";
@@ -386690,7 +386884,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 75174:
+/***/ 56228:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -386706,7 +386900,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -386930,7 +387124,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 26805:
+/***/ 60275:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -386945,7 +387139,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -387140,7 +387334,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 5641:
+/***/ 67419:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -387151,7 +387345,7 @@ module.exports = {
  */
 
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -387522,7 +387716,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 36149:
+/***/ 59383:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -387533,7 +387727,7 @@ module.exports = {
  */
 
 
-const { isEqToken } = __nccwpck_require__(22443);
+const { isEqToken } = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -387779,7 +387973,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 45344:
+/***/ 75682:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -387794,7 +387988,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -388187,7 +388381,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 71959:
+/***/ 7057:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -388199,7 +388393,7 @@ module.exports = {
 
 
 const escapeRegExp = __nccwpck_require__(99839);
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -388642,7 +388836,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 94992:
+/***/ 5858:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -388657,7 +388851,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -388974,7 +389168,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 19999:
+/***/ 18313:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -388990,7 +389184,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -389140,7 +389334,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4346:
+/***/ 59336:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -389155,7 +389349,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -389218,7 +389412,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 92819:
+/***/ 47153:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -389234,7 +389428,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -389394,7 +389588,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 21246:
+/***/ 14064:
 /***/ ((module) => {
 
 "use strict";
@@ -389523,7 +389717,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 16949:
+/***/ 71667:
 /***/ ((module) => {
 
 "use strict";
@@ -389604,7 +389798,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 73494:
+/***/ 97888:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -389619,7 +389813,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -389880,7 +390074,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 22443:
+/***/ 37917:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -389895,18 +390089,25 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const { KEYS: eslintVisitorKeys } = __nccwpck_require__(11763);
+const { KEYS: eslintVisitorKeys } = __nccwpck_require__(5910);
 const esutils = __nccwpck_require__(30273);
-const espree = __nccwpck_require__(86156);
+const espree = __nccwpck_require__(48409);
 const escapeRegExp = __nccwpck_require__(99839);
 const {
 	breakableTypePattern,
 	createGlobalLinebreakMatcher,
 	lineBreakPattern,
 	shebangPattern,
-} = __nccwpck_require__(84255);
-const globals = __nccwpck_require__(61408);
-const { LATEST_ECMA_VERSION } = __nccwpck_require__(85729);
+} = __nccwpck_require__(49893);
+const globals = __nccwpck_require__(13542);
+const { LATEST_ECMA_VERSION } = __nccwpck_require__(53171);
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+/** @typedef {import("eslint-scope").Scope} Scope */
+/** @typedef {import("eslint-scope").Variable} Variable */
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -391467,9 +391668,9 @@ module.exports = {
 
 	/**
 	 * Finds the variable by a given name in a given scope and its upper scopes.
-	 * @param {eslint-scope.Scope} initScope A scope to start find.
+	 * @param {Scope} initScope A scope to start find.
 	 * @param {string} name A variable name to find.
-	 * @returns {eslint-scope.Variable|null} A found variable or `null`.
+	 * @returns {Variable|null} A found variable or `null`.
 	 */
 	getVariableByName(initScope, name) {
 		let scope = initScope;
@@ -391496,7 +391697,7 @@ module.exports = {
 	 * - The given node is not `StaticBlock`.
 	 * - The function name does not start with uppercase. It's a convention to capitalize the names
 	 *   of constructor functions. This check is not performed if `capIsConstructor` is set to `false`.
-	 * - The function does not have a JSDoc comment that has a @this tag.
+	 * - The function does not have a JSDoc comment that has a `@this` tag.
 	 *
 	 * Next, this checks the location of the node.
 	 * If the location is below, this judges `this` is valid.
@@ -392729,7 +392930,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 74593:
+/***/ 1955:
 /***/ ((module) => {
 
 "use strict";
@@ -392984,7 +393185,7 @@ module.exports = { parseStringLiteral, parseTemplateToken };
 
 /***/ }),
 
-/***/ 86445:
+/***/ 27915:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -393006,7 +393207,7 @@ module.exports = { parseStringLiteral, parseTemplateToken };
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -393117,7 +393318,7 @@ module.exports = FixTracker;
 
 /***/ }),
 
-/***/ 23767:
+/***/ 44449:
 /***/ ((module) => {
 
 "use strict";
@@ -393192,7 +393393,7 @@ module.exports = [
 
 /***/ }),
 
-/***/ 34140:
+/***/ 48898:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -393318,7 +393519,7 @@ module.exports = { LazyLoadingRuleMap };
 
 /***/ }),
 
-/***/ 18685:
+/***/ 93851:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -393384,7 +393585,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 55383:
+/***/ 18229:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -393393,10 +393594,10 @@ module.exports = {
  */
 
 
-const isCombiningCharacter = __nccwpck_require__(16434);
-const isEmojiModifier = __nccwpck_require__(58968);
-const isRegionalIndicatorSymbol = __nccwpck_require__(41106);
-const isSurrogatePair = __nccwpck_require__(52577);
+const isCombiningCharacter = __nccwpck_require__(41196);
+const isEmojiModifier = __nccwpck_require__(1570);
+const isRegionalIndicatorSymbol = __nccwpck_require__(31288);
+const isSurrogatePair = __nccwpck_require__(61023);
 
 module.exports = {
 	isCombiningCharacter,
@@ -393408,7 +393609,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 16434:
+/***/ 41196:
 /***/ ((module) => {
 
 "use strict";
@@ -393429,7 +393630,7 @@ module.exports = function isCombiningCharacter(codePoint) {
 
 /***/ }),
 
-/***/ 58968:
+/***/ 1570:
 /***/ ((module) => {
 
 "use strict";
@@ -393450,7 +393651,7 @@ module.exports = function isEmojiModifier(code) {
 
 /***/ }),
 
-/***/ 41106:
+/***/ 31288:
 /***/ ((module) => {
 
 "use strict";
@@ -393471,7 +393672,7 @@ module.exports = function isRegionalIndicatorSymbol(code) {
 
 /***/ }),
 
-/***/ 52577:
+/***/ 61023:
 /***/ ((module) => {
 
 "use strict";
@@ -393493,7 +393694,7 @@ module.exports = function isSurrogatePair(lead, tail) {
 
 /***/ }),
 
-/***/ 50681:
+/***/ 77171:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -393507,7 +393708,7 @@ module.exports = function isSurrogatePair(lead, tail) {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //------------------------------------------------------------------------------
 // Rule Definition
@@ -393672,7 +393873,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 15255:
+/***/ 50921:
 /***/ ((module) => {
 
 "use strict";
@@ -393845,7 +394046,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1161:
+/***/ 44143:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -393861,8 +394062,8 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
-const eslintUtils = __nccwpck_require__(22632);
+const astUtils = __nccwpck_require__(37917);
+const eslintUtils = __nccwpck_require__(7093);
 
 //----------------------------------------------------------------------
 // Helpers
@@ -394091,7 +394292,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 64347:
+/***/ 6841:
 /***/ ((module) => {
 
 "use strict";
@@ -394190,7 +394391,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 22445:
+/***/ 92003:
 /***/ ((module) => {
 
 "use strict";
@@ -394356,7 +394557,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 29538:
+/***/ 78380:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -394370,7 +394571,7 @@ module.exports = {
 // Requirements
 //--------------------------------------------------------------------------
 
-const astUtils = __nccwpck_require__(22443);
+const astUtils = __nccwpck_require__(37917);
 
 //--------------------------------------------------------------------------
 // Helpers
@@ -394726,7 +394927,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 69013:
+/***/ 2631:
 /***/ ((module) => {
 
 "use strict";
@@ -394798,7 +394999,7 @@ module.exports = { ParserService };
 
 /***/ }),
 
-/***/ 64612:
+/***/ 35522:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -394815,7 +395016,7 @@ module.exports = { ParserService };
 //-----------------------------------------------------------------------------
 
 const path = __nccwpck_require__(76760);
-const { VFile } = __nccwpck_require__(41432);
+const { VFile } = __nccwpck_require__(44366);
 
 //-----------------------------------------------------------------------------
 // Types
@@ -394906,7 +395107,7 @@ module.exports = { ProcessorService };
 
 /***/ }),
 
-/***/ 16628:
+/***/ 68842:
 /***/ ((module) => {
 
 "use strict";
@@ -395001,7 +395202,7 @@ module.exports = { WarningService };
 
 /***/ }),
 
-/***/ 496:
+/***/ 34990:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -395015,8 +395216,8 @@ module.exports = { WarningService };
 // Requirements
 //------------------------------------------------------------------------------
 
-const Ajv = __nccwpck_require__(56251),
-	metaSchema = __nccwpck_require__(71549);
+const Ajv = __nccwpck_require__(53016),
+	metaSchema = __nccwpck_require__(88973);
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -395043,7 +395244,7 @@ module.exports = (additionalOptions = {}) => {
 
 /***/ }),
 
-/***/ 95265:
+/***/ 56423:
 /***/ ((module) => {
 
 "use strict";
@@ -395072,7 +395273,7 @@ module.exports = ok;
 
 /***/ }),
 
-/***/ 84255:
+/***/ 49893:
 /***/ ((module) => {
 
 "use strict";
@@ -395110,7 +395311,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 85827:
+/***/ 58845:
 /***/ ((module) => {
 
 "use strict";
@@ -395180,7 +395381,7 @@ module.exports = { deepMergeArrays };
 
 /***/ }),
 
-/***/ 67241:
+/***/ 42219:
 /***/ ((module) => {
 
 "use strict";
@@ -395204,7 +395405,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 68740:
+/***/ 37886:
 /***/ ((module) => {
 
 "use strict";
@@ -395301,7 +395502,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 10919:
+/***/ 77421:
 /***/ ((module) => {
 
 "use strict";
@@ -395349,7 +395550,7 @@ function normalizePackageName(name, prefix) {
 				`$1/${prefix}`,
 			);
 		} else if (!scopedPackageNameRegex.test(normalizedName.split("/")[1])) {
-			/**
+			/*
 			 * for scoped packages, insert the prefix after the first / unless
 			 * the path is already @scope/eslint or @scope/eslint-xxx-yyy
 			 */
@@ -395418,7 +395619,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 42846:
+/***/ 10000:
 /***/ ((module) => {
 
 "use strict";
@@ -395489,7 +395690,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 94059:
+/***/ 25205:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -395525,7 +395726,7 @@ exports.resolve = resolve;
 
 /***/ }),
 
-/***/ 53359:
+/***/ 60169:
 /***/ ((module) => {
 
 "use strict";
@@ -395611,7 +395812,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 77888:
+/***/ 85038:
 /***/ ((module) => {
 
 "use strict";
@@ -395668,7 +395869,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3620:
+/***/ 93778:
 /***/ ((module) => {
 
 "use strict";
@@ -395706,7 +395907,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 93006:
+/***/ 55892:
 /***/ ((module) => {
 
 "use strict";
@@ -395772,7 +395973,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 1687:
+/***/ 18793:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -395787,7 +395988,7 @@ module.exports = {
 // Requirements
 //------------------------------------------------------------------------------
 
-const vk = __nccwpck_require__(11763);
+const vk = __nccwpck_require__(5910);
 const debug = __nccwpck_require__(18263)("eslint:traverser");
 
 //------------------------------------------------------------------------------
@@ -396293,7 +396494,7 @@ exports.fromJSON = fromJSON;
 
 /***/ }),
 
-/***/ 97118:
+/***/ 13349:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -396314,18 +396515,120 @@ exports.assertValidPattern = assertValidPattern;
 
 /***/ }),
 
-/***/ 83558:
+/***/ 27471:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 // parse a single path portion
+var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AST = void 0;
-const brace_expressions_js_1 = __nccwpck_require__(48727);
-const unescape_js_1 = __nccwpck_require__(95168);
+const brace_expressions_js_1 = __nccwpck_require__(55278);
+const unescape_js_1 = __nccwpck_require__(76583);
 const types = new Set(['!', '?', '+', '*', '@']);
 const isExtglobType = (c) => types.has(c);
+const isExtglobAST = (c) => isExtglobType(c.type);
+// Map of which extglob types can adopt the children of a nested extglob
+//
+// anything but ! can adopt a matching type:
+// +(a|+(b|c)|d) => +(a|b|c|d)
+// *(a|*(b|c)|d) => *(a|b|c|d)
+// @(a|@(b|c)|d) => @(a|b|c|d)
+// ?(a|?(b|c)|d) => ?(a|b|c|d)
+//
+// * can adopt anything, because 0 or repetition is allowed
+// *(a|?(b|c)|d) => *(a|b|c|d)
+// *(a|+(b|c)|d) => *(a|b|c|d)
+// *(a|@(b|c)|d) => *(a|b|c|d)
+//
+// + can adopt @, because 1 or repetition is allowed
+// +(a|@(b|c)|d) => +(a|b|c|d)
+//
+// + and @ CANNOT adopt *, because 0 would be allowed
+// +(a|*(b|c)|d) => would match "", on *(b|c)
+// @(a|*(b|c)|d) => would match "", on *(b|c)
+//
+// + and @ CANNOT adopt ?, because 0 would be allowed
+// +(a|?(b|c)|d) => would match "", on ?(b|c)
+// @(a|?(b|c)|d) => would match "", on ?(b|c)
+//
+// ? can adopt @, because 0 or 1 is allowed
+// ?(a|@(b|c)|d) => ?(a|b|c|d)
+//
+// ? and @ CANNOT adopt * or +, because >1 would be allowed
+// ?(a|*(b|c)|d) => would match bbb on *(b|c)
+// @(a|*(b|c)|d) => would match bbb on *(b|c)
+// ?(a|+(b|c)|d) => would match bbb on +(b|c)
+// @(a|+(b|c)|d) => would match bbb on +(b|c)
+//
+// ! CANNOT adopt ! (nothing else can either)
+// !(a|!(b|c)|d) => !(a|b|c|d) would fail to match on b (not not b|c)
+//
+// ! can adopt @
+// !(a|@(b|c)|d) => !(a|b|c|d)
+//
+// ! CANNOT adopt *
+// !(a|*(b|c)|d) => !(a|b|c|d) would match on bbb, not allowed
+//
+// ! CANNOT adopt +
+// !(a|+(b|c)|d) => !(a|b|c|d) would match on bbb, not allowed
+//
+// ! CANNOT adopt ?
+// x!(a|?(b|c)|d) => x!(a|b|c|d) would fail to match "x"
+const adoptionMap = new Map([
+    ['!', ['@']],
+    ['?', ['?', '@']],
+    ['@', ['@']],
+    ['*', ['*', '+', '?', '@']],
+    ['+', ['+', '@']],
+]);
+// nested extglobs that can be adopted in, but with the addition of
+// a blank '' element.
+const adoptionWithSpaceMap = new Map([
+    ['!', ['?']],
+    ['@', ['?']],
+    ['+', ['?', '*']],
+]);
+// union of the previous two maps
+const adoptionAnyMap = new Map([
+    ['!', ['?', '@']],
+    ['?', ['?', '@']],
+    ['@', ['?', '@']],
+    ['*', ['*', '+', '?', '@']],
+    ['+', ['+', '@', '?', '*']],
+]);
+// Extglobs that can take over their parent if they are the only child
+// the key is parent, value maps child to resulting extglob parent type
+// '@' is omitted because it's a special case. An `@` extglob with a single
+// member can always be usurped by that subpattern.
+const usurpMap = new Map([
+    ['!', new Map([['!', '@']])],
+    [
+        '?',
+        new Map([
+            ['*', '*'],
+            ['+', '*'],
+        ]),
+    ],
+    [
+        '@',
+        new Map([
+            ['!', '!'],
+            ['?', '?'],
+            ['@', '@'],
+            ['*', '*'],
+            ['+', '+'],
+        ]),
+    ],
+    [
+        '+',
+        new Map([
+            ['?', '*'],
+            ['*', '*'],
+        ]),
+    ],
+]);
 // Patterns that get prepended to bind to the start of either the
 // entire string, or just a single path portion, to prevent dots
 // and/or traversal patterns, when needed.
@@ -396349,6 +396652,7 @@ const star = qmark + '*?';
 const starNoEmpty = qmark + '+?';
 // remove the \ chars that we added if we end up doing a nonmagic compare
 // const deslash = (s: string) => s.replace(/\\(.)/g, '$1')
+let ID = 0;
 class AST {
     type;
     #root;
@@ -396364,6 +396668,22 @@ class AST {
     // set to true if it's an extglob with no children
     // (which really means one child of '')
     #emptyExt = false;
+    id = ++ID;
+    get depth() {
+        return (this.#parent?.depth ?? -1) + 1;
+    }
+    [Symbol.for('nodejs.util.inspect.custom')]() {
+        return {
+            '@@type': 'AST',
+            id: this.id,
+            type: this.type,
+            root: this.#root.id,
+            parent: this.#parent?.id,
+            depth: this.depth,
+            partsLength: this.#parts.length,
+            parts: this.#parts,
+        };
+    }
     constructor(type, parent, options = {}) {
         this.type = type;
         // extglobs are inherently magical
@@ -396443,7 +396763,7 @@ class AST {
                 continue;
             /* c8 ignore start */
             if (typeof p !== 'string' &&
-                !(p instanceof AST && p.#parent === this)) {
+                !(p instanceof _a && p.#parent === this)) {
                 throw new Error('invalid part: ' + p);
             }
             /* c8 ignore stop */
@@ -396477,7 +396797,7 @@ class AST {
         const p = this.#parent;
         for (let i = 0; i < this.#parentIndex; i++) {
             const pp = p.#parts[i];
-            if (!(pp instanceof AST && pp.type === '!')) {
+            if (!(pp instanceof _a && pp.type === '!')) {
                 return false;
             }
         }
@@ -396505,13 +396825,14 @@ class AST {
             this.push(part.clone(this));
     }
     clone(parent) {
-        const c = new AST(this.type, parent);
+        const c = new _a(this.type, parent);
         for (const p of this.#parts) {
             c.copyIn(p);
         }
         return c;
     }
-    static #parseAST(str, ast, pos, opt) {
+    static #parseAST(str, ast, pos, opt, extDepth) {
+        const maxDepth = opt.maxExtglobRecursion ?? 2;
         let escaping = false;
         let inBrace = false;
         let braceStart = -1;
@@ -396548,11 +396869,17 @@ class AST {
                     acc += c;
                     continue;
                 }
-                if (!opt.noext && isExtglobType(c) && str.charAt(i) === '(') {
+                // we don't have to check for adoption here, because that's
+                // done at the other recursion point.
+                const doRecurse = !opt.noext &&
+                    isExtglobType(c) &&
+                    str.charAt(i) === '(' &&
+                    extDepth <= maxDepth;
+                if (doRecurse) {
                     ast.push(acc);
                     acc = '';
-                    const ext = new AST(c, ast);
-                    i = AST.#parseAST(str, ext, i, opt);
+                    const ext = new _a(c, ast);
+                    i = _a.#parseAST(str, ext, i, opt, extDepth + 1);
                     ast.push(ext);
                     continue;
                 }
@@ -396564,7 +396891,7 @@ class AST {
         // some kind of extglob, pos is at the (
         // find the next | or )
         let i = pos + 1;
-        let part = new AST(null, ast);
+        let part = new _a(null, ast);
         const parts = [];
         let acc = '';
         while (i < str.length) {
@@ -396595,19 +396922,26 @@ class AST {
                 acc += c;
                 continue;
             }
-            if (isExtglobType(c) && str.charAt(i) === '(') {
+            const doRecurse = !opt.noext &&
+                isExtglobType(c) &&
+                str.charAt(i) === '(' &&
+                /* c8 ignore start - the maxDepth is sufficient here */
+                (extDepth <= maxDepth || (ast && ast.#canAdoptType(c)));
+            /* c8 ignore stop */
+            if (doRecurse) {
+                const depthAdd = ast && ast.#canAdoptType(c) ? 0 : 1;
                 part.push(acc);
                 acc = '';
-                const ext = new AST(c, part);
+                const ext = new _a(c, part);
                 part.push(ext);
-                i = AST.#parseAST(str, ext, i, opt);
+                i = _a.#parseAST(str, ext, i, opt, extDepth + depthAdd);
                 continue;
             }
             if (c === '|') {
                 part.push(acc);
                 acc = '';
                 parts.push(part);
-                part = new AST(null, ast);
+                part = new _a(null, ast);
                 continue;
             }
             if (c === ')') {
@@ -396629,9 +396963,82 @@ class AST {
         ast.#parts = [str.substring(pos - 1)];
         return i;
     }
+    #canAdoptWithSpace(child) {
+        return this.#canAdopt(child, adoptionWithSpaceMap);
+    }
+    #canAdopt(child, map = adoptionMap) {
+        if (!child ||
+            typeof child !== 'object' ||
+            child.type !== null ||
+            child.#parts.length !== 1 ||
+            this.type === null) {
+            return false;
+        }
+        const gc = child.#parts[0];
+        if (!gc || typeof gc !== 'object' || gc.type === null) {
+            return false;
+        }
+        return this.#canAdoptType(gc.type, map);
+    }
+    #canAdoptType(c, map = adoptionAnyMap) {
+        return !!map.get(this.type)?.includes(c);
+    }
+    #adoptWithSpace(child, index) {
+        const gc = child.#parts[0];
+        const blank = new _a(null, gc, this.options);
+        blank.#parts.push('');
+        gc.push(blank);
+        this.#adopt(child, index);
+    }
+    #adopt(child, index) {
+        const gc = child.#parts[0];
+        this.#parts.splice(index, 1, ...gc.#parts);
+        for (const p of gc.#parts) {
+            if (typeof p === 'object')
+                p.#parent = this;
+        }
+        this.#toString = undefined;
+    }
+    #canUsurpType(c) {
+        const m = usurpMap.get(this.type);
+        return !!(m?.has(c));
+    }
+    #canUsurp(child) {
+        if (!child ||
+            typeof child !== 'object' ||
+            child.type !== null ||
+            child.#parts.length !== 1 ||
+            this.type === null ||
+            this.#parts.length !== 1) {
+            return false;
+        }
+        const gc = child.#parts[0];
+        if (!gc || typeof gc !== 'object' || gc.type === null) {
+            return false;
+        }
+        return this.#canUsurpType(gc.type);
+    }
+    #usurp(child) {
+        const m = usurpMap.get(this.type);
+        const gc = child.#parts[0];
+        const nt = m?.get(gc.type);
+        /* c8 ignore start - impossible */
+        if (!nt)
+            return false;
+        /* c8 ignore stop */
+        this.#parts = gc.#parts;
+        for (const p of this.#parts) {
+            if (typeof p === 'object') {
+                p.#parent = this;
+            }
+        }
+        this.type = nt;
+        this.#toString = undefined;
+        this.#emptyExt = false;
+    }
     static fromGlob(pattern, options = {}) {
-        const ast = new AST(null, undefined, options);
-        AST.#parseAST(pattern, ast, 0, options);
+        const ast = new _a(null, undefined, options);
+        _a.#parseAST(pattern, ast, 0, options, 0);
         return ast;
     }
     // returns the regular expression if there's magic, or the unescaped
@@ -396735,16 +397142,18 @@ class AST {
     // or start or whatever) and prepend ^ or / at the Regexp construction.
     toRegExpSource(allowDot) {
         const dot = allowDot ?? !!this.#options.dot;
-        if (this.#root === this)
+        if (this.#root === this) {
+            this.#flatten();
             this.#fillNegs();
-        if (!this.type) {
+        }
+        if (!isExtglobAST(this)) {
             const noEmpty = this.isStart() &&
                 this.isEnd() &&
                 !this.#parts.some(s => typeof s !== 'string');
             const src = this.#parts
                 .map(p => {
                 const [re, _, hasMagic, uflag] = typeof p === 'string' ?
-                    AST.#parseGlob(p, this.#hasMagic, noEmpty)
+                    _a.#parseGlob(p, this.#hasMagic, noEmpty)
                     : p.toRegExpSource(allowDot);
                 this.#hasMagic = this.#hasMagic || hasMagic;
                 this.#uflag = this.#uflag || uflag;
@@ -396806,12 +397215,12 @@ class AST {
             // invalid extglob, has to at least be *something* present, if it's
             // the entire path portion.
             const s = this.toString();
-            this.#parts = [s];
-            this.type = null;
-            this.#hasMagic = undefined;
+            const me = this;
+            me.#parts = [s];
+            me.type = null;
+            me.#hasMagic = undefined;
             return [s, (0, unescape_js_1.unescape)(this.toString()), false, false];
         }
-        // XXX abstract out this map method
         let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot ?
             ''
             : this.#partsToRegExp(true);
@@ -396846,6 +397255,42 @@ class AST {
             (this.#hasMagic = !!this.#hasMagic),
             this.#uflag,
         ];
+    }
+    #flatten() {
+        if (!isExtglobAST(this)) {
+            for (const p of this.#parts) {
+                if (typeof p === 'object') {
+                    p.#flatten();
+                }
+            }
+        }
+        else {
+            // do up to 10 passes to flatten as much as possible
+            let iterations = 0;
+            let done = false;
+            do {
+                done = true;
+                for (let i = 0; i < this.#parts.length; i++) {
+                    const c = this.#parts[i];
+                    if (typeof c === 'object') {
+                        c.#flatten();
+                        if (this.#canAdopt(c)) {
+                            done = false;
+                            this.#adopt(c, i);
+                        }
+                        else if (this.#canAdoptWithSpace(c)) {
+                            done = false;
+                            this.#adoptWithSpace(c, i);
+                        }
+                        else if (this.#canUsurp(c)) {
+                            done = false;
+                            this.#usurp(c);
+                        }
+                    }
+                }
+            } while (!done && ++iterations < 10);
+        }
+        this.#toString = undefined;
     }
     #partsToRegExp(dot) {
         return this.#parts
@@ -396918,11 +397363,12 @@ class AST {
     }
 }
 exports.AST = AST;
+_a = AST;
 //# sourceMappingURL=ast.js.map
 
 /***/ }),
 
-/***/ 48727:
+/***/ 55278:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -397079,7 +397525,7 @@ exports.parseClass = parseClass;
 
 /***/ }),
 
-/***/ 89239:
+/***/ 84484:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -397116,7 +397562,7 @@ exports.escape = escape;
 
 /***/ }),
 
-/***/ 78481:
+/***/ 48655:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -397124,10 +397570,10 @@ exports.escape = escape;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.unescape = exports.escape = exports.AST = exports.Minimatch = exports.match = exports.makeRe = exports.braceExpand = exports.defaults = exports.filter = exports.GLOBSTAR = exports.sep = exports.minimatch = void 0;
 const brace_expansion_1 = __nccwpck_require__(29443);
-const assert_valid_pattern_js_1 = __nccwpck_require__(97118);
-const ast_js_1 = __nccwpck_require__(83558);
-const escape_js_1 = __nccwpck_require__(89239);
-const unescape_js_1 = __nccwpck_require__(95168);
+const assert_valid_pattern_js_1 = __nccwpck_require__(13349);
+const ast_js_1 = __nccwpck_require__(27471);
+const escape_js_1 = __nccwpck_require__(84484);
+const unescape_js_1 = __nccwpck_require__(76583);
 const minimatch = (p, pattern, options = {}) => {
     (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
     // shortcut: comments match nothing.
@@ -397324,11 +397770,13 @@ class Minimatch {
     isWindows;
     platform;
     windowsNoMagicRoot;
+    maxGlobstarRecursion;
     regexp;
     constructor(pattern, options = {}) {
         (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
         options = options || {};
         this.options = options;
+        this.maxGlobstarRecursion = options.maxGlobstarRecursion ?? 200;
         this.pattern = pattern;
         this.platform = options.platform || defaultPlatform;
         this.isWindows = this.platform === 'win32';
@@ -397733,7 +398181,8 @@ class Minimatch {
     // out of pattern, then that's fine, as long as all
     // the parts match.
     matchOne(file, pattern, partial = false) {
-        const options = this.options;
+        let fileStartIndex = 0;
+        let patternStartIndex = 0;
         // UNC paths like //?/X:/... can match X:/... and vice versa
         // Drive letters in absolute drive or unc paths are always compared
         // case-insensitively.
@@ -397762,14 +398211,11 @@ class Minimatch {
                     file[fdi],
                     pattern[pdi],
                 ];
+                // start matching at the drive letter index of each
                 if (fd.toLowerCase() === pd.toLowerCase()) {
                     pattern[pdi] = fd;
-                    if (pdi > fdi) {
-                        pattern = pattern.slice(pdi);
-                    }
-                    else if (fdi > pdi) {
-                        file = file.slice(fdi);
-                    }
+                    patternStartIndex = pdi;
+                    fileStartIndex = fdi;
                 }
             }
         }
@@ -397779,99 +398225,185 @@ class Minimatch {
         if (optimizationLevel >= 2) {
             file = this.levelTwoFileOptimize(file);
         }
-        this.debug('matchOne', this, { file, pattern });
-        this.debug('matchOne', file.length, pattern.length);
-        for (var fi = 0, pi = 0, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
+        if (pattern.includes(exports.GLOBSTAR)) {
+            return this.#matchGlobstar(file, pattern, partial, fileStartIndex, patternStartIndex);
+        }
+        return this.#matchOne(file, pattern, partial, fileStartIndex, patternStartIndex);
+    }
+    #matchGlobstar(file, pattern, partial, fileIndex, patternIndex) {
+        // split the pattern into head, tail, and middle of ** delimited parts
+        const firstgs = pattern.indexOf(exports.GLOBSTAR, patternIndex);
+        const lastgs = pattern.lastIndexOf(exports.GLOBSTAR);
+        // split the pattern up into globstar-delimited sections
+        // the tail has to be at the end, and the others just have
+        // to be found in order from the head.
+        const [head, body, tail] = partial ? [
+            pattern.slice(patternIndex, firstgs),
+            pattern.slice(firstgs + 1),
+            [],
+        ] : [
+            pattern.slice(patternIndex, firstgs),
+            pattern.slice(firstgs + 1, lastgs),
+            pattern.slice(lastgs + 1),
+        ];
+        // check the head, from the current file/pattern index.
+        if (head.length) {
+            const fileHead = file.slice(fileIndex, fileIndex + head.length);
+            if (!this.#matchOne(fileHead, head, partial, 0, 0)) {
+                return false;
+            }
+            fileIndex += head.length;
+            patternIndex += head.length;
+        }
+        // now we know the head matches!
+        // if the last portion is not empty, it MUST match the end
+        // check the tail
+        let fileTailMatch = 0;
+        if (tail.length) {
+            // if head + tail > file, then we cannot possibly match
+            if (tail.length + fileIndex > file.length)
+                return false;
+            // try to match the tail
+            let tailStart = file.length - tail.length;
+            if (this.#matchOne(file, tail, partial, tailStart, 0)) {
+                fileTailMatch = tail.length;
+            }
+            else {
+                // affordance for stuff like a/**/* matching a/b/
+                // if the last file portion is '', and there's more to the pattern
+                // then try without the '' bit.
+                if (file[file.length - 1] !== '' ||
+                    fileIndex + tail.length === file.length) {
+                    return false;
+                }
+                tailStart--;
+                if (!this.#matchOne(file, tail, partial, tailStart, 0)) {
+                    return false;
+                }
+                fileTailMatch = tail.length + 1;
+            }
+        }
+        // now we know the tail matches!
+        // the middle is zero or more portions wrapped in **, possibly
+        // containing more ** sections.
+        // so a/**/b/**/c/**/d has become **/b/**/c/**
+        // if it's empty, it means a/**/b, just verify we have no bad dots
+        // if there's no tail, so it ends on /**, then we must have *something*
+        // after the head, or it's not a matc
+        if (!body.length) {
+            let sawSome = !!fileTailMatch;
+            for (let i = fileIndex; i < file.length - fileTailMatch; i++) {
+                const f = String(file[i]);
+                sawSome = true;
+                if (f === '.' ||
+                    f === '..' ||
+                    (!this.options.dot && f.startsWith('.'))) {
+                    return false;
+                }
+            }
+            // in partial mode, we just need to get past all file parts
+            return partial || sawSome;
+        }
+        // now we know that there's one or more body sections, which can
+        // be matched anywhere from the 0 index (because the head was pruned)
+        // through to the length-fileTailMatch index.
+        // split the body up into sections, and note the minimum index it can
+        // be found at (start with the length of all previous segments)
+        // [section, before, after]
+        const bodySegments = [[[], 0]];
+        let currentBody = bodySegments[0];
+        let nonGsParts = 0;
+        const nonGsPartsSums = [0];
+        for (const b of body) {
+            if (b === exports.GLOBSTAR) {
+                nonGsPartsSums.push(nonGsParts);
+                currentBody = [[], 0];
+                bodySegments.push(currentBody);
+            }
+            else {
+                currentBody[0].push(b);
+                nonGsParts++;
+            }
+        }
+        let i = bodySegments.length - 1;
+        const fileLength = file.length - fileTailMatch;
+        for (const b of bodySegments) {
+            b[1] = fileLength - (nonGsPartsSums[i--] + b[0].length);
+        }
+        return !!this.#matchGlobStarBodySections(file, bodySegments, fileIndex, 0, partial, 0, !!fileTailMatch);
+    }
+    // return false for "nope, not matching"
+    // return null for "not matching, cannot keep trying"
+    #matchGlobStarBodySections(file, 
+    // pattern section, last possible position for it
+    bodySegments, fileIndex, bodyIndex, partial, globStarDepth, sawTail) {
+        // take the first body segment, and walk from fileIndex to its "after"
+        // value at the end
+        // If it doesn't match at that position, we increment, until we hit
+        // that final possible position, and give up.
+        // If it does match, then advance and try to rest.
+        // If any of them fail we keep walking forward.
+        // this is still a bit recursively painful, but it's more constrained
+        // than previous implementations, because we never test something that
+        // can't possibly be a valid matching condition.
+        const bs = bodySegments[bodyIndex];
+        if (!bs) {
+            // just make sure that there's no bad dots
+            for (let i = fileIndex; i < file.length; i++) {
+                sawTail = true;
+                const f = file[i];
+                if (f === '.' ||
+                    f === '..' ||
+                    (!this.options.dot && f.startsWith('.'))) {
+                    return false;
+                }
+            }
+            return sawTail;
+        }
+        // have a non-globstar body section to test
+        const [body, after] = bs;
+        while (fileIndex <= after) {
+            const m = this.#matchOne(file.slice(0, fileIndex + body.length), body, partial, fileIndex, 0);
+            // if limit exceeded, no match. intentional false negative,
+            // acceptable break in correctness for security.
+            if (m && globStarDepth < this.maxGlobstarRecursion) {
+                // match! see if the rest match. if so, we're done!
+                const sub = this.#matchGlobStarBodySections(file, bodySegments, fileIndex + body.length, bodyIndex + 1, partial, globStarDepth + 1, sawTail);
+                if (sub !== false) {
+                    return sub;
+                }
+            }
+            const f = file[fileIndex];
+            if (f === '.' ||
+                f === '..' ||
+                (!this.options.dot && f.startsWith('.'))) {
+                return false;
+            }
+            fileIndex++;
+        }
+        // walked off. no point continuing
+        return partial || null;
+    }
+    #matchOne(file, pattern, partial, fileIndex, patternIndex) {
+        let fi;
+        let pi;
+        let pl;
+        let fl;
+        for (fi = fileIndex,
+            pi = patternIndex,
+            fl = file.length,
+            pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
             this.debug('matchOne loop');
-            var p = pattern[pi];
-            var f = file[fi];
+            let p = pattern[pi];
+            let f = file[fi];
             this.debug(pattern, p, f);
             // should be impossible.
             // some invalid regexp stuff in the set.
             /* c8 ignore start */
-            if (p === false) {
+            if (p === false || p === exports.GLOBSTAR) {
                 return false;
             }
             /* c8 ignore stop */
-            if (p === exports.GLOBSTAR) {
-                this.debug('GLOBSTAR', [pattern, p, f]);
-                // "**"
-                // a/**/b/**/c would match the following:
-                // a/b/x/y/z/c
-                // a/x/y/z/b/c
-                // a/b/x/b/x/c
-                // a/b/c
-                // To do this, take the rest of the pattern after
-                // the **, and see if it would match the file remainder.
-                // If so, return success.
-                // If not, the ** "swallows" a segment, and try again.
-                // This is recursively awful.
-                //
-                // a/**/b/**/c matching a/b/x/y/z/c
-                // - a matches a
-                // - doublestar
-                //   - matchOne(b/x/y/z/c, b/**/c)
-                //     - b matches b
-                //     - doublestar
-                //       - matchOne(x/y/z/c, c) -> no
-                //       - matchOne(y/z/c, c) -> no
-                //       - matchOne(z/c, c) -> no
-                //       - matchOne(c, c) yes, hit
-                var fr = fi;
-                var pr = pi + 1;
-                if (pr === pl) {
-                    this.debug('** at the end');
-                    // a ** at the end will just swallow the rest.
-                    // We have found a match.
-                    // however, it will not swallow /.x, unless
-                    // options.dot is set.
-                    // . and .. are *never* matched by **, for explosively
-                    // exponential reasons.
-                    for (; fi < fl; fi++) {
-                        if (file[fi] === '.' ||
-                            file[fi] === '..' ||
-                            (!options.dot && file[fi].charAt(0) === '.'))
-                            return false;
-                    }
-                    return true;
-                }
-                // ok, let's see if we can swallow whatever we can.
-                while (fr < fl) {
-                    var swallowee = file[fr];
-                    this.debug('\nglobstar while', file, fr, pattern, pr, swallowee);
-                    // XXX remove this slice.  Just pass the start index.
-                    if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
-                        this.debug('globstar found match!', fr, fl, swallowee);
-                        // found a match.
-                        return true;
-                    }
-                    else {
-                        // can't swallow "." or ".." ever.
-                        // can only swallow ".foo" when explicitly asked.
-                        if (swallowee === '.' ||
-                            swallowee === '..' ||
-                            (!options.dot && swallowee.charAt(0) === '.')) {
-                            this.debug('dot detected!', file, fr, pattern, pr);
-                            break;
-                        }
-                        // ** swallows a segment, and continue.
-                        this.debug('globstar swallow a segment, and continue');
-                        fr++;
-                    }
-                }
-                // no match was found.
-                // However, in partial mode, we can't say this is necessarily over.
-                /* c8 ignore start */
-                if (partial) {
-                    // ran out of file
-                    this.debug('\n>>> no match, partial?', file, fr, pattern, pr);
-                    if (fr === fl) {
-                        return true;
-                    }
-                }
-                /* c8 ignore stop */
-                return false;
-            }
             // something other than **
             // non-magic patterns just have to match exactly
             // patterns with magic have been turned into regexps.
@@ -398143,11 +398675,11 @@ class Minimatch {
 }
 exports.Minimatch = Minimatch;
 /* c8 ignore start */
-var ast_js_2 = __nccwpck_require__(83558);
+var ast_js_2 = __nccwpck_require__(27471);
 Object.defineProperty(exports, "AST", ({ enumerable: true, get: function () { return ast_js_2.AST; } }));
-var escape_js_2 = __nccwpck_require__(89239);
+var escape_js_2 = __nccwpck_require__(84484);
 Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return escape_js_2.escape; } }));
-var unescape_js_2 = __nccwpck_require__(95168);
+var unescape_js_2 = __nccwpck_require__(76583);
 Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return unescape_js_2.unescape; } }));
 /* c8 ignore stop */
 exports.minimatch.AST = ast_js_1.AST;
@@ -398158,7 +398690,7 @@ exports.minimatch.unescape = unescape_js_1.unescape;
 
 /***/ }),
 
-/***/ 95168:
+/***/ 76583:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -398203,1880 +398735,17 @@ exports.unescape = unescape;
 
 /***/ }),
 
-/***/ 21842:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assertValidPattern = void 0;
-const MAX_PATTERN_LENGTH = 1024 * 64;
-const assertValidPattern = (pattern) => {
-    if (typeof pattern !== 'string') {
-        throw new TypeError('invalid pattern');
-    }
-    if (pattern.length > MAX_PATTERN_LENGTH) {
-        throw new TypeError('pattern is too long');
-    }
-};
-exports.assertValidPattern = assertValidPattern;
-//# sourceMappingURL=assert-valid-pattern.js.map
-
-/***/ }),
-
-/***/ 15778:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-// parse a single path portion
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AST = void 0;
-const brace_expressions_js_1 = __nccwpck_require__(66331);
-const unescape_js_1 = __nccwpck_require__(96284);
-const types = new Set(['!', '?', '+', '*', '@']);
-const isExtglobType = (c) => types.has(c);
-// Patterns that get prepended to bind to the start of either the
-// entire string, or just a single path portion, to prevent dots
-// and/or traversal patterns, when needed.
-// Exts don't need the ^ or / bit, because the root binds that already.
-const startNoTraversal = '(?!(?:^|/)\\.\\.?(?:$|/))';
-const startNoDot = '(?!\\.)';
-// characters that indicate a start of pattern needs the "no dots" bit,
-// because a dot *might* be matched. ( is not in the list, because in
-// the case of a child extglob, it will handle the prevention itself.
-const addPatternStart = new Set(['[', '.']);
-// cases where traversal is A-OK, no dot prevention needed
-const justDots = new Set(['..', '.']);
-const reSpecials = new Set('().*{}+?[]^$\\!');
-const regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-// any single thing other than /
-const qmark = '[^/]';
-// * => any number of characters
-const star = qmark + '*?';
-// use + when we need to ensure that *something* matches, because the * is
-// the only thing in the path portion.
-const starNoEmpty = qmark + '+?';
-// remove the \ chars that we added if we end up doing a nonmagic compare
-// const deslash = (s: string) => s.replace(/\\(.)/g, '$1')
-class AST {
-    type;
-    #root;
-    #hasMagic;
-    #uflag = false;
-    #parts = [];
-    #parent;
-    #parentIndex;
-    #negs;
-    #filledNegs = false;
-    #options;
-    #toString;
-    // set to true if it's an extglob with no children
-    // (which really means one child of '')
-    #emptyExt = false;
-    constructor(type, parent, options = {}) {
-        this.type = type;
-        // extglobs are inherently magical
-        if (type)
-            this.#hasMagic = true;
-        this.#parent = parent;
-        this.#root = this.#parent ? this.#parent.#root : this;
-        this.#options = this.#root === this ? options : this.#root.#options;
-        this.#negs = this.#root === this ? [] : this.#root.#negs;
-        if (type === '!' && !this.#root.#filledNegs)
-            this.#negs.push(this);
-        this.#parentIndex = this.#parent ? this.#parent.#parts.length : 0;
-    }
-    get hasMagic() {
-        /* c8 ignore start */
-        if (this.#hasMagic !== undefined)
-            return this.#hasMagic;
-        /* c8 ignore stop */
-        for (const p of this.#parts) {
-            if (typeof p === 'string')
-                continue;
-            if (p.type || p.hasMagic)
-                return (this.#hasMagic = true);
-        }
-        // note: will be undefined until we generate the regexp src and find out
-        return this.#hasMagic;
-    }
-    // reconstructs the pattern
-    toString() {
-        if (this.#toString !== undefined)
-            return this.#toString;
-        if (!this.type) {
-            return (this.#toString = this.#parts.map(p => String(p)).join(''));
-        }
-        else {
-            return (this.#toString =
-                this.type + '(' + this.#parts.map(p => String(p)).join('|') + ')');
-        }
-    }
-    #fillNegs() {
-        /* c8 ignore start */
-        if (this !== this.#root)
-            throw new Error('should only call on root');
-        if (this.#filledNegs)
-            return this;
-        /* c8 ignore stop */
-        // call toString() once to fill this out
-        this.toString();
-        this.#filledNegs = true;
-        let n;
-        while ((n = this.#negs.pop())) {
-            if (n.type !== '!')
-                continue;
-            // walk up the tree, appending everthing that comes AFTER parentIndex
-            let p = n;
-            let pp = p.#parent;
-            while (pp) {
-                for (let i = p.#parentIndex + 1; !pp.type && i < pp.#parts.length; i++) {
-                    for (const part of n.#parts) {
-                        /* c8 ignore start */
-                        if (typeof part === 'string') {
-                            throw new Error('string part in extglob AST??');
-                        }
-                        /* c8 ignore stop */
-                        part.copyIn(pp.#parts[i]);
-                    }
-                }
-                p = pp;
-                pp = p.#parent;
-            }
-        }
-        return this;
-    }
-    push(...parts) {
-        for (const p of parts) {
-            if (p === '')
-                continue;
-            /* c8 ignore start */
-            if (typeof p !== 'string' && !(p instanceof AST && p.#parent === this)) {
-                throw new Error('invalid part: ' + p);
-            }
-            /* c8 ignore stop */
-            this.#parts.push(p);
-        }
-    }
-    toJSON() {
-        const ret = this.type === null
-            ? this.#parts.slice().map(p => (typeof p === 'string' ? p : p.toJSON()))
-            : [this.type, ...this.#parts.map(p => p.toJSON())];
-        if (this.isStart() && !this.type)
-            ret.unshift([]);
-        if (this.isEnd() &&
-            (this === this.#root ||
-                (this.#root.#filledNegs && this.#parent?.type === '!'))) {
-            ret.push({});
-        }
-        return ret;
-    }
-    isStart() {
-        if (this.#root === this)
-            return true;
-        // if (this.type) return !!this.#parent?.isStart()
-        if (!this.#parent?.isStart())
-            return false;
-        if (this.#parentIndex === 0)
-            return true;
-        // if everything AHEAD of this is a negation, then it's still the "start"
-        const p = this.#parent;
-        for (let i = 0; i < this.#parentIndex; i++) {
-            const pp = p.#parts[i];
-            if (!(pp instanceof AST && pp.type === '!')) {
-                return false;
-            }
-        }
-        return true;
-    }
-    isEnd() {
-        if (this.#root === this)
-            return true;
-        if (this.#parent?.type === '!')
-            return true;
-        if (!this.#parent?.isEnd())
-            return false;
-        if (!this.type)
-            return this.#parent?.isEnd();
-        // if not root, it'll always have a parent
-        /* c8 ignore start */
-        const pl = this.#parent ? this.#parent.#parts.length : 0;
-        /* c8 ignore stop */
-        return this.#parentIndex === pl - 1;
-    }
-    copyIn(part) {
-        if (typeof part === 'string')
-            this.push(part);
-        else
-            this.push(part.clone(this));
-    }
-    clone(parent) {
-        const c = new AST(this.type, parent);
-        for (const p of this.#parts) {
-            c.copyIn(p);
-        }
-        return c;
-    }
-    static #parseAST(str, ast, pos, opt) {
-        let escaping = false;
-        let inBrace = false;
-        let braceStart = -1;
-        let braceNeg = false;
-        if (ast.type === null) {
-            // outside of a extglob, append until we find a start
-            let i = pos;
-            let acc = '';
-            while (i < str.length) {
-                const c = str.charAt(i++);
-                // still accumulate escapes at this point, but we do ignore
-                // starts that are escaped
-                if (escaping || c === '\\') {
-                    escaping = !escaping;
-                    acc += c;
-                    continue;
-                }
-                if (inBrace) {
-                    if (i === braceStart + 1) {
-                        if (c === '^' || c === '!') {
-                            braceNeg = true;
-                        }
-                    }
-                    else if (c === ']' && !(i === braceStart + 2 && braceNeg)) {
-                        inBrace = false;
-                    }
-                    acc += c;
-                    continue;
-                }
-                else if (c === '[') {
-                    inBrace = true;
-                    braceStart = i;
-                    braceNeg = false;
-                    acc += c;
-                    continue;
-                }
-                if (!opt.noext && isExtglobType(c) && str.charAt(i) === '(') {
-                    ast.push(acc);
-                    acc = '';
-                    const ext = new AST(c, ast);
-                    i = AST.#parseAST(str, ext, i, opt);
-                    ast.push(ext);
-                    continue;
-                }
-                acc += c;
-            }
-            ast.push(acc);
-            return i;
-        }
-        // some kind of extglob, pos is at the (
-        // find the next | or )
-        let i = pos + 1;
-        let part = new AST(null, ast);
-        const parts = [];
-        let acc = '';
-        while (i < str.length) {
-            const c = str.charAt(i++);
-            // still accumulate escapes at this point, but we do ignore
-            // starts that are escaped
-            if (escaping || c === '\\') {
-                escaping = !escaping;
-                acc += c;
-                continue;
-            }
-            if (inBrace) {
-                if (i === braceStart + 1) {
-                    if (c === '^' || c === '!') {
-                        braceNeg = true;
-                    }
-                }
-                else if (c === ']' && !(i === braceStart + 2 && braceNeg)) {
-                    inBrace = false;
-                }
-                acc += c;
-                continue;
-            }
-            else if (c === '[') {
-                inBrace = true;
-                braceStart = i;
-                braceNeg = false;
-                acc += c;
-                continue;
-            }
-            if (isExtglobType(c) && str.charAt(i) === '(') {
-                part.push(acc);
-                acc = '';
-                const ext = new AST(c, part);
-                part.push(ext);
-                i = AST.#parseAST(str, ext, i, opt);
-                continue;
-            }
-            if (c === '|') {
-                part.push(acc);
-                acc = '';
-                parts.push(part);
-                part = new AST(null, ast);
-                continue;
-            }
-            if (c === ')') {
-                if (acc === '' && ast.#parts.length === 0) {
-                    ast.#emptyExt = true;
-                }
-                part.push(acc);
-                acc = '';
-                ast.push(...parts, part);
-                return i;
-            }
-            acc += c;
-        }
-        // unfinished extglob
-        // if we got here, it was a malformed extglob! not an extglob, but
-        // maybe something else in there.
-        ast.type = null;
-        ast.#hasMagic = undefined;
-        ast.#parts = [str.substring(pos - 1)];
-        return i;
-    }
-    static fromGlob(pattern, options = {}) {
-        const ast = new AST(null, undefined, options);
-        AST.#parseAST(pattern, ast, 0, options);
-        return ast;
-    }
-    // returns the regular expression if there's magic, or the unescaped
-    // string if not.
-    toMMPattern() {
-        // should only be called on root
-        /* c8 ignore start */
-        if (this !== this.#root)
-            return this.#root.toMMPattern();
-        /* c8 ignore stop */
-        const glob = this.toString();
-        const [re, body, hasMagic, uflag] = this.toRegExpSource();
-        // if we're in nocase mode, and not nocaseMagicOnly, then we do
-        // still need a regular expression if we have to case-insensitively
-        // match capital/lowercase characters.
-        const anyMagic = hasMagic ||
-            this.#hasMagic ||
-            (this.#options.nocase &&
-                !this.#options.nocaseMagicOnly &&
-                glob.toUpperCase() !== glob.toLowerCase());
-        if (!anyMagic) {
-            return body;
-        }
-        const flags = (this.#options.nocase ? 'i' : '') + (uflag ? 'u' : '');
-        return Object.assign(new RegExp(`^${re}$`, flags), {
-            _src: re,
-            _glob: glob,
-        });
-    }
-    get options() {
-        return this.#options;
-    }
-    // returns the string match, the regexp source, whether there's magic
-    // in the regexp (so a regular expression is required) and whether or
-    // not the uflag is needed for the regular expression (for posix classes)
-    // TODO: instead of injecting the start/end at this point, just return
-    // the BODY of the regexp, along with the start/end portions suitable
-    // for binding the start/end in either a joined full-path makeRe context
-    // (where we bind to (^|/), or a standalone matchPart context (where
-    // we bind to ^, and not /).  Otherwise slashes get duped!
-    //
-    // In part-matching mode, the start is:
-    // - if not isStart: nothing
-    // - if traversal possible, but not allowed: ^(?!\.\.?$)
-    // - if dots allowed or not possible: ^
-    // - if dots possible and not allowed: ^(?!\.)
-    // end is:
-    // - if not isEnd(): nothing
-    // - else: $
-    //
-    // In full-path matching mode, we put the slash at the START of the
-    // pattern, so start is:
-    // - if first pattern: same as part-matching mode
-    // - if not isStart(): nothing
-    // - if traversal possible, but not allowed: /(?!\.\.?(?:$|/))
-    // - if dots allowed or not possible: /
-    // - if dots possible and not allowed: /(?!\.)
-    // end is:
-    // - if last pattern, same as part-matching mode
-    // - else nothing
-    //
-    // Always put the (?:$|/) on negated tails, though, because that has to be
-    // there to bind the end of the negated pattern portion, and it's easier to
-    // just stick it in now rather than try to inject it later in the middle of
-    // the pattern.
-    //
-    // We can just always return the same end, and leave it up to the caller
-    // to know whether it's going to be used joined or in parts.
-    // And, if the start is adjusted slightly, can do the same there:
-    // - if not isStart: nothing
-    // - if traversal possible, but not allowed: (?:/|^)(?!\.\.?$)
-    // - if dots allowed or not possible: (?:/|^)
-    // - if dots possible and not allowed: (?:/|^)(?!\.)
-    //
-    // But it's better to have a simpler binding without a conditional, for
-    // performance, so probably better to return both start options.
-    //
-    // Then the caller just ignores the end if it's not the first pattern,
-    // and the start always gets applied.
-    //
-    // But that's always going to be $ if it's the ending pattern, or nothing,
-    // so the caller can just attach $ at the end of the pattern when building.
-    //
-    // So the todo is:
-    // - better detect what kind of start is needed
-    // - return both flavors of starting pattern
-    // - attach $ at the end of the pattern when creating the actual RegExp
-    //
-    // Ah, but wait, no, that all only applies to the root when the first pattern
-    // is not an extglob. If the first pattern IS an extglob, then we need all
-    // that dot prevention biz to live in the extglob portions, because eg
-    // +(*|.x*) can match .xy but not .yx.
-    //
-    // So, return the two flavors if it's #root and the first child is not an
-    // AST, otherwise leave it to the child AST to handle it, and there,
-    // use the (?:^|/) style of start binding.
-    //
-    // Even simplified further:
-    // - Since the start for a join is eg /(?!\.) and the start for a part
-    // is ^(?!\.), we can just prepend (?!\.) to the pattern (either root
-    // or start or whatever) and prepend ^ or / at the Regexp construction.
-    toRegExpSource(allowDot) {
-        const dot = allowDot ?? !!this.#options.dot;
-        if (this.#root === this)
-            this.#fillNegs();
-        if (!this.type) {
-            const noEmpty = this.isStart() && this.isEnd();
-            const src = this.#parts
-                .map(p => {
-                const [re, _, hasMagic, uflag] = typeof p === 'string'
-                    ? AST.#parseGlob(p, this.#hasMagic, noEmpty)
-                    : p.toRegExpSource(allowDot);
-                this.#hasMagic = this.#hasMagic || hasMagic;
-                this.#uflag = this.#uflag || uflag;
-                return re;
-            })
-                .join('');
-            let start = '';
-            if (this.isStart()) {
-                if (typeof this.#parts[0] === 'string') {
-                    // this is the string that will match the start of the pattern,
-                    // so we need to protect against dots and such.
-                    // '.' and '..' cannot match unless the pattern is that exactly,
-                    // even if it starts with . or dot:true is set.
-                    const dotTravAllowed = this.#parts.length === 1 && justDots.has(this.#parts[0]);
-                    if (!dotTravAllowed) {
-                        const aps = addPatternStart;
-                        // check if we have a possibility of matching . or ..,
-                        // and prevent that.
-                        const needNoTrav = 
-                        // dots are allowed, and the pattern starts with [ or .
-                        (dot && aps.has(src.charAt(0))) ||
-                            // the pattern starts with \., and then [ or .
-                            (src.startsWith('\\.') && aps.has(src.charAt(2))) ||
-                            // the pattern starts with \.\., and then [ or .
-                            (src.startsWith('\\.\\.') && aps.has(src.charAt(4)));
-                        // no need to prevent dots if it can't match a dot, or if a
-                        // sub-pattern will be preventing it anyway.
-                        const needNoDot = !dot && !allowDot && aps.has(src.charAt(0));
-                        start = needNoTrav ? startNoTraversal : needNoDot ? startNoDot : '';
-                    }
-                }
-            }
-            // append the "end of path portion" pattern to negation tails
-            let end = '';
-            if (this.isEnd() &&
-                this.#root.#filledNegs &&
-                this.#parent?.type === '!') {
-                end = '(?:$|\\/)';
-            }
-            const final = start + src + end;
-            return [
-                final,
-                (0, unescape_js_1.unescape)(src),
-                (this.#hasMagic = !!this.#hasMagic),
-                this.#uflag,
-            ];
-        }
-        // We need to calculate the body *twice* if it's a repeat pattern
-        // at the start, once in nodot mode, then again in dot mode, so a
-        // pattern like *(?) can match 'x.y'
-        const repeated = this.type === '*' || this.type === '+';
-        // some kind of extglob
-        const start = this.type === '!' ? '(?:(?!(?:' : '(?:';
-        let body = this.#partsToRegExp(dot);
-        if (this.isStart() && this.isEnd() && !body && this.type !== '!') {
-            // invalid extglob, has to at least be *something* present, if it's
-            // the entire path portion.
-            const s = this.toString();
-            this.#parts = [s];
-            this.type = null;
-            this.#hasMagic = undefined;
-            return [s, (0, unescape_js_1.unescape)(this.toString()), false, false];
-        }
-        // XXX abstract out this map method
-        let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot
-            ? ''
-            : this.#partsToRegExp(true);
-        if (bodyDotAllowed === body) {
-            bodyDotAllowed = '';
-        }
-        if (bodyDotAllowed) {
-            body = `(?:${body})(?:${bodyDotAllowed})*?`;
-        }
-        // an empty !() is exactly equivalent to a starNoEmpty
-        let final = '';
-        if (this.type === '!' && this.#emptyExt) {
-            final = (this.isStart() && !dot ? startNoDot : '') + starNoEmpty;
-        }
-        else {
-            const close = this.type === '!'
-                ? // !() must match something,but !(x) can match ''
-                    '))' +
-                        (this.isStart() && !dot && !allowDot ? startNoDot : '') +
-                        star +
-                        ')'
-                : this.type === '@'
-                    ? ')'
-                    : this.type === '?'
-                        ? ')?'
-                        : this.type === '+' && bodyDotAllowed
-                            ? ')'
-                            : this.type === '*' && bodyDotAllowed
-                                ? `)?`
-                                : `)${this.type}`;
-            final = start + body + close;
-        }
-        return [
-            final,
-            (0, unescape_js_1.unescape)(body),
-            (this.#hasMagic = !!this.#hasMagic),
-            this.#uflag,
-        ];
-    }
-    #partsToRegExp(dot) {
-        return this.#parts
-            .map(p => {
-            // extglob ASTs should only contain parent ASTs
-            /* c8 ignore start */
-            if (typeof p === 'string') {
-                throw new Error('string type in extglob ast??');
-            }
-            /* c8 ignore stop */
-            // can ignore hasMagic, because extglobs are already always magic
-            const [re, _, _hasMagic, uflag] = p.toRegExpSource(dot);
-            this.#uflag = this.#uflag || uflag;
-            return re;
-        })
-            .filter(p => !(this.isStart() && this.isEnd()) || !!p)
-            .join('|');
-    }
-    static #parseGlob(glob, hasMagic, noEmpty = false) {
-        let escaping = false;
-        let re = '';
-        let uflag = false;
-        for (let i = 0; i < glob.length; i++) {
-            const c = glob.charAt(i);
-            if (escaping) {
-                escaping = false;
-                re += (reSpecials.has(c) ? '\\' : '') + c;
-                continue;
-            }
-            if (c === '\\') {
-                if (i === glob.length - 1) {
-                    re += '\\\\';
-                }
-                else {
-                    escaping = true;
-                }
-                continue;
-            }
-            if (c === '[') {
-                const [src, needUflag, consumed, magic] = (0, brace_expressions_js_1.parseClass)(glob, i);
-                if (consumed) {
-                    re += src;
-                    uflag = uflag || needUflag;
-                    i += consumed - 1;
-                    hasMagic = hasMagic || magic;
-                    continue;
-                }
-            }
-            if (c === '*') {
-                if (noEmpty && glob === '*')
-                    re += starNoEmpty;
-                else
-                    re += star;
-                hasMagic = true;
-                continue;
-            }
-            if (c === '?') {
-                re += qmark;
-                hasMagic = true;
-                continue;
-            }
-            re += regExpEscape(c);
-        }
-        return [re, (0, unescape_js_1.unescape)(glob), !!hasMagic, uflag];
-    }
-}
-exports.AST = AST;
-//# sourceMappingURL=ast.js.map
-
-/***/ }),
-
-/***/ 66331:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-// translate the various posix character classes into unicode properties
-// this works across all unicode locales
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseClass = void 0;
-// { <posix class>: [<translation>, /u flag required, negated]
-const posixClasses = {
-    '[:alnum:]': ['\\p{L}\\p{Nl}\\p{Nd}', true],
-    '[:alpha:]': ['\\p{L}\\p{Nl}', true],
-    '[:ascii:]': ['\\x' + '00-\\x' + '7f', false],
-    '[:blank:]': ['\\p{Zs}\\t', true],
-    '[:cntrl:]': ['\\p{Cc}', true],
-    '[:digit:]': ['\\p{Nd}', true],
-    '[:graph:]': ['\\p{Z}\\p{C}', true, true],
-    '[:lower:]': ['\\p{Ll}', true],
-    '[:print:]': ['\\p{C}', true],
-    '[:punct:]': ['\\p{P}', true],
-    '[:space:]': ['\\p{Z}\\t\\r\\n\\v\\f', true],
-    '[:upper:]': ['\\p{Lu}', true],
-    '[:word:]': ['\\p{L}\\p{Nl}\\p{Nd}\\p{Pc}', true],
-    '[:xdigit:]': ['A-Fa-f0-9', false],
-};
-// only need to escape a few things inside of brace expressions
-// escapes: [ \ ] -
-const braceEscape = (s) => s.replace(/[[\]\\-]/g, '\\$&');
-// escape all regexp magic characters
-const regexpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-// everything has already been escaped, we just have to join
-const rangesToString = (ranges) => ranges.join('');
-// takes a glob string at a posix brace expression, and returns
-// an equivalent regular expression source, and boolean indicating
-// whether the /u flag needs to be applied, and the number of chars
-// consumed to parse the character class.
-// This also removes out of order ranges, and returns ($.) if the
-// entire class just no good.
-const parseClass = (glob, position) => {
-    const pos = position;
-    /* c8 ignore start */
-    if (glob.charAt(pos) !== '[') {
-        throw new Error('not in a brace expression');
-    }
-    /* c8 ignore stop */
-    const ranges = [];
-    const negs = [];
-    let i = pos + 1;
-    let sawStart = false;
-    let uflag = false;
-    let escaping = false;
-    let negate = false;
-    let endPos = pos;
-    let rangeStart = '';
-    WHILE: while (i < glob.length) {
-        const c = glob.charAt(i);
-        if ((c === '!' || c === '^') && i === pos + 1) {
-            negate = true;
-            i++;
-            continue;
-        }
-        if (c === ']' && sawStart && !escaping) {
-            endPos = i + 1;
-            break;
-        }
-        sawStart = true;
-        if (c === '\\') {
-            if (!escaping) {
-                escaping = true;
-                i++;
-                continue;
-            }
-            // escaped \ char, fall through and treat like normal char
-        }
-        if (c === '[' && !escaping) {
-            // either a posix class, a collation equivalent, or just a [
-            for (const [cls, [unip, u, neg]] of Object.entries(posixClasses)) {
-                if (glob.startsWith(cls, i)) {
-                    // invalid, [a-[] is fine, but not [a-[:alpha]]
-                    if (rangeStart) {
-                        return ['$.', false, glob.length - pos, true];
-                    }
-                    i += cls.length;
-                    if (neg)
-                        negs.push(unip);
-                    else
-                        ranges.push(unip);
-                    uflag = uflag || u;
-                    continue WHILE;
-                }
-            }
-        }
-        // now it's just a normal character, effectively
-        escaping = false;
-        if (rangeStart) {
-            // throw this range away if it's not valid, but others
-            // can still match.
-            if (c > rangeStart) {
-                ranges.push(braceEscape(rangeStart) + '-' + braceEscape(c));
-            }
-            else if (c === rangeStart) {
-                ranges.push(braceEscape(c));
-            }
-            rangeStart = '';
-            i++;
-            continue;
-        }
-        // now might be the start of a range.
-        // can be either c-d or c-] or c<more...>] or c] at this point
-        if (glob.startsWith('-]', i + 1)) {
-            ranges.push(braceEscape(c + '-'));
-            i += 2;
-            continue;
-        }
-        if (glob.startsWith('-', i + 1)) {
-            rangeStart = c;
-            i += 2;
-            continue;
-        }
-        // not the start of a range, just a single character
-        ranges.push(braceEscape(c));
-        i++;
-    }
-    if (endPos < i) {
-        // didn't see the end of the class, not a valid class,
-        // but might still be valid as a literal match.
-        return ['', false, 0, false];
-    }
-    // if we got no ranges and no negates, then we have a range that
-    // cannot possibly match anything, and that poisons the whole glob
-    if (!ranges.length && !negs.length) {
-        return ['$.', false, glob.length - pos, true];
-    }
-    // if we got one positive range, and it's a single character, then that's
-    // not actually a magic pattern, it's just that one literal character.
-    // we should not treat that as "magic", we should just return the literal
-    // character. [_] is a perfectly valid way to escape glob magic chars.
-    if (negs.length === 0 &&
-        ranges.length === 1 &&
-        /^\\?.$/.test(ranges[0]) &&
-        !negate) {
-        const r = ranges[0].length === 2 ? ranges[0].slice(-1) : ranges[0];
-        return [regexpEscape(r), false, endPos - pos, false];
-    }
-    const sranges = '[' + (negate ? '^' : '') + rangesToString(ranges) + ']';
-    const snegs = '[' + (negate ? '' : '^') + rangesToString(negs) + ']';
-    const comb = ranges.length && negs.length
-        ? '(' + sranges + '|' + snegs + ')'
-        : ranges.length
-            ? sranges
-            : snegs;
-    return [comb, uflag, endPos - pos, true];
-};
-exports.parseClass = parseClass;
-//# sourceMappingURL=brace-expressions.js.map
-
-/***/ }),
-
-/***/ 98803:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.escape = void 0;
-/**
- * Escape all magic characters in a glob pattern.
- *
- * If the {@link windowsPathsNoEscape | GlobOptions.windowsPathsNoEscape}
- * option is used, then characters are escaped by wrapping in `[]`, because
- * a magic character wrapped in a character class can only be satisfied by
- * that exact character.  In this mode, `\` is _not_ escaped, because it is
- * not interpreted as a magic character, but instead as a path separator.
- */
-const escape = (s, { windowsPathsNoEscape = false, } = {}) => {
-    // don't need to escape +@! because we escape the parens
-    // that make those magic, and escaping ! as [!] isn't valid,
-    // because [!]] is a valid glob class meaning not ']'.
-    return windowsPathsNoEscape
-        ? s.replace(/[?*()[\]]/g, '[$&]')
-        : s.replace(/[?*()[\]\\]/g, '\\$&');
-};
-exports.escape = escape;
-//# sourceMappingURL=escape.js.map
-
-/***/ }),
-
-/***/ 76362:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.unescape = exports.escape = exports.AST = exports.Minimatch = exports.match = exports.makeRe = exports.braceExpand = exports.defaults = exports.filter = exports.GLOBSTAR = exports.sep = exports.minimatch = void 0;
-const brace_expansion_1 = __importDefault(__nccwpck_require__(23033));
-const assert_valid_pattern_js_1 = __nccwpck_require__(21842);
-const ast_js_1 = __nccwpck_require__(15778);
-const escape_js_1 = __nccwpck_require__(98803);
-const unescape_js_1 = __nccwpck_require__(96284);
-const minimatch = (p, pattern, options = {}) => {
-    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
-    // shortcut: comments match nothing.
-    if (!options.nocomment && pattern.charAt(0) === '#') {
-        return false;
-    }
-    return new Minimatch(pattern, options).match(p);
-};
-exports.minimatch = minimatch;
-// Optimized checking for the most common glob patterns.
-const starDotExtRE = /^\*+([^+@!?\*\[\(]*)$/;
-const starDotExtTest = (ext) => (f) => !f.startsWith('.') && f.endsWith(ext);
-const starDotExtTestDot = (ext) => (f) => f.endsWith(ext);
-const starDotExtTestNocase = (ext) => {
-    ext = ext.toLowerCase();
-    return (f) => !f.startsWith('.') && f.toLowerCase().endsWith(ext);
-};
-const starDotExtTestNocaseDot = (ext) => {
-    ext = ext.toLowerCase();
-    return (f) => f.toLowerCase().endsWith(ext);
-};
-const starDotStarRE = /^\*+\.\*+$/;
-const starDotStarTest = (f) => !f.startsWith('.') && f.includes('.');
-const starDotStarTestDot = (f) => f !== '.' && f !== '..' && f.includes('.');
-const dotStarRE = /^\.\*+$/;
-const dotStarTest = (f) => f !== '.' && f !== '..' && f.startsWith('.');
-const starRE = /^\*+$/;
-const starTest = (f) => f.length !== 0 && !f.startsWith('.');
-const starTestDot = (f) => f.length !== 0 && f !== '.' && f !== '..';
-const qmarksRE = /^\?+([^+@!?\*\[\(]*)?$/;
-const qmarksTestNocase = ([$0, ext = '']) => {
-    const noext = qmarksTestNoExt([$0]);
-    if (!ext)
-        return noext;
-    ext = ext.toLowerCase();
-    return (f) => noext(f) && f.toLowerCase().endsWith(ext);
-};
-const qmarksTestNocaseDot = ([$0, ext = '']) => {
-    const noext = qmarksTestNoExtDot([$0]);
-    if (!ext)
-        return noext;
-    ext = ext.toLowerCase();
-    return (f) => noext(f) && f.toLowerCase().endsWith(ext);
-};
-const qmarksTestDot = ([$0, ext = '']) => {
-    const noext = qmarksTestNoExtDot([$0]);
-    return !ext ? noext : (f) => noext(f) && f.endsWith(ext);
-};
-const qmarksTest = ([$0, ext = '']) => {
-    const noext = qmarksTestNoExt([$0]);
-    return !ext ? noext : (f) => noext(f) && f.endsWith(ext);
-};
-const qmarksTestNoExt = ([$0]) => {
-    const len = $0.length;
-    return (f) => f.length === len && !f.startsWith('.');
-};
-const qmarksTestNoExtDot = ([$0]) => {
-    const len = $0.length;
-    return (f) => f.length === len && f !== '.' && f !== '..';
-};
-/* c8 ignore start */
-const defaultPlatform = (typeof process === 'object' && process
-    ? (typeof process.env === 'object' &&
-        process.env &&
-        process.env.__MINIMATCH_TESTING_PLATFORM__) ||
-        process.platform
-    : 'posix');
-const path = {
-    win32: { sep: '\\' },
-    posix: { sep: '/' },
-};
-/* c8 ignore stop */
-exports.sep = defaultPlatform === 'win32' ? path.win32.sep : path.posix.sep;
-exports.minimatch.sep = exports.sep;
-exports.GLOBSTAR = Symbol('globstar **');
-exports.minimatch.GLOBSTAR = exports.GLOBSTAR;
-// any single thing other than /
-// don't need to escape / when using new RegExp()
-const qmark = '[^/]';
-// * => any number of characters
-const star = qmark + '*?';
-// ** when dots are allowed.  Anything goes, except .. and .
-// not (^ or / followed by one or two dots followed by $ or /),
-// followed by anything, any number of times.
-const twoStarDot = '(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?';
-// not a ^ or / followed by a dot,
-// followed by anything, any number of times.
-const twoStarNoDot = '(?:(?!(?:\\/|^)\\.).)*?';
-const filter = (pattern, options = {}) => (p) => (0, exports.minimatch)(p, pattern, options);
-exports.filter = filter;
-exports.minimatch.filter = exports.filter;
-const ext = (a, b = {}) => Object.assign({}, a, b);
-const defaults = (def) => {
-    if (!def || typeof def !== 'object' || !Object.keys(def).length) {
-        return exports.minimatch;
-    }
-    const orig = exports.minimatch;
-    const m = (p, pattern, options = {}) => orig(p, pattern, ext(def, options));
-    return Object.assign(m, {
-        Minimatch: class Minimatch extends orig.Minimatch {
-            constructor(pattern, options = {}) {
-                super(pattern, ext(def, options));
-            }
-            static defaults(options) {
-                return orig.defaults(ext(def, options)).Minimatch;
-            }
-        },
-        AST: class AST extends orig.AST {
-            /* c8 ignore start */
-            constructor(type, parent, options = {}) {
-                super(type, parent, ext(def, options));
-            }
-            /* c8 ignore stop */
-            static fromGlob(pattern, options = {}) {
-                return orig.AST.fromGlob(pattern, ext(def, options));
-            }
-        },
-        unescape: (s, options = {}) => orig.unescape(s, ext(def, options)),
-        escape: (s, options = {}) => orig.escape(s, ext(def, options)),
-        filter: (pattern, options = {}) => orig.filter(pattern, ext(def, options)),
-        defaults: (options) => orig.defaults(ext(def, options)),
-        makeRe: (pattern, options = {}) => orig.makeRe(pattern, ext(def, options)),
-        braceExpand: (pattern, options = {}) => orig.braceExpand(pattern, ext(def, options)),
-        match: (list, pattern, options = {}) => orig.match(list, pattern, ext(def, options)),
-        sep: orig.sep,
-        GLOBSTAR: exports.GLOBSTAR,
-    });
-};
-exports.defaults = defaults;
-exports.minimatch.defaults = exports.defaults;
-// Brace expansion:
-// a{b,c}d -> abd acd
-// a{b,}c -> abc ac
-// a{0..3}d -> a0d a1d a2d a3d
-// a{b,c{d,e}f}g -> abg acdfg acefg
-// a{b,c}d{e,f}g -> abdeg acdeg abdeg abdfg
-//
-// Invalid sets are not expanded.
-// a{2..}b -> a{2..}b
-// a{b}c -> a{b}c
-const braceExpand = (pattern, options = {}) => {
-    (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
-    // Thanks to Yeting Li <https://github.com/yetingli> for
-    // improving this regexp to avoid a ReDOS vulnerability.
-    if (options.nobrace || !/\{(?:(?!\{).)*\}/.test(pattern)) {
-        // shortcut. no need to expand.
-        return [pattern];
-    }
-    return (0, brace_expansion_1.default)(pattern);
-};
-exports.braceExpand = braceExpand;
-exports.minimatch.braceExpand = exports.braceExpand;
-// parse a component of the expanded set.
-// At this point, no pattern may contain "/" in it
-// so we're going to return a 2d array, where each entry is the full
-// pattern, split on '/', and then turned into a regular expression.
-// A regexp is made at the end which joins each array with an
-// escaped /, and another full one which joins each regexp with |.
-//
-// Following the lead of Bash 4.1, note that "**" only has special meaning
-// when it is the *only* thing in a path portion.  Otherwise, any series
-// of * is equivalent to a single *.  Globstar behavior is enabled by
-// default, and can be disabled by setting options.noglobstar.
-const makeRe = (pattern, options = {}) => new Minimatch(pattern, options).makeRe();
-exports.makeRe = makeRe;
-exports.minimatch.makeRe = exports.makeRe;
-const match = (list, pattern, options = {}) => {
-    const mm = new Minimatch(pattern, options);
-    list = list.filter(f => mm.match(f));
-    if (mm.options.nonull && !list.length) {
-        list.push(pattern);
-    }
-    return list;
-};
-exports.match = match;
-exports.minimatch.match = exports.match;
-// replace stuff like \* with *
-const globMagic = /[?*]|[+@!]\(.*?\)|\[|\]/;
-const regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-class Minimatch {
-    options;
-    set;
-    pattern;
-    windowsPathsNoEscape;
-    nonegate;
-    negate;
-    comment;
-    empty;
-    preserveMultipleSlashes;
-    partial;
-    globSet;
-    globParts;
-    nocase;
-    isWindows;
-    platform;
-    windowsNoMagicRoot;
-    regexp;
-    constructor(pattern, options = {}) {
-        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
-        options = options || {};
-        this.options = options;
-        this.pattern = pattern;
-        this.platform = options.platform || defaultPlatform;
-        this.isWindows = this.platform === 'win32';
-        this.windowsPathsNoEscape =
-            !!options.windowsPathsNoEscape || options.allowWindowsEscape === false;
-        if (this.windowsPathsNoEscape) {
-            this.pattern = this.pattern.replace(/\\/g, '/');
-        }
-        this.preserveMultipleSlashes = !!options.preserveMultipleSlashes;
-        this.regexp = null;
-        this.negate = false;
-        this.nonegate = !!options.nonegate;
-        this.comment = false;
-        this.empty = false;
-        this.partial = !!options.partial;
-        this.nocase = !!this.options.nocase;
-        this.windowsNoMagicRoot =
-            options.windowsNoMagicRoot !== undefined
-                ? options.windowsNoMagicRoot
-                : !!(this.isWindows && this.nocase);
-        this.globSet = [];
-        this.globParts = [];
-        this.set = [];
-        // make the set of regexps etc.
-        this.make();
-    }
-    hasMagic() {
-        if (this.options.magicalBraces && this.set.length > 1) {
-            return true;
-        }
-        for (const pattern of this.set) {
-            for (const part of pattern) {
-                if (typeof part !== 'string')
-                    return true;
-            }
-        }
-        return false;
-    }
-    debug(..._) { }
-    make() {
-        const pattern = this.pattern;
-        const options = this.options;
-        // empty patterns and comments match nothing.
-        if (!options.nocomment && pattern.charAt(0) === '#') {
-            this.comment = true;
-            return;
-        }
-        if (!pattern) {
-            this.empty = true;
-            return;
-        }
-        // step 1: figure out negation, etc.
-        this.parseNegate();
-        // step 2: expand braces
-        this.globSet = [...new Set(this.braceExpand())];
-        if (options.debug) {
-            this.debug = (...args) => console.error(...args);
-        }
-        this.debug(this.pattern, this.globSet);
-        // step 3: now we have a set, so turn each one into a series of
-        // path-portion matching patterns.
-        // These will be regexps, except in the case of "**", which is
-        // set to the GLOBSTAR object for globstar behavior,
-        // and will not contain any / characters
-        //
-        // First, we preprocess to make the glob pattern sets a bit simpler
-        // and deduped.  There are some perf-killing patterns that can cause
-        // problems with a glob walk, but we can simplify them down a bit.
-        const rawGlobParts = this.globSet.map(s => this.slashSplit(s));
-        this.globParts = this.preprocess(rawGlobParts);
-        this.debug(this.pattern, this.globParts);
-        // glob --> regexps
-        let set = this.globParts.map((s, _, __) => {
-            if (this.isWindows && this.windowsNoMagicRoot) {
-                // check if it's a drive or unc path.
-                const isUNC = s[0] === '' &&
-                    s[1] === '' &&
-                    (s[2] === '?' || !globMagic.test(s[2])) &&
-                    !globMagic.test(s[3]);
-                const isDrive = /^[a-z]:/i.test(s[0]);
-                if (isUNC) {
-                    return [...s.slice(0, 4), ...s.slice(4).map(ss => this.parse(ss))];
-                }
-                else if (isDrive) {
-                    return [s[0], ...s.slice(1).map(ss => this.parse(ss))];
-                }
-            }
-            return s.map(ss => this.parse(ss));
-        });
-        this.debug(this.pattern, set);
-        // filter out everything that didn't compile properly.
-        this.set = set.filter(s => s.indexOf(false) === -1);
-        // do not treat the ? in UNC paths as magic
-        if (this.isWindows) {
-            for (let i = 0; i < this.set.length; i++) {
-                const p = this.set[i];
-                if (p[0] === '' &&
-                    p[1] === '' &&
-                    this.globParts[i][2] === '?' &&
-                    typeof p[3] === 'string' &&
-                    /^[a-z]:$/i.test(p[3])) {
-                    p[2] = '?';
-                }
-            }
-        }
-        this.debug(this.pattern, this.set);
-    }
-    // various transforms to equivalent pattern sets that are
-    // faster to process in a filesystem walk.  The goal is to
-    // eliminate what we can, and push all ** patterns as far
-    // to the right as possible, even if it increases the number
-    // of patterns that we have to process.
-    preprocess(globParts) {
-        // if we're not in globstar mode, then turn all ** into *
-        if (this.options.noglobstar) {
-            for (let i = 0; i < globParts.length; i++) {
-                for (let j = 0; j < globParts[i].length; j++) {
-                    if (globParts[i][j] === '**') {
-                        globParts[i][j] = '*';
-                    }
-                }
-            }
-        }
-        const { optimizationLevel = 1 } = this.options;
-        if (optimizationLevel >= 2) {
-            // aggressive optimization for the purpose of fs walking
-            globParts = this.firstPhasePreProcess(globParts);
-            globParts = this.secondPhasePreProcess(globParts);
-        }
-        else if (optimizationLevel >= 1) {
-            // just basic optimizations to remove some .. parts
-            globParts = this.levelOneOptimize(globParts);
-        }
-        else {
-            // just collapse multiple ** portions into one
-            globParts = this.adjascentGlobstarOptimize(globParts);
-        }
-        return globParts;
-    }
-    // just get rid of adjascent ** portions
-    adjascentGlobstarOptimize(globParts) {
-        return globParts.map(parts => {
-            let gs = -1;
-            while (-1 !== (gs = parts.indexOf('**', gs + 1))) {
-                let i = gs;
-                while (parts[i + 1] === '**') {
-                    i++;
-                }
-                if (i !== gs) {
-                    parts.splice(gs, i - gs);
-                }
-            }
-            return parts;
-        });
-    }
-    // get rid of adjascent ** and resolve .. portions
-    levelOneOptimize(globParts) {
-        return globParts.map(parts => {
-            parts = parts.reduce((set, part) => {
-                const prev = set[set.length - 1];
-                if (part === '**' && prev === '**') {
-                    return set;
-                }
-                if (part === '..') {
-                    if (prev && prev !== '..' && prev !== '.' && prev !== '**') {
-                        set.pop();
-                        return set;
-                    }
-                }
-                set.push(part);
-                return set;
-            }, []);
-            return parts.length === 0 ? [''] : parts;
-        });
-    }
-    levelTwoFileOptimize(parts) {
-        if (!Array.isArray(parts)) {
-            parts = this.slashSplit(parts);
-        }
-        let didSomething = false;
-        do {
-            didSomething = false;
-            // <pre>/<e>/<rest> -> <pre>/<rest>
-            if (!this.preserveMultipleSlashes) {
-                for (let i = 1; i < parts.length - 1; i++) {
-                    const p = parts[i];
-                    // don't squeeze out UNC patterns
-                    if (i === 1 && p === '' && parts[0] === '')
-                        continue;
-                    if (p === '.' || p === '') {
-                        didSomething = true;
-                        parts.splice(i, 1);
-                        i--;
-                    }
-                }
-                if (parts[0] === '.' &&
-                    parts.length === 2 &&
-                    (parts[1] === '.' || parts[1] === '')) {
-                    didSomething = true;
-                    parts.pop();
-                }
-            }
-            // <pre>/<p>/../<rest> -> <pre>/<rest>
-            let dd = 0;
-            while (-1 !== (dd = parts.indexOf('..', dd + 1))) {
-                const p = parts[dd - 1];
-                if (p && p !== '.' && p !== '..' && p !== '**') {
-                    didSomething = true;
-                    parts.splice(dd - 1, 2);
-                    dd -= 2;
-                }
-            }
-        } while (didSomething);
-        return parts.length === 0 ? [''] : parts;
-    }
-    // First phase: single-pattern processing
-    // <pre> is 1 or more portions
-    // <rest> is 1 or more portions
-    // <p> is any portion other than ., .., '', or **
-    // <e> is . or ''
-    //
-    // **/.. is *brutal* for filesystem walking performance, because
-    // it effectively resets the recursive walk each time it occurs,
-    // and ** cannot be reduced out by a .. pattern part like a regexp
-    // or most strings (other than .., ., and '') can be.
-    //
-    // <pre>/**/../<p>/<p>/<rest> -> {<pre>/../<p>/<p>/<rest>,<pre>/**/<p>/<p>/<rest>}
-    // <pre>/<e>/<rest> -> <pre>/<rest>
-    // <pre>/<p>/../<rest> -> <pre>/<rest>
-    // **/**/<rest> -> **/<rest>
-    //
-    // **/*/<rest> -> */**/<rest> <== not valid because ** doesn't follow
-    // this WOULD be allowed if ** did follow symlinks, or * didn't
-    firstPhasePreProcess(globParts) {
-        let didSomething = false;
-        do {
-            didSomething = false;
-            // <pre>/**/../<p>/<p>/<rest> -> {<pre>/../<p>/<p>/<rest>,<pre>/**/<p>/<p>/<rest>}
-            for (let parts of globParts) {
-                let gs = -1;
-                while (-1 !== (gs = parts.indexOf('**', gs + 1))) {
-                    let gss = gs;
-                    while (parts[gss + 1] === '**') {
-                        // <pre>/**/**/<rest> -> <pre>/**/<rest>
-                        gss++;
-                    }
-                    // eg, if gs is 2 and gss is 4, that means we have 3 **
-                    // parts, and can remove 2 of them.
-                    if (gss > gs) {
-                        parts.splice(gs + 1, gss - gs);
-                    }
-                    let next = parts[gs + 1];
-                    const p = parts[gs + 2];
-                    const p2 = parts[gs + 3];
-                    if (next !== '..')
-                        continue;
-                    if (!p ||
-                        p === '.' ||
-                        p === '..' ||
-                        !p2 ||
-                        p2 === '.' ||
-                        p2 === '..') {
-                        continue;
-                    }
-                    didSomething = true;
-                    // edit parts in place, and push the new one
-                    parts.splice(gs, 1);
-                    const other = parts.slice(0);
-                    other[gs] = '**';
-                    globParts.push(other);
-                    gs--;
-                }
-                // <pre>/<e>/<rest> -> <pre>/<rest>
-                if (!this.preserveMultipleSlashes) {
-                    for (let i = 1; i < parts.length - 1; i++) {
-                        const p = parts[i];
-                        // don't squeeze out UNC patterns
-                        if (i === 1 && p === '' && parts[0] === '')
-                            continue;
-                        if (p === '.' || p === '') {
-                            didSomething = true;
-                            parts.splice(i, 1);
-                            i--;
-                        }
-                    }
-                    if (parts[0] === '.' &&
-                        parts.length === 2 &&
-                        (parts[1] === '.' || parts[1] === '')) {
-                        didSomething = true;
-                        parts.pop();
-                    }
-                }
-                // <pre>/<p>/../<rest> -> <pre>/<rest>
-                let dd = 0;
-                while (-1 !== (dd = parts.indexOf('..', dd + 1))) {
-                    const p = parts[dd - 1];
-                    if (p && p !== '.' && p !== '..' && p !== '**') {
-                        didSomething = true;
-                        const needDot = dd === 1 && parts[dd + 1] === '**';
-                        const splin = needDot ? ['.'] : [];
-                        parts.splice(dd - 1, 2, ...splin);
-                        if (parts.length === 0)
-                            parts.push('');
-                        dd -= 2;
-                    }
-                }
-            }
-        } while (didSomething);
-        return globParts;
-    }
-    // second phase: multi-pattern dedupes
-    // {<pre>/*/<rest>,<pre>/<p>/<rest>} -> <pre>/*/<rest>
-    // {<pre>/<rest>,<pre>/<rest>} -> <pre>/<rest>
-    // {<pre>/**/<rest>,<pre>/<rest>} -> <pre>/**/<rest>
-    //
-    // {<pre>/**/<rest>,<pre>/**/<p>/<rest>} -> <pre>/**/<rest>
-    // ^-- not valid because ** doens't follow symlinks
-    secondPhasePreProcess(globParts) {
-        for (let i = 0; i < globParts.length - 1; i++) {
-            for (let j = i + 1; j < globParts.length; j++) {
-                const matched = this.partsMatch(globParts[i], globParts[j], !this.preserveMultipleSlashes);
-                if (matched) {
-                    globParts[i] = [];
-                    globParts[j] = matched;
-                    break;
-                }
-            }
-        }
-        return globParts.filter(gs => gs.length);
-    }
-    partsMatch(a, b, emptyGSMatch = false) {
-        let ai = 0;
-        let bi = 0;
-        let result = [];
-        let which = '';
-        while (ai < a.length && bi < b.length) {
-            if (a[ai] === b[bi]) {
-                result.push(which === 'b' ? b[bi] : a[ai]);
-                ai++;
-                bi++;
-            }
-            else if (emptyGSMatch && a[ai] === '**' && b[bi] === a[ai + 1]) {
-                result.push(a[ai]);
-                ai++;
-            }
-            else if (emptyGSMatch && b[bi] === '**' && a[ai] === b[bi + 1]) {
-                result.push(b[bi]);
-                bi++;
-            }
-            else if (a[ai] === '*' &&
-                b[bi] &&
-                (this.options.dot || !b[bi].startsWith('.')) &&
-                b[bi] !== '**') {
-                if (which === 'b')
-                    return false;
-                which = 'a';
-                result.push(a[ai]);
-                ai++;
-                bi++;
-            }
-            else if (b[bi] === '*' &&
-                a[ai] &&
-                (this.options.dot || !a[ai].startsWith('.')) &&
-                a[ai] !== '**') {
-                if (which === 'a')
-                    return false;
-                which = 'b';
-                result.push(b[bi]);
-                ai++;
-                bi++;
-            }
-            else {
-                return false;
-            }
-        }
-        // if we fall out of the loop, it means they two are identical
-        // as long as their lengths match
-        return a.length === b.length && result;
-    }
-    parseNegate() {
-        if (this.nonegate)
-            return;
-        const pattern = this.pattern;
-        let negate = false;
-        let negateOffset = 0;
-        for (let i = 0; i < pattern.length && pattern.charAt(i) === '!'; i++) {
-            negate = !negate;
-            negateOffset++;
-        }
-        if (negateOffset)
-            this.pattern = pattern.slice(negateOffset);
-        this.negate = negate;
-    }
-    // set partial to true to test if, for example,
-    // "/a/b" matches the start of "/*/b/*/d"
-    // Partial means, if you run out of file before you run
-    // out of pattern, then that's fine, as long as all
-    // the parts match.
-    matchOne(file, pattern, partial = false) {
-        const options = this.options;
-        // UNC paths like //?/X:/... can match X:/... and vice versa
-        // Drive letters in absolute drive or unc paths are always compared
-        // case-insensitively.
-        if (this.isWindows) {
-            const fileDrive = typeof file[0] === 'string' && /^[a-z]:$/i.test(file[0]);
-            const fileUNC = !fileDrive &&
-                file[0] === '' &&
-                file[1] === '' &&
-                file[2] === '?' &&
-                /^[a-z]:$/i.test(file[3]);
-            const patternDrive = typeof pattern[0] === 'string' && /^[a-z]:$/i.test(pattern[0]);
-            const patternUNC = !patternDrive &&
-                pattern[0] === '' &&
-                pattern[1] === '' &&
-                pattern[2] === '?' &&
-                typeof pattern[3] === 'string' &&
-                /^[a-z]:$/i.test(pattern[3]);
-            const fdi = fileUNC ? 3 : fileDrive ? 0 : undefined;
-            const pdi = patternUNC ? 3 : patternDrive ? 0 : undefined;
-            if (typeof fdi === 'number' && typeof pdi === 'number') {
-                const [fd, pd] = [file[fdi], pattern[pdi]];
-                if (fd.toLowerCase() === pd.toLowerCase()) {
-                    pattern[pdi] = fd;
-                    if (pdi > fdi) {
-                        pattern = pattern.slice(pdi);
-                    }
-                    else if (fdi > pdi) {
-                        file = file.slice(fdi);
-                    }
-                }
-            }
-        }
-        // resolve and reduce . and .. portions in the file as well.
-        // dont' need to do the second phase, because it's only one string[]
-        const { optimizationLevel = 1 } = this.options;
-        if (optimizationLevel >= 2) {
-            file = this.levelTwoFileOptimize(file);
-        }
-        this.debug('matchOne', this, { file, pattern });
-        this.debug('matchOne', file.length, pattern.length);
-        for (var fi = 0, pi = 0, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
-            this.debug('matchOne loop');
-            var p = pattern[pi];
-            var f = file[fi];
-            this.debug(pattern, p, f);
-            // should be impossible.
-            // some invalid regexp stuff in the set.
-            /* c8 ignore start */
-            if (p === false) {
-                return false;
-            }
-            /* c8 ignore stop */
-            if (p === exports.GLOBSTAR) {
-                this.debug('GLOBSTAR', [pattern, p, f]);
-                // "**"
-                // a/**/b/**/c would match the following:
-                // a/b/x/y/z/c
-                // a/x/y/z/b/c
-                // a/b/x/b/x/c
-                // a/b/c
-                // To do this, take the rest of the pattern after
-                // the **, and see if it would match the file remainder.
-                // If so, return success.
-                // If not, the ** "swallows" a segment, and try again.
-                // This is recursively awful.
-                //
-                // a/**/b/**/c matching a/b/x/y/z/c
-                // - a matches a
-                // - doublestar
-                //   - matchOne(b/x/y/z/c, b/**/c)
-                //     - b matches b
-                //     - doublestar
-                //       - matchOne(x/y/z/c, c) -> no
-                //       - matchOne(y/z/c, c) -> no
-                //       - matchOne(z/c, c) -> no
-                //       - matchOne(c, c) yes, hit
-                var fr = fi;
-                var pr = pi + 1;
-                if (pr === pl) {
-                    this.debug('** at the end');
-                    // a ** at the end will just swallow the rest.
-                    // We have found a match.
-                    // however, it will not swallow /.x, unless
-                    // options.dot is set.
-                    // . and .. are *never* matched by **, for explosively
-                    // exponential reasons.
-                    for (; fi < fl; fi++) {
-                        if (file[fi] === '.' ||
-                            file[fi] === '..' ||
-                            (!options.dot && file[fi].charAt(0) === '.'))
-                            return false;
-                    }
-                    return true;
-                }
-                // ok, let's see if we can swallow whatever we can.
-                while (fr < fl) {
-                    var swallowee = file[fr];
-                    this.debug('\nglobstar while', file, fr, pattern, pr, swallowee);
-                    // XXX remove this slice.  Just pass the start index.
-                    if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
-                        this.debug('globstar found match!', fr, fl, swallowee);
-                        // found a match.
-                        return true;
-                    }
-                    else {
-                        // can't swallow "." or ".." ever.
-                        // can only swallow ".foo" when explicitly asked.
-                        if (swallowee === '.' ||
-                            swallowee === '..' ||
-                            (!options.dot && swallowee.charAt(0) === '.')) {
-                            this.debug('dot detected!', file, fr, pattern, pr);
-                            break;
-                        }
-                        // ** swallows a segment, and continue.
-                        this.debug('globstar swallow a segment, and continue');
-                        fr++;
-                    }
-                }
-                // no match was found.
-                // However, in partial mode, we can't say this is necessarily over.
-                /* c8 ignore start */
-                if (partial) {
-                    // ran out of file
-                    this.debug('\n>>> no match, partial?', file, fr, pattern, pr);
-                    if (fr === fl) {
-                        return true;
-                    }
-                }
-                /* c8 ignore stop */
-                return false;
-            }
-            // something other than **
-            // non-magic patterns just have to match exactly
-            // patterns with magic have been turned into regexps.
-            let hit;
-            if (typeof p === 'string') {
-                hit = f === p;
-                this.debug('string match', p, f, hit);
-            }
-            else {
-                hit = p.test(f);
-                this.debug('pattern match', p, f, hit);
-            }
-            if (!hit)
-                return false;
-        }
-        // Note: ending in / means that we'll get a final ""
-        // at the end of the pattern.  This can only match a
-        // corresponding "" at the end of the file.
-        // If the file ends in /, then it can only match a
-        // a pattern that ends in /, unless the pattern just
-        // doesn't have any more for it. But, a/b/ should *not*
-        // match "a/b/*", even though "" matches against the
-        // [^/]*? pattern, except in partial mode, where it might
-        // simply not be reached yet.
-        // However, a/b/ should still satisfy a/*
-        // now either we fell off the end of the pattern, or we're done.
-        if (fi === fl && pi === pl) {
-            // ran out of pattern and filename at the same time.
-            // an exact hit!
-            return true;
-        }
-        else if (fi === fl) {
-            // ran out of file, but still had pattern left.
-            // this is ok if we're doing the match as part of
-            // a glob fs traversal.
-            return partial;
-        }
-        else if (pi === pl) {
-            // ran out of pattern, still have file left.
-            // this is only acceptable if we're on the very last
-            // empty segment of a file with a trailing slash.
-            // a/* should match a/b/
-            return fi === fl - 1 && file[fi] === '';
-            /* c8 ignore start */
-        }
-        else {
-            // should be unreachable.
-            throw new Error('wtf?');
-        }
-        /* c8 ignore stop */
-    }
-    braceExpand() {
-        return (0, exports.braceExpand)(this.pattern, this.options);
-    }
-    parse(pattern) {
-        (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
-        const options = this.options;
-        // shortcuts
-        if (pattern === '**')
-            return exports.GLOBSTAR;
-        if (pattern === '')
-            return '';
-        // far and away, the most common glob pattern parts are
-        // *, *.*, and *.<ext>  Add a fast check method for those.
-        let m;
-        let fastTest = null;
-        if ((m = pattern.match(starRE))) {
-            fastTest = options.dot ? starTestDot : starTest;
-        }
-        else if ((m = pattern.match(starDotExtRE))) {
-            fastTest = (options.nocase
-                ? options.dot
-                    ? starDotExtTestNocaseDot
-                    : starDotExtTestNocase
-                : options.dot
-                    ? starDotExtTestDot
-                    : starDotExtTest)(m[1]);
-        }
-        else if ((m = pattern.match(qmarksRE))) {
-            fastTest = (options.nocase
-                ? options.dot
-                    ? qmarksTestNocaseDot
-                    : qmarksTestNocase
-                : options.dot
-                    ? qmarksTestDot
-                    : qmarksTest)(m);
-        }
-        else if ((m = pattern.match(starDotStarRE))) {
-            fastTest = options.dot ? starDotStarTestDot : starDotStarTest;
-        }
-        else if ((m = pattern.match(dotStarRE))) {
-            fastTest = dotStarTest;
-        }
-        const re = ast_js_1.AST.fromGlob(pattern, this.options).toMMPattern();
-        if (fastTest && typeof re === 'object') {
-            // Avoids overriding in frozen environments
-            Reflect.defineProperty(re, 'test', { value: fastTest });
-        }
-        return re;
-    }
-    makeRe() {
-        if (this.regexp || this.regexp === false)
-            return this.regexp;
-        // at this point, this.set is a 2d array of partial
-        // pattern strings, or "**".
-        //
-        // It's better to use .match().  This function shouldn't
-        // be used, really, but it's pretty convenient sometimes,
-        // when you just want to work with a regex.
-        const set = this.set;
-        if (!set.length) {
-            this.regexp = false;
-            return this.regexp;
-        }
-        const options = this.options;
-        const twoStar = options.noglobstar
-            ? star
-            : options.dot
-                ? twoStarDot
-                : twoStarNoDot;
-        const flags = new Set(options.nocase ? ['i'] : []);
-        // regexpify non-globstar patterns
-        // if ** is only item, then we just do one twoStar
-        // if ** is first, and there are more, prepend (\/|twoStar\/)? to next
-        // if ** is last, append (\/twoStar|) to previous
-        // if ** is in the middle, append (\/|\/twoStar\/) to previous
-        // then filter out GLOBSTAR symbols
-        let re = set
-            .map(pattern => {
-            const pp = pattern.map(p => {
-                if (p instanceof RegExp) {
-                    for (const f of p.flags.split(''))
-                        flags.add(f);
-                }
-                return typeof p === 'string'
-                    ? regExpEscape(p)
-                    : p === exports.GLOBSTAR
-                        ? exports.GLOBSTAR
-                        : p._src;
-            });
-            pp.forEach((p, i) => {
-                const next = pp[i + 1];
-                const prev = pp[i - 1];
-                if (p !== exports.GLOBSTAR || prev === exports.GLOBSTAR) {
-                    return;
-                }
-                if (prev === undefined) {
-                    if (next !== undefined && next !== exports.GLOBSTAR) {
-                        pp[i + 1] = '(?:\\/|' + twoStar + '\\/)?' + next;
-                    }
-                    else {
-                        pp[i] = twoStar;
-                    }
-                }
-                else if (next === undefined) {
-                    pp[i - 1] = prev + '(?:\\/|' + twoStar + ')?';
-                }
-                else if (next !== exports.GLOBSTAR) {
-                    pp[i - 1] = prev + '(?:\\/|\\/' + twoStar + '\\/)' + next;
-                    pp[i + 1] = exports.GLOBSTAR;
-                }
-            });
-            return pp.filter(p => p !== exports.GLOBSTAR).join('/');
-        })
-            .join('|');
-        // need to wrap in parens if we had more than one thing with |,
-        // otherwise only the first will be anchored to ^ and the last to $
-        const [open, close] = set.length > 1 ? ['(?:', ')'] : ['', ''];
-        // must match entire pattern
-        // ending in a * or ** will make it less strict.
-        re = '^' + open + re + close + '$';
-        // can match anything, as long as it's not this.
-        if (this.negate)
-            re = '^(?!' + re + ').+$';
-        try {
-            this.regexp = new RegExp(re, [...flags].join(''));
-            /* c8 ignore start */
-        }
-        catch (ex) {
-            // should be impossible
-            this.regexp = false;
-        }
-        /* c8 ignore stop */
-        return this.regexp;
-    }
-    slashSplit(p) {
-        // if p starts with // on windows, we preserve that
-        // so that UNC paths aren't broken.  Otherwise, any number of
-        // / characters are coalesced into one, unless
-        // preserveMultipleSlashes is set to true.
-        if (this.preserveMultipleSlashes) {
-            return p.split('/');
-        }
-        else if (this.isWindows && /^\/\/[^\/]+/.test(p)) {
-            // add an extra '' for the one we lose
-            return ['', ...p.split(/\/+/)];
-        }
-        else {
-            return p.split(/\/+/);
-        }
-    }
-    match(f, partial = this.partial) {
-        this.debug('match', f, this.pattern);
-        // short-circuit in the case of busted things.
-        // comments, etc.
-        if (this.comment) {
-            return false;
-        }
-        if (this.empty) {
-            return f === '';
-        }
-        if (f === '/' && partial) {
-            return true;
-        }
-        const options = this.options;
-        // windows: need to use /, not \
-        if (this.isWindows) {
-            f = f.split('\\').join('/');
-        }
-        // treat the test path as a set of pathparts.
-        const ff = this.slashSplit(f);
-        this.debug(this.pattern, 'split', ff);
-        // just ONE of the pattern sets in this.set needs to match
-        // in order for it to be valid.  If negating, then just one
-        // match means that we have failed.
-        // Either way, return on the first hit.
-        const set = this.set;
-        this.debug(this.pattern, 'set', set);
-        // Find the basename of the path by looking for the last non-empty segment
-        let filename = ff[ff.length - 1];
-        if (!filename) {
-            for (let i = ff.length - 2; !filename && i >= 0; i--) {
-                filename = ff[i];
-            }
-        }
-        for (let i = 0; i < set.length; i++) {
-            const pattern = set[i];
-            let file = ff;
-            if (options.matchBase && pattern.length === 1) {
-                file = [filename];
-            }
-            const hit = this.matchOne(file, pattern, partial);
-            if (hit) {
-                if (options.flipNegate) {
-                    return true;
-                }
-                return !this.negate;
-            }
-        }
-        // didn't get any hits.  this is success if it's a negative
-        // pattern, failure otherwise.
-        if (options.flipNegate) {
-            return false;
-        }
-        return this.negate;
-    }
-    static defaults(def) {
-        return exports.minimatch.defaults(def).Minimatch;
-    }
-}
-exports.Minimatch = Minimatch;
-/* c8 ignore start */
-var ast_js_2 = __nccwpck_require__(15778);
-Object.defineProperty(exports, "AST", ({ enumerable: true, get: function () { return ast_js_2.AST; } }));
-var escape_js_2 = __nccwpck_require__(98803);
-Object.defineProperty(exports, "escape", ({ enumerable: true, get: function () { return escape_js_2.escape; } }));
-var unescape_js_2 = __nccwpck_require__(96284);
-Object.defineProperty(exports, "unescape", ({ enumerable: true, get: function () { return unescape_js_2.unescape; } }));
-/* c8 ignore stop */
-exports.minimatch.AST = ast_js_1.AST;
-exports.minimatch.Minimatch = Minimatch;
-exports.minimatch.escape = escape_js_1.escape;
-exports.minimatch.unescape = unescape_js_1.unescape;
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 96284:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.unescape = void 0;
-/**
- * Un-escape a string that has been escaped with {@link escape}.
- *
- * If the {@link windowsPathsNoEscape} option is used, then square-brace
- * escapes are removed, but not backslash escapes.  For example, it will turn
- * the string `'[*]'` into `*`, but it will not turn `'\\*'` into `'*'`,
- * becuase `\` is a path separator in `windowsPathsNoEscape` mode.
- *
- * When `windowsPathsNoEscape` is not set, then both brace escapes and
- * backslash escapes are removed.
- *
- * Slashes (and backslashes in `windowsPathsNoEscape` mode) cannot be escaped
- * or unescaped.
- */
-const unescape = (s, { windowsPathsNoEscape = false, } = {}) => {
-    return windowsPathsNoEscape
-        ? s.replace(/\[([^\/\\])\]/g, '$1')
-        : s.replace(/((?!\\).|^)\[([^\/\\])\]/g, '$1$2').replace(/\\([^\/])/g, '$1');
-};
-exports.unescape = unescape;
-//# sourceMappingURL=unescape.js.map
-
-/***/ }),
-
-/***/ 71002:
+/***/ 83215:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-var posixPath = __nccwpck_require__(14754);
-var windowsPath = __nccwpck_require__(39548);
-var minimatch = __nccwpck_require__(78481);
+var posixPath = __nccwpck_require__(44051);
+var windowsPath = __nccwpck_require__(36133);
+var minimatch = __nccwpck_require__(48655);
 var createDebug = __nccwpck_require__(18263);
-var objectSchema = __nccwpck_require__(34740);
+var objectSchema = __nccwpck_require__(69979);
 
 function _interopNamespaceDefault(e) {
 	var n = Object.create(null);
@@ -401610,7 +400279,7 @@ exports.ConfigArraySymbol = ConfigArraySymbol;
 
 /***/ }),
 
-/***/ 14754:
+/***/ 44051:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -402954,7 +401623,7 @@ exports.toNamespacedPath = toNamespacedPath;
 
 /***/ }),
 
-/***/ 39548:
+/***/ 36133:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -404640,7 +403309,7 @@ exports.toNamespacedPath = toNamespacedPath;
 
 /***/ }),
 
-/***/ 34740:
+/***/ 69979:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -404660,9 +403329,11 @@ exports.toNamespacedPath = toNamespacedPath;
 class MergeStrategy {
 	/**
 	 * Merges two keys by overwriting the first with the second.
-	 * @param {*} value1 The value from the first object key.
-	 * @param {*} value2 The value from the second object key.
-	 * @returns {*} The second value.
+	 * @template TValue1 The type of the value from the first object key.
+	 * @template TValue2 The type of the value from the second object key.
+	 * @param {TValue1} value1 The value from the first object key.
+	 * @param {TValue2} value2 The value from the second object key.
+	 * @returns {TValue2} The second value.
 	 */
 	static overwrite(value1, value2) {
 		return value2;
@@ -404671,9 +403342,11 @@ class MergeStrategy {
 	/**
 	 * Merges two keys by replacing the first with the second only if the
 	 * second is defined.
-	 * @param {*} value1 The value from the first object key.
-	 * @param {*} value2 The value from the second object key.
-	 * @returns {*} The second value if it is defined.
+	 * @template TValue1 The type of the value from the first object key.
+	 * @template TValue2 The type of the value from the second object key.
+	 * @param {TValue1} value1 The value from the first object key.
+	 * @param {TValue2} value2 The value from the second object key.
+	 * @returns {TValue1 | TValue2} The second value if it is defined.
 	 */
 	static replace(value1, value2) {
 		if (typeof value2 !== "undefined") {
@@ -404685,9 +403358,11 @@ class MergeStrategy {
 
 	/**
 	 * Merges two properties by assigning properties from the second to the first.
-	 * @param {*} value1 The value from the first object key.
-	 * @param {*} value2 The value from the second object key.
-	 * @returns {*} A new object containing properties from both value1 and
+	 * @template {Record<string | number | symbol, unknown> | undefined} TValue1 The type of the value from the first object key.
+	 * @template {Record<string | number | symbol, unknown>} TValue2 The type of the value from the second object key.
+	 * @param {TValue1} value1 The value from the first object key.
+	 * @param {TValue2} value2 The value from the second object key.
+	 * @returns {Omit<TValue1, keyof TValue2> & TValue2} A new object containing properties from both value1 and
 	 *      value2.
 	 */
 	static assign(value1, value2) {
@@ -404935,7 +403610,7 @@ class ObjectSchema {
 	#definitions = new Map();
 
 	/**
-	 * Separately track any keys that are required for faster validtion.
+	 * Separately track any keys that are required for faster validation.
 	 * @type {Map<string, PropertyDefinition>}
 	 */
 	#requiredKeys = new Map();
@@ -405068,7 +403743,9 @@ class ObjectSchema {
 			}
 
 			// validate existing keys
-			const definition = this.#definitions.get(key);
+			const definition = /** @type {PropertyDefinition} */ (
+				this.#definitions.get(key)
+			); // `definition` is guaranteed to exist since we check with `hasKey()` above.
 
 			// first check to see if any other keys are required
 			if (Array.isArray(definition.requires)) {
@@ -406496,21 +405173,14 @@ exports.Retrier = Retrier;
 
 /***/ }),
 
-/***/ 12633:
+/***/ 2988:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
 var estraverse = __nccwpck_require__(68107);
 var esrecurse = __nccwpck_require__(3771);
-
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-var estraverse__default = /*#__PURE__*/_interopDefaultLegacy(estraverse);
-var esrecurse__default = /*#__PURE__*/_interopDefaultLegacy(esrecurse);
 
 /**
  * @fileoverview Assertion utilities.
@@ -406525,9 +405195,9 @@ var esrecurse__default = /*#__PURE__*/_interopDefaultLegacy(esrecurse);
  * @throws {Error} When the condition is not truthy.
  */
 function assert(condition, message = "Assertion failed.") {
-    if (!condition) {
-        throw new Error(message);
-    }
+	if (!condition) {
+		throw new Error(message);
+	}
 }
 
 /*
@@ -406566,115 +405236,123 @@ const RW = READ | WRITE;
  * @implements {types.Reference}
  */
 class Reference {
-    constructor(ident, scope, flag, writeExpr, maybeImplicitGlobal, partial, init) {
+	constructor(
+		ident,
+		scope,
+		flag,
+		writeExpr,
+		maybeImplicitGlobal,
+		partial,
+		init,
+	) {
+		/**
+		 * Identifier syntax node.
+		 * @member {espreeIdentifier} Reference#identifier
+		 */
+		this.identifier = ident;
 
-        /**
-         * Identifier syntax node.
-         * @member {espreeIdentifier} Reference#identifier
-         */
-        this.identifier = ident;
+		/**
+		 * Reference to the enclosing Scope.
+		 * @member {Scope} Reference#from
+		 */
+		this.from = scope;
 
-        /**
-         * Reference to the enclosing Scope.
-         * @member {Scope} Reference#from
-         */
-        this.from = scope;
+		/**
+		 * Whether the reference comes from a dynamic scope (such as 'eval',
+		 * 'with', etc.), and may be trapped by dynamic scopes.
+		 * @member {boolean} Reference#tainted
+		 */
+		this.tainted = false;
 
-        /**
-         * Whether the reference comes from a dynamic scope (such as 'eval',
-         * 'with', etc.), and may be trapped by dynamic scopes.
-         * @member {boolean} Reference#tainted
-         */
-        this.tainted = false;
+		/**
+		 * The variable this reference is resolved with.
+		 * @member {Variable} Reference#resolved
+		 */
+		this.resolved = null;
 
-        /**
-         * The variable this reference is resolved with.
-         * @member {Variable} Reference#resolved
-         */
-        this.resolved = null;
+		/**
+		 * The read-write mode of the reference. (Value is one of {@link
+		 * Reference.READ}, {@link Reference.RW}, {@link Reference.WRITE}).
+		 * @member {number} Reference#flag
+		 */
+		this.flag = flag;
+		if (this.isWrite()) {
+			/**
+			 * If reference is writeable, this is the tree being written to it.
+			 * @member {espreeNode} Reference#writeExpr
+			 */
+			this.writeExpr = writeExpr;
 
-        /**
-         * The read-write mode of the reference. (Value is one of {@link
-         * Reference.READ}, {@link Reference.RW}, {@link Reference.WRITE}).
-         * @member {number} Reference#flag
-         */
-        this.flag = flag;
-        if (this.isWrite()) {
+			/**
+			 * Whether the Reference might refer to a partial value of writeExpr.
+			 * @member {boolean} Reference#partial
+			 */
+			this.partial = partial;
 
-            /**
-             * If reference is writeable, this is the tree being written to it.
-             * @member {espreeNode} Reference#writeExpr
-             */
-            this.writeExpr = writeExpr;
+			/**
+			 * Whether the Reference is to write of initialization.
+			 * @member {boolean} Reference#init
+			 */
+			this.init = init;
+		}
+		this.__maybeImplicitGlobal = maybeImplicitGlobal;
+	}
 
-            /**
-             * Whether the Reference might refer to a partial value of writeExpr.
-             * @member {boolean} Reference#partial
-             */
-            this.partial = partial;
+	/**
+	 * Whether the reference is static.
+	 * @function Reference#isStatic
+	 * @returns {boolean} static
+	 */
+	isStatic() {
+		return (
+			!this.tainted && !!this.resolved && this.resolved.scope.isStatic()
+		);
+	}
 
-            /**
-             * Whether the Reference is to write of initialization.
-             * @member {boolean} Reference#init
-             */
-            this.init = init;
-        }
-        this.__maybeImplicitGlobal = maybeImplicitGlobal;
-    }
+	/**
+	 * Whether the reference is writeable.
+	 * @function Reference#isWrite
+	 * @returns {boolean} write
+	 */
+	isWrite() {
+		return !!(this.flag & Reference.WRITE);
+	}
 
-    /**
-     * Whether the reference is static.
-     * @function Reference#isStatic
-     * @returns {boolean} static
-     */
-    isStatic() {
-        return !this.tainted && !!this.resolved && this.resolved.scope.isStatic();
-    }
+	/**
+	 * Whether the reference is readable.
+	 * @function Reference#isRead
+	 * @returns {boolean} read
+	 */
+	isRead() {
+		return !!(this.flag & Reference.READ);
+	}
 
-    /**
-     * Whether the reference is writeable.
-     * @function Reference#isWrite
-     * @returns {boolean} write
-     */
-    isWrite() {
-        return !!(this.flag & Reference.WRITE);
-    }
+	/**
+	 * Whether the reference is read-only.
+	 * @function Reference#isReadOnly
+	 * @returns {boolean} read only
+	 */
+	isReadOnly() {
+		return this.flag === Reference.READ;
+	}
 
-    /**
-     * Whether the reference is readable.
-     * @function Reference#isRead
-     * @returns {boolean} read
-     */
-    isRead() {
-        return !!(this.flag & Reference.READ);
-    }
+	/**
+	 * Whether the reference is write-only.
+	 * @function Reference#isWriteOnly
+	 * @returns {boolean} write only
+	 */
+	isWriteOnly() {
+		return this.flag === Reference.WRITE;
+	}
 
-    /**
-     * Whether the reference is read-only.
-     * @function Reference#isReadOnly
-     * @returns {boolean} read only
-     */
-    isReadOnly() {
-        return this.flag === Reference.READ;
-    }
-
-    /**
-     * Whether the reference is write-only.
-     * @function Reference#isWriteOnly
-     * @returns {boolean} write only
-     */
-    isWriteOnly() {
-        return this.flag === Reference.WRITE;
-    }
-
-    /**
-     * Whether the reference is read-write.
-     * @function Reference#isReadWrite
-     * @returns {boolean} read write
-     */
-    isReadWrite() {
-        return this.flag === Reference.RW;
-    }
+	/**
+	 * Whether the reference is read-write.
+	 * @function Reference#isReadWrite
+	 * @returns {boolean} read write
+	 */
+	isReadWrite() {
+		return this.flag === Reference.RW;
+	}
 }
 
 /**
@@ -406728,50 +405406,49 @@ Reference.RW = RW;
  * @implements {types.Variable}
  */
 class Variable {
-    constructor(name, scope) {
+	constructor(name, scope) {
+		/**
+		 * The variable name, as given in the source code.
+		 * @member {string} Variable#name
+		 */
+		this.name = name;
 
-        /**
-         * The variable name, as given in the source code.
-         * @member {string} Variable#name
-         */
-        this.name = name;
+		/**
+		 * List of defining occurrences of this variable (like in 'var ...'
+		 * statements or as parameter), as AST nodes.
+		 * @member {espree.Identifier[]} Variable#identifiers
+		 */
+		this.identifiers = [];
 
-        /**
-         * List of defining occurrences of this variable (like in 'var ...'
-         * statements or as parameter), as AST nodes.
-         * @member {espree.Identifier[]} Variable#identifiers
-         */
-        this.identifiers = [];
+		/**
+		 * List of {@link Reference|references} of this variable (excluding parameter entries)
+		 * in its defining scope and all nested scopes. For defining
+		 * occurrences only see {@link Variable#defs}.
+		 * @member {Reference[]} Variable#references
+		 */
+		this.references = [];
 
-        /**
-         * List of {@link Reference|references} of this variable (excluding parameter entries)
-         * in its defining scope and all nested scopes. For defining
-         * occurrences only see {@link Variable#defs}.
-         * @member {Reference[]} Variable#references
-         */
-        this.references = [];
+		/**
+		 * List of defining occurrences of this variable (like in 'var ...'
+		 * statements or as parameter), as custom objects.
+		 * @member {Definition[]} Variable#defs
+		 */
+		this.defs = [];
 
-        /**
-         * List of defining occurrences of this variable (like in 'var ...'
-         * statements or as parameter), as custom objects.
-         * @member {Definition[]} Variable#defs
-         */
-        this.defs = [];
+		this.tainted = false;
 
-        this.tainted = false;
+		/**
+		 * Whether this is a stack variable.
+		 * @member {boolean} Variable#stack
+		 */
+		this.stack = true;
 
-        /**
-         * Whether this is a stack variable.
-         * @member {boolean} Variable#stack
-         */
-        this.stack = true;
-
-        /**
-         * Reference to the enclosing Scope.
-         * @member {Scope} Variable#scope
-         */
-        this.scope = scope;
-    }
+		/**
+		 * Reference to the enclosing Scope.
+		 * @member {Scope} Variable#scope
+		 */
+		this.scope = scope;
+	}
 }
 
 Variable.CatchClause = "CatchClause";
@@ -406808,6 +405485,7 @@ Variable.ImplicitGlobalVariable = "ImplicitGlobalVariable";
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 /** @import * as types from "eslint-scope" */
 
 // Cannot implement `types.Definition` directly because it contains a union.
@@ -406816,53 +405494,52 @@ Variable.ImplicitGlobalVariable = "ImplicitGlobalVariable";
  * @implements {Omit<types.Definition, never>}
  */
 class Definition {
-    constructor(type, name, node, parent, index, kind) {
+	constructor(type, name, node, parent, index, kind) {
+		/**
+		 * @member {string} Definition#type - type of the occurrence (e.g. "Parameter", "Variable", ...).
+		 */
+		this.type = type;
 
-        /**
-         * @member {string} Definition#type - type of the occurrence (e.g. "Parameter", "Variable", ...).
-         */
-        this.type = type;
+		/**
+		 * @member {espree.Identifier} Definition#name - the identifier AST node of the occurrence.
+		 */
+		this.name = name;
 
-        /**
-         * @member {espree.Identifier} Definition#name - the identifier AST node of the occurrence.
-         */
-        this.name = name;
+		/**
+		 * @member {espree.Node} Definition#node - the enclosing node of the identifier.
+		 */
+		this.node = node;
 
-        /**
-         * @member {espree.Node} Definition#node - the enclosing node of the identifier.
-         */
-        this.node = node;
+		/**
+		 * @member {espree.Node?} Definition#parent - the enclosing statement node of the identifier.
+		 */
+		this.parent = parent;
 
-        /**
-         * @member {espree.Node?} Definition#parent - the enclosing statement node of the identifier.
-         */
-        this.parent = parent;
+		/**
+		 * @member {number?} Definition#index - the index in the declaration statement.
+		 */
+		this.index = index;
 
-        /**
-         * @member {number?} Definition#index - the index in the declaration statement.
-         */
-        this.index = index;
-
-        /**
-         * @member {string?} Definition#kind - the kind of the declaration statement.
-         */
-        this.kind = kind;
-    }
+		/**
+		 * @member {string?} Definition#kind - the kind of the declaration statement.
+		 */
+		this.kind = kind;
+	}
 }
 
 /**
  * @constructor ParameterDefinition
  */
 class ParameterDefinition extends Definition {
-    constructor(name, node, index, rest) {
-        super(Variable.Parameter, name, node, null, index, null);
+	constructor(name, node, index, rest) {
+		super(Variable.Parameter, name, node, null, index, null);
 
-        /**
-         * Whether the parameter definition is a part of a rest parameter.
-         * @member {boolean} ParameterDefinition#rest
-         */
-        this.rest = rest;
-    }
+		/**
+		 * Whether the parameter definition is a part of a rest parameter.
+		 * @member {boolean} ParameterDefinition#rest
+		 */
+		this.rest = rest;
+	}
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -406891,13 +405568,14 @@ class ParameterDefinition extends Definition {
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 /** @import * as types from "eslint-scope" */
 /** @import ESTree from "estree" */
 /** @import ScopeManager from "./scope-manager.js" */
 /** @typedef {ESTree.Function | ESTree.Program | ESTree.StaticBlock} Block */
 /** @typedef {{pattern: unknown, node: unknown}} MaybeImplicitGlobal */
 
-const { Syntax: Syntax$2 } = estraverse__default["default"];
+const { Syntax: Syntax$2 } = estraverse;
 
 /**
  * Test if scope is struct
@@ -406907,74 +405585,75 @@ const { Syntax: Syntax$2 } = estraverse__default["default"];
  * @returns {boolean} is strict scope
  */
 function isStrictScope(scope, block, isMethodDefinition) {
-    let body;
+	let body;
 
-    // When upper scope is exists and strict, inner scope is also strict.
-    if (scope.upper && scope.upper.isStrict) {
-        return true;
-    }
+	// When upper scope is exists and strict, inner scope is also strict.
+	if (scope.upper && scope.upper.isStrict) {
+		return true;
+	}
 
-    if (isMethodDefinition) {
-        return true;
-    }
+	if (isMethodDefinition) {
+		return true;
+	}
 
-    if (scope.type === "class" || scope.type === "module") {
-        return true;
-    }
+	if (scope.type === "class" || scope.type === "module") {
+		return true;
+	}
 
-    if (scope.type === "block" || scope.type === "switch") {
-        return false;
-    }
+	if (scope.type === "block" || scope.type === "switch") {
+		return false;
+	}
 
-    if (scope.type === "function") {
+	if (scope.type === "function") {
+		if (
+			block.type === Syntax$2.ArrowFunctionExpression &&
+			// @ts-ignore -- when block is ArrowFunctionExpression
+			block.body.type !== Syntax$2.BlockStatement
+		) {
+			return false;
+		}
 
-        // @ts-ignore -- when block is ArrowFunctionExpression
-        if (block.type === Syntax$2.ArrowFunctionExpression && block.body.type !== Syntax$2.BlockStatement) {
-            return false;
-        }
+		if (block.type === Syntax$2.Program) {
+			body = block;
+		} else {
+			body = block.body;
+		}
 
-        if (block.type === Syntax$2.Program) {
-            body = block;
-        } else {
-            body = block.body;
-        }
+		if (!body) {
+			return false;
+		}
+	} else if (scope.type === "global") {
+		body = block;
+	} else {
+		return false;
+	}
 
-        if (!body) {
-            return false;
-        }
-    } else if (scope.type === "global") {
-        body = block;
-    } else {
-        return false;
-    }
+	// Search for a 'use strict' directive.
+	// @ts-ignore -- body is a function body
+	for (let i = 0, iz = body.body.length; i < iz; ++i) {
+		// @ts-ignore -- body is a function body
+		const stmt = body.body[i];
 
-    // Search for a 'use strict' directive.
-    // @ts-ignore -- body is a function body
-    for (let i = 0, iz = body.body.length; i < iz; ++i) {
+		/*
+		 * Check if the current statement is a directive.
+		 * If it isn't, then we're past the directive prologue
+		 * so stop the search because directives cannot
+		 * appear after this point.
+		 *
+		 * Some parsers set `directive:null` on non-directive
+		 * statements, so the `typeof` check is safer than
+		 * checking for property existence.
+		 */
+		if (typeof stmt.directive !== "string") {
+			break;
+		}
 
-        // @ts-ignore -- body is a function body
-        const stmt = body.body[i];
+		if (stmt.directive === "use strict") {
+			return true;
+		}
+	}
 
-        /*
-         * Check if the current statement is a directive.
-         * If it isn't, then we're past the directive prologue
-         * so stop the search because directives cannot
-         * appear after this point.
-         *
-         * Some parsers set `directive:null` on non-directive
-         * statements, so the `typeof` check is safer than
-         * checking for property existence.
-         */
-        if (typeof stmt.directive !== "string") {
-            break;
-        }
-
-        if (stmt.directive === "use strict") {
-            return true;
-        }
-    }
-
-    return false;
+	return false;
 }
 
 /**
@@ -406984,15 +405663,15 @@ function isStrictScope(scope, block, isMethodDefinition) {
  * @returns {void}
  */
 function registerScope(scopeManager, scope) {
-    scopeManager.scopes.push(scope);
+	scopeManager.scopes.push(scope);
 
-    const scopes = scopeManager.__nodeToScope.get(scope.block);
+	const scopes = scopeManager.__nodeToScope.get(scope.block);
 
-    if (scopes) {
-        scopes.push(scope);
-    } else {
-        scopeManager.__nodeToScope.set(scope.block, [scope]);
-    }
+	if (scopes) {
+		scopes.push(scope);
+	} else {
+		scopeManager.__nodeToScope.set(scope.block, [scope]);
+	}
 }
 
 /**
@@ -407000,358 +405679,374 @@ function registerScope(scopeManager, scope) {
  * @implements {types.Scope}
  */
 class Scope {
-    constructor(scopeManager, type, upperScope, block, isMethodDefinition) {
+	constructor(scopeManager, type, upperScope, block, isMethodDefinition) {
+		/**
+		 * One of "global", "module", "function", "function-expression-name", "block", "switch", "catch", "with", "for",
+		 * "class", "class-field-initializer", "class-static-block".
+		 * @member {string} Scope#type
+		 */
+		this.type = type;
 
-        /**
-         * One of "global", "module", "function", "function-expression-name", "block", "switch", "catch", "with", "for",
-         * "class", "class-field-initializer", "class-static-block".
-         * @member {string} Scope#type
-         */
-        this.type = type;
+		/**
+		 * The scoped {@link Variable}s of this scope, as <code>{ Variable.name
+		 * : Variable }</code>.
+		 * @member {Map} Scope#set
+		 */
+		this.set = new Map();
 
-        /**
-         * The scoped {@link Variable}s of this scope, as <code>{ Variable.name
-         * : Variable }</code>.
-         * @member {Map} Scope#set
-         */
-        this.set = new Map();
+		/**
+		 * The tainted variables of this scope, as <code>{ Variable.name :
+		 * boolean }</code>.
+		 *  @member {Map} Scope#taints
+		 */
+		this.taints = new Map();
 
-        /**
-         * The tainted variables of this scope, as <code>{ Variable.name :
-         * boolean }</code>.
-         *  @member {Map} Scope#taints
-         */
-        this.taints = new Map();
+		/**
+		 * Generally, through the lexical scoping of JS you can always know
+		 * which variable an identifier in the source code refers to. There are
+		 * a few exceptions to this rule. With 'global' and 'with' scopes you
+		 * can only decide at runtime which variable a reference refers to.
+		 * Moreover, if 'eval()' is used in a scope, it might introduce new
+		 * bindings in this or its parent scopes.
+		 * All those scopes are considered 'dynamic'.
+		 * @member {boolean} Scope#dynamic
+		 */
+		this.dynamic = this.type === "global" || this.type === "with";
 
-        /**
-         * Generally, through the lexical scoping of JS you can always know
-         * which variable an identifier in the source code refers to. There are
-         * a few exceptions to this rule. With 'global' and 'with' scopes you
-         * can only decide at runtime which variable a reference refers to.
-         * Moreover, if 'eval()' is used in a scope, it might introduce new
-         * bindings in this or its parent scopes.
-         * All those scopes are considered 'dynamic'.
-         * @member {boolean} Scope#dynamic
-         */
-        this.dynamic = this.type === "global" || this.type === "with";
+		/**
+		 * A reference to the scope-defining syntax node.
+		 * @member {espree.Node} Scope#block
+		 */
+		this.block = block;
 
-        /**
-         * A reference to the scope-defining syntax node.
-         * @member {espree.Node} Scope#block
-         */
-        this.block = block;
+		/**
+		 * The {@link Reference|references} that are not resolved with this scope.
+		 * @member {Reference[]} Scope#through
+		 */
+		this.through = [];
 
-        /**
-         * The {@link Reference|references} that are not resolved with this scope.
-         * @member {Reference[]} Scope#through
-         */
-        this.through = [];
+		/**
+		 * The scoped {@link Variable}s of this scope. In the case of a
+		 * 'function' scope this includes the automatic argument <em>arguments</em> as
+		 * its first element, as well as all further formal arguments.
+		 * @member {Variable[]} Scope#variables
+		 */
+		this.variables = [];
 
-        /**
-         * The scoped {@link Variable}s of this scope. In the case of a
-         * 'function' scope this includes the automatic argument <em>arguments</em> as
-         * its first element, as well as all further formal arguments.
-         * @member {Variable[]} Scope#variables
-         */
-        this.variables = [];
+		/**
+		 * Any variable {@link Reference|reference} found in this scope. This
+		 * includes occurrences of local variables as well as variables from
+		 * parent scopes (including the global scope). For local variables
+		 * this also includes defining occurrences (like in a 'var' statement).
+		 * In a 'function' scope this does not include the occurrences of the
+		 * formal parameter in the parameter list.
+		 * @member {Reference[]} Scope#references
+		 */
+		this.references = [];
 
-        /**
-         * Any variable {@link Reference|reference} found in this scope. This
-         * includes occurrences of local variables as well as variables from
-         * parent scopes (including the global scope). For local variables
-         * this also includes defining occurrences (like in a 'var' statement).
-         * In a 'function' scope this does not include the occurrences of the
-         * formal parameter in the parameter list.
-         * @member {Reference[]} Scope#references
-         */
-        this.references = [];
+		/**
+		 * For 'global' and 'function' scopes, this is a self-reference. For
+		 * other scope types this is the <em>variableScope</em> value of the
+		 * parent scope.
+		 * @member {Scope} Scope#variableScope
+		 */
+		this.variableScope =
+			this.type === "global" ||
+			this.type === "module" ||
+			this.type === "function" ||
+			this.type === "class-field-initializer" ||
+			this.type === "class-static-block"
+				? this
+				: upperScope.variableScope;
 
-        /**
-         * For 'global' and 'function' scopes, this is a self-reference. For
-         * other scope types this is the <em>variableScope</em> value of the
-         * parent scope.
-         * @member {Scope} Scope#variableScope
-         */
-        this.variableScope =
-            this.type === "global" ||
-            this.type === "module" ||
-            this.type === "function" ||
-            this.type === "class-field-initializer" ||
-            this.type === "class-static-block"
-                ? this
-                : upperScope.variableScope;
+		/**
+		 * Whether this scope is created by a FunctionExpression.
+		 * @member {boolean} Scope#functionExpressionScope
+		 */
+		this.functionExpressionScope = /** @type {any} */ (false);
 
-        /**
-         * Whether this scope is created by a FunctionExpression.
-         * @member {boolean} Scope#functionExpressionScope
-         */
-        this.functionExpressionScope = /** @type {any} */ (false);
+		/**
+		 * Whether this is a scope that contains an 'eval()' invocation.
+		 * @member {boolean} Scope#directCallToEvalScope
+		 */
+		this.directCallToEvalScope = false;
 
-        /**
-         * Whether this is a scope that contains an 'eval()' invocation.
-         * @member {boolean} Scope#directCallToEvalScope
-         */
-        this.directCallToEvalScope = false;
+		/**
+		 * @member {boolean} Scope#thisFound
+		 */
+		this.thisFound = false;
 
-        /**
-         * @member {boolean} Scope#thisFound
-         */
-        this.thisFound = false;
+		/** @type {?Reference[]} */
+		this.__left = [];
 
-        /** @type {?Reference[]} */
-        this.__left = [];
+		/**
+		 * Reference to the parent {@link Scope|scope}.
+		 * @member {Scope} Scope#upper
+		 */
+		this.upper = upperScope;
 
-        /**
-         * Reference to the parent {@link Scope|scope}.
-         * @member {Scope} Scope#upper
-         */
-        this.upper = upperScope;
+		/**
+		 * Whether 'use strict' is in effect in this scope.
+		 * @member {boolean} Scope#isStrict
+		 */
+		this.isStrict = scopeManager.isStrictModeSupported()
+			? isStrictScope(this, block, isMethodDefinition)
+			: false;
 
-        /**
-         * Whether 'use strict' is in effect in this scope.
-         * @member {boolean} Scope#isStrict
-         */
-        this.isStrict = scopeManager.isStrictModeSupported()
-            ? isStrictScope(this, block, isMethodDefinition)
-            : false;
+		/**
+		 * List of nested {@link Scope}s.
+		 * @member {Scope[]} Scope#childScopes
+		 */
+		this.childScopes = [];
+		if (this.upper) {
+			this.upper.childScopes.push(this);
+		}
 
-        /**
-         * List of nested {@link Scope}s.
-         * @member {Scope[]} Scope#childScopes
-         */
-        this.childScopes = [];
-        if (this.upper) {
-            this.upper.childScopes.push(this);
-        }
+		this.__declaredVariables = scopeManager.__declaredVariables;
 
-        this.__declaredVariables = scopeManager.__declaredVariables;
+		registerScope(scopeManager, this);
+	}
 
-        registerScope(scopeManager, this);
-    }
+	__shouldStaticallyClose(scopeManager) {
+		return (
+			!this.dynamic ||
+			scopeManager.__isOptimistic() ||
+			this.type === "global"
+		);
+	}
 
-    __shouldStaticallyClose(scopeManager) {
-        return (!this.dynamic || scopeManager.__isOptimistic() || this.type === "global");
-    }
+	__staticCloseRef(ref) {
+		if (!this.__resolve(ref)) {
+			this.__delegateToUpperScope(ref);
+		}
+	}
 
-    __staticCloseRef(ref) {
-        if (!this.__resolve(ref)) {
-            this.__delegateToUpperScope(ref);
-        }
-    }
+	__dynamicCloseRef(ref) {
+		// notify all names are through to global
+		let current = this;
 
-    __dynamicCloseRef(ref) {
+		do {
+			current.through.push(ref);
+			current = current.upper;
+		} while (current);
+	}
 
-        // notify all names are through to global
-        let current = this;
+	__close(scopeManager) {
+		let closeRef;
 
-        do {
-            current.through.push(ref);
-            current = current.upper;
-        } while (current);
-    }
+		if (this.__shouldStaticallyClose(scopeManager)) {
+			closeRef = this.__staticCloseRef;
+		} else {
+			closeRef = this.__dynamicCloseRef;
+		}
 
-    __close(scopeManager) {
-        let closeRef;
+		// Try Resolving all references in this scope.
+		// @ts-ignore -- __left should be an array here
+		for (let i = 0, iz = this.__left.length; i < iz; ++i) {
+			// @ts-ignore -- __left should be an array here
+			const ref = this.__left[i];
 
-        if (this.__shouldStaticallyClose(scopeManager)) {
-            closeRef = this.__staticCloseRef;
-        } else {
-            closeRef = this.__dynamicCloseRef;
-        }
+			closeRef.call(this, ref);
+		}
+		this.__left = null;
 
-        // Try Resolving all references in this scope.
-        // @ts-ignore -- __left should be an array here
-        for (let i = 0, iz = this.__left.length; i < iz; ++i) {
+		return this.upper;
+	}
 
-            // @ts-ignore -- __left should be an array here
-            const ref = this.__left[i];
+	// To override by function scopes.
+	// References in default parameters isn't resolved to variables which are in their function body.
+	// eslint-disable-next-line class-methods-use-this, no-unused-vars  -- Desired as instance method with signature
+	__isValidResolution(ref, variable) {
+		return true;
+	}
 
-            closeRef.call(this, ref);
-        }
-        this.__left = null;
+	__resolve(ref) {
+		const name = ref.identifier.name;
 
-        return this.upper;
-    }
+		if (!this.set.has(name)) {
+			return false;
+		}
+		const variable = this.set.get(name);
 
-    // To override by function scopes.
-    // References in default parameters isn't resolved to variables which are in their function body.
-    __isValidResolution(ref, variable) { // eslint-disable-line class-methods-use-this, no-unused-vars  -- Desired as instance method with signature
-        return true;
-    }
+		if (!this.__isValidResolution(ref, variable)) {
+			return false;
+		}
+		variable.references.push(ref);
+		variable.stack =
+			variable.stack && ref.from.variableScope === this.variableScope;
+		if (ref.tainted) {
+			variable.tainted = true;
+			this.taints.set(variable.name, true);
+		}
+		ref.resolved = variable;
 
-    __resolve(ref) {
-        const name = ref.identifier.name;
+		return true;
+	}
 
-        if (!this.set.has(name)) {
-            return false;
-        }
-        const variable = this.set.get(name);
+	__delegateToUpperScope(ref) {
+		if (this.upper) {
+			this.upper.__left.push(ref);
+		}
+		this.through.push(ref);
+	}
 
-        if (!this.__isValidResolution(ref, variable)) {
-            return false;
-        }
-        variable.references.push(ref);
-        variable.stack = variable.stack && ref.from.variableScope === this.variableScope;
-        if (ref.tainted) {
-            variable.tainted = true;
-            this.taints.set(variable.name, true);
-        }
-        ref.resolved = variable;
+	__addDeclaredVariablesOfNode(variable, node) {
+		if (node === null || node === void 0) {
+			return;
+		}
 
-        return true;
-    }
+		let variables = this.__declaredVariables.get(node);
 
-    __delegateToUpperScope(ref) {
-        if (this.upper) {
-            this.upper.__left.push(ref);
-        }
-        this.through.push(ref);
-    }
+		if (variables === null || variables === void 0) {
+			variables = [];
+			this.__declaredVariables.set(node, variables);
+		}
+		if (!variables.includes(variable)) {
+			variables.push(variable);
+		}
+	}
 
-    __addDeclaredVariablesOfNode(variable, node) {
-        if (node === null || node === void 0) {
-            return;
-        }
+	__defineGeneric(name, set, variables, node, def) {
+		let variable;
 
-        let variables = this.__declaredVariables.get(node);
+		variable = set.get(name);
+		if (!variable) {
+			variable = new Variable(name, this);
+			set.set(name, variable);
+			variables.push(variable);
+		}
 
-        if (variables === null || variables === void 0) {
-            variables = [];
-            this.__declaredVariables.set(node, variables);
-        }
-        if (!variables.includes(variable)) {
-            variables.push(variable);
-        }
-    }
+		if (def) {
+			variable.defs.push(def);
+			this.__addDeclaredVariablesOfNode(variable, def.node);
+			this.__addDeclaredVariablesOfNode(variable, def.parent);
+		}
+		if (node) {
+			variable.identifiers.push(node);
+		}
+	}
 
-    __defineGeneric(name, set, variables, node, def) {
-        let variable;
+	__define(node, def) {
+		if (node && node.type === Syntax$2.Identifier) {
+			this.__defineGeneric(
+				node.name,
+				this.set,
+				this.variables,
+				node,
+				def,
+			);
+		}
+	}
 
-        variable = set.get(name);
-        if (!variable) {
-            variable = new Variable(name, this);
-            set.set(name, variable);
-            variables.push(variable);
-        }
+	__referencing(node, assign, writeExpr, maybeImplicitGlobal, partial, init) {
+		// because Array element may be null
+		if (
+			!node ||
+			(node.type !== Syntax$2.Identifier && node.type !== "JSXIdentifier")
+		) {
+			return;
+		}
 
-        if (def) {
-            variable.defs.push(def);
-            this.__addDeclaredVariablesOfNode(variable, def.node);
-            this.__addDeclaredVariablesOfNode(variable, def.parent);
-        }
-        if (node) {
-            variable.identifiers.push(node);
-        }
-    }
+		// Specially handle like `this`.
+		if (node.name === "super") {
+			return;
+		}
 
-    __define(node, def) {
-        if (node && node.type === Syntax$2.Identifier) {
-            this.__defineGeneric(
-                node.name,
-                this.set,
-                this.variables,
-                node,
-                def
-            );
-        }
-    }
+		const ref = new Reference(
+			node,
+			this,
+			assign || Reference.READ,
+			writeExpr,
+			maybeImplicitGlobal,
+			!!partial,
+			!!init,
+		);
 
-    __referencing(node, assign, writeExpr, maybeImplicitGlobal, partial, init) {
+		this.references.push(ref);
 
-        // because Array element may be null
-        if (!node || (node.type !== Syntax$2.Identifier && node.type !== "JSXIdentifier")) {
-            return;
-        }
+		// @ts-ignore -- __left should be an array here
+		this.__left.push(ref);
+	}
 
-        // Specially handle like `this`.
-        if (node.name === "super") {
-            return;
-        }
+	__detectEval() {
+		let current = this;
 
-        const ref = new Reference(node, this, assign || Reference.READ, writeExpr, maybeImplicitGlobal, !!partial, !!init);
+		this.directCallToEvalScope = true;
+		do {
+			current.dynamic = true;
+			current = current.upper;
+		} while (current);
+	}
 
-        this.references.push(ref);
+	__detectThis() {
+		this.thisFound = true;
+	}
 
-        // @ts-ignore -- __left should be an array here
-        this.__left.push(ref);
-    }
+	__isClosed() {
+		return this.__left === null;
+	}
 
-    __detectEval() {
-        let current = this;
+	/**
+	 * returns resolved {Reference}
+	 * @function Scope#resolve
+	 * @param {ESTree.Identifier} ident identifier to be resolved.
+	 * @returns {?Reference} reference
+	 */
+	resolve(ident) {
+		let ref, i, iz;
 
-        this.directCallToEvalScope = true;
-        do {
-            current.dynamic = true;
-            current = current.upper;
-        } while (current);
-    }
+		assert(this.__isClosed(), "Scope should be closed.");
+		assert(
+			ident.type === Syntax$2.Identifier,
+			"Target should be identifier.",
+		);
+		for (i = 0, iz = this.references.length; i < iz; ++i) {
+			ref = this.references[i];
+			if (ref.identifier === ident) {
+				return ref;
+			}
+		}
+		return null;
+	}
 
-    __detectThis() {
-        this.thisFound = true;
-    }
+	/**
+	 * returns this scope is static
+	 * @function Scope#isStatic
+	 * @returns {boolean} static
+	 */
+	isStatic() {
+		return !this.dynamic;
+	}
 
-    __isClosed() {
-        return this.__left === null;
-    }
+	/**
+	 * returns this scope has materialized arguments
+	 * @function Scope#isArgumentsMaterialized
+	 * @returns {any} arguments materialized
+	 */ // eslint-disable-next-line class-methods-use-this -- Desired as instance method
+	isArgumentsMaterialized() {
+		return true;
+	}
 
-    /**
-     * returns resolved {Reference}
-     * @function Scope#resolve
-     * @param {ESTree.Identifier} ident identifier to be resolved.
-     * @returns {?Reference} reference
-     */
-    resolve(ident) {
-        let ref, i, iz;
+	/**
+	 * returns this scope has materialized `this` reference
+	 * @function Scope#isThisMaterialized
+	 * @returns {any} this materialized
+	 */ // eslint-disable-next-line class-methods-use-this -- Desired as instance method
+	isThisMaterialized() {
+		return true;
+	}
 
-        assert(this.__isClosed(), "Scope should be closed.");
-        assert(ident.type === Syntax$2.Identifier, "Target should be identifier.");
-        for (i = 0, iz = this.references.length; i < iz; ++i) {
-            ref = this.references[i];
-            if (ref.identifier === ident) {
-                return ref;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * returns this scope is static
-     * @function Scope#isStatic
-     * @returns {boolean} static
-     */
-    isStatic() {
-        return !this.dynamic;
-    }
-
-    /**
-     * returns this scope has materialized arguments
-     * @function Scope#isArgumentsMaterialized
-     * @returns {any} arguments materialized
-     */
-    isArgumentsMaterialized() { // eslint-disable-line class-methods-use-this -- Desired as instance method
-        return true;
-    }
-
-    /**
-     * returns this scope has materialized `this` reference
-     * @function Scope#isThisMaterialized
-     * @returns {any} this materialized
-     */
-    isThisMaterialized() { // eslint-disable-line class-methods-use-this -- Desired as instance method
-        return true;
-    }
-
-    isUsedName(name) {
-        if (this.set.has(name)) {
-            return true;
-        }
-        for (let i = 0, iz = this.through.length; i < iz; ++i) {
-            if (this.through[i].identifier.name === name) {
-                return true;
-            }
-        }
-        return false;
-    }
+	isUsedName(name) {
+		if (this.set.has(name)) {
+			return true;
+		}
+		for (let i = 0, iz = this.through.length; i < iz; ++i) {
+			if (this.through[i].identifier.name === name) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 /**
@@ -407359,117 +406054,114 @@ class Scope {
  * @implements {types.GlobalScope}
  */
 class GlobalScope extends Scope {
-    constructor(scopeManager, block) {
-        super(scopeManager, "global", null, block, false);
-        this.implicit = {
-            set: new Map(),
+	constructor(scopeManager, block) {
+		super(scopeManager, "global", null, block, false);
+		this.implicit = {
+			set: new Map(),
 
-            /** @type {Variable[]} */
-            variables: [],
+			/** @type {Variable[]} */
+			variables: [],
 
-            /**
-             * List of {@link Reference}s that are left to be resolved (i.e. which
-             * need to be linked to the variable they refer to).
-             * @member {Reference[]} Scope#implicit#left
-             * @type {Reference[]}
-             */
-            left: []
-        };
-    }
+			/**
+			 * List of {@link Reference}s that are left to be resolved (i.e. which
+			 * need to be linked to the variable they refer to).
+			 * @member {Reference[]} Scope#implicit#left
+			 * @type {Reference[]}
+			 */
+			left: [],
+		};
+	}
 
-    __close(scopeManager) {
-        const implicit = [];
+	__close(scopeManager) {
+		const implicit = [];
 
-        // @ts-ignore -- __left should be an array here
-        for (let i = 0, iz = this.__left.length; i < iz; ++i) {
+		// @ts-ignore -- __left should be an array here
+		for (let i = 0, iz = this.__left.length; i < iz; ++i) {
+			// @ts-ignore -- __left should be an array here
+			const ref = this.__left[i];
 
-            // @ts-ignore -- __left should be an array here
-            const ref = this.__left[i];
+			if (
+				ref.__maybeImplicitGlobal &&
+				!this.set.has(ref.identifier.name)
+			) {
+				implicit.push(ref.__maybeImplicitGlobal);
+			}
+		}
 
-            if (ref.__maybeImplicitGlobal && !this.set.has(ref.identifier.name)) {
-                implicit.push(ref.__maybeImplicitGlobal);
-            }
-        }
+		// create an implicit global variable from assignment expression
+		for (let i = 0, iz = implicit.length; i < iz; ++i) {
+			const info = implicit[i];
 
-        // create an implicit global variable from assignment expression
-        for (let i = 0, iz = implicit.length; i < iz; ++i) {
-            const info = implicit[i];
+			this.__defineImplicit(
+				info.pattern,
+				new Definition(
+					Variable.ImplicitGlobalVariable,
+					info.pattern,
+					info.node,
+					null,
+					null,
+					null,
+				),
+			);
+		}
 
-            this.__defineImplicit(info.pattern,
-                new Definition(
-                    Variable.ImplicitGlobalVariable,
-                    info.pattern,
-                    info.node,
-                    null,
-                    null,
-                    null
-                ));
+		super.__close(scopeManager);
 
-        }
+		this.implicit.left = [...this.through];
 
-        super.__close(scopeManager);
+		return null;
+	}
 
-        this.implicit.left = [...this.through];
+	__defineImplicit(node, def) {
+		if (node && node.type === Syntax$2.Identifier) {
+			this.__defineGeneric(
+				node.name,
+				this.implicit.set,
+				this.implicit.variables,
+				node,
+				def,
+			);
+		}
+	}
 
-        return null;
-    }
+	__addVariables(names) {
+		for (const name of names) {
+			this.__defineGeneric(name, this.set, this.variables, null, null);
+		}
 
-    __defineImplicit(node, def) {
-        if (node && node.type === Syntax$2.Identifier) {
-            this.__defineGeneric(
-                node.name,
-                this.implicit.set,
-                this.implicit.variables,
-                node,
-                def
-            );
-        }
-    }
+		const namesSet = new Set(names);
 
-    __addVariables(names) {
-        for (const name of names) {
-            this.__defineGeneric(
-                name,
-                this.set,
-                this.variables,
-                null,
-                null
-            );
-        }
+		this.through = this.through.filter(reference => {
+			const name = reference.identifier.name;
 
-        const namesSet = new Set(names);
+			if (namesSet.has(name)) {
+				const variable = this.set.get(name);
 
-        this.through = this.through.filter(reference => {
-            const name = reference.identifier.name;
+				reference.resolved = variable;
+				variable.references.push(reference);
 
-            if (namesSet.has(name)) {
-                const variable = this.set.get(name);
+				return false;
+			}
 
-                reference.resolved = variable;
-                variable.references.push(reference);
+			return true;
+		});
 
-                return false;
-            }
+		this.implicit.variables = this.implicit.variables.filter(variable => {
+			const name = variable.name;
 
-            return true;
-        });
+			if (namesSet.has(name)) {
+				this.implicit.set.delete(name);
 
-        this.implicit.variables = this.implicit.variables.filter(variable => {
-            const name = variable.name;
+				return false;
+			}
 
-            if (namesSet.has(name)) {
-                this.implicit.set.delete(name);
+			return true;
+		});
 
-                return false;
-            }
-
-            return true;
-        });
-
-        this.implicit.left = this.implicit.left.filter(
-            reference => !namesSet.has(reference.identifier.name)
-        );
-    }
+		this.implicit.left = this.implicit.left.filter(
+			reference => !namesSet.has(reference.identifier.name),
+		);
+	}
 }
 
 /**
@@ -407477,9 +406169,9 @@ class GlobalScope extends Scope {
  * @implements {types.ModuleScope}
  */
 class ModuleScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "module", upperScope, block, false);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "module", upperScope, block, false);
+	}
 }
 
 /**
@@ -407487,19 +406179,27 @@ class ModuleScope extends Scope {
  * @implements {types.FunctionExpressionNameScope}
  */
 class FunctionExpressionNameScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "function-expression-name", upperScope, block, false);
-        this.__define(block.id,
-            new Definition(
-                Variable.FunctionName,
-                block.id,
-                block,
-                null,
-                null,
-                null
-            ));
-        this.functionExpressionScope = /** @type {const} */ (true);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(
+			scopeManager,
+			"function-expression-name",
+			upperScope,
+			block,
+			false,
+		);
+		this.__define(
+			block.id,
+			new Definition(
+				Variable.FunctionName,
+				block.id,
+				block,
+				null,
+				null,
+				null,
+			),
+		);
+		this.functionExpressionScope = /** @type {const} */ (true);
+	}
 }
 
 /**
@@ -407507,9 +406207,9 @@ class FunctionExpressionNameScope extends Scope {
  * @implements {types.CatchScope}
  */
 class CatchScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "catch", upperScope, block, false);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "catch", upperScope, block, false);
+	}
 }
 
 /**
@@ -407517,28 +406217,27 @@ class CatchScope extends Scope {
  * @implements {types.WithScope}
  */
 class WithScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "with", upperScope, block, false);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "with", upperScope, block, false);
+	}
 
-    __close(scopeManager) {
-        if (this.__shouldStaticallyClose(scopeManager)) {
-            return super.__close(scopeManager);
-        }
+	__close(scopeManager) {
+		if (this.__shouldStaticallyClose(scopeManager)) {
+			return super.__close(scopeManager);
+		}
 
-        // @ts-ignore -- __left should be an array here
-        for (let i = 0, iz = this.__left.length; i < iz; ++i) {
+		// @ts-ignore -- __left should be an array here
+		for (let i = 0, iz = this.__left.length; i < iz; ++i) {
+			// @ts-ignore -- __left should be an array here
+			const ref = this.__left[i];
 
-            // @ts-ignore -- __left should be an array here
-            const ref = this.__left[i];
+			ref.tainted = true;
+			this.__delegateToUpperScope(ref);
+		}
+		this.__left = null;
 
-            ref.tainted = true;
-            this.__delegateToUpperScope(ref);
-        }
-        this.__left = null;
-
-        return this.upper;
-    }
+		return this.upper;
+	}
 }
 
 /**
@@ -407546,9 +406245,9 @@ class WithScope extends Scope {
  * @implements {types.BlockScope}
  */
 class BlockScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "block", upperScope, block, false);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "block", upperScope, block, false);
+	}
 }
 
 /**
@@ -407556,9 +406255,9 @@ class BlockScope extends Scope {
  * @implements {types.SwitchScope}
  */
 class SwitchScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "switch", upperScope, block, false);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "switch", upperScope, block, false);
+	}
 }
 
 /**
@@ -407566,80 +406265,72 @@ class SwitchScope extends Scope {
  * @implements {types.FunctionScope}
  */
 class FunctionScope extends Scope {
-    constructor(scopeManager, upperScope, block, isMethodDefinition) {
-        super(scopeManager, "function", upperScope, block, isMethodDefinition);
+	constructor(scopeManager, upperScope, block, isMethodDefinition) {
+		super(scopeManager, "function", upperScope, block, isMethodDefinition);
 
-        // section 9.2.13, FunctionDeclarationInstantiation.
-        // NOTE Arrow functions never have an arguments objects.
-        if (this.block.type !== Syntax$2.ArrowFunctionExpression) {
-            this.__defineArguments();
-        }
-    }
+		// section 9.2.13, FunctionDeclarationInstantiation.
+		// NOTE Arrow functions never have an arguments objects.
+		if (this.block.type !== Syntax$2.ArrowFunctionExpression) {
+			this.__defineArguments();
+		}
+	}
 
-    isArgumentsMaterialized() {
+	isArgumentsMaterialized() {
+		// TODO(Constellation)
+		// We can more aggressive on this condition like this.
+		//
+		// function t() {
+		//     // arguments of t is always hidden.
+		//     function arguments() {
+		//     }
+		// }
+		if (this.block.type === Syntax$2.ArrowFunctionExpression) {
+			return false;
+		}
 
-        // TODO(Constellation)
-        // We can more aggressive on this condition like this.
-        //
-        // function t() {
-        //     // arguments of t is always hidden.
-        //     function arguments() {
-        //     }
-        // }
-        if (this.block.type === Syntax$2.ArrowFunctionExpression) {
-            return false;
-        }
+		if (!this.isStatic()) {
+			return true;
+		}
 
-        if (!this.isStatic()) {
-            return true;
-        }
+		const variable = this.set.get("arguments");
 
-        const variable = this.set.get("arguments");
+		assert(variable, "Always have arguments variable.");
+		return variable.tainted || variable.references.length !== 0;
+	}
 
-        assert(variable, "Always have arguments variable.");
-        return variable.tainted || variable.references.length !== 0;
-    }
+	isThisMaterialized() {
+		if (!this.isStatic()) {
+			return true;
+		}
+		return this.thisFound;
+	}
 
-    isThisMaterialized() {
-        if (!this.isStatic()) {
-            return true;
-        }
-        return this.thisFound;
-    }
+	__defineArguments() {
+		this.__defineGeneric("arguments", this.set, this.variables, null, null);
+		this.taints.set("arguments", true);
+	}
 
-    __defineArguments() {
-        this.__defineGeneric(
-            "arguments",
-            this.set,
-            this.variables,
-            null,
-            null
-        );
-        this.taints.set("arguments", true);
-    }
+	// References in default parameters isn't resolved to variables which are in their function body.
+	//     const x = 1
+	//     function f(a = x) { // This `x` is resolved to the `x` in the outer scope.
+	//         const x = 2
+	//         console.log(a)
+	//     }
+	__isValidResolution(ref, variable) {
+		// If `options.nodejsScope` is true, `this.block` becomes a Program node.
+		if (this.block.type === "Program") {
+			return true;
+		}
 
-    // References in default parameters isn't resolved to variables which are in their function body.
-    //     const x = 1
-    //     function f(a = x) { // This `x` is resolved to the `x` in the outer scope.
-    //         const x = 2
-    //         console.log(a)
-    //     }
-    __isValidResolution(ref, variable) {
+		const bodyStart = this.block.body.range[0];
 
-        // If `options.nodejsScope` is true, `this.block` becomes a Program node.
-        if (this.block.type === "Program") {
-            return true;
-        }
-
-        const bodyStart = this.block.body.range[0];
-
-        // It's invalid resolution in the following case:
-        return !(
-            variable.scope === this &&
-            ref.identifier.range[0] < bodyStart && // the reference is in the parameter part.
-            variable.defs.every(d => d.name.range[0] >= bodyStart) // the variable is in the body.
-        );
-    }
+		// It's invalid resolution in the following case:
+		return !(
+			variable.scope === this &&
+			ref.identifier.range[0] < bodyStart && // the reference is in the parameter part.
+			variable.defs.every(d => d.name.range[0] >= bodyStart) // the variable is in the body.
+		);
+	}
 }
 
 /**
@@ -407647,9 +406338,9 @@ class FunctionScope extends Scope {
  * @implements {types.ForScope}
  */
 class ForScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "for", upperScope, block, false);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "for", upperScope, block, false);
+	}
 }
 
 /**
@@ -407657,9 +406348,9 @@ class ForScope extends Scope {
  * @implements {types.ClassScope}
  */
 class ClassScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "class", upperScope, block, false);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "class", upperScope, block, false);
+	}
 }
 
 /**
@@ -407667,9 +406358,9 @@ class ClassScope extends Scope {
  * @implements {types.ClassFieldInitializerScope}
  */
 class ClassFieldInitializerScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "class-field-initializer", upperScope, block, true);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "class-field-initializer", upperScope, block, true);
+	}
 }
 
 /**
@@ -407677,9 +406368,9 @@ class ClassFieldInitializerScope extends Scope {
  * @implements {types.ClassStaticBlockScope}
  */
 class ClassStaticBlockScope extends Scope {
-    constructor(scopeManager, upperScope, block) {
-        super(scopeManager, "class-static-block", upperScope, block, true);
-    }
+	constructor(scopeManager, upperScope, block) {
+		super(scopeManager, "class-static-block", upperScope, block, true);
+	}
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -407707,6 +406398,7 @@ class ClassStaticBlockScope extends Scope {
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 
 /** @import * as types from "eslint-scope" */
 /** @import ESTree from "estree" */
@@ -407718,222 +406410,249 @@ class ClassStaticBlockScope extends Scope {
  * @implements {types.ScopeManager}
  */
 class ScopeManager {
-    constructor(options) {
-        this.scopes = [];
-        this.globalScope = null;
-        this.__nodeToScope = new WeakMap();
-        this.__currentScope = null;
-        this.__options = options;
-        this.__declaredVariables = new WeakMap();
-    }
+	constructor(options) {
+		this.scopes = [];
+		this.globalScope = null;
+		this.__nodeToScope = new WeakMap();
+		this.__currentScope = null;
+		this.__options = options;
+		this.__declaredVariables = new WeakMap();
+	}
 
-    __isOptimistic() {
-        return this.__options.optimistic;
-    }
+	__isOptimistic() {
+		return this.__options.optimistic;
+	}
 
-    __ignoreEval() {
-        return this.__options.ignoreEval;
-    }
+	__ignoreEval() {
+		return this.__options.ignoreEval;
+	}
 
-    __isJSXEnabled() {
-        return this.__options.jsx === true;
-    }
+	__isJSXEnabled() {
+		return this.__options.jsx === true;
+	}
 
-    isGlobalReturn() {
-        return this.__options.nodejsScope || this.__options.sourceType === "commonjs";
-    }
+	isGlobalReturn() {
+		return (
+			this.__options.nodejsScope ||
+			this.__options.sourceType === "commonjs"
+		);
+	}
 
-    isModule() {
-        return this.__options.sourceType === "module";
-    }
+	isModule() {
+		return this.__options.sourceType === "module";
+	}
 
-    isImpliedStrict() {
-        return !!this.__options.impliedStrict;
-    }
+	isImpliedStrict() {
+		return !!this.__options.impliedStrict;
+	}
 
-    isStrictModeSupported() {
-        return this.__options.ecmaVersion >= 5;
-    }
+	isStrictModeSupported() {
+		return this.__options.ecmaVersion >= 5;
+	}
 
-    // Returns appropriate scope for this node.
-    __get(node) {
-        return this.__nodeToScope.get(node);
-    }
+	// Returns appropriate scope for this node.
+	__get(node) {
+		return this.__nodeToScope.get(node);
+	}
 
-    /**
-     * Get variables that are declared by the node.
-     *
-     * "are declared by the node" means the node is same as `Variable.defs[].node` or `Variable.defs[].parent`.
-     * If the node declares nothing, this method returns an empty array.
-     * CAUTION: This API is experimental. See https://github.com/estools/escope/pull/69 for more details.
-     * @param {ESTree.Node} node a node to get.
-     * @returns {Variable[]} variables that declared by the node.
-     */
-    getDeclaredVariables(node) {
-        return this.__declaredVariables.get(node) || [];
-    }
+	/**
+	 * Get variables that are declared by the node.
+	 *
+	 * "are declared by the node" means the node is same as `Variable.defs[].node` or `Variable.defs[].parent`.
+	 * If the node declares nothing, this method returns an empty array.
+	 * CAUTION: This API is experimental. See https://github.com/estools/escope/pull/69 for more details.
+	 * @param {ESTree.Node} node a node to get.
+	 * @returns {Variable[]} variables that declared by the node.
+	 */
+	getDeclaredVariables(node) {
+		return this.__declaredVariables.get(node) || [];
+	}
 
-    /**
-     * acquire scope from node.
-     * @function ScopeManager#acquire
-     * @param {ESTree.Node} node node for the acquired scope.
-     * @param {?boolean} [inner=false] look up the most inner scope, default value is false.
-     * @returns {Scope?} Scope from node
-     */
-    acquire(node, inner) {
+	/**
+	 * acquire scope from node.
+	 * @function ScopeManager#acquire
+	 * @param {ESTree.Node} node node for the acquired scope.
+	 * @param {?boolean} [inner=false] look up the most inner scope, default value is false.
+	 * @returns {Scope?} Scope from node
+	 */
+	acquire(node, inner) {
+		/**
+		 * predicate
+		 * @param {Scope} testScope scope to test
+		 * @returns {boolean} predicate
+		 */
+		function predicate(testScope) {
+			if (
+				testScope.type === "function" &&
+				testScope.functionExpressionScope
+			) {
+				return false;
+			}
+			return true;
+		}
 
-        /**
-         * predicate
-         * @param {Scope} testScope scope to test
-         * @returns {boolean} predicate
-         */
-        function predicate(testScope) {
-            if (testScope.type === "function" && testScope.functionExpressionScope) {
-                return false;
-            }
-            return true;
-        }
+		const scopes = this.__get(node);
 
-        const scopes = this.__get(node);
+		if (!scopes || scopes.length === 0) {
+			return null;
+		}
 
-        if (!scopes || scopes.length === 0) {
-            return null;
-        }
+		// Heuristic selection from all scopes.
+		// If you would like to get all scopes, please use ScopeManager#acquireAll.
+		if (scopes.length === 1) {
+			return scopes[0];
+		}
 
-        // Heuristic selection from all scopes.
-        // If you would like to get all scopes, please use ScopeManager#acquireAll.
-        if (scopes.length === 1) {
-            return scopes[0];
-        }
+		if (inner) {
+			for (let i = scopes.length - 1; i >= 0; --i) {
+				const scope = scopes[i];
 
-        if (inner) {
-            for (let i = scopes.length - 1; i >= 0; --i) {
-                const scope = scopes[i];
+				if (predicate(scope)) {
+					return scope;
+				}
+			}
+		} else {
+			for (let i = 0, iz = scopes.length; i < iz; ++i) {
+				const scope = scopes[i];
 
-                if (predicate(scope)) {
-                    return scope;
-                }
-            }
-        } else {
-            for (let i = 0, iz = scopes.length; i < iz; ++i) {
-                const scope = scopes[i];
+				if (predicate(scope)) {
+					return scope;
+				}
+			}
+		}
 
-                if (predicate(scope)) {
-                    return scope;
-                }
-            }
-        }
+		return null;
+	}
 
-        return null;
-    }
+	/**
+	 * acquire all scopes from node.
+	 * @function ScopeManager#acquireAll
+	 * @param {ESTree.Node} node node for the acquired scope.
+	 * @returns {Scope[]?} Scope array
+	 */
+	acquireAll(node) {
+		return this.__get(node);
+	}
 
-    /**
-     * acquire all scopes from node.
-     * @function ScopeManager#acquireAll
-     * @param {ESTree.Node} node node for the acquired scope.
-     * @returns {Scope[]?} Scope array
-     */
-    acquireAll(node) {
-        return this.__get(node);
-    }
+	/**
+	 * release the node.
+	 * @function ScopeManager#release
+	 * @param {ESTree.Node} node releasing node.
+	 * @param {?boolean} [inner=false] look up the most inner scope, default value is false.
+	 * @returns {Scope?} upper scope for the node.
+	 */
+	release(node, inner) {
+		const scopes = this.__get(node);
 
-    /**
-     * release the node.
-     * @function ScopeManager#release
-     * @param {ESTree.Node} node releasing node.
-     * @param {?boolean} [inner=false] look up the most inner scope, default value is false.
-     * @returns {Scope?} upper scope for the node.
-     */
-    release(node, inner) {
-        const scopes = this.__get(node);
+		if (scopes && scopes.length) {
+			const scope = scopes[0].upper;
 
-        if (scopes && scopes.length) {
-            const scope = scopes[0].upper;
+			if (!scope) {
+				return null;
+			}
+			return this.acquire(scope.block, inner);
+		}
+		return null;
+	}
 
-            if (!scope) {
-                return null;
-            }
-            return this.acquire(scope.block, inner);
-        }
-        return null;
-    }
+	/**
+	 * Add global variables and resolve their references.
+	 * @function ScopeManager#addGlobals
+	 * @param {string[]} names Names of global variables to add.
+	 * @returns {void}
+	 */
+	addGlobals(names) {
+		// @ts-ignore -- globalScope must be set before this method is called.
+		this.globalScope.__addVariables(names);
+	}
 
-    /**
-     * Add global variables and resolve their references.
-     * @function ScopeManager#addGlobals
-     * @param {string[]} names Names of global variables to add.
-     * @returns {void}
-     */
-    addGlobals(names) {
+	attach() {} // eslint-disable-line class-methods-use-this -- Desired as instance method
 
-        // @ts-ignore -- globalScope must be set before this method is called.
-        this.globalScope.__addVariables(names);
-    }
+	detach() {} // eslint-disable-line class-methods-use-this -- Desired as instance method
 
-    attach() { } // eslint-disable-line class-methods-use-this -- Desired as instance method
+	__nestScope(scope) {
+		if (scope instanceof GlobalScope) {
+			assert(this.__currentScope === null);
+			this.globalScope = scope;
+		}
+		this.__currentScope = scope;
+		return scope;
+	}
 
-    detach() { } // eslint-disable-line class-methods-use-this -- Desired as instance method
+	__nestGlobalScope(node) {
+		return this.__nestScope(new GlobalScope(this, node));
+	}
 
-    __nestScope(scope) {
-        if (scope instanceof GlobalScope) {
-            assert(this.__currentScope === null);
-            this.globalScope = scope;
-        }
-        this.__currentScope = scope;
-        return scope;
-    }
+	__nestBlockScope(node) {
+		return this.__nestScope(
+			new BlockScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestGlobalScope(node) {
-        return this.__nestScope(new GlobalScope(this, node));
-    }
+	__nestFunctionScope(node, isMethodDefinition) {
+		return this.__nestScope(
+			new FunctionScope(
+				this,
+				this.__currentScope,
+				node,
+				isMethodDefinition,
+			),
+		);
+	}
 
-    __nestBlockScope(node) {
-        return this.__nestScope(new BlockScope(this, this.__currentScope, node));
-    }
+	__nestForScope(node) {
+		return this.__nestScope(new ForScope(this, this.__currentScope, node));
+	}
 
-    __nestFunctionScope(node, isMethodDefinition) {
-        return this.__nestScope(new FunctionScope(this, this.__currentScope, node, isMethodDefinition));
-    }
+	__nestCatchScope(node) {
+		return this.__nestScope(
+			new CatchScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestForScope(node) {
-        return this.__nestScope(new ForScope(this, this.__currentScope, node));
-    }
+	__nestWithScope(node) {
+		return this.__nestScope(new WithScope(this, this.__currentScope, node));
+	}
 
-    __nestCatchScope(node) {
-        return this.__nestScope(new CatchScope(this, this.__currentScope, node));
-    }
+	__nestClassScope(node) {
+		return this.__nestScope(
+			new ClassScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestWithScope(node) {
-        return this.__nestScope(new WithScope(this, this.__currentScope, node));
-    }
+	__nestClassFieldInitializerScope(node) {
+		return this.__nestScope(
+			new ClassFieldInitializerScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestClassScope(node) {
-        return this.__nestScope(new ClassScope(this, this.__currentScope, node));
-    }
+	__nestClassStaticBlockScope(node) {
+		return this.__nestScope(
+			new ClassStaticBlockScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestClassFieldInitializerScope(node) {
-        return this.__nestScope(new ClassFieldInitializerScope(this, this.__currentScope, node));
-    }
+	__nestSwitchScope(node) {
+		return this.__nestScope(
+			new SwitchScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestClassStaticBlockScope(node) {
-        return this.__nestScope(new ClassStaticBlockScope(this, this.__currentScope, node));
-    }
+	__nestModuleScope(node) {
+		return this.__nestScope(
+			new ModuleScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestSwitchScope(node) {
-        return this.__nestScope(new SwitchScope(this, this.__currentScope, node));
-    }
+	__nestFunctionExpressionNameScope(node) {
+		return this.__nestScope(
+			new FunctionExpressionNameScope(this, this.__currentScope, node),
+		);
+	}
 
-    __nestModuleScope(node) {
-        return this.__nestScope(new ModuleScope(this, this.__currentScope, node));
-    }
-
-    __nestFunctionExpressionNameScope(node) {
-        return this.__nestScope(new FunctionExpressionNameScope(this, this.__currentScope, node));
-    }
-
-    __isES6() {
-        return this.__options.ecmaVersion >= 6;
-    }
+	__isES6() {
+		return this.__options.ecmaVersion >= 6;
+	}
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -407962,9 +406681,10 @@ class ScopeManager {
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 /** @import * as types from "eslint-scope" */
 
-const { Syntax: Syntax$1 } = estraverse__default["default"];
+const { Syntax: Syntax$1 } = estraverse;
 
 /**
  * Get last array element
@@ -407972,121 +406692,121 @@ const { Syntax: Syntax$1 } = estraverse__default["default"];
  * @returns {any} Last elment
  */
 function getLast(xs) {
-    return xs.at(-1) || null;
+	return xs.at(-1) || null;
 }
 
 /**
  * Visitor for destructuring patterns.
  * @implements {types.PatternVisitor}
  */
-class PatternVisitor extends esrecurse__default["default"].Visitor {
-    static isPattern(node) {
-        const nodeType = node.type;
+class PatternVisitor extends esrecurse.Visitor {
+	static isPattern(node) {
+		const nodeType = node.type;
 
-        return (
-            nodeType === Syntax$1.Identifier ||
-            nodeType === Syntax$1.ObjectPattern ||
-            nodeType === Syntax$1.ArrayPattern ||
-            nodeType === Syntax$1.SpreadElement ||
-            nodeType === Syntax$1.RestElement ||
-            nodeType === Syntax$1.AssignmentPattern
-        );
-    }
+		return (
+			nodeType === Syntax$1.Identifier ||
+			nodeType === Syntax$1.ObjectPattern ||
+			nodeType === Syntax$1.ArrayPattern ||
+			nodeType === Syntax$1.SpreadElement ||
+			nodeType === Syntax$1.RestElement ||
+			nodeType === Syntax$1.AssignmentPattern
+		);
+	}
 
-    constructor(options, rootPattern, callback) {
-        super(null, options);
-        this.rootPattern = rootPattern;
-        this.callback = callback;
-        this.assignments = [];
-        this.rightHandNodes = [];
-        this.restElements = [];
-    }
+	constructor(options, rootPattern, callback) {
+		super(null, options);
+		this.rootPattern = rootPattern;
+		this.callback = callback;
+		this.assignments = [];
+		this.rightHandNodes = [];
+		this.restElements = [];
+	}
 
-    Identifier(pattern) {
-        const lastRestElement = getLast(this.restElements);
+	Identifier(pattern) {
+		const lastRestElement = getLast(this.restElements);
 
-        this.callback(pattern, {
-            topLevel: pattern === this.rootPattern,
-            rest: lastRestElement !== null && lastRestElement !== void 0 && lastRestElement.argument === pattern,
-            assignments: this.assignments
-        });
-    }
+		this.callback(pattern, {
+			topLevel: pattern === this.rootPattern,
+			rest:
+				lastRestElement !== null &&
+				lastRestElement !== void 0 &&
+				lastRestElement.argument === pattern,
+			assignments: this.assignments,
+		});
+	}
 
-    Property(property) {
+	Property(property) {
+		// Computed property's key is a right hand node.
+		if (property.computed) {
+			this.rightHandNodes.push(property.key);
+		}
 
-        // Computed property's key is a right hand node.
-        if (property.computed) {
-            this.rightHandNodes.push(property.key);
-        }
+		// If it's shorthand, its key is same as its value.
+		// If it's shorthand and has its default value, its key is same as its value.left (the value is AssignmentPattern).
+		// If it's not shorthand, the name of new variable is its value's.
+		this.visit(property.value);
+	}
 
-        // If it's shorthand, its key is same as its value.
-        // If it's shorthand and has its default value, its key is same as its value.left (the value is AssignmentPattern).
-        // If it's not shorthand, the name of new variable is its value's.
-        this.visit(property.value);
-    }
+	ArrayPattern(pattern) {
+		for (let i = 0, iz = pattern.elements.length; i < iz; ++i) {
+			const element = pattern.elements[i];
 
-    ArrayPattern(pattern) {
-        for (let i = 0, iz = pattern.elements.length; i < iz; ++i) {
-            const element = pattern.elements[i];
+			this.visit(element);
+		}
+	}
 
-            this.visit(element);
-        }
-    }
+	AssignmentPattern(pattern) {
+		this.assignments.push(pattern);
+		this.visit(pattern.left);
+		this.rightHandNodes.push(pattern.right);
+		this.assignments.pop();
+	}
 
-    AssignmentPattern(pattern) {
-        this.assignments.push(pattern);
-        this.visit(pattern.left);
-        this.rightHandNodes.push(pattern.right);
-        this.assignments.pop();
-    }
+	RestElement(pattern) {
+		this.restElements.push(pattern);
+		this.visit(pattern.argument);
+		this.restElements.pop();
+	}
 
-    RestElement(pattern) {
-        this.restElements.push(pattern);
-        this.visit(pattern.argument);
-        this.restElements.pop();
-    }
+	MemberExpression(node) {
+		// Computed property's key is a right hand node.
+		if (node.computed) {
+			this.rightHandNodes.push(node.property);
+		}
 
-    MemberExpression(node) {
+		// the object is only read, write to its property.
+		this.rightHandNodes.push(node.object);
+	}
 
-        // Computed property's key is a right hand node.
-        if (node.computed) {
-            this.rightHandNodes.push(node.property);
-        }
+	//
+	// ForInStatement.left and AssignmentExpression.left are LeftHandSideExpression.
+	// By spec, LeftHandSideExpression is Pattern or MemberExpression.
+	//   (see also: https://github.com/estree/estree/pull/20#issuecomment-74584758)
+	// But espree 2.0 parses to ArrayExpression, ObjectExpression, etc...
+	//
 
-        // the object is only read, write to its property.
-        this.rightHandNodes.push(node.object);
-    }
+	SpreadElement(node) {
+		this.visit(node.argument);
+	}
 
-    //
-    // ForInStatement.left and AssignmentExpression.left are LeftHandSideExpression.
-    // By spec, LeftHandSideExpression is Pattern or MemberExpression.
-    //   (see also: https://github.com/estree/estree/pull/20#issuecomment-74584758)
-    // But espree 2.0 parses to ArrayExpression, ObjectExpression, etc...
-    //
+	ArrayExpression(node) {
+		node.elements.forEach(this.visit, this);
+	}
 
-    SpreadElement(node) {
-        this.visit(node.argument);
-    }
+	AssignmentExpression(node) {
+		this.assignments.push(node);
+		this.visit(node.left);
+		this.rightHandNodes.push(node.right);
+		this.assignments.pop();
+	}
 
-    ArrayExpression(node) {
-        node.elements.forEach(this.visit, this);
-    }
-
-    AssignmentExpression(node) {
-        this.assignments.push(node);
-        this.visit(node.left);
-        this.rightHandNodes.push(node.right);
-        this.assignments.pop();
-    }
-
-    CallExpression(node) {
-
-        // arguments are right hand nodes.
-        node.arguments.forEach(a => {
-            this.rightHandNodes.push(a);
-        });
-        this.visit(node.callee);
-    }
+	CallExpression(node) {
+		// arguments are right hand nodes.
+		node.arguments.forEach(a => {
+			this.rightHandNodes.push(a);
+		});
+		this.visit(node.callee);
+	}
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -408115,10 +406835,11 @@ class PatternVisitor extends esrecurse__default["default"].Visitor {
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 /** @import * as types from "eslint-scope" */
 /** @import ESTree from "estree" */
 
-const { Syntax } = estraverse__default["default"];
+const { Syntax } = estraverse;
 
 /**
  * Traverse identifier in pattern
@@ -408128,17 +406849,21 @@ const { Syntax } = estraverse__default["default"];
  * @param {types.PatternVisitorCallback} callback callback
  * @returns {void}
  */
-function traverseIdentifierInPattern(options, rootPattern, referencer, callback) {
+function traverseIdentifierInPattern(
+	options,
+	rootPattern,
+	referencer,
+	callback,
+) {
+	// Call the callback at left hand identifier nodes, and Collect right hand nodes.
+	const visitor = new PatternVisitor(options, rootPattern, callback);
 
-    // Call the callback at left hand identifier nodes, and Collect right hand nodes.
-    const visitor = new PatternVisitor(options, rootPattern, callback);
+	visitor.visit(rootPattern);
 
-    visitor.visit(rootPattern);
-
-    // Process the right hand nodes recursively.
-    if (referencer !== null && referencer !== void 0) {
-        visitor.rightHandNodes.forEach(referencer.visit, referencer);
-    }
+	// Process the right hand nodes recursively.
+	if (referencer !== null && referencer !== void 0) {
+		visitor.rightHandNodes.forEach(referencer.visit, referencer);
+	}
 }
 
 // Importing ImportDeclaration.
@@ -408150,646 +406875,747 @@ function traverseIdentifierInPattern(options, rootPattern, referencer, callback)
 /**
  * Visitor for import specifiers.
  */
-class Importer extends esrecurse__default["default"].Visitor {
-    constructor(declaration, referencer) {
-        super(null, referencer.options);
-        this.declaration = declaration;
-        this.referencer = referencer;
-    }
+class Importer extends esrecurse.Visitor {
+	constructor(declaration, referencer) {
+		super(null, referencer.options);
+		this.declaration = declaration;
+		this.referencer = referencer;
+	}
 
-    visitImport(id, specifier) {
-        this.referencer.visitPattern(id, pattern => {
-            this.referencer.currentScope().__define(pattern,
-                new Definition(
-                    Variable.ImportBinding,
-                    pattern,
-                    specifier,
-                    this.declaration,
-                    null,
-                    null
-                ));
-        });
-    }
+	visitImport(id, specifier) {
+		this.referencer.visitPattern(id, pattern => {
+			this.referencer
+				.currentScope()
+				.__define(
+					pattern,
+					new Definition(
+						Variable.ImportBinding,
+						pattern,
+						specifier,
+						this.declaration,
+						null,
+						null,
+					),
+				);
+		});
+	}
 
-    ImportNamespaceSpecifier(node) {
-        const local = (node.local || node.id);
+	ImportNamespaceSpecifier(node) {
+		const local = node.local || node.id;
 
-        if (local) {
-            this.visitImport(local, node);
-        }
-    }
+		if (local) {
+			this.visitImport(local, node);
+		}
+	}
 
-    ImportDefaultSpecifier(node) {
-        const local = (node.local || node.id);
+	ImportDefaultSpecifier(node) {
+		const local = node.local || node.id;
 
-        this.visitImport(local, node);
-    }
+		this.visitImport(local, node);
+	}
 
-    ImportSpecifier(node) {
-        const local = (node.local || node.id);
+	ImportSpecifier(node) {
+		const local = node.local || node.id;
 
-        if (node.name) {
-            this.visitImport(node.name, node);
-        } else {
-            this.visitImport(local, node);
-        }
-    }
+		if (node.name) {
+			this.visitImport(node.name, node);
+		} else {
+			this.visitImport(local, node);
+		}
+	}
 }
 
 /**
  * Referencing variables and creating bindings.
  * @implements {types.Referencer}
  */
-class Referencer extends esrecurse__default["default"].Visitor {
-    constructor(options, scopeManager) {
-        super(null, options);
-        this.options = options;
-        this.scopeManager = scopeManager;
-        this.parent = null;
-        this.isInnerMethodDefinition = false;
-    }
-
-    currentScope() {
-        return this.scopeManager.__currentScope;
-    }
-
-    close(node) {
-        while (this.currentScope() && node === this.currentScope().block) {
-            this.scopeManager.__currentScope = this.currentScope().__close(this.scopeManager);
-        }
-    }
-
-    pushInnerMethodDefinition(isInnerMethodDefinition) {
-        const previous = this.isInnerMethodDefinition;
-
-        this.isInnerMethodDefinition = isInnerMethodDefinition;
-        return previous;
-    }
-
-    popInnerMethodDefinition(isInnerMethodDefinition) {
-        this.isInnerMethodDefinition = isInnerMethodDefinition;
-    }
-
-    referencingDefaultValue(pattern, assignments, maybeImplicitGlobal, init) {
-        const scope = this.currentScope();
-
-        assignments.forEach(assignment => {
-            scope.__referencing(
-                pattern,
-                Reference.WRITE,
-                assignment.right,
-                maybeImplicitGlobal,
-                pattern !== assignment.left,
-                init
-            );
-        });
-    }
-
-    visitPattern(node, options, callback) {
-        let visitPatternOptions = options;
-        let visitPatternCallback = callback;
-
-        if (typeof options === "function") {
-            visitPatternCallback = options;
-            visitPatternOptions = { processRightHandNodes: false };
-        }
-
-        traverseIdentifierInPattern(
-            this.options,
-            node,
-            visitPatternOptions.processRightHandNodes ? this : null,
-            visitPatternCallback
-        );
-    }
-
-    visitFunction(node) {
-        let i, iz;
-
-        // FunctionDeclaration name is defined in upper scope
-        // NOTE: Not referring variableScope. It is intended.
-        // Since
-        //  in ES5, FunctionDeclaration should be in FunctionBody.
-        //  in ES6, FunctionDeclaration should be block scoped.
-
-        if (node.type === Syntax.FunctionDeclaration) {
-
-            // id is defined in upper scope
-            this.currentScope().__define(node.id,
-                new Definition(
-                    Variable.FunctionName,
-                    node.id,
-                    node,
-                    null,
-                    null,
-                    null
-                ));
-        }
-
-        // FunctionExpression with name creates its special scope;
-        // FunctionExpressionNameScope.
-        if (node.type === Syntax.FunctionExpression && node.id) {
-            this.scopeManager.__nestFunctionExpressionNameScope(node);
-        }
-
-        // Consider this function is in the MethodDefinition.
-        this.scopeManager.__nestFunctionScope(node, this.isInnerMethodDefinition);
-
-        const that = this;
-
-        /**
-         * Visit pattern callback
-         * @param {ESTree.Pattern} pattern pattern
-         * @param {Object} info info
-         * @returns {void}
-         */
-        function visitPatternCallback(pattern, info) {
-            that.currentScope().__define(pattern,
-                new ParameterDefinition(
-                    pattern,
-                    node,
-                    i,
-                    info.rest
-                ));
-
-            that.referencingDefaultValue(pattern, info.assignments, null, true);
-        }
-
-        // Process parameter declarations.
-        for (i = 0, iz = node.params.length; i < iz; ++i) {
-            this.visitPattern(node.params[i], { processRightHandNodes: true }, visitPatternCallback);
-        }
-
-        // if there's a rest argument, add that
-        if (node.rest) {
-            this.visitPattern({
-                type: "RestElement",
-                argument: node.rest
-            }, pattern => {
-                this.currentScope().__define(pattern,
-                    new ParameterDefinition(
-                        pattern,
-                        node,
-                        node.params.length,
-                        true
-                    ));
-            });
-        }
-
-        // In TypeScript there are a number of function-like constructs which have no body,
-        // so check it exists before traversing
-        if (node.body) {
-
-            // Skip BlockStatement to prevent creating BlockStatement scope.
-            if (node.body.type === Syntax.BlockStatement) {
-                this.visitChildren(node.body);
-            } else {
-                this.visit(node.body);
-            }
-        }
-
-        this.close(node);
-    }
-
-    visitClass(node) {
-        if (node.type === Syntax.ClassDeclaration) {
-            this.currentScope().__define(node.id,
-                new Definition(
-                    Variable.ClassName,
-                    node.id,
-                    node,
-                    null,
-                    null,
-                    null
-                ));
-        }
-
-        this.scopeManager.__nestClassScope(node);
-
-        if (node.id) {
-            this.currentScope().__define(node.id,
-                new Definition(
-                    Variable.ClassName,
-                    node.id,
-                    node
-                ));
-        }
-
-        this.visit(node.superClass);
-        this.visit(node.body);
-
-        this.close(node);
-    }
-
-    visitProperty(node) {
-        let previous;
-
-        if (node.computed) {
-            this.visit(node.key);
-        }
-
-        const isMethodDefinition = node.type === Syntax.MethodDefinition;
-
-        if (isMethodDefinition) {
-            previous = this.pushInnerMethodDefinition(true);
-        }
-        this.visit(node.value);
-        if (isMethodDefinition) {
-            this.popInnerMethodDefinition(previous);
-        }
-    }
-
-    visitForIn(node) {
-        if (node.left.type === Syntax.VariableDeclaration && node.left.kind !== "var") {
-            this.scopeManager.__nestForScope(node);
-        }
-
-        if (node.left.type === Syntax.VariableDeclaration) {
-            this.visit(node.left);
-            this.visitPattern(node.left.declarations[0].id, pattern => {
-                this.currentScope().__referencing(pattern, Reference.WRITE, node.right, null, true, true);
-            });
-        } else {
-            this.visitPattern(node.left, { processRightHandNodes: true }, (pattern, info) => {
-                let maybeImplicitGlobal = null;
-
-                if (!this.currentScope().isStrict) {
-                    maybeImplicitGlobal = {
-                        pattern,
-                        node
-                    };
-                }
-                this.referencingDefaultValue(pattern, info.assignments, maybeImplicitGlobal, false);
-                this.currentScope().__referencing(pattern, Reference.WRITE, node.right, maybeImplicitGlobal, true, false);
-            });
-        }
-        this.visit(node.right);
-        this.visit(node.body);
-
-        this.close(node);
-    }
-
-    visitVariableDeclaration(variableTargetScope, type, node, index) {
-
-        const decl = node.declarations[index];
-        const init = decl.init;
-
-        this.visitPattern(decl.id, { processRightHandNodes: true }, (pattern, info) => {
-            variableTargetScope.__define(
-                pattern,
-                new Definition(
-                    type,
-                    pattern,
-                    decl,
-                    node,
-                    index,
-                    node.kind
-                )
-            );
-
-            this.referencingDefaultValue(pattern, info.assignments, null, true);
-            if (init) {
-                this.currentScope().__referencing(pattern, Reference.WRITE, init, null, !info.topLevel, true);
-            }
-        });
-    }
-
-    AssignmentExpression(node) {
-        if (PatternVisitor.isPattern(node.left)) {
-            if (node.operator === "=") {
-                this.visitPattern(node.left, { processRightHandNodes: true }, (pattern, info) => {
-                    let maybeImplicitGlobal = null;
-
-                    if (!this.currentScope().isStrict) {
-                        maybeImplicitGlobal = {
-                            pattern,
-                            node
-                        };
-                    }
-                    this.referencingDefaultValue(pattern, info.assignments, maybeImplicitGlobal, false);
-                    this.currentScope().__referencing(pattern, Reference.WRITE, node.right, maybeImplicitGlobal, !info.topLevel, false);
-                });
-            } else {
-                this.currentScope().__referencing(node.left, Reference.RW, node.right);
-            }
-        } else {
-            this.visit(node.left);
-        }
-        this.visit(node.right);
-    }
-
-    CatchClause(node) {
-        this.scopeManager.__nestCatchScope(node);
-
-        this.visitPattern(node.param, { processRightHandNodes: true }, (pattern, info) => {
-            this.currentScope().__define(pattern,
-                new Definition(
-                    Variable.CatchClause,
-                    pattern,
-                    node,
-                    null,
-                    null,
-                    null
-                ));
-            this.referencingDefaultValue(pattern, info.assignments, null, true);
-        });
-        this.visit(node.body);
-
-        this.close(node);
-    }
-
-    Program(node) {
-        this.scopeManager.__nestGlobalScope(node);
-
-        if (this.scopeManager.isGlobalReturn()) {
-
-            // Force strictness of GlobalScope to false when using node.js scope.
-            this.currentScope().isStrict = false;
-            this.scopeManager.__nestFunctionScope(node, false);
-        }
-
-        if (this.scopeManager.__isES6() && this.scopeManager.isModule()) {
-            this.scopeManager.__nestModuleScope(node);
-        }
-
-        if (this.scopeManager.isStrictModeSupported() && this.scopeManager.isImpliedStrict()) {
-            this.currentScope().isStrict = true;
-        }
-
-        this.visitChildren(node);
-        this.close(node);
-    }
-
-    Identifier(node) {
-        this.currentScope().__referencing(node);
-    }
-
-    // eslint-disable-next-line class-methods-use-this -- Desired as instance method
-    PrivateIdentifier() {
-
-        // Do nothing.
-    }
-
-    UpdateExpression(node) {
-        if (PatternVisitor.isPattern(node.argument)) {
-            this.currentScope().__referencing(node.argument, Reference.RW, null);
-        } else {
-            this.visitChildren(node);
-        }
-    }
-
-    MemberExpression(node) {
-        this.visit(node.object);
-        if (node.computed) {
-            this.visit(node.property);
-        }
-    }
-
-    Property(node) {
-        this.visitProperty(node);
-    }
-
-    PropertyDefinition(node) {
-        const { computed, key, value } = node;
-
-        if (computed) {
-            this.visit(key);
-        }
-        if (value) {
-            this.scopeManager.__nestClassFieldInitializerScope(value);
-            this.visit(value);
-            this.close(value);
-        }
-    }
-
-    StaticBlock(node) {
-        this.scopeManager.__nestClassStaticBlockScope(node);
-
-        this.visitChildren(node);
-
-        this.close(node);
-    }
-
-    MethodDefinition(node) {
-        this.visitProperty(node);
-    }
-
-    BreakStatement() {} // eslint-disable-line class-methods-use-this -- Desired as instance method
-
-    ContinueStatement() {} // eslint-disable-line class-methods-use-this -- Desired as instance method
-
-    LabeledStatement(node) {
-        this.visit(node.body);
-    }
-
-    ForStatement(node) {
-
-        // Create ForStatement declaration.
-        // NOTE: In ES6, ForStatement dynamically generates
-        // per iteration environment. However, escope is
-        // a static analyzer, we only generate one scope for ForStatement.
-        if (node.init && node.init.type === Syntax.VariableDeclaration && node.init.kind !== "var") {
-            this.scopeManager.__nestForScope(node);
-        }
-
-        this.visitChildren(node);
-
-        this.close(node);
-    }
-
-    ClassExpression(node) {
-        this.visitClass(node);
-    }
-
-    ClassDeclaration(node) {
-        this.visitClass(node);
-    }
-
-    CallExpression(node) {
-
-        // Check this is direct call to eval
-        if (!this.scopeManager.__ignoreEval() && node.callee.type === Syntax.Identifier && node.callee.name === "eval") {
-
-            // NOTE: This should be `variableScope`. Since direct eval call always creates Lexical environment and
-            // let / const should be enclosed into it. Only VariableDeclaration affects on the caller's environment.
-            this.currentScope().variableScope.__detectEval();
-        }
-        this.visitChildren(node);
-    }
-
-    BlockStatement(node) {
-        if (this.scopeManager.__isES6()) {
-            this.scopeManager.__nestBlockScope(node);
-        }
-
-        this.visitChildren(node);
-
-        this.close(node);
-    }
-
-    ThisExpression() {
-        this.currentScope().variableScope.__detectThis();
-    }
-
-    WithStatement(node) {
-        this.visit(node.object);
-
-        // Then nest scope for WithStatement.
-        this.scopeManager.__nestWithScope(node);
-
-        this.visit(node.body);
-
-        this.close(node);
-    }
-
-    VariableDeclaration(node) {
-        const variableTargetScope = (node.kind === "var") ? this.currentScope().variableScope : this.currentScope();
-
-        for (let i = 0, iz = node.declarations.length; i < iz; ++i) {
-            const decl = node.declarations[i];
-
-            this.visitVariableDeclaration(variableTargetScope, Variable.Variable, node, i);
-            if (decl.init) {
-                this.visit(decl.init);
-            }
-        }
-    }
-
-    // sec 13.11.8
-    SwitchStatement(node) {
-        this.visit(node.discriminant);
-
-        if (this.scopeManager.__isES6()) {
-            this.scopeManager.__nestSwitchScope(node);
-        }
-
-        for (let i = 0, iz = node.cases.length; i < iz; ++i) {
-            this.visit(node.cases[i]);
-        }
-
-        this.close(node);
-    }
-
-    FunctionDeclaration(node) {
-        this.visitFunction(node);
-    }
-
-    FunctionExpression(node) {
-        this.visitFunction(node);
-    }
-
-    ForOfStatement(node) {
-        this.visitForIn(node);
-    }
-
-    ForInStatement(node) {
-        this.visitForIn(node);
-    }
-
-    ArrowFunctionExpression(node) {
-        this.visitFunction(node);
-    }
-
-    ImportDeclaration(node) {
-        assert(this.scopeManager.__isES6() && this.scopeManager.isModule(), "ImportDeclaration should appear when the mode is ES6 and in the module context.");
-
-        const importer = new Importer(node, this);
-
-        importer.visit(node);
-    }
-
-    visitExportDeclaration(node) {
-        if (node.source) {
-            return;
-        }
-        if (node.declaration) {
-            this.visit(node.declaration);
-            return;
-        }
-
-        this.visitChildren(node);
-    }
-
-    // TODO: ExportDeclaration doesn't exist. for bc?
-    ExportDeclaration(node) {
-        this.visitExportDeclaration(node);
-    }
-
-    ExportAllDeclaration(node) {
-        this.visitExportDeclaration(node);
-    }
-
-    ExportDefaultDeclaration(node) {
-        this.visitExportDeclaration(node);
-    }
-
-    ExportNamedDeclaration(node) {
-        this.visitExportDeclaration(node);
-    }
-
-    ExportSpecifier(node) {
-
-        // TODO: `node.id` doesn't exist. for bc?
-        const local = (node.id || node.local);
-
-        this.visit(local);
-    }
-
-    MetaProperty() { // eslint-disable-line class-methods-use-this -- Desired as instance method
-
-        // do nothing.
-    }
-
-    JSXIdentifier(node) {
-
-        // Special case: "this" should not count as a reference
-        if (this.scopeManager.__isJSXEnabled() && node.name !== "this") {
-            this.currentScope().__referencing(node);
-        }
-    }
-
-    JSXMemberExpression(node) {
-        this.visit(node.object);
-    }
-
-    JSXElement(node) {
-        if (this.scopeManager.__isJSXEnabled()) {
-            this.visit(node.openingElement);
-            node.children.forEach(this.visit, this);
-        } else {
-            this.visitChildren(node);
-        }
-    }
-
-    JSXOpeningElement(node) {
-        if (this.scopeManager.__isJSXEnabled()) {
-
-            const nameNode = node.name;
-            const isComponentName = nameNode.type === "JSXIdentifier" && nameNode.name[0].toUpperCase() === nameNode.name[0];
-            const isComponent = isComponentName || nameNode.type === "JSXMemberExpression";
-
-            // we only want to visit JSXIdentifier nodes if they are capitalized
-            if (isComponent) {
-                this.visit(nameNode);
-            }
-        }
-
-        node.attributes.forEach(this.visit, this);
-    }
-
-    JSXAttribute(node) {
-        if (node.value) {
-            this.visit(node.value);
-        }
-    }
-
-    JSXExpressionContainer(node) {
-        this.visit(node.expression);
-    }
-
-    JSXNamespacedName(node) {
-        this.visit(node.namespace);
-        this.visit(node.name);
-    }
+class Referencer extends esrecurse.Visitor {
+	constructor(options, scopeManager) {
+		super(null, options);
+		this.options = options;
+		this.scopeManager = scopeManager;
+		this.parent = null;
+		this.isInnerMethodDefinition = false;
+	}
+
+	currentScope() {
+		return this.scopeManager.__currentScope;
+	}
+
+	close(node) {
+		while (this.currentScope() && node === this.currentScope().block) {
+			this.scopeManager.__currentScope = this.currentScope().__close(
+				this.scopeManager,
+			);
+		}
+	}
+
+	pushInnerMethodDefinition(isInnerMethodDefinition) {
+		const previous = this.isInnerMethodDefinition;
+
+		this.isInnerMethodDefinition = isInnerMethodDefinition;
+		return previous;
+	}
+
+	popInnerMethodDefinition(isInnerMethodDefinition) {
+		this.isInnerMethodDefinition = isInnerMethodDefinition;
+	}
+
+	referencingDefaultValue(pattern, assignments, maybeImplicitGlobal, init) {
+		const scope = this.currentScope();
+
+		assignments.forEach(assignment => {
+			scope.__referencing(
+				pattern,
+				Reference.WRITE,
+				assignment.right,
+				maybeImplicitGlobal,
+				pattern !== assignment.left,
+				init,
+			);
+		});
+	}
+
+	visitPattern(node, options, callback) {
+		let visitPatternOptions = options;
+		let visitPatternCallback = callback;
+
+		if (typeof options === "function") {
+			visitPatternCallback = options;
+			visitPatternOptions = { processRightHandNodes: false };
+		}
+
+		traverseIdentifierInPattern(
+			this.options,
+			node,
+			visitPatternOptions.processRightHandNodes ? this : null,
+			visitPatternCallback,
+		);
+	}
+
+	visitFunction(node) {
+		let i, iz;
+
+		// FunctionDeclaration name is defined in upper scope
+		// NOTE: Not referring variableScope. It is intended.
+		// Since
+		//  in ES5, FunctionDeclaration should be in FunctionBody.
+		//  in ES6, FunctionDeclaration should be block scoped.
+
+		if (node.type === Syntax.FunctionDeclaration) {
+			// id is defined in upper scope
+			this.currentScope().__define(
+				node.id,
+				new Definition(
+					Variable.FunctionName,
+					node.id,
+					node,
+					null,
+					null,
+					null,
+				),
+			);
+		}
+
+		// FunctionExpression with name creates its special scope;
+		// FunctionExpressionNameScope.
+		if (node.type === Syntax.FunctionExpression && node.id) {
+			this.scopeManager.__nestFunctionExpressionNameScope(node);
+		}
+
+		// Consider this function is in the MethodDefinition.
+		this.scopeManager.__nestFunctionScope(
+			node,
+			this.isInnerMethodDefinition,
+		);
+
+		const that = this;
+
+		/**
+		 * Visit pattern callback
+		 * @param {ESTree.Pattern} pattern pattern
+		 * @param {Object} info info
+		 * @returns {void}
+		 */
+		function visitPatternCallback(pattern, info) {
+			that.currentScope().__define(
+				pattern,
+				new ParameterDefinition(pattern, node, i, info.rest),
+			);
+
+			that.referencingDefaultValue(pattern, info.assignments, null, true);
+		}
+
+		// Process parameter declarations.
+		for (i = 0, iz = node.params.length; i < iz; ++i) {
+			this.visitPattern(
+				node.params[i],
+				{ processRightHandNodes: true },
+				visitPatternCallback,
+			);
+		}
+
+		// if there's a rest argument, add that
+		if (node.rest) {
+			this.visitPattern(
+				{
+					type: "RestElement",
+					argument: node.rest,
+				},
+				pattern => {
+					this.currentScope().__define(
+						pattern,
+						new ParameterDefinition(
+							pattern,
+							node,
+							node.params.length,
+							true,
+						),
+					);
+				},
+			);
+		}
+
+		// In TypeScript there are a number of function-like constructs which have no body,
+		// so check it exists before traversing
+		if (node.body) {
+			// Skip BlockStatement to prevent creating BlockStatement scope.
+			if (node.body.type === Syntax.BlockStatement) {
+				this.visitChildren(node.body);
+			} else {
+				this.visit(node.body);
+			}
+		}
+
+		this.close(node);
+	}
+
+	visitClass(node) {
+		if (node.type === Syntax.ClassDeclaration) {
+			this.currentScope().__define(
+				node.id,
+				new Definition(
+					Variable.ClassName,
+					node.id,
+					node,
+					null,
+					null,
+					null,
+				),
+			);
+		}
+
+		this.scopeManager.__nestClassScope(node);
+
+		if (node.id) {
+			this.currentScope().__define(
+				node.id,
+				new Definition(Variable.ClassName, node.id, node),
+			);
+		}
+
+		this.visit(node.superClass);
+		this.visit(node.body);
+
+		this.close(node);
+	}
+
+	visitProperty(node) {
+		let previous;
+
+		if (node.computed) {
+			this.visit(node.key);
+		}
+
+		const isMethodDefinition = node.type === Syntax.MethodDefinition;
+
+		if (isMethodDefinition) {
+			previous = this.pushInnerMethodDefinition(true);
+		}
+		this.visit(node.value);
+		if (isMethodDefinition) {
+			this.popInnerMethodDefinition(previous);
+		}
+	}
+
+	visitForIn(node) {
+		if (
+			node.left.type === Syntax.VariableDeclaration &&
+			node.left.kind !== "var"
+		) {
+			this.scopeManager.__nestForScope(node);
+		}
+
+		if (node.left.type === Syntax.VariableDeclaration) {
+			this.visit(node.left);
+			this.visitPattern(node.left.declarations[0].id, pattern => {
+				this.currentScope().__referencing(
+					pattern,
+					Reference.WRITE,
+					node.right,
+					null,
+					true,
+					true,
+				);
+			});
+		} else {
+			this.visitPattern(
+				node.left,
+				{ processRightHandNodes: true },
+				(pattern, info) => {
+					let maybeImplicitGlobal = null;
+
+					if (!this.currentScope().isStrict) {
+						maybeImplicitGlobal = {
+							pattern,
+							node,
+						};
+					}
+					this.referencingDefaultValue(
+						pattern,
+						info.assignments,
+						maybeImplicitGlobal,
+						false,
+					);
+					this.currentScope().__referencing(
+						pattern,
+						Reference.WRITE,
+						node.right,
+						maybeImplicitGlobal,
+						true,
+						false,
+					);
+				},
+			);
+		}
+		this.visit(node.right);
+		this.visit(node.body);
+
+		this.close(node);
+	}
+
+	visitVariableDeclaration(variableTargetScope, type, node, index) {
+		const decl = node.declarations[index];
+		const init = decl.init;
+
+		this.visitPattern(
+			decl.id,
+			{ processRightHandNodes: true },
+			(pattern, info) => {
+				variableTargetScope.__define(
+					pattern,
+					new Definition(type, pattern, decl, node, index, node.kind),
+				);
+
+				this.referencingDefaultValue(
+					pattern,
+					info.assignments,
+					null,
+					true,
+				);
+				if (init) {
+					this.currentScope().__referencing(
+						pattern,
+						Reference.WRITE,
+						init,
+						null,
+						!info.topLevel,
+						true,
+					);
+				}
+			},
+		);
+	}
+
+	AssignmentExpression(node) {
+		if (PatternVisitor.isPattern(node.left)) {
+			if (node.operator === "=") {
+				this.visitPattern(
+					node.left,
+					{ processRightHandNodes: true },
+					(pattern, info) => {
+						let maybeImplicitGlobal = null;
+
+						if (!this.currentScope().isStrict) {
+							maybeImplicitGlobal = {
+								pattern,
+								node,
+							};
+						}
+						this.referencingDefaultValue(
+							pattern,
+							info.assignments,
+							maybeImplicitGlobal,
+							false,
+						);
+						this.currentScope().__referencing(
+							pattern,
+							Reference.WRITE,
+							node.right,
+							maybeImplicitGlobal,
+							!info.topLevel,
+							false,
+						);
+					},
+				);
+			} else {
+				this.currentScope().__referencing(
+					node.left,
+					Reference.RW,
+					node.right,
+				);
+			}
+		} else {
+			this.visit(node.left);
+		}
+		this.visit(node.right);
+	}
+
+	CatchClause(node) {
+		this.scopeManager.__nestCatchScope(node);
+
+		this.visitPattern(
+			node.param,
+			{ processRightHandNodes: true },
+			(pattern, info) => {
+				this.currentScope().__define(
+					pattern,
+					new Definition(
+						Variable.CatchClause,
+						pattern,
+						node,
+						null,
+						null,
+						null,
+					),
+				);
+				this.referencingDefaultValue(
+					pattern,
+					info.assignments,
+					null,
+					true,
+				);
+			},
+		);
+		this.visit(node.body);
+
+		this.close(node);
+	}
+
+	Program(node) {
+		this.scopeManager.__nestGlobalScope(node);
+
+		if (this.scopeManager.isGlobalReturn()) {
+			// Force strictness of GlobalScope to false when using node.js scope.
+			this.currentScope().isStrict = false;
+			this.scopeManager.__nestFunctionScope(node, false);
+		}
+
+		if (this.scopeManager.__isES6() && this.scopeManager.isModule()) {
+			this.scopeManager.__nestModuleScope(node);
+		}
+
+		if (
+			this.scopeManager.isStrictModeSupported() &&
+			this.scopeManager.isImpliedStrict()
+		) {
+			this.currentScope().isStrict = true;
+		}
+
+		this.visitChildren(node);
+		this.close(node);
+	}
+
+	Identifier(node) {
+		this.currentScope().__referencing(node);
+	}
+
+	// eslint-disable-next-line class-methods-use-this -- Desired as instance method
+	PrivateIdentifier() {
+		// Do nothing.
+	}
+
+	UpdateExpression(node) {
+		if (PatternVisitor.isPattern(node.argument)) {
+			this.currentScope().__referencing(
+				node.argument,
+				Reference.RW,
+				null,
+			);
+		} else {
+			this.visitChildren(node);
+		}
+	}
+
+	MemberExpression(node) {
+		this.visit(node.object);
+		if (node.computed) {
+			this.visit(node.property);
+		}
+	}
+
+	Property(node) {
+		this.visitProperty(node);
+	}
+
+	PropertyDefinition(node) {
+		const { computed, key, value } = node;
+
+		if (computed) {
+			this.visit(key);
+		}
+		if (value) {
+			this.scopeManager.__nestClassFieldInitializerScope(value);
+			this.visit(value);
+			this.close(value);
+		}
+	}
+
+	StaticBlock(node) {
+		this.scopeManager.__nestClassStaticBlockScope(node);
+
+		this.visitChildren(node);
+
+		this.close(node);
+	}
+
+	MethodDefinition(node) {
+		this.visitProperty(node);
+	}
+
+	BreakStatement() {} // eslint-disable-line class-methods-use-this -- Desired as instance method
+
+	ContinueStatement() {} // eslint-disable-line class-methods-use-this -- Desired as instance method
+
+	LabeledStatement(node) {
+		this.visit(node.body);
+	}
+
+	ForStatement(node) {
+		// Create ForStatement declaration.
+		// NOTE: In ES6, ForStatement dynamically generates
+		// per iteration environment. However, escope is
+		// a static analyzer, we only generate one scope for ForStatement.
+		if (
+			node.init &&
+			node.init.type === Syntax.VariableDeclaration &&
+			node.init.kind !== "var"
+		) {
+			this.scopeManager.__nestForScope(node);
+		}
+
+		this.visitChildren(node);
+
+		this.close(node);
+	}
+
+	ClassExpression(node) {
+		this.visitClass(node);
+	}
+
+	ClassDeclaration(node) {
+		this.visitClass(node);
+	}
+
+	CallExpression(node) {
+		// Check this is direct call to eval
+		if (
+			!this.scopeManager.__ignoreEval() &&
+			node.callee.type === Syntax.Identifier &&
+			node.callee.name === "eval"
+		) {
+			// NOTE: This should be `variableScope`. Since direct eval call always creates Lexical environment and
+			// let / const should be enclosed into it. Only VariableDeclaration affects on the caller's environment.
+			this.currentScope().variableScope.__detectEval();
+		}
+		this.visitChildren(node);
+	}
+
+	BlockStatement(node) {
+		if (this.scopeManager.__isES6()) {
+			this.scopeManager.__nestBlockScope(node);
+		}
+
+		this.visitChildren(node);
+
+		this.close(node);
+	}
+
+	ThisExpression() {
+		this.currentScope().variableScope.__detectThis();
+	}
+
+	WithStatement(node) {
+		this.visit(node.object);
+
+		// Then nest scope for WithStatement.
+		this.scopeManager.__nestWithScope(node);
+
+		this.visit(node.body);
+
+		this.close(node);
+	}
+
+	VariableDeclaration(node) {
+		const variableTargetScope =
+			node.kind === "var"
+				? this.currentScope().variableScope
+				: this.currentScope();
+
+		for (let i = 0, iz = node.declarations.length; i < iz; ++i) {
+			const decl = node.declarations[i];
+
+			this.visitVariableDeclaration(
+				variableTargetScope,
+				Variable.Variable,
+				node,
+				i,
+			);
+			if (decl.init) {
+				this.visit(decl.init);
+			}
+		}
+	}
+
+	// sec 13.11.8
+	SwitchStatement(node) {
+		this.visit(node.discriminant);
+
+		if (this.scopeManager.__isES6()) {
+			this.scopeManager.__nestSwitchScope(node);
+		}
+
+		for (let i = 0, iz = node.cases.length; i < iz; ++i) {
+			this.visit(node.cases[i]);
+		}
+
+		this.close(node);
+	}
+
+	FunctionDeclaration(node) {
+		this.visitFunction(node);
+	}
+
+	FunctionExpression(node) {
+		this.visitFunction(node);
+	}
+
+	ForOfStatement(node) {
+		this.visitForIn(node);
+	}
+
+	ForInStatement(node) {
+		this.visitForIn(node);
+	}
+
+	ArrowFunctionExpression(node) {
+		this.visitFunction(node);
+	}
+
+	ImportDeclaration(node) {
+		assert(
+			this.scopeManager.__isES6() && this.scopeManager.isModule(),
+			"ImportDeclaration should appear when the mode is ES6 and in the module context.",
+		);
+
+		const importer = new Importer(node, this);
+
+		importer.visit(node);
+	}
+
+	visitExportDeclaration(node) {
+		if (node.source) {
+			return;
+		}
+		if (node.declaration) {
+			this.visit(node.declaration);
+			return;
+		}
+
+		this.visitChildren(node);
+	}
+
+	// TODO: ExportDeclaration doesn't exist. for bc?
+	ExportDeclaration(node) {
+		this.visitExportDeclaration(node);
+	}
+
+	ExportAllDeclaration(node) {
+		this.visitExportDeclaration(node);
+	}
+
+	ExportDefaultDeclaration(node) {
+		this.visitExportDeclaration(node);
+	}
+
+	ExportNamedDeclaration(node) {
+		this.visitExportDeclaration(node);
+	}
+
+	ExportSpecifier(node) {
+		// TODO: `node.id` doesn't exist. for bc?
+		const local = node.id || node.local;
+
+		this.visit(local);
+	}
+
+	// eslint-disable-next-line class-methods-use-this -- Desired as instance method
+	MetaProperty() {
+		// do nothing.
+	}
+
+	JSXIdentifier(node) {
+		// Special case: "this" should not count as a reference
+		if (this.scopeManager.__isJSXEnabled() && node.name !== "this") {
+			this.currentScope().__referencing(node);
+		}
+	}
+
+	JSXMemberExpression(node) {
+		this.visit(node.object);
+	}
+
+	JSXElement(node) {
+		if (this.scopeManager.__isJSXEnabled()) {
+			this.visit(node.openingElement);
+			node.children.forEach(this.visit, this);
+		} else {
+			this.visitChildren(node);
+		}
+	}
+
+	JSXOpeningElement(node) {
+		if (this.scopeManager.__isJSXEnabled()) {
+			const nameNode = node.name;
+			const isComponentName =
+				nameNode.type === "JSXIdentifier" &&
+				nameNode.name[0].toUpperCase() === nameNode.name[0];
+			const isComponent =
+				isComponentName || nameNode.type === "JSXMemberExpression";
+
+			// we only want to visit JSXIdentifier nodes if they are capitalized
+			if (isComponent) {
+				this.visit(nameNode);
+			}
+		}
+
+		node.attributes.forEach(this.visit, this);
+	}
+
+	JSXAttribute(node) {
+		if (node.value) {
+			this.visit(node.value);
+		}
+	}
+
+	JSXExpressionContainer(node) {
+		this.visit(node.expression);
+	}
+
+	JSXNamespacedName(node) {
+		this.visit(node.namespace);
+		this.visit(node.name);
+	}
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -408820,6 +407646,7 @@ class Referencer extends esrecurse__default["default"].Visitor {
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 /** @import ESTree from "estree" */
 
 /**
@@ -408827,15 +407654,15 @@ class Referencer extends esrecurse__default["default"].Visitor {
  * @returns {Object} options
  */
 function defaultOptions() {
-    return {
-        optimistic: false,
-        nodejsScope: false,
-        impliedStrict: false,
-        sourceType: "script", // one of ['script', 'module', 'commonjs']
-        ecmaVersion: 5,
-        childVisitorKeys: null,
-        fallback: "iteration"
-    };
+	return {
+		optimistic: false,
+		nodejsScope: false,
+		impliedStrict: false,
+		sourceType: "script", // one of ['script', 'module', 'commonjs']
+		ecmaVersion: 5,
+		childVisitorKeys: null,
+		fallback: "iteration",
+	};
 }
 
 /**
@@ -408845,32 +407672,36 @@ function defaultOptions() {
  * @returns {Record<string, unknown>} Updated options
  */
 function updateDeeply(target, override) {
+	/**
+	 * Is hash object
+	 * @param {Object} value Test value
+	 * @returns {value is Record<string, unknown>} Result
+	 */
+	function isHashObject(value) {
+		return (
+			typeof value === "object" &&
+			value instanceof Object &&
+			!(value instanceof Array) &&
+			!(value instanceof RegExp)
+		);
+	}
 
-    /**
-     * Is hash object
-     * @param {Object} value Test value
-     * @returns {value is Record<string, unknown>} Result
-     */
-    function isHashObject(value) {
-        return typeof value === "object" && value instanceof Object && !(value instanceof Array) && !(value instanceof RegExp);
-    }
+	for (const key in override) {
+		if (Object.hasOwn(override, key)) {
+			const val = override[key];
 
-    for (const key in override) {
-        if (Object.hasOwn(override, key)) {
-            const val = override[key];
-
-            if (isHashObject(val)) {
-                if (isHashObject(target[key])) {
-                    updateDeeply(target[key], val);
-                } else {
-                    target[key] = updateDeeply({}, val);
-                }
-            } else {
-                target[key] = val;
-            }
-        }
-    }
-    return target;
+			if (isHashObject(val)) {
+				if (isHashObject(target[key])) {
+					updateDeeply(target[key], val);
+				} else {
+					target[key] = updateDeeply({}, val);
+				}
+			} else {
+				target[key] = val;
+			}
+		}
+	}
+	return target;
 }
 
 /**
@@ -408894,19 +407725,22 @@ function updateDeeply(target, override) {
  * @returns {ScopeManager} ScopeManager
  */
 function analyze(tree, providedOptions) {
-    const options = updateDeeply(defaultOptions(), providedOptions);
-    const scopeManager = new ScopeManager(options);
-    const referencer = new Referencer(options, scopeManager);
+	const options = updateDeeply(defaultOptions(), providedOptions);
+	const scopeManager = new ScopeManager(options);
+	const referencer = new Referencer(options, scopeManager);
 
-    referencer.visit(tree);
+	referencer.visit(tree);
 
-    assert(scopeManager.__currentScope === null, "currentScope should be null.");
+	assert(
+		scopeManager.__currentScope === null,
+		"currentScope should be null.",
+	);
 
-    return scopeManager;
+	return scopeManager;
 }
 
 /** @name module:escope.version */
-const version = "9.1.0"; // x-release-please-version
+const version = "9.1.1"; // x-release-please-version
 
 /* vim: set sw=4 ts=4 et tw=80 : */
 
@@ -409720,41 +408554,229 @@ exports.unionWith = unionWith;
 
 /***/ }),
 
-/***/ 86156:
+/***/ 5910:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+/* eslint-disable jsdoc/valid-types -- doesn't allow `readonly`.
+   TODO: remove eslint-disable when https://github.com/jsdoc-type-pratt-parser/jsdoc-type-pratt-parser/issues/164 is fixed
+*/
+/**
+ * @typedef {{ readonly [type: string]: ReadonlyArray<string> }} VisitorKeys
+ */
+/* eslint-enable jsdoc/valid-types -- doesn't allow `readonly string[]`. TODO: check why */
+
+/**
+ * @type {VisitorKeys}
+ */
+const KEYS = {
+	ArrayExpression: ["elements"],
+	ArrayPattern: ["elements"],
+	ArrowFunctionExpression: ["params", "body"],
+	AssignmentExpression: ["left", "right"],
+	AssignmentPattern: ["left", "right"],
+	AwaitExpression: ["argument"],
+	BinaryExpression: ["left", "right"],
+	BlockStatement: ["body"],
+	BreakStatement: ["label"],
+	CallExpression: ["callee", "arguments"],
+	CatchClause: ["param", "body"],
+	ChainExpression: ["expression"],
+	ClassBody: ["body"],
+	ClassDeclaration: ["id", "superClass", "body"],
+	ClassExpression: ["id", "superClass", "body"],
+	ConditionalExpression: ["test", "consequent", "alternate"],
+	ContinueStatement: ["label"],
+	DebuggerStatement: [],
+	DoWhileStatement: ["body", "test"],
+	EmptyStatement: [],
+	ExperimentalRestProperty: ["argument"],
+	ExperimentalSpreadProperty: ["argument"],
+	ExportAllDeclaration: ["exported", "source", "attributes"],
+	ExportDefaultDeclaration: ["declaration"],
+	ExportNamedDeclaration: [
+		"declaration",
+		"specifiers",
+		"source",
+		"attributes",
+	],
+	ExportSpecifier: ["local", "exported"],
+	ExpressionStatement: ["expression"],
+	ForInStatement: ["left", "right", "body"],
+	ForOfStatement: ["left", "right", "body"],
+	ForStatement: ["init", "test", "update", "body"],
+	FunctionDeclaration: ["id", "params", "body"],
+	FunctionExpression: ["id", "params", "body"],
+	Identifier: [],
+	IfStatement: ["test", "consequent", "alternate"],
+	ImportAttribute: ["key", "value"],
+	ImportDeclaration: ["specifiers", "source", "attributes"],
+	ImportDefaultSpecifier: ["local"],
+	ImportExpression: ["source", "options"],
+	ImportNamespaceSpecifier: ["local"],
+	ImportSpecifier: ["imported", "local"],
+	JSXAttribute: ["name", "value"],
+	JSXClosingElement: ["name"],
+	JSXClosingFragment: [],
+	JSXElement: ["openingElement", "children", "closingElement"],
+	JSXEmptyExpression: [],
+	JSXExpressionContainer: ["expression"],
+	JSXFragment: ["openingFragment", "children", "closingFragment"],
+	JSXIdentifier: [],
+	JSXMemberExpression: ["object", "property"],
+	JSXNamespacedName: ["namespace", "name"],
+	JSXOpeningElement: ["name", "attributes"],
+	JSXOpeningFragment: [],
+	JSXSpreadAttribute: ["argument"],
+	JSXSpreadChild: ["expression"],
+	JSXText: [],
+	LabeledStatement: ["label", "body"],
+	Literal: [],
+	LogicalExpression: ["left", "right"],
+	MemberExpression: ["object", "property"],
+	MetaProperty: ["meta", "property"],
+	MethodDefinition: ["key", "value"],
+	NewExpression: ["callee", "arguments"],
+	ObjectExpression: ["properties"],
+	ObjectPattern: ["properties"],
+	PrivateIdentifier: [],
+	Program: ["body"],
+	Property: ["key", "value"],
+	PropertyDefinition: ["key", "value"],
+	RestElement: ["argument"],
+	ReturnStatement: ["argument"],
+	SequenceExpression: ["expressions"],
+	SpreadElement: ["argument"],
+	StaticBlock: ["body"],
+	Super: [],
+	SwitchCase: ["test", "consequent"],
+	SwitchStatement: ["discriminant", "cases"],
+	TaggedTemplateExpression: ["tag", "quasi"],
+	TemplateElement: [],
+	TemplateLiteral: ["quasis", "expressions"],
+	ThisExpression: [],
+	ThrowStatement: ["argument"],
+	TryStatement: ["block", "handler", "finalizer"],
+	UnaryExpression: ["argument"],
+	UpdateExpression: ["argument"],
+	VariableDeclaration: ["declarations"],
+	VariableDeclarator: ["id", "init"],
+	WhileStatement: ["test", "body"],
+	WithStatement: ["object", "body"],
+	YieldExpression: ["argument"],
+};
+
+// Types.
+const NODE_TYPES = Object.keys(KEYS);
+
+// Freeze the keys.
+for (const type of NODE_TYPES) {
+	Object.freeze(KEYS[type]);
+}
+Object.freeze(KEYS);
+
+/**
+ * @author Toru Nagashima <https://github.com/mysticatea>
+ * See LICENSE file in root directory for full license.
+ */
+
+/**
+ * @typedef {import('./visitor-keys.js').VisitorKeys} VisitorKeys
+ */
+
+// List to ignore keys.
+const KEY_BLACKLIST = new Set([
+	"parent",
+	"leadingComments",
+	"trailingComments",
+]);
+
+/**
+ * Check whether a given key should be used or not.
+ * @param {string} key The key to check.
+ * @returns {boolean} `true` if the key should be used.
+ */
+function filterKey(key) {
+	return !KEY_BLACKLIST.has(key) && key[0] !== "_";
+}
+
+/* eslint-disable jsdoc/valid-types -- doesn't allow `readonly`.
+   TODO: remove eslint-disable when https://github.com/jsdoc-type-pratt-parser/jsdoc-type-pratt-parser/issues/164 is fixed
+*/
+/**
+ * Get visitor keys of a given node.
+ * @param {Object} node The AST node to get keys.
+ * @returns {readonly string[]} Visitor keys of the node.
+ */
+function getKeys(node) {
+	return Object.keys(node).filter(filterKey);
+}
+/* eslint-enable jsdoc/valid-types -- doesn't allow `readonly` */
+
+/**
+ * Make the union set with `KEYS` and given keys.
+ * @param {VisitorKeys} additionalKeys The additional keys.
+ * @returns {VisitorKeys} The union set.
+ */
+function unionWith(additionalKeys) {
+	const retv =
+		/** @type {{ [type: string]: ReadonlyArray<string> }} */
+		(Object.assign({}, KEYS));
+
+	for (const type of Object.keys(additionalKeys)) {
+		if (Object.hasOwn(retv, type)) {
+			const keys = new Set(additionalKeys[type]);
+
+			for (const key of retv[type]) {
+				keys.add(key);
+			}
+
+			retv[type] = Object.freeze(Array.from(keys));
+		} else {
+			retv[type] = Object.freeze(Array.from(additionalKeys[type]));
+		}
+	}
+
+	return Object.freeze(retv);
+}
+
+exports.KEYS = KEYS;
+exports.getKeys = getKeys;
+exports.unionWith = unionWith;
+
+
+/***/ }),
+
+/***/ 48409:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+var acorn = __nccwpck_require__(61184);
+var jsx = __nccwpck_require__(99414);
+var eslintVisitorKeys = __nccwpck_require__(5910);
 
-var acorn = __nccwpck_require__(57393);
-var jsx = __nccwpck_require__(6181);
-var visitorKeys = __nccwpck_require__(11763);
-
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-function _interopNamespace(e) {
-    if (e && e.__esModule) return e;
-    var n = Object.create(null);
-    if (e) {
-        Object.keys(e).forEach(function (k) {
-            if (k !== 'default') {
-                var d = Object.getOwnPropertyDescriptor(e, k);
-                Object.defineProperty(n, k, d.get ? d : {
-                    enumerable: true,
-                    get: function () { return e[k]; }
-                });
-            }
-        });
-    }
-    n["default"] = e;
-    return Object.freeze(n);
+function _interopNamespaceDefault(e) {
+	var n = Object.create(null);
+	if (e) {
+		Object.keys(e).forEach(function (k) {
+			if (k !== 'default') {
+				var d = Object.getOwnPropertyDescriptor(e, k);
+				Object.defineProperty(n, k, d.get ? d : {
+					enumerable: true,
+					get: function () { return e[k]; }
+				});
+			}
+		});
+	}
+	n.default = e;
+	return Object.freeze(n);
 }
 
-var acorn__namespace = /*#__PURE__*/_interopNamespace(acorn);
-var jsx__default = /*#__PURE__*/_interopDefaultLegacy(jsx);
-var visitorKeys__namespace = /*#__PURE__*/_interopNamespace(visitorKeys);
+var acorn__namespace = /*#__PURE__*/_interopNamespaceDefault(acorn);
 
 /**
  * @fileoverview Translates tokens between Acorn format and Esprima format.
@@ -409797,19 +408819,19 @@ var visitorKeys__namespace = /*#__PURE__*/_interopNamespace(visitorKeys);
 
 // Esprima Token Types
 const Token = {
-    Boolean: "Boolean",
-    EOF: "<end>",
-    Identifier: "Identifier",
-    PrivateIdentifier: "PrivateIdentifier",
-    Keyword: "Keyword",
-    Null: "Null",
-    Numeric: "Numeric",
-    Punctuator: "Punctuator",
-    String: "String",
-    RegularExpression: "RegularExpression",
-    Template: "Template",
-    JSXIdentifier: "JSXIdentifier",
-    JSXText: "JSXText"
+	Boolean: "Boolean",
+	EOF: "<end>",
+	Identifier: "Identifier",
+	PrivateIdentifier: "PrivateIdentifier",
+	Keyword: "Keyword",
+	Null: "Null",
+	Numeric: "Numeric",
+	Punctuator: "Punctuator",
+	String: "String",
+	RegularExpression: "RegularExpression",
+	Template: "Template",
+	JSXIdentifier: "JSXIdentifier",
+	JSXText: "JSXText",
 };
 
 /**
@@ -409820,35 +408842,32 @@ const Token = {
  * @private
  */
 function convertTemplatePart(tokens, code) {
-    const firstToken = tokens[0],
-        lastTemplateToken =
-            /**
-             * @type {acorn.Token & {
-             *   loc: acorn.SourceLocation,
-             *   range: [number, number]
-             * }}
-             */ (tokens.at(-1));
+	const firstToken = tokens[0],
+		lastTemplateToken =
+			/** @type {acorn.Token & { loc: acorn.SourceLocation, range: [number, number] }} */ (
+				tokens.at(-1)
+			);
 
-    /** @type {EsprimaToken} */
-    const token = {
-        type: Token.Template,
-        value: code.slice(firstToken.start, lastTemplateToken.end)
-    };
+	/** @type {EsprimaToken} */
+	const token = {
+		type: Token.Template,
+		value: code.slice(firstToken.start, lastTemplateToken.end),
+	};
 
-    if (firstToken.loc) {
-        token.loc = {
-            start: firstToken.loc.start,
-            end: lastTemplateToken.loc.end
-        };
-    }
+	if (firstToken.loc) {
+		token.loc = {
+			start: firstToken.loc.start,
+			end: lastTemplateToken.loc.end,
+		};
+	}
 
-    if (firstToken.range) {
-        token.start = firstToken.range[0];
-        token.end = lastTemplateToken.range[1];
-        token.range = [token.start, token.end];
-    }
+	if (firstToken.range) {
+		token.start = firstToken.range[0];
+		token.end = lastTemplateToken.range[1];
+		token.range = [token.start, token.end];
+	}
 
-    return token;
+	return token;
 }
 
 /* eslint-disable jsdoc/check-types -- The API allows either */
@@ -409856,205 +408875,208 @@ function convertTemplatePart(tokens, code) {
  * Contains logic to translate Acorn tokens into Esprima tokens.
  */
 class TokenTranslator {
+	/**
+	 * Contains logic to translate Acorn tokens into Esprima tokens.
+	 * @param {EnhancedTokTypes} acornTokTypes The Acorn token types.
+	 * @param {string|String} code The source code Acorn is parsing. This is necessary
+	 *      to correct the "value" property of some tokens.
+	 */
+	constructor(acornTokTypes, code) {
+		/* eslint-enable jsdoc/check-types -- The API allows either */
 
-    /**
-     * Contains logic to translate Acorn tokens into Esprima tokens.
-     * @param {EnhancedTokTypes} acornTokTypes The Acorn token types.
-     * @param {string|String} code The source code Acorn is parsing. This is necessary
-     *      to correct the "value" property of some tokens.
-     */
-    constructor(acornTokTypes, code) {
-        /* eslint-enable jsdoc/check-types -- The API allows either */
+		// token types
+		this._acornTokTypes = acornTokTypes;
 
-        // token types
-        this._acornTokTypes = acornTokTypes;
+		// token buffer for templates
+		/** @type {acorn.Token[]} */
+		this._tokens = [];
 
-        // token buffer for templates
-        /** @type {acorn.Token[]} */
-        this._tokens = [];
+		// track the last curly brace
+		this._curlyBrace = null;
 
-        // track the last curly brace
-        this._curlyBrace = null;
+		// the source code
+		this._code = code;
+	}
 
-        // the source code
-        this._code = code;
+	/**
+	 * Translates a single Esprima token to a single Acorn token. This may be
+	 * inaccurate due to how templates are handled differently in Esprima and
+	 * Acorn, but should be accurate for all other tokens.
+	 * @param {acorn.Token} token The Acorn token to translate.
+	 * @param {ExtraNoTokens} extra Espree extra object.
+	 * @returns {EsprimaToken} The Esprima version of the token.
+	 */
+	translate(token, extra) {
+		const type = token.type,
+			tt = this._acornTokTypes,
+			// We use an unknown type because `acorn.Token` is a class whose
+			//   `type` property we cannot override to our desired `string`;
+			//   this also allows us to define a stricter `EsprimaToken` with
+			//   a string-only `type` property
+			unknownTokenType = /** @type {unknown} */ (token),
+			newToken = /** @type {EsprimaToken} */ (unknownTokenType);
 
-    }
+		if (type === tt.name) {
+			newToken.type = Token.Identifier;
 
-    /**
-     * Translates a single Esprima token to a single Acorn token. This may be
-     * inaccurate due to how templates are handled differently in Esprima and
-     * Acorn, but should be accurate for all other tokens.
-     * @param {acorn.Token} token The Acorn token to translate.
-     * @param {ExtraNoTokens} extra Espree extra object.
-     * @returns {EsprimaToken} The Esprima version of the token.
-     */
-    translate(token, extra) {
+			// TODO: See if this is an Acorn bug
+			if ("value" in token && token.value === "static") {
+				newToken.type = Token.Keyword;
+			}
 
-        const type = token.type,
-            tt = this._acornTokTypes,
+			if (
+				extra.ecmaVersion > 5 &&
+				"value" in token &&
+				(token.value === "yield" || token.value === "let")
+			) {
+				newToken.type = Token.Keyword;
+			}
+		} else if (type === tt.privateId) {
+			newToken.type = Token.PrivateIdentifier;
+		} else if (
+			type === tt.semi ||
+			type === tt.comma ||
+			type === tt.parenL ||
+			type === tt.parenR ||
+			type === tt.braceL ||
+			type === tt.braceR ||
+			type === tt.dot ||
+			type === tt.bracketL ||
+			type === tt.colon ||
+			type === tt.question ||
+			type === tt.bracketR ||
+			type === tt.ellipsis ||
+			type === tt.arrow ||
+			type === tt.jsxTagStart ||
+			type === tt.incDec ||
+			type === tt.starstar ||
+			type === tt.jsxTagEnd ||
+			type === tt.prefix ||
+			type === tt.questionDot ||
+			("binop" in type && type.binop && !type.keyword) ||
+			("isAssign" in type && type.isAssign)
+		) {
+			newToken.type = Token.Punctuator;
+			newToken.value = this._code.slice(token.start, token.end);
+		} else if (type === tt.jsxName) {
+			newToken.type = Token.JSXIdentifier;
+		} else if (type.label === "jsxText" || type === tt.jsxAttrValueToken) {
+			newToken.type = Token.JSXText;
+		} else if (type.keyword) {
+			if (type.keyword === "true" || type.keyword === "false") {
+				newToken.type = Token.Boolean;
+			} else if (type.keyword === "null") {
+				newToken.type = Token.Null;
+			} else {
+				newToken.type = Token.Keyword;
+			}
+		} else if (type === tt.num) {
+			newToken.type = Token.Numeric;
+			newToken.value = this._code.slice(token.start, token.end);
+		} else if (type === tt.string) {
+			if (extra.jsxAttrValueToken) {
+				extra.jsxAttrValueToken = false;
+				newToken.type = Token.JSXText;
+			} else {
+				newToken.type = Token.String;
+			}
 
-            // We use an unknown type because `acorn.Token` is a class whose
-            //   `type` property we cannot override to our desired `string`;
-            //   this also allows us to define a stricter `EsprimaToken` with
-            //   a string-only `type` property
-            unknownTokenType = /** @type {unknown} */ (token),
-            newToken = /** @type {EsprimaToken} */ (unknownTokenType);
+			newToken.value = this._code.slice(token.start, token.end);
+		} else if (type === tt.regexp) {
+			newToken.type = Token.RegularExpression;
+			const value = /** @type {{flags: string, pattern: string}} */ (
+				"value" in token && token.value
+			);
 
-        if (type === tt.name) {
-            newToken.type = Token.Identifier;
+			newToken.regex = {
+				flags: value.flags,
+				pattern: value.pattern,
+			};
+			newToken.value = `/${value.pattern}/${value.flags}`;
+		}
 
-            // TODO: See if this is an Acorn bug
-            if ("value" in token && token.value === "static") {
-                newToken.type = Token.Keyword;
-            }
+		return newToken;
+	}
 
-            if (extra.ecmaVersion > 5 && ("value" in token && (token.value === "yield" || token.value === "let"))) {
-                newToken.type = Token.Keyword;
-            }
+	/**
+	 * Function to call during Acorn's onToken handler.
+	 * @param {acorn.Token} token The Acorn token.
+	 * @param {Extra} extra The Espree extra object.
+	 * @returns {void}
+	 */
+	onToken(token, extra) {
+		const tt = this._acornTokTypes,
+			tokens = extra.tokens,
+			templateTokens = this._tokens;
 
-        } else if (type === tt.privateId) {
-            newToken.type = Token.PrivateIdentifier;
+		/**
+		 * Flushes the buffered template tokens and resets the template
+		 * tracking.
+		 * @returns {void}
+		 * @private
+		 */
+		const translateTemplateTokens = () => {
+			tokens.push(convertTemplatePart(this._tokens, this._code));
+			this._tokens = [];
+		};
 
-        } else if (type === tt.semi || type === tt.comma ||
-                 type === tt.parenL || type === tt.parenR ||
-                 type === tt.braceL || type === tt.braceR ||
-                 type === tt.dot || type === tt.bracketL ||
-                 type === tt.colon || type === tt.question ||
-                 type === tt.bracketR || type === tt.ellipsis ||
-                 type === tt.arrow || type === tt.jsxTagStart ||
-                 type === tt.incDec || type === tt.starstar ||
-                 type === tt.jsxTagEnd || type === tt.prefix ||
-                 type === tt.questionDot ||
-                 ("binop" in type && type.binop && !type.keyword) ||
-                 ("isAssign" in type && type.isAssign)) {
+		if (token.type === tt.eof) {
+			// might be one last curlyBrace
+			if (this._curlyBrace) {
+				tokens.push(this.translate(this._curlyBrace, extra));
+			}
 
-            newToken.type = Token.Punctuator;
-            newToken.value = this._code.slice(token.start, token.end);
-        } else if (type === tt.jsxName) {
-            newToken.type = Token.JSXIdentifier;
-        } else if (type.label === "jsxText" || type === tt.jsxAttrValueToken) {
-            newToken.type = Token.JSXText;
-        } else if (type.keyword) {
-            if (type.keyword === "true" || type.keyword === "false") {
-                newToken.type = Token.Boolean;
-            } else if (type.keyword === "null") {
-                newToken.type = Token.Null;
-            } else {
-                newToken.type = Token.Keyword;
-            }
-        } else if (type === tt.num) {
-            newToken.type = Token.Numeric;
-            newToken.value = this._code.slice(token.start, token.end);
-        } else if (type === tt.string) {
+			return;
+		}
 
-            if (extra.jsxAttrValueToken) {
-                extra.jsxAttrValueToken = false;
-                newToken.type = Token.JSXText;
-            } else {
-                newToken.type = Token.String;
-            }
+		if (token.type === tt.backQuote) {
+			// if there's already a curly, it's not part of the template
+			if (this._curlyBrace) {
+				tokens.push(this.translate(this._curlyBrace, extra));
+				this._curlyBrace = null;
+			}
 
-            newToken.value = this._code.slice(token.start, token.end);
-        } else if (type === tt.regexp) {
-            newToken.type = Token.RegularExpression;
-            const value = /** @type {{flags: string, pattern: string}} */ (
-                "value" in token && token.value
-            );
+			templateTokens.push(token);
 
-            newToken.regex = {
-                flags: value.flags,
-                pattern: value.pattern
-            };
-            newToken.value = `/${value.pattern}/${value.flags}`;
-        }
+			// it's the end
+			if (templateTokens.length > 1) {
+				translateTemplateTokens();
+			}
 
-        return newToken;
-    }
+			return;
+		}
+		if (token.type === tt.dollarBraceL) {
+			templateTokens.push(token);
+			translateTemplateTokens();
+			return;
+		}
+		if (token.type === tt.braceR) {
+			// if there's already a curly, it's not part of the template
+			if (this._curlyBrace) {
+				tokens.push(this.translate(this._curlyBrace, extra));
+			}
 
-    /**
-     * Function to call during Acorn's onToken handler.
-     * @param {acorn.Token} token The Acorn token.
-     * @param {Extra} extra The Espree extra object.
-     * @returns {void}
-     */
-    onToken(token, extra) {
+			// store new curly for later
+			this._curlyBrace = token;
+			return;
+		}
+		if (token.type === tt.template || token.type === tt.invalidTemplate) {
+			if (this._curlyBrace) {
+				templateTokens.push(this._curlyBrace);
+				this._curlyBrace = null;
+			}
 
-        const tt = this._acornTokTypes,
-            tokens = extra.tokens,
-            templateTokens = this._tokens;
+			templateTokens.push(token);
+			return;
+		}
 
-        /**
-         * Flushes the buffered template tokens and resets the template
-         * tracking.
-         * @returns {void}
-         * @private
-         */
-        const translateTemplateTokens = () => {
-            tokens.push(convertTemplatePart(this._tokens, this._code));
-            this._tokens = [];
-        };
+		if (this._curlyBrace) {
+			tokens.push(this.translate(this._curlyBrace, extra));
+			this._curlyBrace = null;
+		}
 
-        if (token.type === tt.eof) {
-
-            // might be one last curlyBrace
-            if (this._curlyBrace) {
-                tokens.push(this.translate(this._curlyBrace, extra));
-            }
-
-            return;
-        }
-
-        if (token.type === tt.backQuote) {
-
-            // if there's already a curly, it's not part of the template
-            if (this._curlyBrace) {
-                tokens.push(this.translate(this._curlyBrace, extra));
-                this._curlyBrace = null;
-            }
-
-            templateTokens.push(token);
-
-            // it's the end
-            if (templateTokens.length > 1) {
-                translateTemplateTokens();
-            }
-
-            return;
-        }
-        if (token.type === tt.dollarBraceL) {
-            templateTokens.push(token);
-            translateTemplateTokens();
-            return;
-        }
-        if (token.type === tt.braceR) {
-
-            // if there's already a curly, it's not part of the template
-            if (this._curlyBrace) {
-                tokens.push(this.translate(this._curlyBrace, extra));
-            }
-
-            // store new curly for later
-            this._curlyBrace = token;
-            return;
-        }
-        if (token.type === tt.template || token.type === tt.invalidTemplate) {
-            if (this._curlyBrace) {
-                templateTokens.push(this._curlyBrace);
-                this._curlyBrace = null;
-            }
-
-            templateTokens.push(token);
-            return;
-        }
-
-        if (this._curlyBrace) {
-            tokens.push(this.translate(this._curlyBrace, extra));
-            this._curlyBrace = null;
-        }
-
-        tokens.push(this.translate(token, extra));
-    }
+		tokens.push(this.translate(token, extra));
+	}
 }
 
 /**
@@ -410071,20 +409093,20 @@ class TokenTranslator {
 //------------------------------------------------------------------------------
 
 const SUPPORTED_VERSIONS = /** @type {const} */ ([
-    3,
-    5,
-    6, // 2015
-    7, // 2016
-    8, // 2017
-    9, // 2018
-    10, // 2019
-    11, // 2020
-    12, // 2021
-    13, // 2022
-    14, // 2023
-    15, // 2024
-    16, // 2025
-    17 // 2026
+	3,
+	5,
+	6, // 2015
+	7, // 2016
+	8, // 2017
+	9, // 2018
+	10, // 2019
+	11, // 2020
+	12, // 2021
+	13, // 2022
+	14, // 2023
+	15, // 2024
+	16, // 2025
+	17, // 2026
 ]);
 
 /**
@@ -410092,18 +409114,18 @@ const SUPPORTED_VERSIONS = /** @type {const} */ ([
  */
 
 const LATEST_ECMA_VERSION =
-    /* eslint-disable jsdoc/valid-types -- Bug */
-    /** @type {typeof SUPPORTED_VERSIONS extends readonly [...unknown[], infer L] ? L : never} */ (
-        SUPPORTED_VERSIONS.at(-1)
-        /* eslint-enable jsdoc/valid-types -- Bug */
-    );
+	/* eslint-disable jsdoc/valid-types -- Bug */
+	/** @type {typeof SUPPORTED_VERSIONS extends readonly [...unknown[], infer L] ? L : never} */ (
+		SUPPORTED_VERSIONS.at(-1)
+		/* eslint-enable jsdoc/valid-types -- Bug */
+	);
 
 /**
  * Get the latest ECMAScript version supported by Espree.
  * @returns {typeof LATEST_ECMA_VERSION} The latest ECMAScript version.
  */
 function getLatestEcmaVersion() {
-    return LATEST_ECMA_VERSION;
+	return LATEST_ECMA_VERSION;
 }
 
 /**
@@ -410111,7 +409133,7 @@ function getLatestEcmaVersion() {
  * @returns {[...typeof SUPPORTED_VERSIONS]} An array containing the supported ECMAScript versions.
  */
 function getSupportedEcmaVersions() {
-    return [...SUPPORTED_VERSIONS];
+	return [...SUPPORTED_VERSIONS];
 }
 
 /**
@@ -410121,28 +409143,31 @@ function getSupportedEcmaVersions() {
  * @returns {NormalizedEcmaVersion} normalized ECMAScript version
  */
 function normalizeEcmaVersion(ecmaVersion = 5) {
+	let version =
+		ecmaVersion === "latest" ? getLatestEcmaVersion() : ecmaVersion;
 
-    let version = ecmaVersion === "latest" ? getLatestEcmaVersion() : ecmaVersion;
+	if (typeof version !== "number") {
+		throw new Error(
+			`ecmaVersion must be a number or "latest". Received value of type ${typeof ecmaVersion} instead.`,
+		);
+	}
 
-    if (typeof version !== "number") {
-        throw new Error(`ecmaVersion must be a number or "latest". Received value of type ${typeof ecmaVersion} instead.`);
-    }
+	// Calculate ECMAScript edition number from official year version starting with
+	// ES2015, which corresponds with ES6 (or a difference of 2009).
+	if (version >= 2015) {
+		version -= 2009;
+	}
 
-    // Calculate ECMAScript edition number from official year version starting with
-    // ES2015, which corresponds with ES6 (or a difference of 2009).
-    if (version >= 2015) {
-        version -= 2009;
-    }
+	if (
+		!SUPPORTED_VERSIONS.includes(
+			/** @type {NormalizedEcmaVersion} */
+			(version),
+		)
+	) {
+		throw new Error("Invalid ecmaVersion.");
+	}
 
-    if (!SUPPORTED_VERSIONS.includes(
-
-        /** @type {NormalizedEcmaVersion} */
-        (version)
-    )) {
-        throw new Error("Invalid ecmaVersion.");
-    }
-
-    return /** @type {NormalizedEcmaVersion} */ (version);
+	return /** @type {NormalizedEcmaVersion} */ (version);
 }
 
 /**
@@ -410152,15 +409177,15 @@ function normalizeEcmaVersion(ecmaVersion = 5) {
  * @returns {"script"|"module"} normalized sourceType
  */
 function normalizeSourceType(sourceType = "script") {
-    if (sourceType === "script" || sourceType === "module") {
-        return sourceType;
-    }
+	if (sourceType === "script" || sourceType === "module") {
+		return sourceType;
+	}
 
-    if (sourceType === "commonjs") {
-        return "script";
-    }
+	if (sourceType === "commonjs") {
+		return "script";
+	}
 
-    throw new Error("Invalid sourceType.");
+	throw new Error("Invalid sourceType.");
 }
 
 /**
@@ -410190,39 +409215,49 @@ function normalizeSourceType(sourceType = "script") {
  * @returns {NormalizedParserOptions} normalized options
  */
 function normalizeOptions(options) {
-    const ecmaVersion = normalizeEcmaVersion(options.ecmaVersion);
-    const sourceType = normalizeSourceType(options.sourceType);
-    const ranges = options.range === true;
-    const locations = options.loc === true;
+	const ecmaVersion = normalizeEcmaVersion(options.ecmaVersion);
+	const sourceType = normalizeSourceType(options.sourceType);
+	const ranges = options.range === true;
+	const locations = options.loc === true;
 
-    if (ecmaVersion !== 3 && options.allowReserved) {
+	if (ecmaVersion !== 3 && options.allowReserved) {
+		// a value of `false` is intentionally allowed here, so a shared config can overwrite it when needed
+		throw new Error(
+			"`allowReserved` is only supported when ecmaVersion is 3",
+		);
+	}
+	if (
+		typeof options.allowReserved !== "undefined" &&
+		typeof options.allowReserved !== "boolean"
+	) {
+		throw new Error(
+			"`allowReserved`, when present, must be `true` or `false`",
+		);
+	}
+	const allowReserved =
+		ecmaVersion === 3 ? options.allowReserved || "never" : false;
+	const ecmaFeatures = options.ecmaFeatures || {};
+	const allowReturnOutsideFunction =
+		options.sourceType === "commonjs" || Boolean(ecmaFeatures.globalReturn);
 
-        // a value of `false` is intentionally allowed here, so a shared config can overwrite it when needed
-        throw new Error("`allowReserved` is only supported when ecmaVersion is 3");
-    }
-    if (typeof options.allowReserved !== "undefined" && typeof options.allowReserved !== "boolean") {
-        throw new Error("`allowReserved`, when present, must be `true` or `false`");
-    }
-    const allowReserved = ecmaVersion === 3 ? (options.allowReserved || "never") : false;
-    const ecmaFeatures = options.ecmaFeatures || {};
-    const allowReturnOutsideFunction = options.sourceType === "commonjs" ||
-        Boolean(ecmaFeatures.globalReturn);
+	if (sourceType === "module" && ecmaVersion < 6) {
+		throw new Error(
+			"sourceType 'module' is not supported when ecmaVersion < 2015. Consider adding `{ ecmaVersion: 2015 }` to the parser options.",
+		);
+	}
 
-    if (sourceType === "module" && ecmaVersion < 6) {
-        throw new Error("sourceType 'module' is not supported when ecmaVersion < 2015. Consider adding `{ ecmaVersion: 2015 }` to the parser options.");
-    }
-
-    return Object.assign({}, options, {
-        ecmaVersion,
-        sourceType,
-        ranges,
-        locations,
-        allowReserved,
-        allowReturnOutsideFunction
-    });
+	return Object.assign({}, options, {
+		ecmaVersion,
+		sourceType,
+		ranges,
+		locations,
+		allowReserved,
+		allowReturnOutsideFunction,
+	});
 }
 
 /* eslint no-param-reassign: 0 -- stylistic choice */
+
 
 /**
  * @import {
@@ -410282,10 +409317,8 @@ function normalizeOptions(options) {
  * } & TokTypes} EnhancedTokTypes
  */
 
-
 const STATE = Symbol("espree's internal state");
 const ESPRIMA_FINISH_NODE = Symbol("espree's esprimaFinishNode");
-
 
 /**
  * Converts an Acorn comment to a Esprima comment.
@@ -410299,407 +409332,420 @@ const ESPRIMA_FINISH_NODE = Symbol("espree's esprimaFinishNode");
  * @returns {EsprimaComment} The comment object.
  * @private
  */
-function convertAcornCommentToEsprimaComment(block, text, start, end, startLoc, endLoc, code) {
+function convertAcornCommentToEsprimaComment(
+	block,
+	text,
+	start,
+	end,
+	startLoc,
+	endLoc,
+	code,
+) {
+	/** @type {CommentType} */
+	let type;
 
-    /** @type {CommentType} */
-    let type;
+	if (block) {
+		type = "Block";
+	} else if (code.slice(start, start + 2) === "#!") {
+		type = "Hashbang";
+	} else {
+		type = "Line";
+	}
 
-    if (block) {
-        type = "Block";
-    } else if (code.slice(start, start + 2) === "#!") {
-        type = "Hashbang";
-    } else {
-        type = "Line";
-    }
+	/**
+	 * @type {{
+	 *   type: CommentType,
+	 *   value: string,
+	 *   start?: number,
+	 *   end?: number,
+	 *   range?: [number, number],
+	 *   loc?: {
+	 *     start: acorn.Position | undefined,
+	 *     end: acorn.Position | undefined
+	 *   }
+	 * }}
+	 */
+	const comment = {
+		type,
+		value: text,
+	};
 
-    /**
-     * @type {{
-     *   type: CommentType,
-     *   value: string,
-     *   start?: number,
-     *   end?: number,
-     *   range?: [number, number],
-     *   loc?: {
-     *     start: acorn.Position | undefined,
-     *     end: acorn.Position | undefined
-     *   }
-     * }}
-     */
-    const comment = {
-        type,
-        value: text
-    };
+	if (typeof start === "number") {
+		comment.start = start;
+		comment.end = end;
+		comment.range = [start, end];
+	}
 
-    if (typeof start === "number") {
-        comment.start = start;
-        comment.end = end;
-        comment.range = [start, end];
-    }
+	if (typeof startLoc === "object") {
+		comment.loc = {
+			start: startLoc,
+			end: endLoc,
+		};
+	}
 
-    if (typeof startLoc === "object") {
-        comment.loc = {
-            start: startLoc,
-            end: endLoc
-        };
-    }
-
-    return comment;
+	return comment;
 }
 
 // eslint-disable-next-line arrow-body-style -- For TS
 var espree = () => {
+	/**
+	 * Returns the Espree parser.
+	 * @param {AcornJsxParserCtorEnhanced} Parser The Acorn parser. The `acorn` property is missing from acorn's
+	 *   TypeScript but is present statically on the class.
+	 * @returns {EspreeParserCtor} The Espree Parser constructor.
+	 */
+	return Parser => {
+		const tokTypes = /** @type {EnhancedTokTypes} */ (
+			Object.assign({}, Parser.acorn.tokTypes)
+		);
 
-    /**
-     * Returns the Espree parser.
-     * @param {AcornJsxParserCtorEnhanced} Parser The Acorn parser. The `acorn` property is missing from acorn's
-     *   TypeScript but is present statically on the class.
-     * @returns {EspreeParserCtor} The Espree Parser constructor.
-     */
-    return Parser => {
-        const tokTypes = /** @type {EnhancedTokTypes} */ (
-            Object.assign({}, Parser.acorn.tokTypes)
-        );
+		if (Parser.acornJsx) {
+			Object.assign(tokTypes, Parser.acornJsx.tokTypes);
+		}
 
-        if (Parser.acornJsx) {
-            Object.assign(tokTypes, Parser.acornJsx.tokTypes);
-        }
+		return class Espree extends Parser {
+			/**
+			 * @param {Options | null | undefined} opts The parser options
+			 * @param {string | object} code The code which will be converted to a string.
+			 */
+			constructor(opts, code) {
+				if (typeof opts !== "object" || opts === null) {
+					opts = {};
+				}
+				if (typeof code !== "string" && !(code instanceof String)) {
+					code = String(code);
+				}
 
-        return class Espree extends Parser {
+				// save original source type in case of commonjs
+				const originalSourceType = opts.sourceType;
+				const options = normalizeOptions(opts);
+				const ecmaFeatures = options.ecmaFeatures || {};
+				const tokenTranslator =
+					options.tokens === true
+						? new TokenTranslator(
+								tokTypes,
 
-            /**
-             * @param {Options | null | undefined} opts The parser options
-             * @param {string | object} code The code which will be converted to a string.
-             */
-            constructor(opts, code) {
-                if (typeof opts !== "object" || opts === null) {
-                    opts = {};
-                }
-                if (typeof code !== "string" && !(code instanceof String)) {
-                    code = String(code);
-                }
+								// @ts-expect-error Appears to be a TS bug since the type is indeed string|String
+								code,
+							)
+						: null;
 
-                // save original source type in case of commonjs
-                const originalSourceType = opts.sourceType;
-                const options = normalizeOptions(opts);
-                const ecmaFeatures = options.ecmaFeatures || {};
-                const tokenTranslator =
-                    options.tokens === true
-                        ? new TokenTranslator(
-                            tokTypes,
+				/**
+				 * Data that is unique to Espree and is not represented internally
+				 * in Acorn.
+				 *
+				 * For ES2023 hashbangs, Espree will call `onComment()` during the
+				 * constructor, so we must define state before having access to
+				 * `this`.
+				 * @type {State}
+				 */
+				const state = {
+					originalSourceType:
+						originalSourceType || options.sourceType,
+					tokens: tokenTranslator ? [] : null,
+					comments: options.comment === true ? [] : null,
+					impliedStrict:
+						ecmaFeatures.impliedStrict === true &&
+						options.ecmaVersion >= 5,
+					ecmaVersion: options.ecmaVersion,
+					jsxAttrValueToken: false,
+					lastToken: null,
+					templateElements: [],
+				};
 
-                            // @ts-expect-error Appears to be a TS bug since the type is indeed string|String
-                            code
-                        )
-                        : null;
+				// Initialize acorn parser.
+				super(
+					{
+						// do not use spread, because we don't want to pass any unknown options to acorn
+						ecmaVersion: options.ecmaVersion,
+						sourceType: options.sourceType,
+						ranges: options.ranges,
+						locations: options.locations,
+						allowReserved: options.allowReserved,
 
-                /**
-                 * Data that is unique to Espree and is not represented internally
-                 * in Acorn.
-                 *
-                 * For ES2023 hashbangs, Espree will call `onComment()` during the
-                 * constructor, so we must define state before having access to
-                 * `this`.
-                 * @type {State}
-                 */
-                const state = {
-                    originalSourceType: originalSourceType || options.sourceType,
-                    tokens: tokenTranslator ? [] : null,
-                    comments: options.comment === true ? [] : null,
-                    impliedStrict: ecmaFeatures.impliedStrict === true && options.ecmaVersion >= 5,
-                    ecmaVersion: options.ecmaVersion,
-                    jsxAttrValueToken: false,
-                    lastToken: null,
-                    templateElements: []
-                };
+						// Truthy value is true for backward compatibility.
+						allowReturnOutsideFunction:
+							options.allowReturnOutsideFunction,
 
-                // Initialize acorn parser.
-                super({
+						// Collect tokens
+						onToken(token) {
+							if (tokenTranslator) {
+								// Use `tokens`, `ecmaVersion`, and `jsxAttrValueToken` in the state.
+								tokenTranslator.onToken(
+									token,
 
-                    // do not use spread, because we don't want to pass any unknown options to acorn
-                    ecmaVersion: options.ecmaVersion,
-                    sourceType: options.sourceType,
-                    ranges: options.ranges,
-                    locations: options.locations,
-                    allowReserved: options.allowReserved,
+									/**
+									 * @type {Omit<State, "tokens"> & {
+									 *   tokens: EsprimaToken[]
+									 * }}
+									 */
+									(state),
+								);
+							}
+							if (token.type !== tokTypes.eof) {
+								state.lastToken = token;
+							}
+						},
 
-                    // Truthy value is true for backward compatibility.
-                    allowReturnOutsideFunction: options.allowReturnOutsideFunction,
+						// Collect comments
+						onComment(block, text, start, end, startLoc, endLoc) {
+							if (state.comments) {
+								const comment =
+									convertAcornCommentToEsprimaComment(
+										block,
+										text,
+										start,
+										end,
+										startLoc,
+										endLoc,
 
-                    // Collect tokens
-                    onToken(token) {
-                        if (tokenTranslator) {
+										// @ts-expect-error Appears to be a TS bug
+										//   since the type is indeed string|String
+										code,
+									);
 
-                            // Use `tokens`, `ecmaVersion`, and `jsxAttrValueToken` in the state.
-                            tokenTranslator.onToken(
-                                token,
+								state.comments.push(comment);
+							}
+						},
+					},
+					// @ts-expect-error Appears to be a TS bug
+					//   since the type is indeed string|String
+					code,
+				);
 
-                                /**
-                                 * @type {Omit<State, "tokens"> & {
-                                 *   tokens: EsprimaToken[]
-                                 * }}
-                                 */
-                                (state)
-                            );
-                        }
-                        if (token.type !== tokTypes.eof) {
-                            state.lastToken = token;
-                        }
-                    },
+				/*
+				 * We put all of this data into a symbol property as a way to avoid
+				 * potential naming conflicts with future versions of Acorn.
+				 */
+				this[STATE] = state;
+			}
 
-                    // Collect comments
-                    onComment(block, text, start, end, startLoc, endLoc) {
-                        if (state.comments) {
-                            const comment = convertAcornCommentToEsprimaComment(
-                                block,
-                                text,
-                                start,
-                                end,
-                                startLoc,
-                                endLoc,
+			/**
+			 * Returns Espree tokens.
+			 * @returns {EsprimaTokens} The Esprima-compatible tokens
+			 */
+			tokenize() {
+				do {
+					this.next();
+				} while (this.type !== tokTypes.eof);
 
-                                // @ts-expect-error Appears to be a TS bug
-                                //   since the type is indeed string|String
-                                code
-                            );
+				// Consume the final eof token
+				this.next();
 
-                            state.comments.push(comment);
-                        }
-                    }
+				const extra = this[STATE];
+				const tokens = /** @type {EsprimaTokens} */ (extra.tokens);
 
-                // @ts-expect-error Appears to be a TS bug
-                //   since the type is indeed string|String
-                }, code);
+				if (extra.comments) {
+					tokens.comments = extra.comments;
+				}
 
-                /*
-                * We put all of this data into a symbol property as a way to avoid
-                * potential naming conflicts with future versions of Acorn.
-                */
-                this[STATE] = state;
-            }
+				return tokens;
+			}
 
-            /**
-             * Returns Espree tokens.
-             * @returns {EsprimaTokens} The Esprima-compatible tokens
-             */
-            tokenize() {
-                do {
-                    this.next();
-                } while (this.type !== tokTypes.eof);
+			/**
+			 * Calls parent.
+			 * @param {acorn.Node} node The node
+			 * @param {string} type The type
+			 * @returns {acorn.Node} The altered Node
+			 */
+			finishNode(node, type) {
+				const result = super.finishNode(node, type);
 
-                // Consume the final eof token
-                this.next();
+				return this[ESPRIMA_FINISH_NODE](result);
+			}
 
-                const extra = this[STATE];
-                const tokens = /** @type {EsprimaTokens} */ (extra.tokens);
+			/**
+			 * Calls parent.
+			 * @param {acorn.Node} node The node
+			 * @param {string} type The type
+			 * @param {number} pos The position
+			 * @param {acorn.Position} loc The location
+			 * @returns {acorn.Node} The altered Node
+			 */
+			finishNodeAt(node, type, pos, loc) {
+				const result = super.finishNodeAt(node, type, pos, loc);
 
-                if (extra.comments) {
-                    tokens.comments = extra.comments;
-                }
+				return this[ESPRIMA_FINISH_NODE](result);
+			}
 
-                return tokens;
-            }
+			/**
+			 * Parses.
+			 * @returns {EsprimaProgramNode} The program Node
+			 */
+			parse() {
+				const extra = this[STATE];
+				const prog = super.parse();
 
-            /**
-             * Calls parent.
-             * @param {acorn.Node} node The node
-             * @param {string} type The type
-             * @returns {acorn.Node} The altered Node
-             */
-            finishNode(node, type) {
-                const result = super.finishNode(node, type);
+				const program = /** @type {EsprimaProgramNode} */ (prog);
 
-                return this[ESPRIMA_FINISH_NODE](result);
-            }
+				// @ts-expect-error TS bug? We've already converted to `EsprimaProgramNode`
+				program.sourceType = extra.originalSourceType;
 
-            /**
-             * Calls parent.
-             * @param {acorn.Node} node The node
-             * @param {string} type The type
-             * @param {number} pos The position
-             * @param {acorn.Position} loc The location
-             * @returns {acorn.Node} The altered Node
-             */
-            finishNodeAt(node, type, pos, loc) {
-                const result = super.finishNodeAt(node, type, pos, loc);
+				if (extra.comments) {
+					program.comments = extra.comments;
+				}
+				if (extra.tokens) {
+					program.tokens = extra.tokens;
+				}
 
-                return this[ESPRIMA_FINISH_NODE](result);
-            }
+				/*
+				 * https://github.com/eslint/espree/issues/349
+				 * Ensure that template elements have correct range information.
+				 * This is one location where Acorn produces a different value
+				 * for its start and end properties vs. the values present in the
+				 * range property. In order to avoid confusion, we set the start
+				 * and end properties to the values that are present in range.
+				 * This is done here, instead of in finishNode(), because Acorn
+				 * uses the values of start and end internally while parsing, making
+				 * it dangerous to change those values while parsing is ongoing.
+				 * By waiting until the end of parsing, we can safely change these
+				 * values without affect any other part of the process.
+				 */
+				this[STATE].templateElements.forEach(templateElement => {
+					const startOffset = -1;
+					const endOffset = templateElement.tail ? 1 : 2;
 
-            /**
-             * Parses.
-             * @returns {EsprimaProgramNode} The program Node
-             */
-            parse() {
-                const extra = this[STATE];
-                const prog = super.parse();
+					templateElement.start += startOffset;
+					templateElement.end += endOffset;
 
-                const program = /** @type {EsprimaProgramNode} */ (prog);
+					if (templateElement.range) {
+						templateElement.range[0] += startOffset;
+						templateElement.range[1] += endOffset;
+					}
 
-                // @ts-expect-error TS bug? We've already converted to `EsprimaProgramNode`
-                program.sourceType = extra.originalSourceType;
+					if (templateElement.loc) {
+						templateElement.loc.start.column += startOffset;
+						templateElement.loc.end.column += endOffset;
+					}
+				});
 
-                if (extra.comments) {
-                    program.comments = extra.comments;
-                }
-                if (extra.tokens) {
-                    program.tokens = extra.tokens;
-                }
+				return program;
+			}
 
-                /*
-                * https://github.com/eslint/espree/issues/349
-                * Ensure that template elements have correct range information.
-                * This is one location where Acorn produces a different value
-                * for its start and end properties vs. the values present in the
-                * range property. In order to avoid confusion, we set the start
-                * and end properties to the values that are present in range.
-                * This is done here, instead of in finishNode(), because Acorn
-                * uses the values of start and end internally while parsing, making
-                * it dangerous to change those values while parsing is ongoing.
-                * By waiting until the end of parsing, we can safely change these
-                * values without affect any other part of the process.
-                */
-                this[STATE].templateElements.forEach(templateElement => {
-                    const startOffset = -1;
-                    const endOffset = templateElement.tail ? 1 : 2;
+			/**
+			 * Parses top level.
+			 * @param {acorn.Node} node AST Node
+			 * @returns {acorn.Node} The changed node
+			 */
+			parseTopLevel(node) {
+				if (this[STATE].impliedStrict) {
+					this.strict = true;
+				}
+				return super.parseTopLevel(node);
+			}
 
-                    templateElement.start += startOffset;
-                    templateElement.end += endOffset;
+			/**
+			 * Overwrites the default raise method to throw Esprima-style errors.
+			 * @param {number} pos The position of the error.
+			 * @param {string} message The error message.
+			 * @throws {EnhancedSyntaxError} A syntax error.
+			 * @returns {void}
+			 */
+			raise(pos, message) {
+				const loc = Parser.acorn.getLineInfo(this.input, pos);
+				const err = /** @type {EnhancedSyntaxError} */ (
+					new SyntaxError(message)
+				);
 
-                    if (templateElement.range) {
-                        templateElement.range[0] += startOffset;
-                        templateElement.range[1] += endOffset;
-                    }
+				err.index = pos;
+				err.lineNumber = loc.line;
+				err.column = loc.column + 1; // acorn uses 0-based columns
+				throw err;
+			}
 
-                    if (templateElement.loc) {
-                        templateElement.loc.start.column += startOffset;
-                        templateElement.loc.end.column += endOffset;
-                    }
-                });
+			/**
+			 * Overwrites the default raise method to throw Esprima-style errors.
+			 * @param {number} pos The position of the error.
+			 * @param {string} message The error message.
+			 * @throws {SyntaxError} A syntax error.
+			 * @returns {void}
+			 */
+			raiseRecoverable(pos, message) {
+				this.raise(pos, message);
+			}
 
-                return program;
-            }
+			/**
+			 * Overwrites the default unexpected method to throw Esprima-style errors.
+			 * @param {number} pos The position of the error.
+			 * @throws {SyntaxError} A syntax error.
+			 * @returns {void}
+			 */
+			unexpected(pos) {
+				let message = "Unexpected token";
 
-            /**
-             * Parses top level.
-             * @param {acorn.Node} node AST Node
-             * @returns {acorn.Node} The changed node
-             */
-            parseTopLevel(node) {
-                if (this[STATE].impliedStrict) {
-                    this.strict = true;
-                }
-                return super.parseTopLevel(node);
-            }
+				if (pos !== null && pos !== void 0) {
+					this.pos = pos;
 
-            /**
-             * Overwrites the default raise method to throw Esprima-style errors.
-             * @param {number} pos The position of the error.
-             * @param {string} message The error message.
-             * @throws {EnhancedSyntaxError} A syntax error.
-             * @returns {void}
-             */
-            raise(pos, message) {
-                const loc = Parser.acorn.getLineInfo(this.input, pos);
-                const err = /** @type {EnhancedSyntaxError} */ (
-                    new SyntaxError(message)
-                );
+					if (this.options.locations) {
+						while (this.pos < this.lineStart) {
+							this.lineStart =
+								this.input.lastIndexOf(
+									"\n",
+									this.lineStart - 2,
+								) + 1;
+							--this.curLine;
+						}
+					}
 
-                err.index = pos;
-                err.lineNumber = loc.line;
-                err.column = loc.column + 1; // acorn uses 0-based columns
-                throw err;
-            }
+					this.nextToken();
+				}
 
-            /**
-             * Overwrites the default raise method to throw Esprima-style errors.
-             * @param {number} pos The position of the error.
-             * @param {string} message The error message.
-             * @throws {SyntaxError} A syntax error.
-             * @returns {void}
-             */
-            raiseRecoverable(pos, message) {
-                this.raise(pos, message);
-            }
+				if (this.end > this.start) {
+					message += ` ${this.input.slice(this.start, this.end)}`;
+				}
 
-            /**
-             * Overwrites the default unexpected method to throw Esprima-style errors.
-             * @param {number} pos The position of the error.
-             * @throws {SyntaxError} A syntax error.
-             * @returns {void}
-             */
-            unexpected(pos) {
-                let message = "Unexpected token";
+				this.raise(this.start, message);
+			}
 
-                if (pos !== null && pos !== void 0) {
-                    this.pos = pos;
+			/**
+			 * Esprima-FB represents JSX strings as tokens called "JSXText", but Acorn-JSX
+			 * uses regular tt.string without any distinction between this and regular JS
+			 * strings. As such, we intercept an attempt to read a JSX string and set a flag
+			 * on extra so that when tokens are converted, the next token will be switched
+			 * to JSXText via onToken.
+			 * @param {number} quote A character code
+			 * @returns {void}
+			 */ // eslint-disable-next-line camelcase -- required by API
+			jsx_readString(quote) {
+				const result = super.jsx_readString(quote);
 
-                    if (this.options.locations) {
-                        while (this.pos < this.lineStart) {
-                            this.lineStart = this.input.lastIndexOf("\n", this.lineStart - 2) + 1;
-                            --this.curLine;
-                        }
-                    }
+				if (this.type === tokTypes.string) {
+					this[STATE].jsxAttrValueToken = true;
+				}
+				return result;
+			}
 
-                    this.nextToken();
-                }
+			/**
+			 * Performs last-minute Esprima-specific compatibility checks and fixes.
+			 * @param {acorn.Node} result The node to check.
+			 * @returns {EsprimaNode} The finished node.
+			 */
+			[ESPRIMA_FINISH_NODE](result) {
+				// Acorn doesn't count the opening and closing backticks as part of templates
+				// so we have to adjust ranges/locations appropriately.
+				if (result.type === "TemplateElement") {
+					// save template element references to fix start/end later
+					this[STATE].templateElements.push(
+						/** @type {acorn.TemplateElement} */
+						(result),
+					);
+				}
 
-                if (this.end > this.start) {
-                    message += ` ${this.input.slice(this.start, this.end)}`;
-                }
+				if (
+					result.type.includes("Function") &&
+					!("generator" in result)
+				) {
+					/**
+					 * @type {acorn.FunctionDeclaration|acorn.FunctionExpression|
+					 *   acorn.ArrowFunctionExpression}
+					 */
+					(result).generator = false;
+				}
 
-                this.raise(this.start, message);
-            }
-
-            /**
-             * Esprima-FB represents JSX strings as tokens called "JSXText", but Acorn-JSX
-             * uses regular tt.string without any distinction between this and regular JS
-             * strings. As such, we intercept an attempt to read a JSX string and set a flag
-             * on extra so that when tokens are converted, the next token will be switched
-             * to JSXText via onToken.
-             * @param {number} quote A character code
-             * @returns {void}
-             */
-            jsx_readString(quote) { // eslint-disable-line camelcase -- required by API
-                const result = super.jsx_readString(quote);
-
-                if (this.type === tokTypes.string) {
-                    this[STATE].jsxAttrValueToken = true;
-                }
-                return result;
-            }
-
-            /**
-             * Performs last-minute Esprima-specific compatibility checks and fixes.
-             * @param {acorn.Node} result The node to check.
-             * @returns {EsprimaNode} The finished node.
-             */
-            [ESPRIMA_FINISH_NODE](result) {
-
-                // Acorn doesn't count the opening and closing backticks as part of templates
-                // so we have to adjust ranges/locations appropriately.
-                if (result.type === "TemplateElement") {
-
-                    // save template element references to fix start/end later
-                    this[STATE].templateElements.push(
-
-                        /** @type {acorn.TemplateElement} */
-                        (result)
-                    );
-                }
-
-                if (result.type.includes("Function") && (!("generator" in result))) {
-
-                    /**
-                     * @type {acorn.FunctionDeclaration|acorn.FunctionExpression|
-                     *   acorn.ArrowFunctionExpression}
-                     */
-                    (result).generator = false;
-                }
-
-                return result;
-            }
-        };
-    };
+				return result;
+			}
+		};
+	};
 };
 
 /**
@@ -410758,6 +409804,7 @@ var espree = () => {
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 
 /**
  * @import { EspreeParserCtor, EspreeParserJsxCtor } from "./lib/types.js";
@@ -410832,75 +409879,76 @@ var espree = () => {
 
 // To initialize lazily.
 const parsers = {
+	/** @type {EspreeParserCtor|null} */
+	_regular: null,
 
-    /** @type {EspreeParserCtor|null} */
-    _regular: null,
+	/** @type {EspreeParserJsxCtor|null} */
+	_jsx: null,
 
-    /** @type {EspreeParserJsxCtor|null} */
-    _jsx: null,
+	/**
+	 * Returns regular Parser
+	 * @returns {EspreeParserCtor} Regular Acorn parser
+	 */
+	get regular() {
+		if (this._regular === null) {
+			const espreeParserFactory = /** @type {unknown} */ (espree());
 
-    /**
-     * Returns regular Parser
-     * @returns {EspreeParserCtor} Regular Acorn parser
-     */
-    get regular() {
-        if (this._regular === null) {
-            const espreeParserFactory = /** @type {unknown} */ (espree());
+			this._regular = /** @type {EspreeParserCtor} */ (
+				// Without conversion, types are incompatible, as
+				// acorn's has a protected constructor
+				/** @type {unknown} */
+				(
+					acorn__namespace.Parser.extend(
+						/**
+						 * @type {(
+						 *   BaseParser: typeof acorn.Parser
+						 * ) => typeof acorn.Parser}
+						 */ (espreeParserFactory),
+					)
+				)
+			);
+		}
+		return this._regular;
+	},
 
-            this._regular = /** @type {EspreeParserCtor} */ (
-                // Without conversion, types are incompatible, as
-                // acorn's has a protected constructor
-                /** @type {unknown} */
-                (acorn__namespace.Parser.extend(
-                    /**
-                     * @type {(
-                     *   BaseParser: typeof acorn.Parser
-                     * ) => typeof acorn.Parser}
-                     */ (espreeParserFactory)
-                ))
-            );
-        }
-        return this._regular;
-    },
+	/**
+	 * Returns JSX Parser
+	 * @returns {EspreeParserJsxCtor} JSX Acorn parser
+	 */
+	get jsx() {
+		if (this._jsx === null) {
+			const espreeParserFactory = /** @type {unknown} */ (espree());
+			const jsxFactory = jsx();
 
-    /**
-     * Returns JSX Parser
-     * @returns {EspreeParserJsxCtor} JSX Acorn parser
-     */
-    get jsx() {
-        if (this._jsx === null) {
-            const espreeParserFactory = /** @type {unknown} */ (espree());
-            const jsxFactory = jsx__default["default"]();
+			this._jsx = /** @type {EspreeParserJsxCtor} */ (
+				// Without conversion, types are incompatible, as
+				// acorn's has a protected constructor
+				/** @type {unknown} */
+				(
+					acorn__namespace.Parser.extend(
+						jsxFactory,
 
-            this._jsx = /** @type {EspreeParserJsxCtor} */ (
-                // Without conversion, types are incompatible, as
-                // acorn's has a protected constructor
-                /** @type {unknown} */
-                (acorn__namespace.Parser.extend(
-                    jsxFactory,
+						/** @type {(BaseParser: typeof acorn.Parser) => typeof acorn.Parser} */
+						(espreeParserFactory),
+					)
+				)
+			);
+		}
+		return this._jsx;
+	},
 
-                    /** @type {(BaseParser: typeof acorn.Parser) => typeof acorn.Parser} */
-                    (espreeParserFactory)
-                ))
-            );
-        }
-        return this._jsx;
-    },
+	/**
+	 * Gets the parser object based on the supplied options.
+	 * @param {Options} [options] The parser options.
+	 * @returns {EspreeParserJsxCtor|EspreeParserCtor} Regular or JSX Acorn parser
+	 */
+	get(options) {
+		const useJsx = Boolean(
+			options && options.ecmaFeatures && options.ecmaFeatures.jsx,
+		);
 
-    /**
-     * Gets the parser object based on the supplied options.
-     * @param {Options} [options] The parser options.
-     * @returns {EspreeParserJsxCtor|EspreeParserCtor} Regular or JSX Acorn parser
-     */
-    get(options) {
-        const useJsx = Boolean(
-            options &&
-            options.ecmaFeatures &&
-            options.ecmaFeatures.jsx
-        );
-
-        return useJsx ? this.jsx : this.regular;
-    }
+		return useJsx ? this.jsx : this.regular;
+	},
 };
 
 //------------------------------------------------------------------------------
@@ -410916,14 +409964,14 @@ const parsers = {
  * @private
  */
 function tokenize(code, options) {
-    const Parser = parsers.get(options);
+	const Parser = parsers.get(options);
 
-    // Ensure to collect tokens.
-    if (!options || options.tokens !== true) {
-        options = Object.assign({}, options, { tokens: true }); // eslint-disable-line no-param-reassign -- stylistic choice
-    }
+	// Ensure to collect tokens.
+	if (!options || options.tokens !== true) {
+		options = Object.assign({}, options, { tokens: true }); // eslint-disable-line no-param-reassign -- stylistic choice
+	}
 
-    return /** @type {EspreeTokens} */ (new Parser(options, code).tokenize());
+	return /** @type {EspreeTokens} */ (new Parser(options, code).tokenize());
 }
 
 //------------------------------------------------------------------------------
@@ -410938,9 +409986,9 @@ function tokenize(code, options) {
  * @throws {EnhancedSyntaxError} If the input code is invalid.
  */
 function parse(code, options) {
-    const Parser = parsers.get(options);
+	const Parser = parsers.get(options);
 
-    return new Parser(options, code).parse();
+	return new Parser(options, code).parse();
 }
 
 //------------------------------------------------------------------------------
@@ -410948,48 +409996,41 @@ function parse(code, options) {
 //------------------------------------------------------------------------------
 
 /** @type {string} */
-const version = "11.1.0"; // x-release-please-version
+const version = "11.1.1"; // x-release-please-version
 const name = "espree";
 
-/* istanbul ignore next */
-/**
- * @type {visitorKeys.VisitorKeys}
- */
-const VisitorKeys = (function() {
-    return visitorKeys__namespace.KEYS;
-}());
-
 // Derive node types from VisitorKeys
-/* istanbul ignore next */
-const Syntax = (function() {
-    let key,
+const Syntax = /* #__PURE__ */ (function () {
+	let key,
+		/** @type {Record<string,string>} */
+		types = {};
 
-        /** @type {Record<string,string>} */
-        types = {};
+	if (typeof Object.create === "function") {
+		types = Object.create(null);
+	}
 
-    if (typeof Object.create === "function") {
-        types = Object.create(null);
-    }
+	for (key in eslintVisitorKeys.KEYS) {
+		if (Object.hasOwn(eslintVisitorKeys.KEYS, key)) {
+			types[key] = key;
+		}
+	}
 
-    for (key in VisitorKeys) {
-        if (Object.hasOwn(VisitorKeys, key)) {
-            types[key] = key;
-        }
-    }
+	if (typeof Object.freeze === "function") {
+		Object.freeze(types);
+	}
 
-    if (typeof Object.freeze === "function") {
-        Object.freeze(types);
-    }
+	return types;
+})();
 
-    return types;
-}());
+const latestEcmaVersion = /* #__PURE__ */ getLatestEcmaVersion();
 
-const latestEcmaVersion = getLatestEcmaVersion();
+const supportedEcmaVersions = /* #__PURE__ */ getSupportedEcmaVersions();
 
-const supportedEcmaVersions = getSupportedEcmaVersions();
-
+Object.defineProperty(exports, "VisitorKeys", ({
+	enumerable: true,
+	get: function () { return eslintVisitorKeys.KEYS; }
+}));
 exports.Syntax = Syntax;
-exports.VisitorKeys = VisitorKeys;
 exports.latestEcmaVersion = latestEcmaVersion;
 exports.name = name;
 exports.parse = parse;
@@ -414259,23 +413300,23 @@ exports.unionTypeParts = unionTypeParts;
 
 /***/ }),
 
-/***/ 21242:
+/***/ 6383:
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"version":"8.56.0"};
+module.exports = {"version":"8.56.1"};
 
 /***/ }),
 
-/***/ 34704:
+/***/ 52897:
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"version":"8.56.0"};
+module.exports = {"version":"8.56.1"};
 
 /***/ }),
 
-/***/ 39746:
+/***/ 58610:
 /***/ ((module) => {
 
 "use strict";
@@ -414283,7 +413324,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"$schema":"http://json-schema.org/dra
 
 /***/ }),
 
-/***/ 71549:
+/***/ 88973:
 /***/ ((module) => {
 
 "use strict";
@@ -414291,7 +413332,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"id":"http://json-schema.org/draft-04
 
 /***/ }),
 
-/***/ 17120:
+/***/ 49808:
 /***/ ((module) => {
 
 "use strict";
@@ -414299,7 +413340,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"$schema":"http://json-schema.org/dra
 
 /***/ }),
 
-/***/ 54183:
+/***/ 12813:
 /***/ ((module) => {
 
 "use strict";
@@ -414307,11 +413348,11 @@ module.exports = /*#__PURE__*/JSON.parse('{"rules":{"generator-star":["generator
 
 /***/ }),
 
-/***/ 60985:
+/***/ 41575:
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"eslint","version":"10.0.0","author":"Nicholas C. Zakas <nicholas+npm@nczconsulting.com>","description":"An AST-based pattern checker for JavaScript.","type":"commonjs","bin":{"eslint":"./bin/eslint.js"},"main":"./lib/api.js","types":"./lib/types/index.d.ts","exports":{".":{"types":"./lib/types/index.d.ts","default":"./lib/api.js"},"./config":{"types":"./lib/types/config-api.d.ts","default":"./lib/config-api.js"},"./package.json":"./package.json","./use-at-your-own-risk":{"types":"./lib/types/use-at-your-own-risk.d.ts","default":"./lib/unsupported-api.js"},"./rules":{"types":"./lib/types/rules.d.ts"},"./universal":{"types":"./lib/types/universal.d.ts","default":"./lib/universal.js"}},"typesVersions":{"*":{"use-at-your-own-risk":["./lib/types/use-at-your-own-risk.d.ts"],"rules":["./lib/types/rules.d.ts"],"universal":["./lib/types/universal.d.ts"],"config":["./lib/types/config-api.d.ts"]}},"scripts":{"build:docs:update-links":"node tools/fetch-docs-links.js","build:site":"node Makefile.js gensite","build:webpack":"node Makefile.js webpack","build:readme":"node tools/update-readme.js","build:rules-index":"node Makefile.js generateRuleIndexPage","lint":"trunk check --no-fix --ignore=docs/**/*.js -a --filter=eslint && trunk check --no-fix --ignore=docs/**/*.js","lint:docs:js":"trunk check --no-fix --ignore=** --ignore=!docs/**/*.js -a --filter=eslint && trunk check --no-fix --ignore=** --ignore=!docs/**/*.js","lint:docs:rule-examples":"node Makefile.js checkRuleExamples","lint:unused":"knip","lint:fix":"trunk check -y --ignore=docs/**/*.js -a --filter=eslint && trunk check -y --ignore=docs/**/*.js","lint:fix:docs:js":"trunk check -y --ignore=** --ignore=!docs/**/*.js -a --filter=eslint && trunk check -y --ignore=** --ignore=!docs/**/*.js","lint:rule-types":"node tools/update-rule-type-headers.js --check","lint:types":"attw --pack","release:generate:alpha":"node Makefile.js generatePrerelease -- alpha","release:generate:beta":"node Makefile.js generatePrerelease -- beta","release:generate:latest":"node Makefile.js generateRelease -- latest","release:generate:maintenance":"node Makefile.js generateRelease -- maintenance","release:generate:rc":"node Makefile.js generatePrerelease -- rc","release:publish":"node Makefile.js publishRelease","test":"node Makefile.js test","test:browser":"node Makefile.js cypress","test:cli":"mocha","test:emfile":"node tools/check-emfile-handling.js","test:fuzz":"node Makefile.js fuzz","test:performance":"node Makefile.js perf","test:pnpm":"cd tests/pnpm && node check.js && pnpm install && pnpm exec tsc","test:types":"tsc -p tests/lib/types/tsconfig.json"},"gitHooks":{"pre-commit":"lint-staged"},"lint-staged":{"*":"trunk check --fix","lib/rules/*.js":["node tools/update-eslint-all.js","node tools/update-eslint-recommended.js","node tools/update-rule-type-headers.js","git add packages/js/src/configs/*.js lib/types/rules.d.ts"],"docs/src/rules/*.md":["node tools/check-rule-examples.js","node tools/fetch-docs-links.js","git add docs/src/_data/further_reading_links.json"]},"files":["LICENSE","README.md","bin","conf","lib","messages"],"repository":"eslint/eslint","funding":"https://eslint.org/donate","homepage":"https://eslint.org","bugs":"https://github.com/eslint/eslint/issues/","dependencies":{"@eslint-community/eslint-utils":"^4.8.0","@eslint-community/regexpp":"^4.12.2","@eslint/config-array":"^0.23.0","@eslint/config-helpers":"^0.5.2","@eslint/core":"^1.1.0","@eslint/plugin-kit":"^0.6.0","@humanfs/node":"^0.16.6","@humanwhocodes/module-importer":"^1.0.1","@humanwhocodes/retry":"^0.4.2","@types/estree":"^1.0.6","ajv":"^6.12.4","cross-spawn":"^7.0.6","debug":"^4.3.2","escape-string-regexp":"^4.0.0","eslint-scope":"^9.1.0","eslint-visitor-keys":"^5.0.0","espree":"^11.1.0","esquery":"^1.7.0","esutils":"^2.0.2","fast-deep-equal":"^3.1.3","file-entry-cache":"^8.0.0","find-up":"^5.0.0","glob-parent":"^6.0.2","ignore":"^5.2.0","imurmurhash":"^0.1.4","is-glob":"^4.0.0","json-stable-stringify-without-jsonify":"^1.0.1","minimatch":"^10.1.1","natural-compare":"^1.4.0","optionator":"^0.9.3"},"devDependencies":{"@arethetypeswrong/cli":"^0.18.0","@babel/core":"^7.4.3","@babel/preset-env":"^7.4.3","@cypress/webpack-preprocessor":"^6.0.2","@eslint/json":"^0.14.0","@eslint/eslintrc":"^3.3.3","@trunkio/launcher":"^1.3.4","@types/esquery":"^1.5.4","@types/node":"^22.13.14","@typescript-eslint/parser":"^8.54.0","babel-loader":"^8.0.5","c8":"^7.12.0","chai":"^4.0.1","cheerio":"^0.22.0","common-tags":"^1.8.0","core-js":"^3.1.3","cypress":"^14.1.0","ejs":"^3.0.2","eslint":"file:.","eslint-config-eslint":"file:packages/eslint-config-eslint","eslint-plugin-eslint-plugin":"^6.0.0","eslint-plugin-expect-type":"^0.6.0","eslint-plugin-yml":"^1.14.0","eslint-release":"^3.3.0","eslint-rule-extender":"^0.0.1","eslump":"^3.0.0","esprima":"^4.0.1","fs-teardown":"^0.1.3","glob":"^10.0.0","globals":"^16.2.0","got":"^11.8.3","gray-matter":"^4.0.3","jiti":"^2.6.1","knip":"^5.60.2","lint-staged":"^11.0.0","markdown-it":"^12.2.0","markdown-it-container":"^3.0.0","marked":"^4.0.8","metascraper":"^5.25.7","metascraper-description":"^5.25.7","metascraper-image":"^5.29.3","metascraper-logo":"^5.25.7","metascraper-logo-favicon":"^5.25.7","metascraper-title":"^5.25.7","mocha":"^11.7.1","node-polyfill-webpack-plugin":"^1.0.3","npm-license":"^0.3.3","prettier":"3.5.3","progress":"^2.0.3","proxyquire":"^2.0.1","recast":"^0.23.0","regenerator-runtime":"^0.14.0","semver":"^7.5.3","shelljs":"^0.10.0","sinon":"^11.0.0","typescript":"^5.9.3","webpack":"^5.23.0","webpack-cli":"^4.5.0","yorkie":"^2.0.0"},"peerDependencies":{"jiti":"*"},"peerDependenciesMeta":{"jiti":{"optional":true}},"keywords":["ast","lint","javascript","ecmascript","espree"],"license":"MIT","engines":{"node":"^20.19.0 || ^22.13.0 || >=24"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"eslint","version":"10.0.2","author":"Nicholas C. Zakas <nicholas+npm@nczconsulting.com>","description":"An AST-based pattern checker for JavaScript.","type":"commonjs","bin":{"eslint":"./bin/eslint.js"},"main":"./lib/api.js","types":"./lib/types/index.d.ts","exports":{".":{"types":"./lib/types/index.d.ts","default":"./lib/api.js"},"./config":{"types":"./lib/types/config-api.d.ts","default":"./lib/config-api.js"},"./package.json":"./package.json","./use-at-your-own-risk":{"types":"./lib/types/use-at-your-own-risk.d.ts","default":"./lib/unsupported-api.js"},"./rules":{"types":"./lib/types/rules.d.ts"},"./universal":{"types":"./lib/types/universal.d.ts","default":"./lib/universal.js"}},"typesVersions":{"*":{"use-at-your-own-risk":["./lib/types/use-at-your-own-risk.d.ts"],"rules":["./lib/types/rules.d.ts"],"universal":["./lib/types/universal.d.ts"],"config":["./lib/types/config-api.d.ts"]}},"scripts":{"build:docs:update-links":"node tools/fetch-docs-links.js","build:site":"node Makefile.js gensite","build:webpack":"node Makefile.js webpack","build:readme":"node tools/update-readme.js","build:rules-index":"node Makefile.js generateRuleIndexPage","lint":"trunk check --no-fix --ignore=docs/**/*.js -a --filter=eslint && trunk check --no-fix --ignore=docs/**/*.js","lint:docs:js":"trunk check --no-fix --ignore=** --ignore=!docs/**/*.js -a --filter=eslint && trunk check --no-fix --ignore=** --ignore=!docs/**/*.js","lint:docs:rule-examples":"node Makefile.js checkRuleExamples","lint:unused":"knip","lint:fix":"trunk check -y --ignore=docs/**/*.js -a --filter=eslint && trunk check -y --ignore=docs/**/*.js","lint:fix:docs:js":"trunk check -y --ignore=** --ignore=!docs/**/*.js -a --filter=eslint && trunk check -y --ignore=** --ignore=!docs/**/*.js","lint:rule-types":"node tools/update-rule-type-headers.js --check","lint:types":"attw --pack","release:generate:alpha":"node Makefile.js generatePrerelease -- alpha","release:generate:beta":"node Makefile.js generatePrerelease -- beta","release:generate:latest":"node Makefile.js generateRelease -- latest","release:generate:maintenance":"node Makefile.js generateRelease -- maintenance","release:generate:rc":"node Makefile.js generatePrerelease -- rc","release:publish":"node Makefile.js publishRelease","test":"node Makefile.js test","test:browser":"node Makefile.js cypress","test:cli":"mocha","test:emfile":"node tools/check-emfile-handling.js","test:fuzz":"node Makefile.js fuzz","test:performance":"node Makefile.js perf","test:pnpm":"cd tests/pnpm && node check.js && pnpm install && pnpm exec tsc","test:types":"tsc -p tests/lib/types/tsconfig.json"},"gitHooks":{"pre-commit":"lint-staged"},"lint-staged":{"*":"trunk check --fix","lib/rules/*.js":["node tools/update-eslint-all.js","node tools/update-eslint-recommended.js","node tools/update-rule-type-headers.js","git add packages/js/src/configs/*.js lib/types/rules.d.ts"],"docs/src/rules/*.md":["node tools/check-rule-examples.js","node tools/fetch-docs-links.js","git add docs/src/_data/further_reading_links.json"]},"files":["LICENSE","README.md","bin","conf","lib","messages"],"repository":"eslint/eslint","funding":"https://eslint.org/donate","homepage":"https://eslint.org","bugs":"https://github.com/eslint/eslint/issues/","dependencies":{"@eslint-community/eslint-utils":"^4.8.0","@eslint-community/regexpp":"^4.12.2","@eslint/config-array":"^0.23.2","@eslint/config-helpers":"^0.5.2","@eslint/core":"^1.1.0","@eslint/plugin-kit":"^0.6.0","@humanfs/node":"^0.16.6","@humanwhocodes/module-importer":"^1.0.1","@humanwhocodes/retry":"^0.4.2","@types/estree":"^1.0.6","ajv":"^6.14.0","cross-spawn":"^7.0.6","debug":"^4.3.2","escape-string-regexp":"^4.0.0","eslint-scope":"^9.1.1","eslint-visitor-keys":"^5.0.1","espree":"^11.1.1","esquery":"^1.7.0","esutils":"^2.0.2","fast-deep-equal":"^3.1.3","file-entry-cache":"^8.0.0","find-up":"^5.0.0","glob-parent":"^6.0.2","ignore":"^5.2.0","imurmurhash":"^0.1.4","is-glob":"^4.0.0","json-stable-stringify-without-jsonify":"^1.0.1","minimatch":"^10.2.1","natural-compare":"^1.4.0","optionator":"^0.9.3"},"devDependencies":{"@arethetypeswrong/cli":"^0.18.0","@babel/core":"^7.4.3","@babel/preset-env":"^7.4.3","@cypress/webpack-preprocessor":"^6.0.2","@eslint/json":"^0.14.0","@eslint/eslintrc":"^3.3.4","@trunkio/launcher":"^1.3.4","@types/esquery":"^1.5.4","@types/node":"^22.13.14","@typescript-eslint/parser":"^8.56.0","babel-loader":"^8.0.5","c8":"^7.12.0","chai":"^4.0.1","cheerio":"^0.22.0","common-tags":"^1.8.0","core-js":"^3.1.3","cypress":"^14.1.0","ejs":"^3.0.2","eslint":"file:.","eslint-config-eslint":"file:packages/eslint-config-eslint","eslint-plugin-eslint-plugin":"^6.0.0","eslint-plugin-expect-type":"^0.6.0","eslint-plugin-yml":"^1.14.0","eslint-release":"^3.3.0","eslint-rule-extender":"^0.0.1","eslump":"^3.0.0","esprima":"^4.0.1","fs-teardown":"^0.1.3","glob":"^10.0.0","globals":"^16.2.0","got":"^11.8.3","gray-matter":"^4.0.3","jiti":"^2.6.1","knip":"^5.60.2","lint-staged":"^11.0.0","markdown-it":"^12.2.0","markdown-it-container":"^3.0.0","marked":"^4.0.8","metascraper":"^5.25.7","metascraper-description":"^5.25.7","metascraper-image":"^5.29.3","metascraper-logo":"^5.25.7","metascraper-logo-favicon":"^5.25.7","metascraper-title":"^5.25.7","mocha":"^11.7.1","node-polyfill-webpack-plugin":"^1.0.3","npm-license":"^0.3.3","prettier":"3.5.3","progress":"^2.0.3","proxyquire":"^2.0.1","recast":"^0.23.0","regenerator-runtime":"^0.14.0","semver":"^7.5.3","shelljs":"^0.10.0","sinon":"^11.0.0","typescript":"^5.9.3","webpack":"^5.23.0","webpack-cli":"^4.5.0","yorkie":"^2.0.0"},"peerDependencies":{"jiti":"*"},"peerDependenciesMeta":{"jiti":{"optional":true}},"keywords":["ast","lint","javascript","ecmascript","espree"],"license":"MIT","engines":{"node":"^20.19.0 || ^22.13.0 || >=24"}}');
 
 /***/ }),
 
@@ -414475,7 +413516,7 @@ module.exports = {"rE":"2.6.1"};
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __nccwpck_require__(53997);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(5427);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
