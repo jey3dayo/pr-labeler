@@ -1,0 +1,31 @@
+# PR Insights Labeler
+
+GitHub Action that auto-labels pull requests by size, complexity, category, and risk.
+
+## Entry Points
+
+- [README.md](README.md): Project overview and quick start.
+- [CLAUDE.md](CLAUDE.md): Development workflow, quality gates, and release conventions.
+- [docs/README.md](docs/README.md): Documentation index by audience (Users / Maintainers).
+
+## Source
+
+- [src/](src/): Action implementation.
+- [__tests__/](__tests__/): Test suite.
+
+## Docs
+
+- [docs/en/configuration.md](docs/en/configuration.md): All configuration options and defaults.
+- [docs/en/advanced-usage.md](docs/en/advanced-usage.md): Advanced workflows and customization.
+- [docs/en/categories.md](docs/en/categories.md): Category label definitions.
+- [docs/en/troubleshooting.md](docs/en/troubleshooting.md): Common issues and fixes.
+- [docs/en/labeling-rules.md](docs/en/labeling-rules.md): Labeling rules quick reference.
+- [docs/ja/API.md](docs/ja/API.md): Internal API specification (Japanese).
+- [docs/ja/release-process.md](docs/ja/release-process.md): Release process (Japanese).
+
+## Development Commands
+
+- `pnpm lint`: Code style check.
+- `pnpm type-check`: TypeScript type check.
+- `pnpm test`: Run automated tests.
+- `pnpm build`: Build the action bundle.

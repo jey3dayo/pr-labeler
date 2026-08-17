@@ -1,36 +1,44 @@
-# 📚 Documentation Index
+# Documentation Index
 
-**Last Updated**: 2025-11-30
-**Audience**: Users, Developers
-**Tags**: `category/documentation`, `audience/user`, `audience/developer`
+This index organizes project documentation by audience (Users / Maintainers). Each entry links to every language the document exists in.
 
-Project documentation is now organized by language. Use the links below to jump to the version you need.
+## For Users
 
-## Language Layout
+Documentation for people configuring or using the PR Insights Labeler GitHub Action.
 
-- 🇬🇧 English: `docs/en/`
-- 🇯🇵 日本語: `docs/ja/`
-- Assets: `docs/assets/` (shared screenshots and images)
+| Document                       | Languages                                                   | Description                                              |
+| ------------------------------ | ----------------------------------------------------------- | -------------------------------------------------------- |
+| Configuration Guide            | [EN](./en/configuration.md)                                 | All configuration options and defaults.                  |
+| Advanced Usage Guide           | [EN](./en/advanced-usage.md) / [JA](./ja/advanced-usage.md) | Advanced workflows and customization examples.           |
+| Labeling Rules Quick Reference | [EN](./en/labeling-rules.md) / [JA](./ja/labeling-rules.md) | Quick reference for size/complexity/category/risk rules. |
+| Category Labels                | [EN](./en/categories.md)                                    | Category label definitions and matching rules.           |
+| Troubleshooting Guide          | [EN](./en/troubleshooting.md)                               | Common issues and how to resolve them.                   |
 
-## English Docs
+## For Maintainers
 
-- [Configuration Guide](./en/configuration.md)
-- [Advanced Usage Guide](./en/advanced-usage.md)
-- [Labeling Rules Quick Reference](./en/labeling-rules.md)
-- [Category Labels](./en/categories.md)
-- [Troubleshooting Guide](./en/troubleshooting.md)
+Documentation for people maintaining, releasing, or extending this repository. Maintainer docs are Japanese-only.
 
-## 日本語ドキュメント
+| Document                                                                 | Languages | Description                                     |
+| ------------------------------------------------------------------------ | --------- | ----------------------------------------------- |
+| [API仕様書](./ja/API.md)                                                 | `JA`      | Internal API specification.                     |
+| [リリース手順](./ja/release-process.md)                                  | `JA`      | Release process and versioning steps.           |
+| [GitHub Actions Marketplace リリースガイド](./ja/marketplace-release.md) | `JA`      | Marketplace publishing steps.                   |
+| [エラーファクトリーi18n移行ガイド](./ja/i18n-error-migration-guide.md)   | `JA`      | Migration guide for the i18n error factory.     |
+| [ドキュメント管理ガイドライン](./ja/documentation-guidelines.md)         | `JA`      | Documentation metadata, tags, and update rules. |
 
-- [高度な使用例ガイド](./ja/advanced-usage.md)
-- [ラベルルール クイックリファレンス](./ja/labeling-rules.md)
-- [API仕様書](./ja/API.md)
-- [リリース手順](./ja/release-process.md)
-- [GitHub Actions Marketplace リリースガイド](./ja/marketplace-release.md)
-- [エラーファクトリーi18n移行ガイド](./ja/i18n-error-migration-guide.md)
-- [ドキュメント管理ガイドライン](./ja/documentation-guidelines.md)
+Shared images live in [`docs/assets/`](./assets/).
 
-## Sync Rules
+## Canonical Language Policy
 
-- Follow the [ドキュメント管理ガイドライン](./ja/documentation-guidelines.md) for metadata, tags, and bilingual updates.
-- When adding a new document, place it under the appropriate language directory and include language links at the top.
+- **User-facing documentation** is canonical in English (`docs/en/`). Rationale: this GitHub Action's users are predominantly English-speaking. Japanese versions, where they exist, follow the English source.
+- **Maintainer-facing documentation** may exist in Japanese only; there is no obligation to translate it.
+
+## Translation Gaps
+
+The following user-facing documents exist only in English. Japanese translations are not required by the policy above, but are tracked here as open TODOs for anyone who wants to contribute one.
+
+| Document              | English | Japanese      |
+| --------------------- | ------- | ------------- |
+| Configuration Guide   | ✅      | 未翻訳 (TODO) |
+| Category Labels       | ✅      | 未翻訳 (TODO) |
+| Troubleshooting Guide | ✅      | 未翻訳 (TODO) |
