@@ -329175,13 +329175,6 @@ module.exports = {
 
 
 //------------------------------------------------------------------------------
-// Types
-//------------------------------------------------------------------------------
-
-/** @typedef {import("eslint-scope").Definition} Definition */
-/** @typedef {import("eslint-scope").Reference} Reference */
-
-//------------------------------------------------------------------------------
 // Rule Definition
 //------------------------------------------------------------------------------
 
@@ -329228,8 +329221,8 @@ module.exports = {
 
 		/**
 		 * Reports a given reference.
-		 * @param {Reference} reference A reference to report.
-		 * @param {Definition} definition A definition for which to report reference.
+		 * @param {eslint-scope.Reference} reference A reference to report.
+		 * @param {eslint-scope.Definition} definition A definition for which to report reference.
 		 * @returns {void}
 		 */
 		function report(reference, definition) {
@@ -335699,7 +335692,7 @@ const astUtils = __nccwpck_require__(65832);
 
 /**
  * Checks whether or not a given variable is a function name.
- * @param {Variable} variable A variable to check.
+ * @param {eslint-scope.Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is a function name.
  */
 function isFunctionName(variable) {
@@ -352662,7 +352655,7 @@ module.exports = {
 
 		/**
 		 * Checks whether the given reference is 'console' or not.
-		 * @param {Reference} reference The reference to check.
+		 * @param {eslint-scope.Reference} reference The reference to check.
 		 * @returns {boolean} `true` if the reference is 'console'.
 		 */
 		function isConsole(reference) {
@@ -352686,7 +352679,7 @@ module.exports = {
 		/**
 		 * Checks whether the given reference is a member access which is not
 		 * allowed by options or not.
-		 * @param {Reference} reference The reference to check.
+		 * @param {eslint-scope.Reference} reference The reference to check.
 		 * @returns {boolean} `true` if the reference is a member access which
 		 *      is not allowed by options.
 		 */
@@ -352763,7 +352756,7 @@ module.exports = {
 
 		/**
 		 * Reports the given reference as a violation.
-		 * @param {Reference} reference The reference to report.
+		 * @param {eslint-scope.Reference} reference The reference to report.
 		 * @returns {void}
 		 */
 		function report(reference) {
@@ -354182,7 +354175,7 @@ module.exports = {
 
 		/**
 		 * Checks whether or not a given definition is a parameter's.
-		 * @param {Definition} def A definition to check.
+		 * @param {eslint-scope.DefEntry} def A definition to check.
 		 * @returns {boolean} `true` if the definition is a parameter's.
 		 */
 		function isParameter(def) {
@@ -355218,7 +355211,7 @@ module.exports = {
 		 * This is not a generic function. In particular, it is assumed that the scope is a function scope or
 		 * a function's inner scope, and that the names can be valid identifiers in the given scope.
 		 * @param {string[]} names Array of variable names.
-		 * @param {Scope} scope Function scope or a function's inner scope.
+		 * @param {eslint-scope.Scope} scope Function scope or a function's inner scope.
 		 * @returns {boolean} True if all names can be safely declared, false otherwise.
 		 */
 		function isSafeToDeclare(names, scope) {
@@ -355310,7 +355303,7 @@ module.exports = {
 		/**
 		 * Checks whether the removal of `else` and its braces is safe from variable name collisions.
 		 * @param {Node} node The 'else' node.
-		 * @param {Scope} scope The scope in which the node and the whole 'if' statement is.
+		 * @param {eslint-scope.Scope} scope The scope in which the node and the whole 'if' statement is.
 		 * @returns {boolean} True if it is safe, false otherwise.
 		 */
 		function isSafeFromNameCollisions(node, scope) {
@@ -356477,7 +356470,7 @@ module.exports = {
 
 		/**
 		 * Reports accesses of `eval` via the global object.
-		 * @param {Scope} globalScope The global scope.
+		 * @param {eslint-scope.Scope} globalScope The global scope.
 		 * @returns {void}
 		 */
 		function reportAccessingEvalViaGlobalObject(globalScope) {
@@ -356510,7 +356503,7 @@ module.exports = {
 
 		/**
 		 * Reports all accesses of `eval` (excludes direct calls to eval).
-		 * @param {Scope} globalScope The global scope.
+		 * @param {eslint-scope.Scope} globalScope The global scope.
 		 * @returns {void}
 		 */
 		function reportAccessingEval(globalScope) {
@@ -362846,12 +362839,6 @@ module.exports = {
 
 
 //------------------------------------------------------------------------------
-// Types
-//------------------------------------------------------------------------------
-
-/** @typedef {import("eslint-scope").Reference} Reference */
-
-//------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 
@@ -362984,7 +362971,7 @@ module.exports = {
 		 * Checks whether a given reference which refers to an upper scope's variable is
 		 * safe or not.
 		 * @param {ASTNode} loopNode A containing loop node.
-		 * @param {Reference} reference A reference to check.
+		 * @param {eslint-scope.Reference} reference A reference to check.
 		 * @returns {boolean} `true` if the reference is safe or not.
 		 */
 		function isSafe(loopNode, reference) {
@@ -363030,7 +363017,7 @@ module.exports = {
 			 * It's safe if the reference matches one of the following condition.
 			 * - is readonly.
 			 * - doesn't exist inside a local function and after the border.
-			 * @param {Reference} upperRef A reference to check.
+			 * @param {eslint-scope.Reference} upperRef A reference to check.
 			 * @returns {boolean} `true` if the reference is safe.
 			 */
 			function isSafeReference(upperRef) {
@@ -372027,7 +372014,7 @@ module.exports = {
 
 		/**
 		 * Get declared line and column of a variable.
-		 * @param {Variable} variable The variable to get.
+		 * @param {eslint-scope.Variable} variable The variable to get.
 		 * @returns {Object} The declared line and column of the variable.
 		 */
 		function getDeclaredLocation(variable) {
@@ -373723,12 +373710,6 @@ module.exports = {
 
 
 //------------------------------------------------------------------------------
-// Types
-//------------------------------------------------------------------------------
-
-/** @typedef {import("eslint-scope").Scope} Scope */
-
-//------------------------------------------------------------------------------
 // Rule Definition
 //------------------------------------------------------------------------------
 
@@ -373769,7 +373750,7 @@ module.exports = {
 		/**
 		 * Checks the given scope for references to `undefined` and reports
 		 * all references found.
-		 * @param {Scope} scope The scope to check.
+		 * @param {eslint-scope.Scope} scope The scope to check.
 		 * @returns {void}
 		 */
 		function checkScope(scope) {
@@ -374371,7 +374352,7 @@ const DYNAMIC_PATTERN = /^(?:Call|Member|New|TaggedTemplate|Yield)Expression$/u;
 
 /**
  * @typedef {Object} LoopConditionInfo
- * @property {Reference} reference - The reference.
+ * @property {eslint-scope.Reference} reference - The reference.
  * @property {ASTNode} group - BinaryExpression or ConditionalExpression nodes
  *      that the reference is belonging to.
  * @property {Function} isInLoop - The predicate which checks a given reference
@@ -374382,7 +374363,7 @@ const DYNAMIC_PATTERN = /^(?:Call|Member|New|TaggedTemplate|Yield)Expression$/u;
 
 /**
  * Checks whether or not a given reference is a write reference.
- * @param {Reference} reference A reference to check.
+ * @param {eslint-scope.Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is a write reference.
  */
 function isWriteReference(reference) {
@@ -374419,7 +374400,7 @@ function isUnmodifiedAndNotBelongToGroup(condition) {
 /**
  * Checks whether or not a given reference is inside of a given node.
  * @param {ASTNode} node A node to check.
- * @param {Reference} reference A reference to check.
+ * @param {eslint-scope.Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is inside of the node.
  */
 function isInRange(node, reference) {
@@ -374432,7 +374413,7 @@ function isInRange(node, reference) {
 /**
  * Checks whether or not a given reference is inside of a loop node's condition.
  * @param {ASTNode} node A node to check.
- * @param {Reference} reference A reference to check.
+ * @param {eslint-scope.Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is inside of the loop node's
  *      condition.
  */
@@ -374450,7 +374431,7 @@ const isInLoop = {
 /**
  * Gets the function which encloses a given reference.
  * This supports only FunctionDeclaration.
- * @param {Reference} reference A reference to get.
+ * @param {eslint-scope.Reference} reference A reference to get.
  * @returns {ASTNode|null} The function node or null.
  */
 function getEncloseFunctionDeclaration(reference) {
@@ -374470,7 +374451,7 @@ function getEncloseFunctionDeclaration(reference) {
 /**
  * Updates the "modified" flags of given loop conditions with given modifiers.
  * @param {LoopConditionInfo[]} conditions The loop conditions to be updated.
- * @param {Reference[]} modifiers The references to update.
+ * @param {eslint-scope.Reference[]} modifiers The references to update.
  * @returns {void}
  */
 function updateModifiedFlag(conditions, modifiers) {
@@ -374604,7 +374585,7 @@ module.exports = {
 
 		/**
 		 * Creates the loop condition information from a given reference.
-		 * @param {Reference} reference A reference to create.
+		 * @param {eslint-scope.Reference} reference A reference to create.
 		 * @returns {LoopConditionInfo|null} Created loop condition info, or null.
 		 */
 		function toLoopCondition(reference) {
@@ -374655,7 +374636,7 @@ module.exports = {
 		/**
 		 * Finds unmodified references which are inside of a loop condition.
 		 * Then reports the references which are outside of groups.
-		 * @param {Variable} variable A variable to report.
+		 * @param {eslint-scope.Variable} variable A variable to report.
 		 * @returns {void}
 		 */
 		function checkReferences(variable) {
@@ -377128,7 +377109,7 @@ module.exports = {
 		 * - The reference is inside of a loop.
 		 * - The reference is inside of a function scope which is different from
 		 *   the declaration.
-		 * @param {Reference} ref A reference to check.
+		 * @param {eslint-scope.Reference} ref A reference to check.
 		 * @param {ASTNode} prevRhsNode The previous RHS node.
 		 * @returns {ASTNode|null} The RHS node or null.
 		 * @private
@@ -377235,7 +377216,7 @@ module.exports = {
 
 		/**
 		 * Checks whether a given reference is a read to update itself or not.
-		 * @param {Reference} ref A reference to check.
+		 * @param {eslint-scope.Reference} ref A reference to check.
 		 * @param {ASTNode} rhsNode The RHS node of the previous assignment.
 		 * @returns {boolean} The reference is a read to update itself.
 		 * @private
@@ -377336,7 +377317,7 @@ module.exports = {
 
 		/**
 		 * Checks whether the given variable is after the last used parameter.
-		 * @param {Variable} variable The variable to check.
+		 * @param {eslint-scope.Variable} variable The variable to check.
 		 * @returns {boolean} `true` if the variable is defined after the last
 		 * used parameter.
 		 */
@@ -378357,13 +378338,6 @@ module.exports = {
 
 
 //------------------------------------------------------------------------------
-// Types
-//------------------------------------------------------------------------------
-
-/** @typedef {import("eslint-scope").Scope} Scope */
-/** @typedef {import("eslint-scope").Reference} Reference */
-
-//------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 
@@ -378426,7 +378400,7 @@ function isInClassStaticInitializerRange(node, location) {
 /**
  * Checks whether a given scope is the scope of a class static initializer.
  * Static initializers are static blocks and initializers of static fields.
- * @param {Scope} scope A scope to check.
+ * @param {eslint-scope.Scope} scope A scope to check.
  * @returns {boolean} `true` if the scope is a class static initializer scope.
  */
 function isClassStaticInitializerScope(scope) {
@@ -378477,7 +378451,7 @@ function isClassStaticInitializerScope(scope) {
  *           x; // returns `false`
  *       }
  *   }
- * @param {Reference} reference A reference to check.
+ * @param {eslint-scope.Reference} reference A reference to check.
  * @returns {boolean} `true` if the reference is from a separate execution context.
  */
 function isFromSeparateExecutionContext(reference) {
@@ -378691,7 +378665,7 @@ module.exports = {
 		 * - referring to a variable that is defined, but not in the given source code
 		 *   (e.g., global environment variable or `arguments` in functions).
 		 * - allowed by options.
-		 * @param {Reference} reference The reference
+		 * @param {eslint-scope.Reference} reference The reference
 		 * @returns {boolean} `true` if the reference should be checked
 		 */
 		function shouldCheck(reference) {
@@ -378770,7 +378744,7 @@ module.exports = {
 
 		/**
 		 * Finds and validates all references in a given scope and its child scopes.
-		 * @param {Scope} scope The scope object.
+		 * @param {eslint-scope.Scope} scope The scope object.
 		 * @returns {void}
 		 */
 		function checkReferencesInScope(scope) {
@@ -381564,7 +381538,7 @@ const astUtils = __nccwpck_require__(65832);
 
 /**
  * Check whether a given variable is a global variable or not.
- * @param {Variable} variable The variable to check.
+ * @param {eslint-scope.Variable} variable The variable to check.
  * @returns {boolean} `true` if the variable is a global variable.
  */
 function isGlobal(variable) {
@@ -381574,8 +381548,8 @@ function isGlobal(variable) {
 /**
  * Finds the nearest function scope or global scope walking up the scope
  * hierarchy.
- * @param {Scope} scope The scope to traverse.
- * @returns {Scope} a function scope or global scope containing the given
+ * @param {eslint-scope.Scope} scope The scope to traverse.
+ * @returns {eslint-scope.Scope} a function scope or global scope containing the given
  *      scope.
  */
 function getEnclosingFunctionScope(scope) {
@@ -381590,7 +381564,7 @@ function getEnclosingFunctionScope(scope) {
 /**
  * Checks whether the given variable has any references from a more specific
  * function expression (i.e. a closure).
- * @param {Variable} variable A variable to check.
+ * @param {eslint-scope.Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is used from a closure.
  */
 function isReferencedInClosure(variable) {
@@ -381654,7 +381628,7 @@ function getScopeNode(node) {
 
 /**
  * Checks whether a given variable is redeclared or not.
- * @param {Variable} variable A variable to check.
+ * @param {eslint-scope.Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is redeclared.
  */
 function isRedeclared(variable) {
@@ -381670,7 +381644,7 @@ function isRedeclared(variable) {
 function isUsedFromOutsideOf(scopeNode) {
 	/**
 	 * Checks whether a given reference is inside of the specified scope or not.
-	 * @param {Reference} reference A reference to check.
+	 * @param {eslint-scope.Reference} reference A reference to check.
 	 * @returns {boolean} `true` if the reference is inside of the specified
 	 *      scope.
 	 */
@@ -381731,7 +381705,7 @@ function hasReferenceInTDZ(node) {
 /**
  * Checks whether a given variable has name that is allowed for 'var' declarations,
  * but disallowed for `let` declarations.
- * @param {Variable} variable The variable to check.
+ * @param {eslint-scope.Variable} variable The variable to check.
  * @returns {boolean} `true` if the variable has a disallowed name.
  */
 function hasNameDisallowedForLetDeclarations(variable) {
@@ -386642,7 +386616,7 @@ const astUtils = __nccwpck_require__(65832);
 
 /**
  * Checks whether or not a given variable is a function name.
- * @param {Variable} variable A variable to check.
+ * @param {eslint-scope.Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is a function name.
  */
 function isFunctionName(variable) {
@@ -386662,8 +386636,8 @@ function checkMetaProperty(node, metaName, propertyName) {
 
 /**
  * Gets the variable object of `arguments` which is defined implicitly.
- * @param {Scope} scope A scope to get.
- * @returns {Variable} The found variable object.
+ * @param {eslint-scope.Scope} scope A scope to get.
+ * @returns {eslint-scope.Variable} The found variable object.
  */
 function getVariableOfArguments(scope) {
 	const variables = scope.variables;
@@ -387130,7 +387104,7 @@ function canBecomeVariableDeclaration(identifier) {
  * Checks if an property or element is from outer scope or function parameters
  * in destructing pattern.
  * @param {string} name A variable name to be checked.
- * @param {Scope} initScope A scope to start find.
+ * @param {eslint-scope.Scope} initScope A scope to start find.
  * @returns {boolean} Indicates if the variable is from outer scope or function parameters.
  */
 function isOuterVariableInDestructing(name, initScope) {
@@ -387156,7 +387130,7 @@ function isOuterVariableInDestructing(name, initScope) {
  * belongs to.
  * This is used to detect a mix of reassigned and never reassigned in a
  * destructuring.
- * @param {Reference} reference A reference to get.
+ * @param {eslint-scope.Reference} reference A reference to get.
  * @returns {ASTNode|null} A VariableDeclarator/AssignmentExpression node or
  *      null.
  */
@@ -387242,7 +387216,7 @@ function hasMemberExpressionAssignment(node) {
  *   `/*exported foo` directive comment makes such variables. This rule does not
  *   warn such variables because this rule cannot distinguish whether the
  *   exported variables are reassigned or not.
- * @param {Variable} variable A variable to get.
+ * @param {eslint-scope.Variable} variable A variable to get.
  * @param {boolean} ignoreReadBeforeAssign
  *      The value of `ignoreReadBeforeAssign` option.
  * @returns {ASTNode|null}
@@ -387342,7 +387316,7 @@ function getIdentifierIfShouldBeConst(variable, ignoreReadBeforeAssign) {
  * reference of given variables belongs to.
  * This is used to detect a mix of reassigned and never reassigned in a
  * destructuring.
- * @param {Variable[]} variables Variables to group by destructuring.
+ * @param {eslint-scope.Variable[]} variables Variables to group by destructuring.
  * @param {boolean} ignoreReadBeforeAssign
  *      The value of `ignoreReadBeforeAssign` option.
  * @returns {Map<ASTNode, ASTNode[]>} Grouped identifier nodes.
@@ -387463,7 +387437,7 @@ module.exports = {
 		 * nullable. In simple declaration or assignment cases, the length of
 		 * the array is 1. In destructuring cases, the length of the array can
 		 * be 2 or more.
-		 * @param {(Reference|null)[]} nodes
+		 * @param {(eslint-scope.Reference|null)[]} nodes
 		 *      References which are grouped by destructuring to report.
 		 * @returns {void}
 		 */
@@ -390003,21 +389977,13 @@ module.exports = {
 
 
 //------------------------------------------------------------------------------
-// Types
-//------------------------------------------------------------------------------
-
-/** @typedef {import("eslint-scope").Scope} Scope */
-/** @typedef {import("eslint-scope").Variable} Variable */
-/** @typedef {import("eslint-scope").Reference} Reference */
-
-//------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 
 /**
  * Gets the variable object of `arguments` which is defined implicitly.
- * @param {Scope} scope A scope to get.
- * @returns {Variable} The found variable object.
+ * @param {eslint-scope.Scope} scope A scope to get.
+ * @returns {eslint-scope.Variable} The found variable object.
  */
 function getVariableOfArguments(scope) {
 	const variables = scope.variables;
@@ -390045,7 +390011,7 @@ function getVariableOfArguments(scope) {
  * - arguments[i]      .... true    // computed member access
  * - arguments[0]      .... true    // computed member access
  * - arguments.length  .... false   // normal member access
- * @param {Reference} reference The reference to check.
+ * @param {eslint-scope.Reference} reference The reference to check.
  * @returns {boolean} `true` if the reference is not normal member access.
  */
 function isNotNormalMemberAccess(reference) {
@@ -390086,7 +390052,7 @@ module.exports = {
 
 		/**
 		 * Reports a given reference.
-		 * @param {Reference} reference A reference to report.
+		 * @param {eslint-scope.Reference} reference A reference to report.
 		 * @returns {void}
 		 */
 		function report(reference) {
@@ -391977,7 +391943,7 @@ const validRadixValues = new Set(
 
 /**
  * Checks whether a given variable is shadowed or not.
- * @param {Variable} variable A variable to check.
+ * @param {eslint-scope.Variable} variable A variable to check.
  * @returns {boolean} `true` if the variable is shadowed.
  */
 function isShadowed(variable) {
@@ -399740,9 +399706,9 @@ module.exports = {
 
 	/**
 	 * Finds the variable by a given name in a given scope and its upper scopes.
-	 * @param {Scope} initScope A scope to start find.
+	 * @param {eslint-scope.Scope} initScope A scope to start find.
 	 * @param {string} name A variable name to find.
-	 * @returns {Variable|null} A found variable or `null`.
+	 * @returns {eslint-scope.Variable|null} A found variable or `null`.
 	 */
 	getVariableByName(initScope, name) {
 		let scope = initScope;
@@ -399769,7 +399735,7 @@ module.exports = {
 	 * - The given node is not `StaticBlock`.
 	 * - The function name does not start with uppercase. It's a convention to capitalize the names
 	 *   of constructor functions. This check is not performed if `capIsConstructor` is set to `false`.
-	 * - The function does not have a JSDoc comment that has a `@this` tag.
+	 * - The function does not have a JSDoc comment that has a @this tag.
 	 *
 	 * Next, this checks the location of the node.
 	 * If the location is below, this judges `this` is valid.
@@ -403665,7 +403631,7 @@ function normalizePackageName(name, prefix) {
 				`$1/${prefix}`,
 			);
 		} else if (!scopedPackageNameRegex.test(normalizedName.split("/")[1])) {
-			/*
+			/**
 			 * for scoped packages, insert the prefix after the first / unless
 			 * the path is already @scope/eslint or @scope/eslint-xxx-yyy
 			 */
@@ -417153,11 +417119,9 @@ exports.Legacy = Legacy;
 class MergeStrategy {
 	/**
 	 * Merges two keys by overwriting the first with the second.
-	 * @template TValue1 The type of the value from the first object key.
-	 * @template TValue2 The type of the value from the second object key.
-	 * @param {TValue1} value1 The value from the first object key.
-	 * @param {TValue2} value2 The value from the second object key.
-	 * @returns {TValue2} The second value.
+	 * @param {*} value1 The value from the first object key.
+	 * @param {*} value2 The value from the second object key.
+	 * @returns {*} The second value.
 	 */
 	static overwrite(value1, value2) {
 		return value2;
@@ -417166,11 +417130,9 @@ class MergeStrategy {
 	/**
 	 * Merges two keys by replacing the first with the second only if the
 	 * second is defined.
-	 * @template TValue1 The type of the value from the first object key.
-	 * @template TValue2 The type of the value from the second object key.
-	 * @param {TValue1} value1 The value from the first object key.
-	 * @param {TValue2} value2 The value from the second object key.
-	 * @returns {TValue1 | TValue2} The second value if it is defined.
+	 * @param {*} value1 The value from the first object key.
+	 * @param {*} value2 The value from the second object key.
+	 * @returns {*} The second value if it is defined.
 	 */
 	static replace(value1, value2) {
 		if (typeof value2 !== "undefined") {
@@ -417182,11 +417144,9 @@ class MergeStrategy {
 
 	/**
 	 * Merges two properties by assigning properties from the second to the first.
-	 * @template {Record<string | number | symbol, unknown> | undefined} TValue1 The type of the value from the first object key.
-	 * @template {Record<string | number | symbol, unknown>} TValue2 The type of the value from the second object key.
-	 * @param {TValue1} value1 The value from the first object key.
-	 * @param {TValue2} value2 The value from the second object key.
-	 * @returns {Omit<TValue1, keyof TValue2> & TValue2} A new object containing properties from both value1 and
+	 * @param {*} value1 The value from the first object key.
+	 * @param {*} value2 The value from the second object key.
+	 * @returns {*} A new object containing properties from both value1 and
 	 *      value2.
 	 */
 	static assign(value1, value2) {
@@ -417432,7 +417392,7 @@ class ObjectSchema {
 	#definitions = new Map();
 
 	/**
-	 * Separately track any keys that are required for faster validation.
+	 * Separately track any keys that are required for faster validtion.
 	 * @type {Map<string, PropertyDefinition>}
 	 */
 	#requiredKeys = new Map();
@@ -417565,9 +417525,7 @@ class ObjectSchema {
 			}
 
 			// validate existing keys
-			const definition = /** @type {PropertyDefinition} */ (
-				this.#definitions.get(key)
-			); // `definition` is guaranteed to exist since we check with `hasKey()` above.
+			const definition = this.#definitions.get(key);
 
 			// first check to see if any other keys are required
 			if (Array.isArray(definition.requires)) {
@@ -418995,6 +418953,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 var estraverse = __nccwpck_require__(3215);
 var esrecurse = __nccwpck_require__(20639);
 
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var estraverse__default = /*#__PURE__*/_interopDefaultLegacy(estraverse);
+var esrecurse__default = /*#__PURE__*/_interopDefaultLegacy(esrecurse);
+
 /**
  * @fileoverview Assertion utilities.
  * @author Nicholas C. Zakas
@@ -419008,9 +418971,9 @@ var esrecurse = __nccwpck_require__(20639);
  * @throws {Error} When the condition is not truthy.
  */
 function assert(condition, message = "Assertion failed.") {
-	if (!condition) {
-		throw new Error(message);
-	}
+    if (!condition) {
+        throw new Error(message);
+    }
 }
 
 /*
@@ -419046,52 +419009,32 @@ const RW = READ | WRITE;
  * @constructor Reference
  */
 class Reference {
-	constructor(
-		ident,
-		scope,
-		flag,
-		writeExpr,
-		maybeImplicitGlobal,
-		partial,
-		init,
-	) {
-		/**
-		 * Identifier syntax node.
-		 * @member {espreeIdentifier} Reference#identifier
-		 */
-		this.identifier = ident;
+    constructor(ident, scope, flag, writeExpr, maybeImplicitGlobal, partial, init) {
 
-		/**
-		 * Reference to the enclosing Scope.
-		 * @member {Scope} Reference#from
-		 */
-		this.from = scope;
+        /**
+         * Identifier syntax node.
+         * @member {espreeIdentifier} Reference#identifier
+         */
+        this.identifier = ident;
 
-		/**
-		 * Whether the reference comes from a dynamic scope (such as 'eval',
-		 * 'with', etc.), and may be trapped by dynamic scopes.
-		 * @member {boolean} Reference#tainted
-		 */
-		this.tainted = false;
+        /**
+         * Reference to the enclosing Scope.
+         * @member {Scope} Reference#from
+         */
+        this.from = scope;
 
-		/**
-		 * The variable this reference is resolved with.
-		 * @member {Variable} Reference#resolved
-		 */
-		this.resolved = null;
+        /**
+         * Whether the reference comes from a dynamic scope (such as 'eval',
+         * 'with', etc.), and may be trapped by dynamic scopes.
+         * @member {boolean} Reference#tainted
+         */
+        this.tainted = false;
 
-		/**
-		 * The read-write mode of the reference. (Value is one of {@link
-		 * Reference.READ}, {@link Reference.RW}, {@link Reference.WRITE}).
-		 * @member {number} Reference#flag
-		 */
-		this.flag = flag;
-		if (this.isWrite()) {
-			/**
-			 * If reference is writeable, this is the tree being written to it.
-			 * @member {espreeNode} Reference#writeExpr
-			 */
-			this.writeExpr = writeExpr;
+        /**
+         * The variable this reference is resolved with.
+         * @member {Variable} Reference#resolved
+         */
+        this.resolved = null;
 
         /**
          * The read-write mode of the reference. (Value is one of {@link
@@ -419102,34 +419045,26 @@ class Reference {
         this.flag = flag;
         if (this.isWrite()) {
 
-			/**
-			 * Whether the Reference is to write of initialization.
-			 * @member {boolean} Reference#init
-			 */
-			this.init = init;
-		}
-		this.__maybeImplicitGlobal = maybeImplicitGlobal;
-	}
+            /**
+             * If reference is writeable, this is the tree being written to it.
+             * @member {espreeNode} Reference#writeExpr
+             */
+            this.writeExpr = writeExpr;
 
-	/**
-	 * Whether the reference is static.
-	 * @function Reference#isStatic
-	 * @returns {boolean} static
-	 */
-	isStatic() {
-		return (
-			!this.tainted && !!this.resolved && this.resolved.scope.isStatic()
-		);
-	}
+            /**
+             * Whether the Reference might refer to a partial value of writeExpr.
+             * @member {boolean} Reference#partial
+             */
+            this.partial = partial;
 
-	/**
-	 * Whether the reference is writeable.
-	 * @function Reference#isWrite
-	 * @returns {boolean} write
-	 */
-	isWrite() {
-		return !!(this.flag & Reference.WRITE);
-	}
+            /**
+             * Whether the Reference is to write of initialization.
+             * @member {boolean} Reference#init
+             */
+            this.init = init;
+        }
+        this.__maybeImplicitGlobal = maybeImplicitGlobal;
+    }
 
     /**
      * Whether the reference is static.
@@ -419140,32 +419075,50 @@ class Reference {
         return !this.tainted && this.resolved && this.resolved.scope.isStatic();
     }
 
-	/**
-	 * Whether the reference is read-only.
-	 * @function Reference#isReadOnly
-	 * @returns {boolean} read only
-	 */
-	isReadOnly() {
-		return this.flag === Reference.READ;
-	}
+    /**
+     * Whether the reference is writeable.
+     * @function Reference#isWrite
+     * @returns {boolean} write
+     */
+    isWrite() {
+        return !!(this.flag & Reference.WRITE);
+    }
 
-	/**
-	 * Whether the reference is write-only.
-	 * @function Reference#isWriteOnly
-	 * @returns {boolean} write only
-	 */
-	isWriteOnly() {
-		return this.flag === Reference.WRITE;
-	}
+    /**
+     * Whether the reference is readable.
+     * @function Reference#isRead
+     * @returns {boolean} read
+     */
+    isRead() {
+        return !!(this.flag & Reference.READ);
+    }
 
-	/**
-	 * Whether the reference is read-write.
-	 * @function Reference#isReadWrite
-	 * @returns {boolean} read write
-	 */
-	isReadWrite() {
-		return this.flag === Reference.RW;
-	}
+    /**
+     * Whether the reference is read-only.
+     * @function Reference#isReadOnly
+     * @returns {boolean} read only
+     */
+    isReadOnly() {
+        return this.flag === Reference.READ;
+    }
+
+    /**
+     * Whether the reference is write-only.
+     * @function Reference#isWriteOnly
+     * @returns {boolean} write only
+     */
+    isWriteOnly() {
+        return this.flag === Reference.WRITE;
+    }
+
+    /**
+     * Whether the reference is read-write.
+     * @function Reference#isReadWrite
+     * @returns {boolean} read write
+     */
+    isReadWrite() {
+        return this.flag === Reference.RW;
+    }
 }
 
 /**
@@ -419218,49 +419171,50 @@ Reference.RW = RW;
  * @constructor Variable
  */
 class Variable {
-	constructor(name, scope) {
-		/**
-		 * The variable name, as given in the source code.
-		 * @member {string} Variable#name
-		 */
-		this.name = name;
+    constructor(name, scope) {
 
-		/**
-		 * List of defining occurrences of this variable (like in 'var ...'
-		 * statements or as parameter), as AST nodes.
-		 * @member {espree.Identifier[]} Variable#identifiers
-		 */
-		this.identifiers = [];
+        /**
+         * The variable name, as given in the source code.
+         * @member {string} Variable#name
+         */
+        this.name = name;
 
-		/**
-		 * List of {@link Reference|references} of this variable (excluding parameter entries)
-		 * in its defining scope and all nested scopes. For defining
-		 * occurrences only see {@link Variable#defs}.
-		 * @member {Reference[]} Variable#references
-		 */
-		this.references = [];
+        /**
+         * List of defining occurrences of this variable (like in 'var ...'
+         * statements or as parameter), as AST nodes.
+         * @member {espree.Identifier[]} Variable#identifiers
+         */
+        this.identifiers = [];
 
-		/**
-		 * List of defining occurrences of this variable (like in 'var ...'
-		 * statements or as parameter), as custom objects.
-		 * @member {Definition[]} Variable#defs
-		 */
-		this.defs = [];
+        /**
+         * List of {@link Reference|references} of this variable (excluding parameter entries)
+         * in its defining scope and all nested scopes. For defining
+         * occurrences only see {@link Variable#defs}.
+         * @member {Reference[]} Variable#references
+         */
+        this.references = [];
 
-		this.tainted = false;
+        /**
+         * List of defining occurrences of this variable (like in 'var ...'
+         * statements or as parameter), as custom objects.
+         * @member {Definition[]} Variable#defs
+         */
+        this.defs = [];
 
-		/**
-		 * Whether this is a stack variable.
-		 * @member {boolean} Variable#stack
-		 */
-		this.stack = true;
+        this.tainted = false;
 
-		/**
-		 * Reference to the enclosing Scope.
-		 * @member {Scope} Variable#scope
-		 */
-		this.scope = scope;
-	}
+        /**
+         * Whether this is a stack variable.
+         * @member {boolean} Variable#stack
+         */
+        this.stack = true;
+
+        /**
+         * Reference to the enclosing Scope.
+         * @member {Scope} Variable#scope
+         */
+        this.scope = scope;
+    }
 }
 
 Variable.CatchClause = "CatchClause";
@@ -419301,52 +419255,53 @@ Variable.ImplicitGlobalVariable = "ImplicitGlobalVariable";
  * @constructor Definition
  */
 class Definition {
-	constructor(type, name, node, parent, index, kind) {
-		/**
-		 * @member {string} Definition#type - type of the occurrence (e.g. "Parameter", "Variable", ...).
-		 */
-		this.type = type;
+    constructor(type, name, node, parent, index, kind) {
 
-		/**
-		 * @member {espree.Identifier} Definition#name - the identifier AST node of the occurrence.
-		 */
-		this.name = name;
+        /**
+         * @member {string} Definition#type - type of the occurrence (e.g. "Parameter", "Variable", ...).
+         */
+        this.type = type;
 
-		/**
-		 * @member {espree.Node} Definition#node - the enclosing node of the identifier.
-		 */
-		this.node = node;
+        /**
+         * @member {espree.Identifier} Definition#name - the identifier AST node of the occurrence.
+         */
+        this.name = name;
 
-		/**
-		 * @member {espree.Node?} Definition#parent - the enclosing statement node of the identifier.
-		 */
-		this.parent = parent;
+        /**
+         * @member {espree.Node} Definition#node - the enclosing node of the identifier.
+         */
+        this.node = node;
 
-		/**
-		 * @member {number?} Definition#index - the index in the declaration statement.
-		 */
-		this.index = index;
+        /**
+         * @member {espree.Node?} Definition#parent - the enclosing statement node of the identifier.
+         */
+        this.parent = parent;
 
-		/**
-		 * @member {string?} Definition#kind - the kind of the declaration statement.
-		 */
-		this.kind = kind;
-	}
+        /**
+         * @member {number?} Definition#index - the index in the declaration statement.
+         */
+        this.index = index;
+
+        /**
+         * @member {string?} Definition#kind - the kind of the declaration statement.
+         */
+        this.kind = kind;
+    }
 }
 
 /**
  * @constructor ParameterDefinition
  */
 class ParameterDefinition extends Definition {
-	constructor(name, node, index, rest) {
-		super(Variable.Parameter, name, node, null, index, null);
+    constructor(name, node, index, rest) {
+        super(Variable.Parameter, name, node, null, index, null);
 
-		/**
-		 * Whether the parameter definition is a part of a rest parameter.
-		 * @member {boolean} ParameterDefinition#rest
-		 */
-		this.rest = rest;
-	}
+        /**
+         * Whether the parameter definition is a part of a rest parameter.
+         * @member {boolean} ParameterDefinition#rest
+         */
+        this.rest = rest;
+    }
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -419385,50 +419340,69 @@ const { Syntax: Syntax$2 } = estraverse__default["default"];
  * @returns {boolean} is strict scope
  */
 function isStrictScope(scope, block, isMethodDefinition) {
-	let body;
+    let body;
 
-	// When upper scope is exists and strict, inner scope is also strict.
-	if (scope.upper && scope.upper.isStrict) {
-		return true;
-	}
+    // When upper scope is exists and strict, inner scope is also strict.
+    if (scope.upper && scope.upper.isStrict) {
+        return true;
+    }
 
-	if (isMethodDefinition) {
-		return true;
-	}
+    if (isMethodDefinition) {
+        return true;
+    }
 
-	if (scope.type === "class" || scope.type === "module") {
-		return true;
-	}
+    if (scope.type === "class" || scope.type === "module") {
+        return true;
+    }
 
-	if (scope.type === "block" || scope.type === "switch") {
-		return false;
-	}
+    if (scope.type === "block" || scope.type === "switch") {
+        return false;
+    }
 
     if (scope.type === "function") {
         if (block.type === Syntax$2.ArrowFunctionExpression && block.body.type !== Syntax$2.BlockStatement) {
             return false;
         }
 
-		if (!body) {
-			return false;
-		}
-	} else if (scope.type === "global") {
-		body = block;
-	} else {
-		return false;
-	}
+        if (block.type === Syntax$2.Program) {
+            body = block;
+        } else {
+            body = block.body;
+        }
 
-	// Search for a 'use strict' directive.
-	// @ts-ignore -- body is a function body
-	for (let i = 0, iz = body.body.length; i < iz; ++i) {
-		// @ts-ignore -- body is a function body
-		const stmt = body.body[i];
+        if (!body) {
+            return false;
+        }
+    } else if (scope.type === "global") {
+        body = block;
+    } else {
+        return false;
+    }
 
     // Search for a 'use strict' directive.
     for (let i = 0, iz = body.body.length; i < iz; ++i) {
         const stmt = body.body[i];
 
-	return false;
+        /*
+         * Check if the current statement is a directive.
+         * If it isn't, then we're past the directive prologue
+         * so stop the search because directives cannot
+         * appear after this point.
+         *
+         * Some parsers set `directive:null` on non-directive
+         * statements, so the `typeof` check is safer than
+         * checking for property existence.
+         */
+        if (typeof stmt.directive !== "string") {
+            break;
+        }
+
+        if (stmt.directive === "use strict") {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -419438,15 +419412,15 @@ function isStrictScope(scope, block, isMethodDefinition) {
  * @returns {void}
  */
 function registerScope(scopeManager, scope) {
-	scopeManager.scopes.push(scope);
+    scopeManager.scopes.push(scope);
 
-	const scopes = scopeManager.__nodeToScope.get(scope.block);
+    const scopes = scopeManager.__nodeToScope.get(scope.block);
 
-	if (scopes) {
-		scopes.push(scope);
-	} else {
-		scopeManager.__nodeToScope.set(scope.block, [scope]);
-	}
+    if (scopes) {
+        scopes.push(scope);
+    } else {
+        scopeManager.__nodeToScope.set(scope.block, [scope]);
+    }
 }
 
 /**
@@ -419465,91 +419439,86 @@ function shouldBeStatically(def) {
  * @constructor Scope
  */
 class Scope {
-	constructor(scopeManager, type, upperScope, block, isMethodDefinition) {
-		/**
-		 * One of "global", "module", "function", "function-expression-name", "block", "switch", "catch", "with", "for",
-		 * "class", "class-field-initializer", "class-static-block".
-		 * @member {string} Scope#type
-		 */
-		this.type = type;
+    constructor(scopeManager, type, upperScope, block, isMethodDefinition) {
 
-		/**
-		 * The scoped {@link Variable}s of this scope, as <code>{ Variable.name
-		 * : Variable }</code>.
-		 * @member {Map} Scope#set
-		 */
-		this.set = new Map();
+        /**
+         * One of "global", "module", "function", "function-expression-name", "block", "switch", "catch", "with", "for",
+         * "class", "class-field-initializer", "class-static-block".
+         * @member {string} Scope#type
+         */
+        this.type = type;
 
-		/**
-		 * The tainted variables of this scope, as <code>{ Variable.name :
-		 * boolean }</code>.
-		 *  @member {Map} Scope#taints
-		 */
-		this.taints = new Map();
+        /**
+         * The scoped {@link Variable}s of this scope, as <code>{ Variable.name
+         * : Variable }</code>.
+         * @member {Map} Scope#set
+         */
+        this.set = new Map();
 
-		/**
-		 * Generally, through the lexical scoping of JS you can always know
-		 * which variable an identifier in the source code refers to. There are
-		 * a few exceptions to this rule. With 'global' and 'with' scopes you
-		 * can only decide at runtime which variable a reference refers to.
-		 * Moreover, if 'eval()' is used in a scope, it might introduce new
-		 * bindings in this or its parent scopes.
-		 * All those scopes are considered 'dynamic'.
-		 * @member {boolean} Scope#dynamic
-		 */
-		this.dynamic = this.type === "global" || this.type === "with";
+        /**
+         * The tainted variables of this scope, as <code>{ Variable.name :
+         * boolean }</code>.
+         *  @member {Map} Scope#taints
+         */
+        this.taints = new Map();
 
-		/**
-		 * A reference to the scope-defining syntax node.
-		 * @member {espree.Node} Scope#block
-		 */
-		this.block = block;
+        /**
+         * Generally, through the lexical scoping of JS you can always know
+         * which variable an identifier in the source code refers to. There are
+         * a few exceptions to this rule. With 'global' and 'with' scopes you
+         * can only decide at runtime which variable a reference refers to.
+         * Moreover, if 'eval()' is used in a scope, it might introduce new
+         * bindings in this or its parent scopes.
+         * All those scopes are considered 'dynamic'.
+         * @member {boolean} Scope#dynamic
+         */
+        this.dynamic = this.type === "global" || this.type === "with";
 
-		/**
-		 * The {@link Reference|references} that are not resolved with this scope.
-		 * @member {Reference[]} Scope#through
-		 */
-		this.through = [];
+        /**
+         * A reference to the scope-defining syntax node.
+         * @member {espree.Node} Scope#block
+         */
+        this.block = block;
 
-		/**
-		 * The scoped {@link Variable}s of this scope. In the case of a
-		 * 'function' scope this includes the automatic argument <em>arguments</em> as
-		 * its first element, as well as all further formal arguments.
-		 * @member {Variable[]} Scope#variables
-		 */
-		this.variables = [];
+        /**
+         * The {@link Reference|references} that are not resolved with this scope.
+         * @member {Reference[]} Scope#through
+         */
+        this.through = [];
 
-		/**
-		 * Any variable {@link Reference|reference} found in this scope. This
-		 * includes occurrences of local variables as well as variables from
-		 * parent scopes (including the global scope). For local variables
-		 * this also includes defining occurrences (like in a 'var' statement).
-		 * In a 'function' scope this does not include the occurrences of the
-		 * formal parameter in the parameter list.
-		 * @member {Reference[]} Scope#references
-		 */
-		this.references = [];
+        /**
+         * The scoped {@link Variable}s of this scope. In the case of a
+         * 'function' scope this includes the automatic argument <em>arguments</em> as
+         * its first element, as well as all further formal arguments.
+         * @member {Variable[]} Scope#variables
+         */
+        this.variables = [];
 
-		/**
-		 * For 'global' and 'function' scopes, this is a self-reference. For
-		 * other scope types this is the <em>variableScope</em> value of the
-		 * parent scope.
-		 * @member {Scope} Scope#variableScope
-		 */
-		this.variableScope =
-			this.type === "global" ||
-			this.type === "module" ||
-			this.type === "function" ||
-			this.type === "class-field-initializer" ||
-			this.type === "class-static-block"
-				? this
-				: upperScope.variableScope;
+        /**
+         * Any variable {@link Reference|reference} found in this scope. This
+         * includes occurrences of local variables as well as variables from
+         * parent scopes (including the global scope). For local variables
+         * this also includes defining occurrences (like in a 'var' statement).
+         * In a 'function' scope this does not include the occurrences of the
+         * formal parameter in the parameter list.
+         * @member {Reference[]} Scope#references
+         */
+        this.references = [];
 
-		/**
-		 * Whether this scope is created by a FunctionExpression.
-		 * @member {boolean} Scope#functionExpressionScope
-		 */
-		this.functionExpressionScope = /** @type {any} */ (false);
+        /**
+         * For 'global' and 'function' scopes, this is a self-reference. For
+         * other scope types this is the <em>variableScope</em> value of the
+         * parent scope.
+         * @member {Scope} Scope#variableScope
+         */
+        this.variableScope =
+            this.type === "global" ||
+            this.type === "module" ||
+            this.type === "function" ||
+            this.type === "class-field-initializer" ||
+            this.type === "class-static-block"
+                ? this
+                : upperScope.variableScope;
 
         /**
          * Whether this scope is created by a FunctionExpression.
@@ -419557,45 +419526,46 @@ class Scope {
          */
         this.functionExpressionScope = false;
 
-		/**
-		 * @member {boolean} Scope#thisFound
-		 */
-		this.thisFound = false;
+        /**
+         * Whether this is a scope that contains an 'eval()' invocation.
+         * @member {boolean} Scope#directCallToEvalScope
+         */
+        this.directCallToEvalScope = false;
 
-		/** @type {?Reference[]} */
-		this.__left = [];
+        /**
+         * @member {boolean} Scope#thisFound
+         */
+        this.thisFound = false;
 
         this.__left = [];
 
-		/**
-		 * Whether 'use strict' is in effect in this scope.
-		 * @member {boolean} Scope#isStrict
-		 */
-		this.isStrict = scopeManager.isStrictModeSupported()
-			? isStrictScope(this, block, isMethodDefinition)
-			: false;
+        /**
+         * Reference to the parent {@link Scope|scope}.
+         * @member {Scope} Scope#upper
+         */
+        this.upper = upperScope;
 
-		/**
-		 * List of nested {@link Scope}s.
-		 * @member {Scope[]} Scope#childScopes
-		 */
-		this.childScopes = [];
-		if (this.upper) {
-			this.upper.childScopes.push(this);
-		}
+        /**
+         * Whether 'use strict' is in effect in this scope.
+         * @member {boolean} Scope#isStrict
+         */
+        this.isStrict = scopeManager.isStrictModeSupported()
+            ? isStrictScope(this, block, isMethodDefinition)
+            : false;
 
-		this.__declaredVariables = scopeManager.__declaredVariables;
+        /**
+         * List of nested {@link Scope}s.
+         * @member {Scope[]} Scope#childScopes
+         */
+        this.childScopes = [];
+        if (this.upper) {
+            this.upper.childScopes.push(this);
+        }
 
-		registerScope(scopeManager, this);
-	}
+        this.__declaredVariables = scopeManager.__declaredVariables;
 
-	__shouldStaticallyClose(scopeManager) {
-		return (
-			!this.dynamic ||
-			scopeManager.__isOptimistic() ||
-			this.type === "global"
-		);
-	}
+        registerScope(scopeManager, this);
+    }
 
     __shouldStaticallyClose(scopeManager) {
         return (!this.dynamic || scopeManager.__isOptimistic());
@@ -419616,24 +419586,22 @@ class Scope {
         return defs.length > 0 && defs.every(shouldBeStatically);
     }
 
-	__dynamicCloseRef(ref) {
-		// notify all names are through to global
-		let current = this;
+    __staticCloseRef(ref) {
+        if (!this.__resolve(ref)) {
+            this.__delegateToUpperScope(ref);
+        }
+    }
 
-		do {
-			current.through.push(ref);
-			current = current.upper;
-		} while (current);
-	}
+    __dynamicCloseRef(ref) {
 
-	__close(scopeManager) {
-		let closeRef;
+        // notify all names are through to global
+        let current = this;
 
-		if (this.__shouldStaticallyClose(scopeManager)) {
-			closeRef = this.__staticCloseRef;
-		} else {
-			closeRef = this.__dynamicCloseRef;
-		}
+        do {
+            current.through.push(ref);
+            current = current.upper;
+        } while (current);
+    }
 
     __globalCloseRef(ref) {
 
@@ -419661,168 +419629,131 @@ class Scope {
         for (let i = 0, iz = this.__left.length; i < iz; ++i) {
             const ref = this.__left[i];
 
-	__resolve(ref) {
-		const name = ref.identifier.name;
+            closeRef.call(this, ref);
+        }
+        this.__left = null;
 
-		if (!this.set.has(name)) {
-			return false;
-		}
-		const variable = this.set.get(name);
+        return this.upper;
+    }
 
-		if (!this.__isValidResolution(ref, variable)) {
-			return false;
-		}
-		variable.references.push(ref);
-		variable.stack =
-			variable.stack && ref.from.variableScope === this.variableScope;
-		if (ref.tainted) {
-			variable.tainted = true;
-			this.taints.set(variable.name, true);
-		}
-		ref.resolved = variable;
+    // To override by function scopes.
+    // References in default parameters isn't resolved to variables which are in their function body.
+    __isValidResolution(ref, variable) { // eslint-disable-line class-methods-use-this, no-unused-vars  -- Desired as instance method with signature
+        return true;
+    }
 
-		return true;
-	}
+    __resolve(ref) {
+        const name = ref.identifier.name;
 
-	__delegateToUpperScope(ref) {
-		if (this.upper) {
-			this.upper.__left.push(ref);
-		}
-		this.through.push(ref);
-	}
+        if (!this.set.has(name)) {
+            return false;
+        }
+        const variable = this.set.get(name);
 
-	__addDeclaredVariablesOfNode(variable, node) {
-		if (node === null || node === void 0) {
-			return;
-		}
+        if (!this.__isValidResolution(ref, variable)) {
+            return false;
+        }
+        variable.references.push(ref);
+        variable.stack = variable.stack && ref.from.variableScope === this.variableScope;
+        if (ref.tainted) {
+            variable.tainted = true;
+            this.taints.set(variable.name, true);
+        }
+        ref.resolved = variable;
 
-		let variables = this.__declaredVariables.get(node);
+        return true;
+    }
 
-		if (variables === null || variables === void 0) {
-			variables = [];
-			this.__declaredVariables.set(node, variables);
-		}
-		if (!variables.includes(variable)) {
-			variables.push(variable);
-		}
-	}
+    __delegateToUpperScope(ref) {
+        if (this.upper) {
+            this.upper.__left.push(ref);
+        }
+        this.through.push(ref);
+    }
 
-	__defineGeneric(name, set, variables, node, def) {
-		let variable;
+    __addDeclaredVariablesOfNode(variable, node) {
+        if (node === null || node === void 0) {
+            return;
+        }
 
-		variable = set.get(name);
-		if (!variable) {
-			variable = new Variable(name, this);
-			set.set(name, variable);
-			variables.push(variable);
-		}
+        let variables = this.__declaredVariables.get(node);
 
-		if (def) {
-			variable.defs.push(def);
-			this.__addDeclaredVariablesOfNode(variable, def.node);
-			this.__addDeclaredVariablesOfNode(variable, def.parent);
-		}
-		if (node) {
-			variable.identifiers.push(node);
-		}
-	}
+        if (variables === null || variables === void 0) {
+            variables = [];
+            this.__declaredVariables.set(node, variables);
+        }
+        if (!variables.includes(variable)) {
+            variables.push(variable);
+        }
+    }
 
-	__define(node, def) {
-		if (node && node.type === Syntax$2.Identifier) {
-			this.__defineGeneric(
-				node.name,
-				this.set,
-				this.variables,
-				node,
-				def,
-			);
-		}
-	}
+    __defineGeneric(name, set, variables, node, def) {
+        let variable;
 
-	__referencing(node, assign, writeExpr, maybeImplicitGlobal, partial, init) {
-		// because Array element may be null
-		if (
-			!node ||
-			(node.type !== Syntax$2.Identifier && node.type !== "JSXIdentifier")
-		) {
-			return;
-		}
+        variable = set.get(name);
+        if (!variable) {
+            variable = new Variable(name, this);
+            set.set(name, variable);
+            variables.push(variable);
+        }
 
-		// Specially handle like `this`.
-		if (node.name === "super") {
-			return;
-		}
+        if (def) {
+            variable.defs.push(def);
+            this.__addDeclaredVariablesOfNode(variable, def.node);
+            this.__addDeclaredVariablesOfNode(variable, def.parent);
+        }
+        if (node) {
+            variable.identifiers.push(node);
+        }
+    }
 
-		const ref = new Reference(
-			node,
-			this,
-			assign || Reference.READ,
-			writeExpr,
-			maybeImplicitGlobal,
-			!!partial,
-			!!init,
-		);
+    __define(node, def) {
+        if (node && node.type === Syntax$2.Identifier) {
+            this.__defineGeneric(
+                node.name,
+                this.set,
+                this.variables,
+                node,
+                def
+            );
+        }
+    }
 
-		this.references.push(ref);
+    __referencing(node, assign, writeExpr, maybeImplicitGlobal, partial, init) {
 
-		// @ts-ignore -- __left should be an array here
-		this.__left.push(ref);
-	}
+        // because Array element may be null
+        if (!node || (node.type !== Syntax$2.Identifier && node.type !== "JSXIdentifier")) {
+            return;
+        }
 
-	__detectEval() {
-		let current = this;
+        // Specially handle like `this`.
+        if (node.name === "super") {
+            return;
+        }
 
-		this.directCallToEvalScope = true;
-		do {
-			current.dynamic = true;
-			current = current.upper;
-		} while (current);
-	}
+        const ref = new Reference(node, this, assign || Reference.READ, writeExpr, maybeImplicitGlobal, !!partial, !!init);
 
         this.references.push(ref);
         this.__left.push(ref);
     }
 
-	/**
-	 * returns resolved {Reference}
-	 * @function Scope#resolve
-	 * @param {ESTree.Identifier} ident identifier to be resolved.
-	 * @returns {?Reference} reference
-	 */
-	resolve(ident) {
-		let ref, i, iz;
+    __detectEval() {
+        let current = this;
 
-		assert(this.__isClosed(), "Scope should be closed.");
-		assert(
-			ident.type === Syntax$2.Identifier,
-			"Target should be identifier.",
-		);
-		for (i = 0, iz = this.references.length; i < iz; ++i) {
-			ref = this.references[i];
-			if (ref.identifier === ident) {
-				return ref;
-			}
-		}
-		return null;
-	}
+        this.directCallToEvalScope = true;
+        do {
+            current.dynamic = true;
+            current = current.upper;
+        } while (current);
+    }
 
-	/**
-	 * returns this scope is static
-	 * @function Scope#isStatic
-	 * @returns {boolean} static
-	 */
-	isStatic() {
-		return !this.dynamic;
-	}
+    __detectThis() {
+        this.thisFound = true;
+    }
 
-	/**
-	 * returns this scope has materialized arguments
-	 * @function Scope#isArgumentsMaterialized
-	 * @returns {any} arguments materialized
-	 */ // eslint-disable-next-line class-methods-use-this -- Desired as instance method
-	isArgumentsMaterialized() {
-		return true;
-	}
+    __isClosed() {
+        return this.__left === null;
+    }
 
     /**
      * returns resolved {Reference}
@@ -419903,32 +419834,32 @@ class GlobalScope extends Scope {
         };
     }
 
-	__close(scopeManager) {
-		const implicit = [];
+    __close(scopeManager) {
+        const implicit = [];
 
         for (let i = 0, iz = this.__left.length; i < iz; ++i) {
             const ref = this.__left[i];
 
-		// create an implicit global variable from assignment expression
-		for (let i = 0, iz = implicit.length; i < iz; ++i) {
-			const info = implicit[i];
+            if (ref.__maybeImplicitGlobal && !this.set.has(ref.identifier.name)) {
+                implicit.push(ref.__maybeImplicitGlobal);
+            }
+        }
 
-			this.__defineImplicit(
-				info.pattern,
-				new Definition(
-					Variable.ImplicitGlobalVariable,
-					info.pattern,
-					info.node,
-					null,
-					null,
-					null,
-				),
-			);
-		}
+        // create an implicit global variable from assignment expression
+        for (let i = 0, iz = implicit.length; i < iz; ++i) {
+            const info = implicit[i];
 
-		super.__close(scopeManager);
+            this.__defineImplicit(info.pattern,
+                new Definition(
+                    Variable.ImplicitGlobalVariable,
+                    info.pattern,
+                    info.node,
+                    null,
+                    null,
+                    null
+                ));
 
-		this.implicit.left = [...this.through];
+        }
 
         this.implicit.left = this.__left;
 
@@ -419952,9 +419883,9 @@ class GlobalScope extends Scope {
  * Module scope.
  */
 class ModuleScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "module", upperScope, block, false);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "module", upperScope, block, false);
+    }
 }
 
 /**
@@ -419980,155 +419911,168 @@ class FunctionExpressionNameScope extends Scope {
  * Catch scope.
  */
 class CatchScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "catch", upperScope, block, false);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "catch", upperScope, block, false);
+    }
 }
 
 /**
  * With statement scope.
  */
 class WithScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "with", upperScope, block, false);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "with", upperScope, block, false);
+    }
 
-	__close(scopeManager) {
-		if (this.__shouldStaticallyClose(scopeManager)) {
-			return super.__close(scopeManager);
-		}
+    __close(scopeManager) {
+        if (this.__shouldStaticallyClose(scopeManager)) {
+            return super.__close(scopeManager);
+        }
 
         for (let i = 0, iz = this.__left.length; i < iz; ++i) {
             const ref = this.__left[i];
 
-		return this.upper;
-	}
+            ref.tainted = true;
+            this.__delegateToUpperScope(ref);
+        }
+        this.__left = null;
+
+        return this.upper;
+    }
 }
 
 /**
  * Block scope.
  */
 class BlockScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "block", upperScope, block, false);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "block", upperScope, block, false);
+    }
 }
 
 /**
  * Switch scope.
  */
 class SwitchScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "switch", upperScope, block, false);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "switch", upperScope, block, false);
+    }
 }
 
 /**
  * Function scope.
  */
 class FunctionScope extends Scope {
-	constructor(scopeManager, upperScope, block, isMethodDefinition) {
-		super(scopeManager, "function", upperScope, block, isMethodDefinition);
+    constructor(scopeManager, upperScope, block, isMethodDefinition) {
+        super(scopeManager, "function", upperScope, block, isMethodDefinition);
 
-		// section 9.2.13, FunctionDeclarationInstantiation.
-		// NOTE Arrow functions never have an arguments objects.
-		if (this.block.type !== Syntax$2.ArrowFunctionExpression) {
-			this.__defineArguments();
-		}
-	}
+        // section 9.2.13, FunctionDeclarationInstantiation.
+        // NOTE Arrow functions never have an arguments objects.
+        if (this.block.type !== Syntax$2.ArrowFunctionExpression) {
+            this.__defineArguments();
+        }
+    }
 
-	isArgumentsMaterialized() {
-		// TODO(Constellation)
-		// We can more aggressive on this condition like this.
-		//
-		// function t() {
-		//     // arguments of t is always hidden.
-		//     function arguments() {
-		//     }
-		// }
-		if (this.block.type === Syntax$2.ArrowFunctionExpression) {
-			return false;
-		}
+    isArgumentsMaterialized() {
 
-		if (!this.isStatic()) {
-			return true;
-		}
+        // TODO(Constellation)
+        // We can more aggressive on this condition like this.
+        //
+        // function t() {
+        //     // arguments of t is always hidden.
+        //     function arguments() {
+        //     }
+        // }
+        if (this.block.type === Syntax$2.ArrowFunctionExpression) {
+            return false;
+        }
 
-		const variable = this.set.get("arguments");
+        if (!this.isStatic()) {
+            return true;
+        }
 
-		assert(variable, "Always have arguments variable.");
-		return variable.tainted || variable.references.length !== 0;
-	}
+        const variable = this.set.get("arguments");
 
-	isThisMaterialized() {
-		if (!this.isStatic()) {
-			return true;
-		}
-		return this.thisFound;
-	}
+        assert(variable, "Always have arguments variable.");
+        return variable.tainted || variable.references.length !== 0;
+    }
 
-	__defineArguments() {
-		this.__defineGeneric("arguments", this.set, this.variables, null, null);
-		this.taints.set("arguments", true);
-	}
+    isThisMaterialized() {
+        if (!this.isStatic()) {
+            return true;
+        }
+        return this.thisFound;
+    }
 
-	// References in default parameters isn't resolved to variables which are in their function body.
-	//     const x = 1
-	//     function f(a = x) { // This `x` is resolved to the `x` in the outer scope.
-	//         const x = 2
-	//         console.log(a)
-	//     }
-	__isValidResolution(ref, variable) {
-		// If `options.nodejsScope` is true, `this.block` becomes a Program node.
-		if (this.block.type === "Program") {
-			return true;
-		}
+    __defineArguments() {
+        this.__defineGeneric(
+            "arguments",
+            this.set,
+            this.variables,
+            null,
+            null
+        );
+        this.taints.set("arguments", true);
+    }
 
-		const bodyStart = this.block.body.range[0];
+    // References in default parameters isn't resolved to variables which are in their function body.
+    //     const x = 1
+    //     function f(a = x) { // This `x` is resolved to the `x` in the outer scope.
+    //         const x = 2
+    //         console.log(a)
+    //     }
+    __isValidResolution(ref, variable) {
 
-		// It's invalid resolution in the following case:
-		return !(
-			variable.scope === this &&
-			ref.identifier.range[0] < bodyStart && // the reference is in the parameter part.
-			variable.defs.every(d => d.name.range[0] >= bodyStart) // the variable is in the body.
-		);
-	}
+        // If `options.nodejsScope` is true, `this.block` becomes a Program node.
+        if (this.block.type === "Program") {
+            return true;
+        }
+
+        const bodyStart = this.block.body.range[0];
+
+        // It's invalid resolution in the following case:
+        return !(
+            variable.scope === this &&
+            ref.identifier.range[0] < bodyStart && // the reference is in the parameter part.
+            variable.defs.every(d => d.name.range[0] >= bodyStart) // the variable is in the body.
+        );
+    }
 }
 
 /**
  * Scope of for, for-in, and for-of statements.
  */
 class ForScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "for", upperScope, block, false);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "for", upperScope, block, false);
+    }
 }
 
 /**
  * Class scope.
  */
 class ClassScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "class", upperScope, block, false);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "class", upperScope, block, false);
+    }
 }
 
 /**
  * Class field initializer scope.
  */
 class ClassFieldInitializerScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "class-field-initializer", upperScope, block, true);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "class-field-initializer", upperScope, block, true);
+    }
 }
 
 /**
  * Class static block scope.
  */
 class ClassStaticBlockScope extends Scope {
-	constructor(scopeManager, upperScope, block) {
-		super(scopeManager, "class-static-block", upperScope, block, true);
-	}
+    constructor(scopeManager, upperScope, block) {
+        super(scopeManager, "class-static-block", upperScope, block, true);
+    }
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -420161,50 +420105,47 @@ class ClassStaticBlockScope extends Scope {
  * @constructor ScopeManager
  */
 class ScopeManager {
-	constructor(options) {
-		this.scopes = [];
-		this.globalScope = null;
-		this.__nodeToScope = new WeakMap();
-		this.__currentScope = null;
-		this.__options = options;
-		this.__declaredVariables = new WeakMap();
-	}
+    constructor(options) {
+        this.scopes = [];
+        this.globalScope = null;
+        this.__nodeToScope = new WeakMap();
+        this.__currentScope = null;
+        this.__options = options;
+        this.__declaredVariables = new WeakMap();
+    }
 
-	__isOptimistic() {
-		return this.__options.optimistic;
-	}
+    __isOptimistic() {
+        return this.__options.optimistic;
+    }
 
-	__ignoreEval() {
-		return this.__options.ignoreEval;
-	}
+    __ignoreEval() {
+        return this.__options.ignoreEval;
+    }
 
-	__isJSXEnabled() {
-		return this.__options.jsx === true;
-	}
+    __isJSXEnabled() {
+        return this.__options.jsx === true;
+    }
 
-	isGlobalReturn() {
-		return (
-			this.__options.nodejsScope ||
-			this.__options.sourceType === "commonjs"
-		);
-	}
+    isGlobalReturn() {
+        return this.__options.nodejsScope || this.__options.sourceType === "commonjs";
+    }
 
-	isModule() {
-		return this.__options.sourceType === "module";
-	}
+    isModule() {
+        return this.__options.sourceType === "module";
+    }
 
     isImpliedStrict() {
         return this.__options.impliedStrict;
     }
 
-	isStrictModeSupported() {
-		return this.__options.ecmaVersion >= 5;
-	}
+    isStrictModeSupported() {
+        return this.__options.ecmaVersion >= 5;
+    }
 
-	// Returns appropriate scope for this node.
-	__get(node) {
-		return this.__nodeToScope.get(node);
-	}
+    // Returns appropriate scope for this node.
+    __get(node) {
+        return this.__nodeToScope.get(node);
+    }
 
     /**
      * Get variables that are declared by the node.
@@ -420228,48 +420169,50 @@ class ScopeManager {
      */
     acquire(node, inner) {
 
-		const scopes = this.__get(node);
+        /**
+         * predicate
+         * @param {Scope} testScope scope to test
+         * @returns {boolean} predicate
+         */
+        function predicate(testScope) {
+            if (testScope.type === "function" && testScope.functionExpressionScope) {
+                return false;
+            }
+            return true;
+        }
 
-		if (!scopes || scopes.length === 0) {
-			return null;
-		}
+        const scopes = this.__get(node);
 
-		// Heuristic selection from all scopes.
-		// If you would like to get all scopes, please use ScopeManager#acquireAll.
-		if (scopes.length === 1) {
-			return scopes[0];
-		}
+        if (!scopes || scopes.length === 0) {
+            return null;
+        }
 
-		if (inner) {
-			for (let i = scopes.length - 1; i >= 0; --i) {
-				const scope = scopes[i];
+        // Heuristic selection from all scopes.
+        // If you would like to get all scopes, please use ScopeManager#acquireAll.
+        if (scopes.length === 1) {
+            return scopes[0];
+        }
 
-				if (predicate(scope)) {
-					return scope;
-				}
-			}
-		} else {
-			for (let i = 0, iz = scopes.length; i < iz; ++i) {
-				const scope = scopes[i];
+        if (inner) {
+            for (let i = scopes.length - 1; i >= 0; --i) {
+                const scope = scopes[i];
 
-				if (predicate(scope)) {
-					return scope;
-				}
-			}
-		}
+                if (predicate(scope)) {
+                    return scope;
+                }
+            }
+        } else {
+            for (let i = 0, iz = scopes.length; i < iz; ++i) {
+                const scope = scopes[i];
 
-		return null;
-	}
+                if (predicate(scope)) {
+                    return scope;
+                }
+            }
+        }
 
-	/**
-	 * acquire all scopes from node.
-	 * @function ScopeManager#acquireAll
-	 * @param {ESTree.Node} node node for the acquired scope.
-	 * @returns {Scope[]?} Scope array
-	 */
-	acquireAll(node) {
-		return this.__get(node);
-	}
+        return null;
+    }
 
     /**
      * acquire all scopes from node.
@@ -420291,101 +420234,81 @@ class ScopeManager {
     release(node, inner) {
         const scopes = this.__get(node);
 
-			if (!scope) {
-				return null;
-			}
-			return this.acquire(scope.block, inner);
-		}
-		return null;
-	}
+        if (scopes && scopes.length) {
+            const scope = scopes[0].upper;
 
-	/**
-	 * Add global variables and resolve their references.
-	 * @function ScopeManager#addGlobals
-	 * @param {string[]} names Names of global variables to add.
-	 * @returns {void}
-	 */
-	addGlobals(names) {
-		// @ts-ignore -- globalScope must be set before this method is called.
-		this.globalScope.__addVariables(names);
-	}
+            if (!scope) {
+                return null;
+            }
+            return this.acquire(scope.block, inner);
+        }
+        return null;
+    }
 
     attach() { } // eslint-disable-line class-methods-use-this -- Desired as instance method
 
-	__nestGlobalScope(node) {
-		return this.__nestScope(new GlobalScope(this, node));
-	}
+    detach() { } // eslint-disable-line class-methods-use-this -- Desired as instance method
 
-	__nestBlockScope(node) {
-		return this.__nestScope(
-			new BlockScope(this, this.__currentScope, node),
-		);
-	}
+    __nestScope(scope) {
+        if (scope instanceof GlobalScope) {
+            assert(this.__currentScope === null);
+            this.globalScope = scope;
+        }
+        this.__currentScope = scope;
+        return scope;
+    }
 
-	__nestFunctionScope(node, isMethodDefinition) {
-		return this.__nestScope(
-			new FunctionScope(
-				this,
-				this.__currentScope,
-				node,
-				isMethodDefinition,
-			),
-		);
-	}
+    __nestGlobalScope(node) {
+        return this.__nestScope(new GlobalScope(this, node));
+    }
 
-	__nestForScope(node) {
-		return this.__nestScope(new ForScope(this, this.__currentScope, node));
-	}
+    __nestBlockScope(node) {
+        return this.__nestScope(new BlockScope(this, this.__currentScope, node));
+    }
 
-	__nestCatchScope(node) {
-		return this.__nestScope(
-			new CatchScope(this, this.__currentScope, node),
-		);
-	}
+    __nestFunctionScope(node, isMethodDefinition) {
+        return this.__nestScope(new FunctionScope(this, this.__currentScope, node, isMethodDefinition));
+    }
 
-	__nestWithScope(node) {
-		return this.__nestScope(new WithScope(this, this.__currentScope, node));
-	}
+    __nestForScope(node) {
+        return this.__nestScope(new ForScope(this, this.__currentScope, node));
+    }
 
-	__nestClassScope(node) {
-		return this.__nestScope(
-			new ClassScope(this, this.__currentScope, node),
-		);
-	}
+    __nestCatchScope(node) {
+        return this.__nestScope(new CatchScope(this, this.__currentScope, node));
+    }
 
-	__nestClassFieldInitializerScope(node) {
-		return this.__nestScope(
-			new ClassFieldInitializerScope(this, this.__currentScope, node),
-		);
-	}
+    __nestWithScope(node) {
+        return this.__nestScope(new WithScope(this, this.__currentScope, node));
+    }
 
-	__nestClassStaticBlockScope(node) {
-		return this.__nestScope(
-			new ClassStaticBlockScope(this, this.__currentScope, node),
-		);
-	}
+    __nestClassScope(node) {
+        return this.__nestScope(new ClassScope(this, this.__currentScope, node));
+    }
 
-	__nestSwitchScope(node) {
-		return this.__nestScope(
-			new SwitchScope(this, this.__currentScope, node),
-		);
-	}
+    __nestClassFieldInitializerScope(node) {
+        return this.__nestScope(new ClassFieldInitializerScope(this, this.__currentScope, node));
+    }
 
-	__nestModuleScope(node) {
-		return this.__nestScope(
-			new ModuleScope(this, this.__currentScope, node),
-		);
-	}
+    __nestClassStaticBlockScope(node) {
+        return this.__nestScope(new ClassStaticBlockScope(this, this.__currentScope, node));
+    }
 
-	__nestFunctionExpressionNameScope(node) {
-		return this.__nestScope(
-			new FunctionExpressionNameScope(this, this.__currentScope, node),
-		);
-	}
+    __nestSwitchScope(node) {
+        return this.__nestScope(new SwitchScope(this, this.__currentScope, node));
+    }
 
-	__isES6() {
-		return this.__options.ecmaVersion >= 6;
-	}
+    __nestModuleScope(node) {
+        return this.__nestScope(new ModuleScope(this, this.__currentScope, node));
+    }
+
+    __nestFunctionExpressionNameScope(node) {
+        return this.__nestScope(new FunctionExpressionNameScope(this, this.__currentScope, node));
+    }
+
+    __isES6() {
+        return this.__options.ecmaVersion >= 6;
+    }
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -420422,120 +420345,120 @@ const { Syntax: Syntax$1 } = estraverse__default["default"];
  * @returns {any} Last elment
  */
 function getLast(xs) {
-	return xs.at(-1) || null;
+    return xs.at(-1) || null;
 }
 
 /**
  * Visitor for destructuring patterns.
  */
-class PatternVisitor extends esrecurse.Visitor {
-	static isPattern(node) {
-		const nodeType = node.type;
+class PatternVisitor extends esrecurse__default["default"].Visitor {
+    static isPattern(node) {
+        const nodeType = node.type;
 
-		return (
-			nodeType === Syntax$1.Identifier ||
-			nodeType === Syntax$1.ObjectPattern ||
-			nodeType === Syntax$1.ArrayPattern ||
-			nodeType === Syntax$1.SpreadElement ||
-			nodeType === Syntax$1.RestElement ||
-			nodeType === Syntax$1.AssignmentPattern
-		);
-	}
+        return (
+            nodeType === Syntax$1.Identifier ||
+            nodeType === Syntax$1.ObjectPattern ||
+            nodeType === Syntax$1.ArrayPattern ||
+            nodeType === Syntax$1.SpreadElement ||
+            nodeType === Syntax$1.RestElement ||
+            nodeType === Syntax$1.AssignmentPattern
+        );
+    }
 
-	constructor(options, rootPattern, callback) {
-		super(null, options);
-		this.rootPattern = rootPattern;
-		this.callback = callback;
-		this.assignments = [];
-		this.rightHandNodes = [];
-		this.restElements = [];
-	}
+    constructor(options, rootPattern, callback) {
+        super(null, options);
+        this.rootPattern = rootPattern;
+        this.callback = callback;
+        this.assignments = [];
+        this.rightHandNodes = [];
+        this.restElements = [];
+    }
 
-	Identifier(pattern) {
-		const lastRestElement = getLast(this.restElements);
+    Identifier(pattern) {
+        const lastRestElement = getLast(this.restElements);
 
-		this.callback(pattern, {
-			topLevel: pattern === this.rootPattern,
-			rest:
-				lastRestElement !== null &&
-				lastRestElement !== void 0 &&
-				lastRestElement.argument === pattern,
-			assignments: this.assignments,
-		});
-	}
+        this.callback(pattern, {
+            topLevel: pattern === this.rootPattern,
+            rest: lastRestElement !== null && lastRestElement !== void 0 && lastRestElement.argument === pattern,
+            assignments: this.assignments
+        });
+    }
 
-	Property(property) {
-		// Computed property's key is a right hand node.
-		if (property.computed) {
-			this.rightHandNodes.push(property.key);
-		}
+    Property(property) {
 
-		// If it's shorthand, its key is same as its value.
-		// If it's shorthand and has its default value, its key is same as its value.left (the value is AssignmentPattern).
-		// If it's not shorthand, the name of new variable is its value's.
-		this.visit(property.value);
-	}
+        // Computed property's key is a right hand node.
+        if (property.computed) {
+            this.rightHandNodes.push(property.key);
+        }
 
-	ArrayPattern(pattern) {
-		for (let i = 0, iz = pattern.elements.length; i < iz; ++i) {
-			const element = pattern.elements[i];
+        // If it's shorthand, its key is same as its value.
+        // If it's shorthand and has its default value, its key is same as its value.left (the value is AssignmentPattern).
+        // If it's not shorthand, the name of new variable is its value's.
+        this.visit(property.value);
+    }
 
-			this.visit(element);
-		}
-	}
+    ArrayPattern(pattern) {
+        for (let i = 0, iz = pattern.elements.length; i < iz; ++i) {
+            const element = pattern.elements[i];
 
-	AssignmentPattern(pattern) {
-		this.assignments.push(pattern);
-		this.visit(pattern.left);
-		this.rightHandNodes.push(pattern.right);
-		this.assignments.pop();
-	}
+            this.visit(element);
+        }
+    }
 
-	RestElement(pattern) {
-		this.restElements.push(pattern);
-		this.visit(pattern.argument);
-		this.restElements.pop();
-	}
+    AssignmentPattern(pattern) {
+        this.assignments.push(pattern);
+        this.visit(pattern.left);
+        this.rightHandNodes.push(pattern.right);
+        this.assignments.pop();
+    }
 
-	MemberExpression(node) {
-		// Computed property's key is a right hand node.
-		if (node.computed) {
-			this.rightHandNodes.push(node.property);
-		}
+    RestElement(pattern) {
+        this.restElements.push(pattern);
+        this.visit(pattern.argument);
+        this.restElements.pop();
+    }
 
-		// the object is only read, write to its property.
-		this.rightHandNodes.push(node.object);
-	}
+    MemberExpression(node) {
 
-	//
-	// ForInStatement.left and AssignmentExpression.left are LeftHandSideExpression.
-	// By spec, LeftHandSideExpression is Pattern or MemberExpression.
-	//   (see also: https://github.com/estree/estree/pull/20#issuecomment-74584758)
-	// But espree 2.0 parses to ArrayExpression, ObjectExpression, etc...
-	//
+        // Computed property's key is a right hand node.
+        if (node.computed) {
+            this.rightHandNodes.push(node.property);
+        }
 
-	SpreadElement(node) {
-		this.visit(node.argument);
-	}
+        // the object is only read, write to its property.
+        this.rightHandNodes.push(node.object);
+    }
 
-	ArrayExpression(node) {
-		node.elements.forEach(this.visit, this);
-	}
+    //
+    // ForInStatement.left and AssignmentExpression.left are LeftHandSideExpression.
+    // By spec, LeftHandSideExpression is Pattern or MemberExpression.
+    //   (see also: https://github.com/estree/estree/pull/20#issuecomment-74584758)
+    // But espree 2.0 parses to ArrayExpression, ObjectExpression, etc...
+    //
 
-	AssignmentExpression(node) {
-		this.assignments.push(node);
-		this.visit(node.left);
-		this.rightHandNodes.push(node.right);
-		this.assignments.pop();
-	}
+    SpreadElement(node) {
+        this.visit(node.argument);
+    }
 
-	CallExpression(node) {
-		// arguments are right hand nodes.
-		node.arguments.forEach(a => {
-			this.rightHandNodes.push(a);
-		});
-		this.visit(node.callee);
-	}
+    ArrayExpression(node) {
+        node.elements.forEach(this.visit, this);
+    }
+
+    AssignmentExpression(node) {
+        this.assignments.push(node);
+        this.visit(node.left);
+        this.rightHandNodes.push(node.right);
+        this.assignments.pop();
+    }
+
+    CallExpression(node) {
+
+        // arguments are right hand nodes.
+        node.arguments.forEach(a => {
+            this.rightHandNodes.push(a);
+        });
+        this.visit(node.callee);
+    }
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -420574,21 +420497,17 @@ const { Syntax } = estraverse__default["default"];
  * @param {callback} callback callback
  * @returns {void}
  */
-function traverseIdentifierInPattern(
-	options,
-	rootPattern,
-	referencer,
-	callback,
-) {
-	// Call the callback at left hand identifier nodes, and Collect right hand nodes.
-	const visitor = new PatternVisitor(options, rootPattern, callback);
+function traverseIdentifierInPattern(options, rootPattern, referencer, callback) {
 
-	visitor.visit(rootPattern);
+    // Call the callback at left hand identifier nodes, and Collect right hand nodes.
+    const visitor = new PatternVisitor(options, rootPattern, callback);
 
-	// Process the right hand nodes recursively.
-	if (referencer !== null && referencer !== void 0) {
-		visitor.rightHandNodes.forEach(referencer.visit, referencer);
-	}
+    visitor.visit(rootPattern);
+
+    // Process the right hand nodes recursively.
+    if (referencer !== null && referencer !== void 0) {
+        visitor.rightHandNodes.forEach(referencer.visit, referencer);
+    }
 }
 
 // Importing ImportDeclaration.
@@ -420600,54 +420519,50 @@ function traverseIdentifierInPattern(
 /**
  * Visitor for import specifiers.
  */
-class Importer extends esrecurse.Visitor {
-	constructor(declaration, referencer) {
-		super(null, referencer.options);
-		this.declaration = declaration;
-		this.referencer = referencer;
-	}
+class Importer extends esrecurse__default["default"].Visitor {
+    constructor(declaration, referencer) {
+        super(null, referencer.options);
+        this.declaration = declaration;
+        this.referencer = referencer;
+    }
 
-	visitImport(id, specifier) {
-		this.referencer.visitPattern(id, pattern => {
-			this.referencer
-				.currentScope()
-				.__define(
-					pattern,
-					new Definition(
-						Variable.ImportBinding,
-						pattern,
-						specifier,
-						this.declaration,
-						null,
-						null,
-					),
-				);
-		});
-	}
+    visitImport(id, specifier) {
+        this.referencer.visitPattern(id, pattern => {
+            this.referencer.currentScope().__define(pattern,
+                new Definition(
+                    Variable.ImportBinding,
+                    pattern,
+                    specifier,
+                    this.declaration,
+                    null,
+                    null
+                ));
+        });
+    }
 
-	ImportNamespaceSpecifier(node) {
-		const local = node.local || node.id;
+    ImportNamespaceSpecifier(node) {
+        const local = (node.local || node.id);
 
-		if (local) {
-			this.visitImport(local, node);
-		}
-	}
+        if (local) {
+            this.visitImport(local, node);
+        }
+    }
 
-	ImportDefaultSpecifier(node) {
-		const local = node.local || node.id;
+    ImportDefaultSpecifier(node) {
+        const local = (node.local || node.id);
 
-		this.visitImport(local, node);
-	}
+        this.visitImport(local, node);
+    }
 
-	ImportSpecifier(node) {
-		const local = node.local || node.id;
+    ImportSpecifier(node) {
+        const local = (node.local || node.id);
 
-		if (node.name) {
-			this.visitImport(node.name, node);
-		} else {
-			this.visitImport(local, node);
-		}
-	}
+        if (node.name) {
+            this.visitImport(node.name, node);
+        } else {
+            this.visitImport(local, node);
+        }
+    }
 }
 
 /**
@@ -421280,15 +421195,15 @@ const version = "8.4.0";
  * @returns {Object} options
  */
 function defaultOptions() {
-	return {
-		optimistic: false,
-		nodejsScope: false,
-		impliedStrict: false,
-		sourceType: "script", // one of ['script', 'module', 'commonjs']
-		ecmaVersion: 5,
-		childVisitorKeys: null,
-		fallback: "iteration",
-	};
+    return {
+        optimistic: false,
+        nodejsScope: false,
+        impliedStrict: false,
+        sourceType: "script", // one of ['script', 'module', 'commonjs']
+        ecmaVersion: 5,
+        childVisitorKeys: null,
+        fallback: "iteration"
+    };
 }
 
 /**
@@ -421298,19 +421213,6 @@ function defaultOptions() {
  * @returns {Object} Updated options
  */
 function updateDeeply(target, override) {
-	/**
-	 * Is hash object
-	 * @param {Object} value Test value
-	 * @returns {value is Record<string, unknown>} Result
-	 */
-	function isHashObject(value) {
-		return (
-			typeof value === "object" &&
-			value instanceof Object &&
-			!(value instanceof Array) &&
-			!(value instanceof RegExp)
-		);
-	}
 
     /**
      * Is hash object
@@ -421321,18 +421223,22 @@ function updateDeeply(target, override) {
         return typeof value === "object" && value instanceof Object && !(value instanceof Array) && !(value instanceof RegExp);
     }
 
-			if (isHashObject(val)) {
-				if (isHashObject(target[key])) {
-					updateDeeply(target[key], val);
-				} else {
-					target[key] = updateDeeply({}, val);
-				}
-			} else {
-				target[key] = val;
-			}
-		}
-	}
-	return target;
+    for (const key in override) {
+        if (Object.hasOwn(override, key)) {
+            const val = override[key];
+
+            if (isHashObject(val)) {
+                if (isHashObject(target[key])) {
+                    updateDeeply(target[key], val);
+                } else {
+                    target[key] = updateDeeply({}, val);
+                }
+            } else {
+                target[key] = val;
+            }
+        }
+    }
+    return target;
 }
 
 /**
@@ -421356,18 +421262,15 @@ function updateDeeply(target, override) {
  * @returns {ScopeManager} ScopeManager
  */
 function analyze(tree, providedOptions) {
-	const options = updateDeeply(defaultOptions(), providedOptions);
-	const scopeManager = new ScopeManager(options);
-	const referencer = new Referencer(options, scopeManager);
+    const options = updateDeeply(defaultOptions(), providedOptions);
+    const scopeManager = new ScopeManager(options);
+    const referencer = new Referencer(options, scopeManager);
 
-	referencer.visit(tree);
+    referencer.visit(tree);
 
-	assert(
-		scopeManager.__currentScope === null,
-		"currentScope should be null.",
-	);
+    assert(scopeManager.__currentScope === null, "currentScope should be null.");
 
-	return scopeManager;
+    return scopeManager;
 }
 
 /* vim: set sw=4 ts=4 et tw=80 : */
@@ -422592,9 +422495,7 @@ exports.unionWith = unionWith;
 "use strict";
 
 
-var acorn = __nccwpck_require__(61184);
-var jsx = __nccwpck_require__(99414);
-var eslintVisitorKeys = __nccwpck_require__(5910);
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 
 var acorn = __nccwpck_require__(64514);
 var jsx = __nccwpck_require__(33196);
@@ -422620,7 +422521,9 @@ function _interopNamespace(e) {
     return Object.freeze(n);
 }
 
-var acorn__namespace = /*#__PURE__*/_interopNamespaceDefault(acorn);
+var acorn__namespace = /*#__PURE__*/_interopNamespace(acorn);
+var jsx__default = /*#__PURE__*/_interopDefaultLegacy(jsx);
+var visitorKeys__namespace = /*#__PURE__*/_interopNamespace(visitorKeys);
 
 /**
  * @fileoverview Translates tokens between Acorn format and Esprima format.
@@ -422640,19 +422543,19 @@ var acorn__namespace = /*#__PURE__*/_interopNamespaceDefault(acorn);
 
 // Esprima Token Types
 const Token = {
-	Boolean: "Boolean",
-	EOF: "<end>",
-	Identifier: "Identifier",
-	PrivateIdentifier: "PrivateIdentifier",
-	Keyword: "Keyword",
-	Null: "Null",
-	Numeric: "Numeric",
-	Punctuator: "Punctuator",
-	String: "String",
-	RegularExpression: "RegularExpression",
-	Template: "Template",
-	JSXIdentifier: "JSXIdentifier",
-	JSXText: "JSXText",
+    Boolean: "Boolean",
+    EOF: "<end>",
+    Identifier: "Identifier",
+    PrivateIdentifier: "PrivateIdentifier",
+    Keyword: "Keyword",
+    Null: "Null",
+    Numeric: "Numeric",
+    Punctuator: "Punctuator",
+    String: "String",
+    RegularExpression: "RegularExpression",
+    Template: "Template",
+    JSXIdentifier: "JSXIdentifier",
+    JSXText: "JSXText"
 };
 
 /**
@@ -422671,20 +422574,20 @@ function convertTemplatePart(tokens, code) {
         value: code.slice(firstToken.start, lastTemplateToken.end)
     };
 
-	if (firstToken.loc) {
-		token.loc = {
-			start: firstToken.loc.start,
-			end: lastTemplateToken.loc.end,
-		};
-	}
+    if (firstToken.loc) {
+        token.loc = {
+            start: firstToken.loc.start,
+            end: lastTemplateToken.loc.end
+        };
+    }
 
-	if (firstToken.range) {
-		token.start = firstToken.range[0];
-		token.end = lastTemplateToken.range[1];
-		token.range = [token.start, token.end];
-	}
+    if (firstToken.range) {
+        token.start = firstToken.range[0];
+        token.end = lastTemplateToken.range[1];
+        token.range = [token.start, token.end];
+    }
 
-	return token;
+    return token;
 }
 
 /**
@@ -422803,14 +422706,20 @@ TokenTranslator.prototype = {
      */
     onToken(token, extra) {
 
-			templateTokens.push(token);
-			return;
-		}
+        const tt = this._acornTokTypes,
+            tokens = extra.tokens,
+            templateTokens = this._tokens;
 
-		if (this._curlyBrace) {
-			tokens.push(this.translate(this._curlyBrace, extra));
-			this._curlyBrace = null;
-		}
+        /**
+         * Flushes the buffered template tokens and resets the template
+         * tracking.
+         * @returns {void}
+         * @private
+         */
+        const translateTemplateTokens = () => {
+            tokens.push(convertTemplatePart(this._tokens, this._code));
+            this._tokens = [];
+        };
 
         if (token.type === tt.eof) {
 
@@ -422913,7 +422822,7 @@ function getLatestEcmaVersion() {
  * @returns {number[]} An array containing the supported ECMAScript versions.
  */
 function getSupportedEcmaVersions() {
-	return [...SUPPORTED_VERSIONS];
+    return [...SUPPORTED_VERSIONS];
 }
 
 /**
@@ -422923,29 +422832,18 @@ function getSupportedEcmaVersions() {
  * @returns {number} normalized ECMAScript version
  */
 function normalizeEcmaVersion(ecmaVersion = 5) {
-	let version =
-		ecmaVersion === "latest" ? getLatestEcmaVersion() : ecmaVersion;
 
-	if (typeof version !== "number") {
-		throw new Error(
-			`ecmaVersion must be a number or "latest". Received value of type ${typeof ecmaVersion} instead.`,
-		);
-	}
+    let version = ecmaVersion === "latest" ? getLatestEcmaVersion() : ecmaVersion;
 
-	// Calculate ECMAScript edition number from official year version starting with
-	// ES2015, which corresponds with ES6 (or a difference of 2009).
-	if (version >= 2015) {
-		version -= 2009;
-	}
+    if (typeof version !== "number") {
+        throw new Error(`ecmaVersion must be a number or "latest". Received value of type ${typeof ecmaVersion} instead.`);
+    }
 
-	if (
-		!SUPPORTED_VERSIONS.includes(
-			/** @type {NormalizedEcmaVersion} */
-			(version),
-		)
-	) {
-		throw new Error("Invalid ecmaVersion.");
-	}
+    // Calculate ECMAScript edition number from official year version starting with
+    // ES2015, which corresponds with ES6 (or a difference of 2009).
+    if (version >= 2015) {
+        version -= 2009;
+    }
 
     if (!SUPPORTED_VERSIONS.includes(version)) {
         throw new Error("Invalid ecmaVersion.");
@@ -422961,15 +422859,15 @@ function normalizeEcmaVersion(ecmaVersion = 5) {
  * @returns {string} normalized sourceType
  */
 function normalizeSourceType(sourceType = "script") {
-	if (sourceType === "script" || sourceType === "module") {
-		return sourceType;
-	}
+    if (sourceType === "script" || sourceType === "module") {
+        return sourceType;
+    }
 
-	if (sourceType === "commonjs") {
-		return "script";
-	}
+    if (sourceType === "commonjs") {
+        return "script";
+    }
 
-	throw new Error("Invalid sourceType.");
+    throw new Error("Invalid sourceType.");
 }
 
 /**
@@ -422979,45 +422877,36 @@ function normalizeSourceType(sourceType = "script") {
  * @returns {Object} normalized options
  */
 function normalizeOptions(options) {
-	const ecmaVersion = normalizeEcmaVersion(options.ecmaVersion);
-	const sourceType = normalizeSourceType(options.sourceType);
-	const ranges = options.range === true;
-	const locations = options.loc === true;
+    const ecmaVersion = normalizeEcmaVersion(options.ecmaVersion);
+    const sourceType = normalizeSourceType(options.sourceType);
+    const ranges = options.range === true;
+    const locations = options.loc === true;
 
-	if (ecmaVersion !== 3 && options.allowReserved) {
-		// a value of `false` is intentionally allowed here, so a shared config can overwrite it when needed
-		throw new Error(
-			"`allowReserved` is only supported when ecmaVersion is 3",
-		);
-	}
-	if (
-		typeof options.allowReserved !== "undefined" &&
-		typeof options.allowReserved !== "boolean"
-	) {
-		throw new Error(
-			"`allowReserved`, when present, must be `true` or `false`",
-		);
-	}
-	const allowReserved =
-		ecmaVersion === 3 ? options.allowReserved || "never" : false;
-	const ecmaFeatures = options.ecmaFeatures || {};
-	const allowReturnOutsideFunction =
-		options.sourceType === "commonjs" || Boolean(ecmaFeatures.globalReturn);
+    if (ecmaVersion !== 3 && options.allowReserved) {
 
-	if (sourceType === "module" && ecmaVersion < 6) {
-		throw new Error(
-			"sourceType 'module' is not supported when ecmaVersion < 2015. Consider adding `{ ecmaVersion: 2015 }` to the parser options.",
-		);
-	}
+        // a value of `false` is intentionally allowed here, so a shared config can overwrite it when needed
+        throw new Error("`allowReserved` is only supported when ecmaVersion is 3");
+    }
+    if (typeof options.allowReserved !== "undefined" && typeof options.allowReserved !== "boolean") {
+        throw new Error("`allowReserved`, when present, must be `true` or `false`");
+    }
+    const allowReserved = ecmaVersion === 3 ? (options.allowReserved || "never") : false;
+    const ecmaFeatures = options.ecmaFeatures || {};
+    const allowReturnOutsideFunction = options.sourceType === "commonjs" ||
+        Boolean(ecmaFeatures.globalReturn);
 
-	return Object.assign({}, options, {
-		ecmaVersion,
-		sourceType,
-		ranges,
-		locations,
-		allowReserved,
-		allowReturnOutsideFunction,
-	});
+    if (sourceType === "module" && ecmaVersion < 6) {
+        throw new Error("sourceType 'module' is not supported when ecmaVersion < 2015. Consider adding `{ ecmaVersion: 2015 }` to the parser options.");
+    }
+
+    return Object.assign({}, options, {
+        ecmaVersion,
+        sourceType,
+        ranges,
+        locations,
+        allowReserved,
+        allowReturnOutsideFunction
+    });
 }
 
 /* eslint no-param-reassign: 0 -- stylistic choice */
@@ -423025,6 +422914,7 @@ function normalizeOptions(options) {
 
 const STATE = Symbol("espree's internal state");
 const ESPRIMA_FINISH_NODE = Symbol("espree's esprimaFinishNode");
+
 
 /**
  * Converts an Acorn comment to a Esprima comment.
@@ -423041,37 +422931,33 @@ const ESPRIMA_FINISH_NODE = Symbol("espree's esprimaFinishNode");
 function convertAcornCommentToEsprimaComment(block, text, start, end, startLoc, endLoc, code) {
     let type;
 
-	/**
-	 * @type {{
-	 *   type: CommentType,
-	 *   value: string,
-	 *   start?: number,
-	 *   end?: number,
-	 *   range?: [number, number],
-	 *   loc?: {
-	 *     start: acorn.Position | undefined,
-	 *     end: acorn.Position | undefined
-	 *   }
-	 * }}
-	 */
-	const comment = {
-		type,
-		value: text,
-	};
+    if (block) {
+        type = "Block";
+    } else if (code.slice(start, start + 2) === "#!") {
+        type = "Hashbang";
+    } else {
+        type = "Line";
+    }
 
     const comment = {
         type,
         value: text
     };
 
-	if (typeof startLoc === "object") {
-		comment.loc = {
-			start: startLoc,
-			end: endLoc,
-		};
-	}
+    if (typeof start === "number") {
+        comment.start = start;
+        comment.end = end;
+        comment.range = [start, end];
+    }
 
-	return comment;
+    if (typeof startLoc === "object") {
+        comment.loc = {
+            start: startLoc,
+            end: endLoc
+        };
+    }
+
+    return comment;
 }
 
 var espree = () => Parser => {
@@ -423473,12 +423359,12 @@ const parsers = {
  * @private
  */
 function tokenize(code, options) {
-	const Parser = parsers.get(options);
+    const Parser = parsers.get(options);
 
-	// Ensure to collect tokens.
-	if (!options || options.tokens !== true) {
-		options = Object.assign({}, options, { tokens: true }); // eslint-disable-line no-param-reassign -- stylistic choice
-	}
+    // Ensure to collect tokens.
+    if (!options || options.tokens !== true) {
+        options = Object.assign({}, options, { tokens: true }); // eslint-disable-line no-param-reassign -- stylistic choice
+    }
 
     return new Parser(options, code).tokenize();
 }
@@ -423495,9 +423381,9 @@ function tokenize(code, options) {
  * @throws {SyntaxError} If the input code is invalid.
  */
 function parse(code, options) {
-	const Parser = parsers.get(options);
+    const Parser = parsers.get(options);
 
-	return new Parser(options, code).parse();
+    return new Parser(options, code).parse();
 }
 
 //------------------------------------------------------------------------------
@@ -423518,28 +423404,29 @@ const Syntax = (function() {
     let key,
         types = {};
 
-	for (key in eslintVisitorKeys.KEYS) {
-		if (Object.hasOwn(eslintVisitorKeys.KEYS, key)) {
-			types[key] = key;
-		}
-	}
+    if (typeof Object.create === "function") {
+        types = Object.create(null);
+    }
 
-	if (typeof Object.freeze === "function") {
-		Object.freeze(types);
-	}
+    for (key in VisitorKeys) {
+        if (Object.hasOwn(VisitorKeys, key)) {
+            types[key] = key;
+        }
+    }
 
-	return types;
-})();
+    if (typeof Object.freeze === "function") {
+        Object.freeze(types);
+    }
 
-const latestEcmaVersion = /* #__PURE__ */ getLatestEcmaVersion();
+    return types;
+}());
 
-const supportedEcmaVersions = /* #__PURE__ */ getSupportedEcmaVersions();
+const latestEcmaVersion = getLatestEcmaVersion();
 
-Object.defineProperty(exports, "VisitorKeys", ({
-	enumerable: true,
-	get: function () { return eslintVisitorKeys.KEYS; }
-}));
+const supportedEcmaVersions = getSupportedEcmaVersions();
+
 exports.Syntax = Syntax;
+exports.VisitorKeys = VisitorKeys;
 exports.latestEcmaVersion = latestEcmaVersion;
 exports.name = name;
 exports.parse = parse;
