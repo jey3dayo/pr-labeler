@@ -6,13 +6,13 @@ GitHub Action で PR にサイズ・複雑度・カテゴリ・リスクのラ�
 
 - ソース: `src/`
 - テスト: `__tests__/`
-- ドキュメント: `docs/ja/`（正典）、`docs/en/`
+- ドキュメント: 利用者向けは `docs/en/`（正典）、メンテナ向けは `docs/ja/`（英語追従不要）、索引は `docs/README.md`
 - Claude Code 設定: `.claude/`（`commands/`, `rules/`, `skills/`）
 
 ## Development Guidelines
 
 - Think in English, but generate responses in Japanese（思考は英語、回答の生成は日本語で行う）
-- `docs/ja` を正典とし、`docs/en` を追従させる
+- 利用者向けドキュメント（`docs/en/`）は英語が正典、日本語版は追従。メンテナ向けドキュメント（`docs/ja/`）は日本語のみで可
 
 ## Workflow
 

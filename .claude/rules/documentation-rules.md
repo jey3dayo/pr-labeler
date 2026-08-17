@@ -10,7 +10,8 @@ paths: docs/**, README.md, README.ja.md
 
 ## メタデータ
 
-- 冒頭にタイトル＋最終更新日＋対象＋タグを記載（docs/ja/documentation-guidelines.mdに準拠）。`category/`と`audience/`タグを最低1つずつ含める。
+- 冒頭にタイトル＋対象＋タグを記載（docs/ja/documentation-guidelines.mdに準拠）。`category/`と`audience/`タグを最低1つずつ含める。
+- 最終更新日は手書きしない。git履歴が正確な情報源であり、手書きの日付は必ず腐るため。
 - アイコンは内容に合わせて選択（📚, 🚀, 🧪, 📦など）。
 
 ## 配置と命名
