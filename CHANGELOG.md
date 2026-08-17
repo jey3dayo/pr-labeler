@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.2] - 2026-08-17
+
+### 🔄 Changed
+
+- update the action runtime to Node.js 24 and require Node.js 22 or newer
+- update the package manager to pnpm 11.22.0 and refresh compatible dependencies
+- regenerate the bundled action distribution for the updated dependency set
+- align Node.js and pnpm development guidance
+
+### 🐛 Fixed
+
+- allow trusted `esbuild` and `unrs-resolver` build scripts during pnpm installation
+- remove the CI path that pushed directly to the protected `main` branch
+- fix Knip entry-point configuration
+
+### 🔧 Refactoring
+
+- use `safeTry` for transformer parsing functions
+- standardize release command documentation
+
 ## [1.11.1] - 2026-02-19
 
 ### 🔧 Refactoring
