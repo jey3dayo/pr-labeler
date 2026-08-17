@@ -468,7 +468,7 @@ namespaces:
 2. **Longest Match** (more specific paths win)
 3. **Definition Order** (first in file wins if tied)
 
-### Example:
+### Example
 
 ```yaml
 rules:

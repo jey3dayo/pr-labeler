@@ -342,7 +342,7 @@ categories:
       ja: 'パフォーマンス'
 ```
 
-#### Configuration Properties
+### Configuration Properties
 
 - `label` (required): The label name (must follow `category/*` format)
 - `patterns` (required): Array of glob patterns to match files
@@ -360,7 +360,7 @@ categories:
 
 PR Insights Labeler uses an **additive labeling policy**. If a PR contains changes matching multiple categories, all applicable category labels are applied.
 
-#### Example
+### Example
 
 A PR with these changes:
 

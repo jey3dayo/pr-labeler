@@ -242,7 +242,7 @@ git push origin v1 --force
 
 リリースノートは統一されたフォーマットに従ってください。詳細は [.github/RELEASE_TEMPLATE.md](../.github/RELEASE_TEMPLATE.md) を参照してください。
 
-### 標準フォーマット:
+### 標準フォーマット
 
 ```markdown
 ## 🚀 What's New
