@@ -35,10 +35,10 @@ Shared images live in [`docs/assets/`](./assets/).
 
 ## Translation Gaps
 
-The following user-facing documents exist only in English. Japanese translations are not required by the policy above, but are tracked here as open TODOs for anyone who wants to contribute one.
+The following user-facing documents exist only in English. Japanese translations are not required by the policy above; contributions are tracked in [issue #136](https://github.com/jey3dayo/pr-insights-labeler/issues/136).
 
-| Document              | English | Japanese      |
-| --------------------- | ------- | ------------- |
-| Configuration Guide   | ✅      | 未翻訳 (TODO) |
-| Category Labels       | ✅      | 未翻訳 (TODO) |
-| Troubleshooting Guide | ✅      | 未翻訳 (TODO) |
+| Document              | English | Japanese |
+| --------------------- | ------- | -------- |
+| Configuration Guide   | ✅      | 未翻訳   |
+| Category Labels       | ✅      | 未翻訳   |
+| Troubleshooting Guide | ✅      | 未翻訳   |
