@@ -61,10 +61,10 @@ Use `scripts/release.sh` for the complete automated workflow:
 The script provides an interactive menu:
 
 - 1) patch - Bug fixes (v1.0.0 → v1.0.1)
-- 1) minor - New features (v1.0.0 → v1.1.0)
-- 1) major - Breaking changes (v1.0.0 → v2.0.0)
-- 1) custom - Specify version manually
-- 1) cancel - Abort release
+- 2) minor - New features (v1.0.0 → v1.1.0)
+- 3) major - Breaking changes (v1.0.0 → v2.0.0)
+- 4) custom - Specify version manually
+- 5) cancel - Abort release
 
 The script automatically:
 
