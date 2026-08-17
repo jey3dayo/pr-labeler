@@ -230,29 +230,65 @@ update_package_json() {
 }
 
 # Update CHANGELOG.md
+# Strip leading and trailing blank lines from stdin.
+trim_blank_lines() {
+  awk '
+    { lines[NR] = $0 }
+    END {
+      start = 1;  while (start <= NR && lines[start] ~ /^[[:space:]]*$/) start++
+      end   = NR; while (end >= start && lines[end] ~ /^[[:space:]]*$/) end--
+      for (i = start; i <= end; i++) print lines[i]
+    }
+  '
+}
+
+# Print the body of the `## [Unreleased]` section with surrounding blank lines
+# trimmed. Empty output means there is no hand-written pending content.
+extract_unreleased() {
+  awk '
+    /^## \[Unreleased\]/ { grab = 1; next }
+    grab && /^## \[/     { exit }
+    grab                 { print }
+  ' CHANGELOG.md | trim_blank_lines
+}
+
 update_changelog() {
   local new_version=$1
   local changelog_content=$2
   local date
   date=$(date +%Y-%m-%d)
 
-  local temp_file
+  local temp_file stripped
   temp_file=$(mktemp)
+  stripped=$(mktemp)
+
+  # Consume the `## [Unreleased]` section. Its content is folded into the new
+  # version section by the caller, so leaving the heading here would strand it
+  # below released versions and duplicate the entries.
+  awk '
+    /^## \[Unreleased\]/ { skip = 1; next }
+    /^## \[/             { skip = 0 }
+    !skip
+  ' CHANGELOG.md > "$stripped"
 
   {
     # Keep header
-    sed -n '1,/^## \[/p' CHANGELOG.md | sed '$d'
+    sed -n '1,/^## \[/p' "$stripped" | sed '$d'
 
-    # Add new version
+    # Add new version. The body is normalized so exactly one blank line
+    # separates it from the next version heading, whether it came from the
+    # commit log or from a hand-written [Unreleased] section.
     echo "## [${new_version}] - ${date}"
     echo ""
-    echo "$changelog_content"
+    echo "$changelog_content" | trim_blank_lines
+    echo ""
 
     # Keep rest of changelog
-    sed -n '/^## \[/,$p' CHANGELOG.md
+    sed -n '/^## \[/,$p' "$stripped"
   } > "$temp_file"
 
   mv "$temp_file" CHANGELOG.md
+  rm -f "$stripped"
   success "Updated CHANGELOG.md"
 }
 
@@ -450,6 +486,17 @@ main() {
     changelog_content="### 🔄 Changed
 
 - Minor updates and improvements"
+  fi
+
+  # A hand-written [Unreleased] section is curated by a human and wins over the
+  # commit-derived list, which would otherwise duplicate the same entries.
+  local unreleased_content
+  unreleased_content=$(extract_unreleased)
+  if [[ -n $unreleased_content ]]; then
+    warn "Found a hand-written [Unreleased] section; using it instead of the generated changelog."
+    info "Generated from commits (for reference only):"
+    echo "$changelog_content"
+    changelog_content=$unreleased_content
   fi
 
   echo ""
