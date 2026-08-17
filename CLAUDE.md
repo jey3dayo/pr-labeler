@@ -88,7 +88,7 @@ pnpm build       # ビルド成功確認
 3. GitHub Actions ワークフローの完了を待機
 4. 重要: すべてのCIチェックが成功するまで待つ
    - ✅ Code Quality
-   - ✅ Integration Tests (Node 20, 22)
+   - ✅ Integration Tests (Node 22)
    - ✅ Documentation Quality（Markdown変更時）
    - ✅ PR Metrics Self-Check
    - ✅ Quality Gate

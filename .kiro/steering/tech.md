@@ -114,16 +114,16 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ### Node.js
 
-- **Required Version**: >=20
+- **Required Version**: >=22
 - **Runtime Environment**: GitHub Actions Ubuntu runner
 - **Module Resolution**: Node16 (package.json "type": "module" 非対応、CommonJS形式)
 
 ### Package Manager
 
-- **Tool**: pnpm 10.23.0
+- **Tool**: pnpm 11.22.0
 - **Lock File**: `pnpm-lock.yaml`
 - **Workspaces**: 非使用（単一パッケージ）
-- 2024-11: packageManagerフィールドでpnpm 10.23.0を固定し、postinstallでi18n型生成スクリプトを走らせる
+- 2026-08: packageManagerフィールドでpnpm 11.22.0を固定し、postinstallでi18n型生成スクリプトを走らせる
 
 ## Core Dependencies
 
@@ -204,8 +204,8 @@ GitHub Event (PR) → Action Runner → dist/index.js
 
 ### Required Tools
 
-1. Node.js: v20以上（LTS推奨）
-2. pnpm: 10.19.0（`packageManager`フィールドで固定、postinstallでi18n型を再生成）
+1. Node.js: v22以上（LTS推奨）
+2. pnpm: 11.22.0（`packageManager`フィールドで固定、postinstallでi18n型を再生成）
 3. Git: バージョン管理
 
 ### Optional Tools

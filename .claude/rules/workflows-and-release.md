@@ -11,7 +11,7 @@ paths: .github/workflows/**, action.yml, docs/ja/release-process.md, .claude/com
 ## PR/ブランチ運用
 
 - 実装後は `pnpm lint && pnpm type-check && pnpm test && pnpm build` をローカルで成功させてからプッシュする。
-- すべてのCIチェック（Code Quality, Integration Tests Node20/22, Documentation Quality, PR Metrics Self-Check, Quality Gate）が通るまでマージしない。
+- すべてのCIチェック（Code Quality, Integration Tests Node22, Documentation Quality, PR Metrics Self-Check, Quality Gate）が通るまでマージしない。
 - PRはテンプレートに従い、変更内容を要約する。レビュー承認を取得してからマージする。
 
 ## リリース
