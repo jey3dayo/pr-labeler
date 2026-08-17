@@ -1,6 +1,5 @@
 # 🔧 Configuration Guide
 
-**Last Updated**: 2025-11-30
 **Audience**: Users, Developers
 **Tags**: `category/action`, `audience/user`, `audience/developer`
 

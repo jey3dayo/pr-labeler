@@ -1,6 +1,5 @@
 # 🌐 エラーファクトリーi18n移行ガイド
 
-**最終更新**: 2025-11-30
 **対象**: 開発者
 **タグ**: `category/development`, `audience/developer`
 

@@ -1,6 +1,5 @@
 # 🐛 Troubleshooting Guide
 
-**Last Updated**: 2025-11-30
 **Audience**: Users, Developers
 **Tags**: `category/operations`, `audience/user`, `audience/developer`
 

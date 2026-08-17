@@ -1,5 +1,8 @@
 # Documentation Index
 
+**対象**: 利用者・メンテナー
+**タグ**: `category/documentation`, `audience/user`, `audience/maintainer`
+
 This index organizes project documentation by audience (Users / Maintainers). Each entry links to every language the document exists in.
 
 ## For Users

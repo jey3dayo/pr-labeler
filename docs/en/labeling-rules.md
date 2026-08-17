@@ -1,6 +1,5 @@
 # 🏷️ Labeling Rules Quick Reference
 
-**Last Updated**: 2025-11-30
 **Audience**: Developers, Contributors
 **Tags**: `category/documentation`, `audience/developer`, `audience/contributor`
 

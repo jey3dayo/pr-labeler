@@ -1,6 +1,5 @@
 # 🏷️ ラベルルール クイックリファレンス
 
-**最終更新**: 2025-11-30
 **対象**: 開発者・コントリビューター
 **タグ**: `category/documentation`, `audience/developer`, `audience/contributor`
 

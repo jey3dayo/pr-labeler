@@ -1,6 +1,5 @@
 # 🚢 リリース手順
 
-**最終更新**: 2025-11-30
 **対象**: メンテナー
 **タグ**: `category/deployment`, `audience/maintainer`
 

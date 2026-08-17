@@ -1,6 +1,5 @@
 # 🛒 GitHub Actions Marketplace リリースガイド
 
-**最終更新**: 2025-11-30
 **対象**: メンテナー・リリース担当
 **タグ**: `category/deployment`, `audience/maintainer`, `environment/production`
 
