@@ -1,6 +1,5 @@
 # 🚀 Advanced Usage Guide
 
-**Last Updated**: 2025-11-30
 **Audience**: Developers, Maintainers
 **Tags**: `category/action`, `audience/developer`, `audience/user`
 

@@ -1,6 +1,5 @@
 # 🚀 高度な使用例ガイド
 
-**最終更新**: 2025-11-30
 **対象**: 開発者・メンテナー
 **タグ**: `category/action`, `audience/developer`, `audience/user`
 

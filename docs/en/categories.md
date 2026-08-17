@@ -1,6 +1,5 @@
 # 🏷️ Category Labels
 
-**Last Updated**: 2025-11-30
 **Audience**: Developers, Maintainers
 **Tags**: `category/documentation`, `audience/developer`, `audience/maintainer`
 

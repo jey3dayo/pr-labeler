@@ -1,6 +1,5 @@
 # 📘 API仕様書
 
-**最終更新**: 2025-11-30
 **対象**: 開発者
 **タグ**: `category/api`, `audience/developer`, `environment/development`
 
