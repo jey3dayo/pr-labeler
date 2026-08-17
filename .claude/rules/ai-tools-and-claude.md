@@ -1,17 +1,16 @@
 ---
-paths: .claude/**, CLAUDE.md, AGENTS.md, .kiro/**
+paths: .claude/**, CLAUDE.md, AGENTS.md
 ---
 
 # AI Tools & Claude Rules
 
 ## 目的と範囲
 
-- Claude Code/cc-sddの利用手順と挙動ルールを明確化し、コンテキスト消費を最適化する。
+- Claude Code の利用手順と挙動ルールを明確化し、コンテキスト消費を最適化する。
 
 ## 基本姿勢
 
-- 思考は英語、出力は日本語（CLAUDE.mdの方針）。spec-drivenの3フェーズ（requirements→design→tasks→implementation）を遵守する。
-- `.kiro/specs/`のActive specを確認し、`/kiro:spec-status`で進捗を照合する。
+- 思考は英語、出力は日本語（CLAUDE.mdの方針）。
 
 ## ルールファイルのスコープ
 
