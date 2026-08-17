@@ -5,17 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.11.4] - 2026-08-17
 
 ### 📝 Documentation
 
 - restructure the documentation index by audience (Users / Maintainers) and document the canonical language policy (#135)
 - add `llms.txt` as a short entry-point index for coding agents (#135)
 - track missing Japanese translations of the user-facing guides in issue #136 instead of inline TODOs (#135)
+- restore the required audience and tag metadata on the documentation index (#138)
+- stop hand-writing last-updated dates and align the documentation metadata rules (#138)
 
 ### 🔄 Changed
 
 - remove the Kiro spec-driven development scaffolding (`.kiro/` and the Kiro slash commands) and rewrite the contributor workflow guidance accordingly (#134)
+
+### 🐛 Fixed
+
+- consume the `[Unreleased]` changelog section when cutting a version, so its entries are no longer stranded below released versions and duplicated (#138)
 
 ## [1.11.3] - 2026-08-17
 
