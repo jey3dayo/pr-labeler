@@ -43,7 +43,7 @@ GitHub Actionプロジェクトの新バージョンリリースを自動化す�
 2. 新しいバージョンを計算
 3. ワーキングディレクトリの状態確認（未コミット変更のチェック）
 
-### 出力例:
+### 出力例
 
 ```
 📊 現在のバージョン: v1.0.1
@@ -62,7 +62,7 @@ pnpm test        # テスト実行
 pnpm build       # ビルド実行
 ```
 
-### いずれか1つでも失敗した場合、リリースを中止します。
+### いずれか1つでも失敗した場合、リリースを中止します
 
 ### Phase 3: ドキュメント更新
 
@@ -74,7 +74,7 @@ pnpm build       # ビルド実行
    - リリース日を自動設定
    - 最近のコミットから変更内容を自動抽出
 
-### CHANGELOG.md 生成ロジック:
+### CHANGELOG.md 生成ロジック
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
@@ -161,7 +161,7 @@ GitHub CLI (`gh`) を使用してリリースを作成。リリースノート�
 **Full Changelog**: https://github.com/OWNER/REPO/compare/vPREV...vCURRENT
 ```
 
-### フォーマットルール:
+### フォーマットルール
 
 - `## 🚀 What's New` は常に使用（変更種別に関わらず）
 - サブセクションは変更がある種別のみ表示（空セクションは省略）
@@ -184,7 +184,7 @@ gh release edit vX \
   --notes "最新のvX.Y.Zを指すフローティングタグの説明"
 ```
 
-### vX Release の内容:
+### vX Release の内容
 
 - 現在のバージョン番号（vX.Y.Z）
 - 最新リリースの変更内容概要
@@ -226,7 +226,7 @@ For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler
 **Full Changelog**: https://github.com/jey3dayo/pr-insights-labeler/compare/vPREV...vCURRENT
 ```
 
-### なぜ必要か:
+### なぜ必要か
 
 - ユーザーが `@v1` タグを使用している場合、最新のv1.xが自動適用される
 - v1 Releaseページが古いバージョンを指していると混乱を招く
@@ -247,7 +247,7 @@ For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler
 2. すべてのチェックが成功したら再実行してください
 ```
 
-### 実行内容:
+### 実行内容
 
 - 何も変更せずに終了
 - ワーキングディレクトリは元の状態を維持
@@ -266,7 +266,7 @@ For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler
    /release patch --next
 ```
 
-### 実行内容:
+### 実行内容
 
 - コミットはロールバック
 - package.json, CHANGELOG.md は元に戻す
@@ -302,7 +302,7 @@ For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler
 /release patch --dry-run
 ```
 
-### 出力例:
+### 出力例
 
 ```
 🔍 ドライランモード（実際には変更しません）
@@ -325,7 +325,7 @@ For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler
 /release minor --no-push
 ```
 
-### 実行内容:
+### 実行内容
 
 - ✅ リリース前チェック
 - ✅ ドキュメント更新
@@ -333,7 +333,7 @@ For detailed release notes, see: https://github.com/jey3dayo/pr-insights-labeler
 - ✅ タグ作成
 - ⏸️ プッシュはスキップ
 
-### 手動プッシュ:
+### 手動プッシュ
 
 ```bash
 git push origin main
@@ -349,7 +349,7 @@ gh release create vX.Y.Z
 /release patch --skip-checks
 ```
 
-### 警告:
+### 警告
 
 ```
 ⚠️ リリース前チェックをスキップします
@@ -364,7 +364,7 @@ gh release create vX.Y.Z
 /release patch --force
 ```
 
-### 動作:
+### 動作
 
 - 既存の vX.Y.Z タグを削除
 - 新しいタグを作成
@@ -571,7 +571,7 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
 
 あなたは `/release` コマンドを実行しています。
 
-### 手順:
+### 手順
 
 1. 現状確認
    - 現在のバージョンを確認
@@ -653,11 +653,13 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    ```
 
    テスト数の取得:
+
    ```bash
    pnpm vitest run 2>&1 | grep "Tests " | grep -oP '\d+ passed'
    ```
 
    Contributorsの取得:
+
    ```bash
    git shortlog -s -n vPREV..HEAD | awk '{$1=""; name=substr($0,2); print "- " name " (@jey3dayo)"}'
    ```
@@ -671,7 +673,8 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
      --notes "..."
    ```
 
-   ### 生成する内容（標準フォーマット）:
+   ### 生成する内容（標準フォーマット）
+
    ```
    # Latest v1.x Release
 
@@ -701,7 +704,8 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    - [vX.Y.Z-1](URL) - YYYY-MM-DD
    - [vX.Y.Z-2](URL) - YYYY-MM-DD
 
-   **Full Changelog**: https://github.com/jey3dayo/pr-insights-labeler/compare/vPREV...vCURRENT
+   **Full Changelog**: <https://github.com/jey3dayo/pr-insights-labeler/compare/vPREV...vCURRENT>
+
    ```
 
 10. 完了報告
@@ -720,6 +724,6 @@ gh release create v1.0.2 --title "v1.0.2" --notes "..."
    2. ユーザーへのアナウンス
    ```
 
-### エラーハンドリング:
+### エラーハンドリング
 
 各ステップで失敗した場合、適切にロールバックし、ユーザーに対処方法を提示してください。

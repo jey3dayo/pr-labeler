@@ -80,7 +80,7 @@ PRに自動適用されるラベルは次のように表示されます（GitHub
 
 ### 3. カスタマイズ（オプション）
 
-### ワークフローサンプル:
+### ワークフローサンプル
 
 - [basic.yml](examples/workflows/basic.yml) - デフォルト設定
 - [advanced.yml](examples/workflows/advanced.yml) - オプション機能付き
