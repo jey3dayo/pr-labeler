@@ -427,7 +427,7 @@ The following files are automatically excluded from analysis:
 - **Test coverage**: `coverage/**`, `.nyc_output/**`
 - **IDE/Editor**: `.vscode/**`, `.idea/**`
 - **Spec-driven metadata**: `.claude/**`, `.codex/**`, `.kiro/**`
-- **Documentation**: `docs/**`, `documentation/**`
+- **Documentation**: `docs/**`, `documentation/**`, `CHANGELOG.md`, `TODO.md`, `todo.txt`, `done.txt`
 
 **Complete list**: See [default-excludes.ts](../../src/configs/default-excludes.ts) for the full default exclude patterns.
 
