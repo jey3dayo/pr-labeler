@@ -94,9 +94,23 @@ Here are some ways to reduce your PR size:
 - Organize files by layer (utils, services, components)
 
 #### 📄 Handling Generated/Lock Files
-- Exclude lock files (package-lock.json, yarn.lock) in \`.github/pr-labeler.yml\`
+- Exclude lock files (package-lock.json, yarn.lock) from analysis with the \`additional_exclude_patterns\` input
 - Manage build artifacts (dist/, build/) with \`.gitignore\`
 - Consider updating auto-generated code in separate PRs
+
+#### ⚙️ Excluding Files from Analysis
+If generated or non-reviewable files are causing the limit violations, you can exclude them from analysis with the \`additional_exclude_patterns\` workflow input:
+
+\`\`\`yaml
+- uses: jey3dayo/pr-insights-labeler@v1
+  with:
+    additional_exclude_patterns: |
+      **/*.generated.ts
+      **/*.lock
+      coverage/**
+\`\`\`
+
+Default exclude patterns (node_modules, dist, etc.) are applied when \`use_default_excludes: "true"\` (the default).
 
 </details>
 
@@ -205,9 +219,23 @@ PRサイズを削減する方法をいくつか紹介します：
 - レイヤー別にファイルを整理（utils、services、components）
 
 #### 📄 生成ファイル/ロックファイルの扱い
-- \`.github/pr-labeler.yml\`でロックファイル（package-lock.json、yarn.lock）を除外
+- ロックファイル（package-lock.json、yarn.lock）は\`additional_exclude_patterns\`入力で分析対象から除外
 - \`.gitignore\`でビルド成果物（dist/、build/）を管理
 - 自動生成コードの更新は別PRで行うことを検討
+
+#### ⚙️ 分析対象からの除外設定
+自動生成ファイルなどレビュー対象外のファイルが制限超過の原因の場合は、ワークフローの\`additional_exclude_patterns\`入力で分析対象から除外できます：
+
+\`\`\`yaml
+- uses: jey3dayo/pr-insights-labeler@v1
+  with:
+    additional_exclude_patterns: |
+      **/*.generated.ts
+      **/*.lock
+      coverage/**
+\`\`\`
+
+デフォルトの除外パターン（node_modules、dist など）は\`use_default_excludes: "true"\`（既定値）で適用されます。
 
 </details>
 
