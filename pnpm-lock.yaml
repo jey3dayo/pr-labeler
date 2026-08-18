@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  undici: '>=6.27.0'
+  undici: '>=6.27.0 <7'
   picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
   brace-expansion@<1.1.18: '>=1.1.18 <2'
 
@@ -2545,9 +2545,9 @@ packages:
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
-  undici@8.10.0:
-    resolution: {integrity: sha512-HvltHd7avK13QIw/oLe4qoOLyoVSoafqJ2jYOrtMRBkbYT31eiBQ8O0ehRKZiEZCMEyLFQNIADpgCWC5fALvYQ==}
-    engines: {node: '>=22.19.0'}
+  undici@6.28.0:
+    resolution: {integrity: sha512-LIY910g9TI13YS95lrMFrs8Rm/u/irgHeTWoKCoteeJ04CUJ92eEfj0rVn+7VKMPBpUPiUoBKfhNyLI23EE/KA==}
+    engines: {node: '>=18.17'}
 
   universal-user-agent@7.0.3:
     resolution: {integrity: sha512-TmnEAEAsBJVZM/AADELsK76llnwcf9vMKuPz8JflO1frO8Lchitr0fNaN9d+Ap0BjKtqWqd/J17qeDnXh8CL2A==}
@@ -2716,17 +2716,17 @@ snapshots:
       '@octokit/plugin-rest-endpoint-methods': 17.0.0(@octokit/core@7.0.6)
       '@octokit/request': 10.0.7
       '@octokit/request-error': 7.1.0
-      undici: 8.10.0
+      undici: 6.28.0
 
   '@actions/http-client@3.0.2':
     dependencies:
       tunnel: 0.0.6
-      undici: 8.10.0
+      undici: 6.28.0
 
   '@actions/http-client@4.0.0':
     dependencies:
       tunnel: 0.0.6
-      undici: 8.10.0
+      undici: 6.28.0
 
   '@actions/io@3.0.2': {}
 
@@ -5112,7 +5112,7 @@ snapshots:
 
   undici-types@8.3.0: {}
 
-  undici@8.10.0: {}
+  undici@6.28.0: {}
 
   universal-user-agent@7.0.3: {}
 
