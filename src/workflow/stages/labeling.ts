@@ -207,6 +207,7 @@ export function applyLabelsStage(
             { owner: prContext.owner, repo: prContext.repo, pullNumber: prContext.pullNumber },
             decisions,
             labelerConfig.labels,
+            [config.largeFilesLabel, config.tooManyFilesLabel, config.tooManyLinesLabel, config.excessiveChangesLabel],
           );
 
           if (applyResult.isErr()) {

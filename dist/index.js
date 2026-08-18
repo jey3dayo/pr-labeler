@@ -283906,10 +283906,10 @@ async function tryAddLabel(octokit, context, label, result) {
 
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY_MS = 1000;
-function applyLabels(token, context, decisions, config) {
+function applyLabels(token, context, decisions, config, managedLabels) {
     const octokit = getOctokit(token);
     return label_applicator_getCurrentLabels(octokit, context).andThen(currentLabels => {
-        const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies);
+        const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies, managedLabels);
         info(`Label diff: +${diff.toAdd.length} labels, -${diff.toRemove.length} labels`);
         const apiCalls = 1;
         return applyLabelChanges(octokit, context, diff, config.create_missing).map(result => ({
@@ -283929,7 +283929,7 @@ function label_applicator_getCurrentLabels(octokit, context) {
         return factories_createGitHubAPIError(`Failed to get current labels: ${helpers_ensureError(error).message}`, extractErrorStatus(error));
     }).map(response => response.data.map(label => label.name));
 }
-function calculateLabelDiff(decisions, currentLabels, policies) {
+function calculateLabelDiff(decisions, currentLabels, policies, managedLabels = []) {
     const toAdd = [];
     const toRemove = [];
     for (const label of decisions.labelsToAdd) {
@@ -283953,7 +283953,8 @@ function calculateLabelDiff(decisions, currentLabels, policies) {
         }
     }
     for (const currentLabel of currentLabels) {
-        if (currentLabel.startsWith(label_defaults_AUTO_LABEL_PREFIX) && !decisions.labelsToAdd.includes(currentLabel)) {
+        const isManaged = currentLabel.startsWith(label_defaults_AUTO_LABEL_PREFIX) || managedLabels.includes(currentLabel);
+        if (isManaged && !decisions.labelsToAdd.includes(currentLabel)) {
             if (!toRemove.includes(currentLabel)) {
                 toRemove.push(currentLabel);
             }
@@ -284481,7 +284482,7 @@ function applyLabelsStage(context, artifacts) {
             }
             else {
                 logInfoI18n('labels.applying');
-                const applyResult = await applyLabels(token, { owner: prContext.owner, repo: prContext.repo, pullNumber: prContext.pullNumber }, decisions, labelerConfig.labels);
+                const applyResult = await applyLabels(token, { owner: prContext.owner, repo: prContext.repo, pullNumber: prContext.pullNumber }, decisions, labelerConfig.labels, [config.largeFilesLabel, config.tooManyFilesLabel, config.tooManyLinesLabel, config.excessiveChangesLabel]);
                 if (applyResult.isErr()) {
                     if (applyResult.error.status === 403) {
                         logWarningI18n('labels.skipped');
