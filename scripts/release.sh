@@ -10,7 +10,11 @@ cleanup_temp_files() {
     rm -f "${TEMP_FILES[@]}"
   fi
 }
-trap cleanup_temp_files EXIT INT TERM
+# Only EXIT cleans up: a bare INT/TERM handler would run and then let the
+# script carry on to commit, tag, push and publish the release.
+trap cleanup_temp_files EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 # Sets TEMP_FILE_RESULT instead of echoing: a command substitution would run
 # this in a subshell, so the TEMP_FILES registration would never reach the trap.
@@ -283,7 +287,42 @@ merge_changelog() {
       sub(/^[[:space:]]*-[[:space:]]*/, "", t)
       return t
     }
-    FNR == 1 { file_index++ }
+    # heading == "" holds content written before the first "###" subheading.
+    function emit(heading, is_preamble,   body, n, lines, j, line, pr, is_bullet, prev_is_bullet) {
+      body = hand[heading]
+      n = split(gen[heading], lines, "\n")
+      for (j = 1; j <= n; j++) {
+        line = lines[j]
+        if (line == "") continue
+        if (match(line, /\(#[0-9]+\)/)) {
+          pr = substr(line, RSTART, RLENGTH)
+          if (pr in hand_pr) continue
+        }
+        # Exact key match only: a substring test would drop a generated entry
+        # merely quoted inside a longer hand-written line.
+        if (bullet_key(line) in hand_key) continue
+        body = body line "\n"
+      }
+      if (body == "") return
+      if (!is_preamble) {
+        print heading
+        print ""
+      }
+      # Blank lines were stripped while parsing, so restore the one markdown
+      # requires between prose and an adjacent list.
+      n = split(body, lines, "\n")
+      prev_is_bullet = -1
+      for (j = 1; j <= n; j++) {
+        line = lines[j]
+        if (line == "") continue
+        is_bullet = (line ~ /^[[:space:]]*-[[:space:]]/)
+        if (prev_is_bullet != -1 && is_bullet != prev_is_bullet) print ""
+        print line
+        prev_is_bullet = is_bullet
+      }
+      print ""
+    }
+    FNR == 1 { file_index++; heading = "" }
     /^###/ {
       heading = $0
       if (!(heading in seen_heading)) {
@@ -296,35 +335,15 @@ merge_changelog() {
     {
       if (file_index == 1) {
         hand[heading] = hand[heading] $0 "\n"
-        hand_all = hand_all $0 "\n"
+        hand_key[bullet_key($0)] = 1
+        if (match($0, /\(#[0-9]+\)/)) hand_pr[substr($0, RSTART, RLENGTH)] = 1
       } else {
         gen[heading] = gen[heading] $0 "\n"
       }
     }
     END {
-      for (i = 1; i <= heading_count; i++) {
-        heading = order[i]
-        body = hand[heading]
-
-        # Keep only generated entries the hand-written text does not cover.
-        n = split(gen[heading], lines, "\n")
-        for (j = 1; j <= n; j++) {
-          line = lines[j]
-          if (line == "") continue
-          if (match(line, /\(#[0-9]+\)/)) {
-            pr = substr(line, RSTART, RLENGTH)
-            if (index(hand_all, pr) > 0) continue
-          }
-          if (index(hand_all, bullet_key(line)) > 0) continue
-          body = body line "\n"
-        }
-
-        if (body == "") continue
-        print heading
-        print ""
-        printf "%s", body
-        print ""
-      }
+      emit("", 1)
+      for (i = 1; i <= heading_count; i++) emit(order[i], 0)
     }
   ' "$1" "$2"
 }
