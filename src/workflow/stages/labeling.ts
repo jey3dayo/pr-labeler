@@ -185,7 +185,12 @@ export function applyLabelsStage(
 
       await enrichContextWithCIStatus(octokit, prContext, labelerConfig, extendedPRContext);
 
-      const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext);
+      const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext, {
+        largeFiles: config.largeFilesLabel,
+        tooManyFiles: config.tooManyFilesLabel,
+        tooManyLines: config.tooManyLinesLabel,
+        excessiveChanges: config.excessiveChangesLabel,
+      });
       if (labelerDecisions.isOk()) {
         const decisions = labelerDecisions.value;
         logInfoI18n('labels.labelsToAdd', { labels: decisions.labelsToAdd.join(', ') || 'none' });

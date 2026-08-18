@@ -284158,7 +284158,7 @@ function getRiskAffectedFiles(files, config) {
 
 
 
-function decideLabels(metrics, config, violations, prContext) {
+function decideLabels(metrics, config, violations, prContext, violationLabels) {
     const reasoning = [];
     const labelsToAdd = [];
     if (config.size.enabled) {
@@ -284212,9 +284212,9 @@ function decideLabels(metrics, config, violations, prContext) {
             });
         }
     }
-    const violationLabels = decideViolationLabels(violations);
-    labelsToAdd.push(...violationLabels.labels);
-    reasoning.push(...violationLabels.reasoning);
+    const violationLabelsResult = decideViolationLabels(violations, violationLabels);
+    labelsToAdd.push(...violationLabelsResult.labels);
+    reasoning.push(...violationLabelsResult.reasoning);
     const labelsToRemove = determineLabelsToRemove(labelsToAdd, config.labels.namespace_policies);
     return (0,index_cjs.ok)({
         labelsToAdd,
@@ -284283,40 +284283,44 @@ function determineLabelsToRemove(labelsToAdd, policies) {
     }
     return Array.from(namespacesToReplace);
 }
-function decideViolationLabels(violations) {
+function decideViolationLabels(violations, violationLabels) {
     const labels = [];
     const reasoning = [];
+    const largeFilesLabel = violationLabels?.largeFiles || label_defaults_VIOLATION_LABELS.largeFiles;
+    const tooManyLinesLabel = violationLabels?.tooManyLines || label_defaults_VIOLATION_LABELS.tooManyLines;
+    const excessiveChangesLabel = violationLabels?.excessiveChanges || label_defaults_VIOLATION_LABELS.excessiveChanges;
+    const tooManyFilesLabel = violationLabels?.tooManyFiles || label_defaults_VIOLATION_LABELS.tooManyFiles;
     if (violations.largeFiles.length > 0) {
-        labels.push(label_defaults_VIOLATION_LABELS.largeFiles);
+        labels.push(largeFilesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.largeFiles,
+            label: largeFilesLabel,
             reason: i18n_t('labels', 'reasoning.largeFiles', { count: violations.largeFiles.length }),
             category: 'violation',
             matchedFiles: violations.largeFiles.map(v => v.file),
         });
     }
     if (violations.exceedsFileLines.length > 0) {
-        labels.push(label_defaults_VIOLATION_LABELS.tooManyLines);
+        labels.push(tooManyLinesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.tooManyLines,
+            label: tooManyLinesLabel,
             reason: i18n_t('labels', 'reasoning.tooManyLines', { count: violations.exceedsFileLines.length }),
             category: 'violation',
             matchedFiles: violations.exceedsFileLines.map(v => v.file),
         });
     }
     if (violations.exceedsAdditions) {
-        labels.push(label_defaults_VIOLATION_LABELS.excessiveChanges);
+        labels.push(excessiveChangesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.excessiveChanges,
+            label: excessiveChangesLabel,
             reason: i18n_t('labels', 'reasoning.excessiveChanges'),
             category: 'violation',
             matchedFiles: [],
         });
     }
     if (violations.exceedsFileCount) {
-        labels.push(label_defaults_VIOLATION_LABELS.tooManyFiles);
+        labels.push(tooManyFilesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.tooManyFiles,
+            label: tooManyFilesLabel,
             reason: i18n_t('labels', 'reasoning.tooManyFiles'),
             category: 'violation',
             matchedFiles: [],
@@ -284461,7 +284465,12 @@ function applyLabelsStage(context, artifacts) {
             pullNumber: prContext.pullNumber,
         };
         await enrichContextWithCIStatus(octokit, prContext, labelerConfig, extendedPRContext);
-        const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext);
+        const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext, {
+            largeFiles: config.largeFilesLabel,
+            tooManyFiles: config.tooManyFilesLabel,
+            tooManyLines: config.tooManyLinesLabel,
+            excessiveChanges: config.excessiveChangesLabel,
+        });
         if (labelerDecisions.isOk()) {
             const decisions = labelerDecisions.value;
             logInfoI18n('labels.labelsToAdd', { labels: decisions.labelsToAdd.join(', ') || 'none' });
