@@ -809,7 +809,7 @@ describe('ReportFormatter', () => {
       expect(result).toContain('Organize files by layer');
 
       expect(result).toContain('#### 📄 Handling Generated/Lock Files');
-      expect(result).toContain('Exclude lock files');
+      expect(result).toContain('Lock files');
       expect(result).toContain('Manage build artifacts');
       expect(result).toContain('auto-generated code in separate PRs');
     });
