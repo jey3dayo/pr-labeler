@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.5] - 2026-08-18
+
+### 🔒 Security
+
+- read the labeler policy file from the base ref under `pull_request_target`, so fork PRs can no longer rewrite their own labeling policy; docs no longer recommend checking out the PR head (#154)
+- require the metrics comment to be authored by a bot account before updating it, blocking third-party signature spoofing (#148)
+- avoid shell interpolation of commit SHAs in the local git diff by switching to execFile with an argument array (#148)
+- pass `github.event.*` values to the CI file-detection script via environment variables instead of inline expansion (#147)
+- override vulnerable transitive dependencies (undici >=6.27.0 <7, picomatch, brace-expansion): `pnpm audit --prod` now reports 0 vulnerabilities (#151)
+
+### 🐛 Fixed
+
+- wire `use_default_excludes` into the size/line analysis so `"false"` actually disables the default exclude patterns (#146)
+- apply the YAML `exclude.additional` patterns to the size/line analysis, merged with the `additional_exclude_patterns` input (#149)
+- wire the custom violation label inputs (`large_files_label` etc.) into label application and remove them when violations are resolved (#150)
+- count skipped files' additions when the file-count limit truncates analysis (with exclusion patterns applied) and surface the skipped count in the summary (#153)
+- treat a PR with zero labels as a successful fetch instead of a retrieval failure (#149)
+- correct docs claiming complexity labels are enabled by default and fix broken relative links (#147)
+
+### 🔄 Changed
+
+- restructure the improvement-actions and best-practices formatters into declarative section definitions and add exclude-configuration guidance to the summary (#143)
+- reuse a single ESLint instance per complexity analysis run instead of creating one per file (#149)
+- align CI Node versions with the node24 action runtime (setup default 24, integration matrix 22/24) (#152)
+- add lefthook pre-commit/pre-push gates (#144)
+
 ## [1.11.4] - 2026-08-17
 
 ### 📝 Documentation
@@ -502,6 +528,7 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 
 [1.0.1]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.0.1
 [1.0.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.0.0
+[1.11.5]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.5
 [1.11.4]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.4
 [1.11.3]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.3
 [1.11.2]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.2
