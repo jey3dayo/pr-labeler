@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Temp files are registered here so a single trap removes them on every exit
+# path, including `set -e` aborts and interrupts, not just the happy path.
+TEMP_FILES=()
+TEMP_FILE_RESULT=
+cleanup_temp_files() {
+  if [ ${#TEMP_FILES[@]} -gt 0 ]; then
+    rm -f "${TEMP_FILES[@]}"
+  fi
+}
+trap cleanup_temp_files EXIT INT TERM
+
+# Sets TEMP_FILE_RESULT instead of echoing: a command substitution would run
+# this in a subshell, so the TEMP_FILES registration would never reach the trap.
+new_temp_file() {
+  local file
+  file=$(mktemp)
+  TEMP_FILES+=("$file")
+  TEMP_FILE_RESULT=$file
+}
+
 # Helper functions (no colors for compatibility)
 info() { echo "ℹ $1"; }
 success() { echo "✓ $1"; }
@@ -252,6 +272,63 @@ extract_unreleased() {
   ' CHANGELOG.md | trim_blank_lines
 }
 
+# Merge a hand-written [Unreleased] body (file $1) with the commit-derived
+# changelog (file $2), section by section. Generated entries already covered by
+# the hand-written text are dropped; everything else is kept, so commits that
+# nobody wrote up by hand still reach the release notes.
+merge_changelog() {
+  awk '
+    function bullet_key(line,   t) {
+      t = line
+      sub(/^[[:space:]]*-[[:space:]]*/, "", t)
+      return t
+    }
+    FNR == 1 { file_index++ }
+    /^###/ {
+      heading = $0
+      if (!(heading in seen_heading)) {
+        seen_heading[heading] = 1
+        order[++heading_count] = heading
+      }
+      next
+    }
+    /^[[:space:]]*$/ { next }
+    {
+      if (file_index == 1) {
+        hand[heading] = hand[heading] $0 "\n"
+        hand_all = hand_all $0 "\n"
+      } else {
+        gen[heading] = gen[heading] $0 "\n"
+      }
+    }
+    END {
+      for (i = 1; i <= heading_count; i++) {
+        heading = order[i]
+        body = hand[heading]
+
+        # Keep only generated entries the hand-written text does not cover.
+        n = split(gen[heading], lines, "\n")
+        for (j = 1; j <= n; j++) {
+          line = lines[j]
+          if (line == "") continue
+          if (match(line, /\(#[0-9]+\)/)) {
+            pr = substr(line, RSTART, RLENGTH)
+            if (index(hand_all, pr) > 0) continue
+          }
+          if (index(hand_all, bullet_key(line)) > 0) continue
+          body = body line "\n"
+        }
+
+        if (body == "") continue
+        print heading
+        print ""
+        printf "%s", body
+        print ""
+      }
+    }
+  ' "$1" "$2"
+}
+
 update_changelog() {
   local new_version=$1
   local changelog_content=$2
@@ -259,8 +336,8 @@ update_changelog() {
   date=$(date +%Y-%m-%d)
 
   local temp_file stripped
-  temp_file=$(mktemp)
-  stripped=$(mktemp)
+  new_temp_file; temp_file=$TEMP_FILE_RESULT
+  new_temp_file; stripped=$TEMP_FILE_RESULT
 
   # Consume the `## [Unreleased]` section. Its content is folded into the new
   # version section by the caller, so leaving the heading here would strand it
@@ -288,7 +365,6 @@ update_changelog() {
   } > "$temp_file"
 
   mv "$temp_file" CHANGELOG.md
-  rm -f "$stripped"
   success "Updated CHANGELOG.md"
 }
 
@@ -488,15 +564,20 @@ main() {
 - Minor updates and improvements"
   fi
 
-  # A hand-written [Unreleased] section is curated by a human and wins over the
-  # commit-derived list, which would otherwise duplicate the same entries.
+  # A hand-written [Unreleased] section is curated by a human, so its wording
+  # wins, but the commit-derived entries it does not cover are merged in rather
+  # than discarded -- otherwise commits nobody wrote up by hand would silently
+  # vanish from the release notes.
   local unreleased_content
   unreleased_content=$(extract_unreleased)
   if [[ -n $unreleased_content ]]; then
-    warn "Found a hand-written [Unreleased] section; using it instead of the generated changelog."
-    info "Generated from commits (for reference only):"
-    echo "$changelog_content"
-    changelog_content=$unreleased_content
+    info "Merging the hand-written [Unreleased] section with the generated changelog..."
+    local hand_file gen_file
+    new_temp_file; hand_file=$TEMP_FILE_RESULT
+    new_temp_file; gen_file=$TEMP_FILE_RESULT
+    printf '%s\n' "$unreleased_content" > "$hand_file"
+    printf '%s\n' "$changelog_content" > "$gen_file"
+    changelog_content=$(merge_changelog "$hand_file" "$gen_file")
   fi
 
   echo ""
