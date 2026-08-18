@@ -808,9 +808,8 @@ jobs:
       issues: write
       contents: read
     steps:
+      # 設定ファイルをベースリポジトリから読み取るため、デフォルトのチェックアウトを維持する
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: jey3dayo/pr-insights-labeler@v1
         with:

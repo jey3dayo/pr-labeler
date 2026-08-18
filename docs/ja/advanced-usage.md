@@ -30,6 +30,12 @@ PR Insights Labelerの実践的な例と高度な設定です。
 - **緩和策**: このアクションはファイルの読み取りとラベルの適用のみを行い、PRからのコードは実行しません
 - **ベストプラクティス**: ワークフローを承認する前にフォークPRをレビュー
 
+#### PRのheadではなくベースブランチをチェックアウトする
+
+`pull_request_target` では **ベース** ブランチ（`actions/checkout` のデフォルト）をチェックアウトしてください。`github.event.pull_request.head.sha` をチェックアウトすると、ローカルチェックアウトから読み込まれる `.github/directory-labeler.yml`（ディレクトリラベリング設定）をフォークPRが差し替えられるため、ベースリポジトリの書き込み権限で動くワークフローに対してPR側がラベリングポリシーを決められてしまいます。
+
+同じ理由で、イベントが `pull_request_target` の場合、`.github/pr-labeler.yml` はベースの参照（取得できない場合はデフォルトブランチ）から読み込まれます。その結果、`.github/pr-labeler.yml` を変更するフォークPRでは新しい設定はプレビューされず、ベース側の設定が適用されます。通常の `pull_request` イベントでは従来どおり head 側の設定を使うため、同一リポジトリのPRでは設定変更をプレビューできます。
+
 ### 設定例
 
 ```yaml
@@ -49,10 +55,9 @@ jobs:
       contents: read        # ファイル読み取り
 
     steps:
+      # 重要: 設定ファイルをフォークPRではなくベースリポジトリから読み取るため、
+      # デフォルト（ベースブランチ）のチェックアウトを維持する
       - uses: actions/checkout@v4
-        with:
-          # 重要: ベースブランチではなく、PRのコードをチェックアウト
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: jey3dayo/pr-insights-labeler@v1
         with:

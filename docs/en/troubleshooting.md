@@ -83,16 +83,15 @@ jobs:
       contents: read
 
     steps:
+      # Keep the base branch checkout (the default) under pull_request_target
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: jey3dayo/pr-insights-labeler@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-⚠️ **Security Note**: `pull_request_target` runs in the base repository context. Only use when necessary.
+⚠️ **Security Note**: `pull_request_target` runs in the base repository context with write permissions. Only use when necessary, and do not check out `github.event.pull_request.head.sha` — configuration files would then come from the fork PR. See [Fork PR Handling](advanced-usage.md#fork-pr-handling).
 
 #### 3. Repository Settings
 
