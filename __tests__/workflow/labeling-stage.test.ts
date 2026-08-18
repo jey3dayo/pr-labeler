@@ -139,6 +139,7 @@ describe('workflow/stages/labeling', () => {
         ],
         filesExcluded: [],
         filesSkippedBinary: [],
+        filesSkippedByLimit: [],
         filesWithErrors: [],
       },
       violations: {

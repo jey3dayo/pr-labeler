@@ -27,6 +27,7 @@ function createInitialState(files: DiffFile[], config: AnalysisConfig): Internal
         filesExcluded: [],
         filesSkippedBinary: [],
         filesWithErrors: [],
+        filesSkippedByLimit: [],
         allFiles: files.map(f => f.filename),
       },
       violations: {
@@ -162,6 +163,19 @@ export async function analyzeFiles(
   for (let i = 0; i < files.length; i++) {
     if (i >= maxFileCount) {
       logWarning(`Reached max file count limit (${config.maxFileCount}), skipping remaining files`);
+      for (let j = i; j < files.length; j++) {
+        const skippedFile = files[j];
+        if (!skippedFile) {
+          continue;
+        }
+        if (isExcluded(skippedFile.filename, state.excludePatterns)) {
+          state.result.metrics.filesExcluded.push(skippedFile.filename);
+          state.result.metrics.excludedAdditions += skippedFile.additions;
+          continue;
+        }
+        state.result.metrics.filesSkippedByLimit.push(skippedFile.filename);
+        state.result.metrics.totalAdditions += skippedFile.additions;
+      }
       break;
     }
 

@@ -136,6 +136,7 @@ describe('workflow/stages/analysis', () => {
           filesAnalyzed: [{ path: 'src/app.ts', size: 2048, lines: 250, additions: 120, deletions: 20 }],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -206,6 +207,7 @@ describe('workflow/stages/analysis', () => {
           filesAnalyzed: [{ path: 'src/app.ts', size: 100, lines: 10, additions: 10, deletions: 0 }],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -266,6 +268,7 @@ describe('workflow/stages/analysis', () => {
           filesAnalyzed: [{ path: 'src/app.ts', size: 2048, lines: 250, additions: 50, deletions: 10 }],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {

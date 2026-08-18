@@ -92,6 +92,7 @@ describe('ReportFormatter', () => {
         filesAnalyzed: [{} as any, {} as any, {} as any],
         filesExcluded: ['package-lock.json'],
         filesSkippedBinary: ['image.png'],
+        filesSkippedByLimit: [],
         filesWithErrors: [],
       };
 
@@ -112,6 +113,7 @@ describe('ReportFormatter', () => {
         filesAnalyzed: [{} as any],
         filesExcluded: [],
         filesSkippedBinary: [],
+        filesSkippedByLimit: [],
         filesWithErrors: [],
       };
 
@@ -130,6 +132,7 @@ describe('ReportFormatter', () => {
         filesAnalyzed: [],
         filesExcluded: [],
         filesSkippedBinary: [],
+        filesSkippedByLimit: [],
         filesWithErrors: [],
       };
 
@@ -146,6 +149,7 @@ describe('ReportFormatter', () => {
         filesAnalyzed: [{} as any, {} as any],
         filesExcluded: ['lock1', 'lock2', 'lock3'],
         filesSkippedBinary: ['img1.png', 'img2.jpg'],
+        filesSkippedByLimit: [],
         filesWithErrors: [],
       };
 
@@ -163,6 +167,7 @@ describe('ReportFormatter', () => {
         filesAnalyzed: [{} as any],
         filesExcluded: [],
         filesSkippedBinary: [],
+        filesSkippedByLimit: [],
         filesWithErrors: ['error1.ts', 'error2.ts'],
       };
 
@@ -181,6 +186,7 @@ describe('ReportFormatter', () => {
         filesAnalyzed: [{} as any, {} as any, {} as any, {} as any],
         filesExcluded: ['lock.json'],
         filesSkippedBinary: [],
+        filesSkippedByLimit: [],
         filesWithErrors: [],
       };
 
@@ -199,6 +205,7 @@ describe('ReportFormatter', () => {
         filesAnalyzed: [],
         filesExcluded: [],
         filesSkippedBinary: [],
+        filesSkippedByLimit: [],
         filesWithErrors: [],
       };
 
@@ -991,6 +998,7 @@ describe('ReportFormatter', () => {
           filesAnalyzed: [fileMetrics],
           filesExcluded: ['node_modules/package.json', 'dist/index.js'],
           filesSkippedBinary: ['icon.png', 'logo.svg'],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations,

@@ -685,6 +685,60 @@ describe('FileMetrics', () => {
         expect(result.value.violations.exceedsFileCount).toBe(true);
         // Should still analyze up to maxFileCount
         expect(result.value.metrics.filesAnalyzed.length).toBeLessThanOrEqual(100);
+        // Files beyond the limit are recorded as skipped and their additions still counted
+        expect(result.value.metrics.filesSkippedByLimit).toHaveLength(50);
+        expect(result.value.metrics.filesSkippedByLimit).toContain('src/file149.ts');
+        expect(result.value.metrics.totalAdditions).toBe(1500);
+      }
+    });
+
+    it('should route excluded files in the truncated tail to excludedAdditions, not totalAdditions', async () => {
+      const manyFiles: DiffFile[] = Array.from({ length: 150 }, (_, i) => ({
+        filename: i === 149 ? 'pnpm-lock.lock' : `src/file${i}.ts`,
+        additions: 10,
+        deletions: 5,
+        status: 'modified' as const,
+      }));
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     100 file',
+        stderr: '',
+      });
+
+      const result = await analyzeFiles(manyFiles, config, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        // The excluded tail file must not inflate totalAdditions (49 skipped + 100 analyzed) * 10
+        expect(result.value.metrics.totalAdditions).toBe(1490);
+        expect(result.value.metrics.excludedAdditions).toBe(10);
+        expect(result.value.metrics.filesExcluded).toContain('pnpm-lock.lock');
+        expect(result.value.metrics.filesSkippedByLimit).not.toContain('pnpm-lock.lock');
+        expect(result.value.metrics.filesSkippedByLimit).toHaveLength(49);
+      }
+    });
+
+    it('should leave filesSkippedByLimit empty when file count is within the limit', async () => {
+      const files: DiffFile[] = [
+        { filename: 'src/a.ts', additions: 10, deletions: 0, status: 'modified' },
+        { filename: 'src/b.ts', additions: 20, deletions: 0, status: 'modified' },
+      ];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     10 file',
+        stderr: '',
+      });
+
+      const result = await analyzeFiles(files, config, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.metrics.filesSkippedByLimit).toHaveLength(0);
+        expect(result.value.metrics.totalAdditions).toBe(30);
       }
     });
 

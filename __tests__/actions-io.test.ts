@@ -293,6 +293,7 @@ describe('GitHub Actions I/O', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -330,6 +331,7 @@ describe('GitHub Actions I/O', () => {
           ],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -368,6 +370,7 @@ describe('GitHub Actions I/O', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -403,6 +406,7 @@ describe('GitHub Actions I/O', () => {
           ],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -433,6 +437,7 @@ describe('GitHub Actions I/O', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {

@@ -27,6 +27,8 @@ export interface Metrics {
   filesExcluded: string[];
   filesSkippedBinary: string[];
   filesWithErrors: string[];
+  /** maxFileCount 到達により解析対象から除外されたファイル（totalAdditions には加算済み） */
+  filesSkippedByLimit: string[];
   allFiles: string[]; // カテゴリラベル判定用の全ファイルパス（除外前）
 }
 

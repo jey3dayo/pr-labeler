@@ -428,6 +428,7 @@ describe('LabelManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -485,6 +486,7 @@ describe('LabelManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -543,6 +545,7 @@ describe('LabelManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -592,6 +595,7 @@ describe('LabelManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -649,6 +653,7 @@ describe('LabelManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -690,6 +695,7 @@ describe('LabelManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {

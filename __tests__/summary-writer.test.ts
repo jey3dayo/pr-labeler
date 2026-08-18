@@ -39,6 +39,7 @@ describe('summary-writer', () => {
       ],
       filesExcluded: ['package-lock.json'],
       filesSkippedBinary: [],
+      filesSkippedByLimit: [],
       filesWithErrors: ['src/error.ts'],
     },
     violations: {
