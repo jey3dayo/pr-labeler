@@ -241,21 +241,22 @@ jobs:
 
 Control which label types are applied individually.
 
-### Default: All Labels Enabled
+### Default: Complexity Labels Disabled
 
-By default, all label types (size, complexity, category, risk) are enabled:
+By default, `size`, `category`, and `risk` labels are enabled, while `complexity` labels are disabled:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
-    # All label types enabled by default
+    # size, category, risk labels enabled by default
+    # complexity labels disabled by default (set complexity_enabled: "true" to enable)
 ```
 
 ### Disable Specific Label Types
 
 ```yaml
-# Example 1: Disable complexity labels only
+# Example 1: Explicitly disable complexity labels (matches the default)
 - uses: jey3dayo/pr-insights-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -488,7 +489,7 @@ For `src/api/users.ts`:
 ### See Also
 
 - [Configuration Guide - Directory-Based Labeling](configuration.md#directory-based-labeling)
-- [`.github/directory-labeler.yml.example`](../.github/directory-labeler.yml.example)
+- [`.github/directory-labeler.yml.example`](../../.github/directory-labeler.yml.example)
 
 ## Multi-language Support
 

@@ -241,21 +241,22 @@ jobs:
 
 ラベルタイプを個別に制御します。
 
-### デフォルト: すべてのラベルを有効化
+### デフォルト: 複雑度ラベルのみ無効
 
-デフォルトでは、すべてのラベルタイプ（size、complexity、category、risk）が有効です:
+デフォルトでは、size、category、risk ラベルは有効で、complexity ラベルのみ無効です:
 
 ```yaml
 - uses: jey3dayo/pr-insights-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
-    # すべてのラベルタイプがデフォルトで有効
+    # size、category、risk ラベルはデフォルトで有効
+    # complexity ラベルはデフォルトで無効（有効化するには complexity_enabled: "true" を指定）
 ```
 
 ### 特定のラベルタイプを無効化
 
 ```yaml
-# 例1: 複雑度ラベルのみ無効化
+# 例1: 複雑度ラベルを明示的に無効化（デフォルトと同じ）
 - uses: jey3dayo/pr-insights-labeler@v1
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -303,7 +304,7 @@ jobs:
 
 ## PR Insights Labeler YAML設定
 
-`.github/pr-labeler.yml` でリポジトリ全体のデフォルトを定義します。完全なスキーマとデフォルト値は [Configuration Guide](configuration.md#yaml-config-file) にあるため、ここでは参照を重複させず代表的な項目だけを示します。
+`.github/pr-labeler.yml` でリポジトリ全体のデフォルトを定義します。完全なスキーマとデフォルト値は [Configuration Guide](../en/configuration.md#yaml-config-file) にあるため、ここでは参照を重複させず代表的な項目だけを示します。
 
 ```yaml
 # .github/pr-labeler.yml (例の抜粋)
@@ -333,7 +334,7 @@ runtime:
   fail_on_error: false
 ```
 
-`.github/pr-labeler.yml` がなくてもデフォルト設定ですぐ動作します。詳細情報とカスタムカテゴリの例は [カテゴリガイド](categories.md) を参照してください。
+`.github/pr-labeler.yml` がなくてもデフォルト設定ですぐ動作します。詳細情報とカスタムカテゴリの例は [カテゴリガイド](../en/categories.md) を参照してください。
 
 ## ディレクトリベースのラベリング
 
@@ -487,8 +488,8 @@ rules:
 
 ### 関連情報
 
-- [設定ガイド - ディレクトリベースのラベリング](configuration.md#directory-based-labeling)
-- [`.github/directory-labeler.yml.example`](../.github/directory-labeler.yml.example)
+- [設定ガイド - ディレクトリベースのラベリング](../en/configuration.md#directory-based-labeling)
+- [`.github/directory-labeler.yml.example`](../../.github/directory-labeler.yml.example)
 
 ## 多言語サポート
 
@@ -496,7 +497,7 @@ PR Insights LabelerはGitHub Actions Summary、エラーメッセージ、ログ
 
 ### 言語設定方法
 
-ローカライズの優先順位チェーンは [Configuration Guide](configuration.md#multi-language-support) に記載されています。ワークフローに合うレイヤーを選んで設定してください。
+ローカライズの優先順位チェーンは [Configuration Guide](../en/configuration.md#multi-language-support) に記載されています。ワークフローに合うレイヤーを選んで設定してください。
 
 ```yaml
 # ワークフローごとの明示指定（最優先）
@@ -543,6 +544,6 @@ categories:
 
 ## 関連ドキュメント
 
-- [設定ガイド](configuration.md) - 完全な入力パラメータリファレンス
-- [トラブルシューティングガイド](troubleshooting.md) - よくある問題と解決策
+- [設定ガイド](../en/configuration.md) - 完全な入力パラメータリファレンス
+- [トラブルシューティングガイド](../en/troubleshooting.md) - よくある問題と解決策
 - [メインREADME](../README.md) - クイックスタートと概要

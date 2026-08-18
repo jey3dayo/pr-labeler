@@ -607,5 +607,5 @@ const error = createFileSystemError(path, 'notFound');
 #### さらなるリソース
 
 - [API.md - エラーファクトリーi18n統合](./API.md#-エラーファクトリーの多言語化-i18n-integration)
-- [src/errors/factories.ts](../src/errors/factories.ts) - 実装例
-- [**tests**/error-factories-i18n.test.ts](../__tests__/error-factories-i18n.test.ts) - テスト例
+- [src/errors/factories.ts](../../src/errors/factories.ts) - 実装例
+- [**tests**/error-factories-i18n.test.ts](../../__tests__/error-factories-i18n.test.ts) - テスト例

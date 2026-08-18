@@ -429,7 +429,7 @@ The following files are automatically excluded from analysis:
 - **Spec-driven metadata**: `.claude/**`, `.codex/**`, `.kiro/**`
 - **Documentation**: `docs/**`, `documentation/**`
 
-**Complete list**: See [default-excludes.ts](../src/configs/default-excludes.ts) for the full default exclude patterns.
+**Complete list**: See [default-excludes.ts](../../src/configs/default-excludes.ts) for the full default exclude patterns.
 
 **Note:** You can disable default excludes with `use_default_excludes: "false"` if needed.
 

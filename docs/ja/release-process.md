@@ -51,7 +51,7 @@
 
 ### 詳細
 
-詳細な使用方法とオプションは [.claude/commands/release.md](../.claude/commands/release.md) を参照してください。
+詳細な使用方法とオプションは [.claude/commands/release.md](../../.claude/commands/release.md) を参照してください。
 
 ---
 
@@ -239,7 +239,7 @@ git push origin v1 --force
 
 ### リリースノートのテンプレート
 
-リリースノートは統一されたフォーマットに従ってください。詳細は [.github/RELEASE_TEMPLATE.md](../.github/RELEASE_TEMPLATE.md) を参照してください。
+リリースノートは統一されたフォーマットに従ってください。詳細は [.github/RELEASE_TEMPLATE.md](../../.github/RELEASE_TEMPLATE.md) を参照してください。
 
 ### 標準フォーマット
 
@@ -289,7 +289,7 @@ git push origin v1 --force
 4. 以下の情報を入力：
    - **Tag version**: `v1.0.0`（既存のタグを選択）
    - **Release title**: `v1.0.0`
-   - **Description**: [.github/RELEASE_TEMPLATE.md](../.github/RELEASE_TEMPLATE.md) のフォーマットに従って記述
+   - **Description**: [.github/RELEASE_TEMPLATE.md](../../.github/RELEASE_TEMPLATE.md) のフォーマットに従って記述
 5. 「Publish release」をクリック
 
 ### CLIでの作成（GitHub CLI使用）

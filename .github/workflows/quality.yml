@@ -31,17 +31,23 @@ jobs:
 
       - name: Detect file changes
         id: changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
 
           # PRの場合は base との差分を取得、pushの場合はGitHubコンテキストを使用
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base_ref="${{ github.event.pull_request.base.sha }}"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base_ref="$BASE_SHA"
 
             # フォークPRの場合のフォールバック処理
             if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
-              echo "Base SHA not accessible, trying base branch: ${{ github.event.pull_request.base.ref }}"
-              base_ref="origin/${{ github.event.pull_request.base.ref }}"
+              echo "Base SHA not accessible, trying base branch: $BASE_REF"
+              base_ref="origin/$BASE_REF"
 
               # それでもダメな場合は最終フォールバック
               if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
@@ -53,8 +59,8 @@ jobs:
             changed_files=$(git diff --name-only $base_ref..HEAD)
           else
             # pushの場合はGitHubコンテキストを使用
-            before_sha="${{ github.event.before }}"
-            current_sha="${{ github.sha }}"
+            before_sha="$BEFORE_SHA"
+            current_sha="$CURRENT_SHA"
 
             if [ -z "$before_sha" ] || [ "$before_sha" = "0000000000000000000000000000000000000000" ]; then
               # 初回コミットまたは空の場合は全ファイルを対象
