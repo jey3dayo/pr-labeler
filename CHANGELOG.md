@@ -502,3 +502,18 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 
 [1.0.1]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.0.1
 [1.0.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.0.0
+[1.11.4]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.4
+[1.11.3]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.3
+[1.11.2]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.2
+[1.11.1]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.1
+[1.11.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.0
+[1.10.2]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.10.2
+[1.10.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.10.0
+[1.9.4]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.9.4
+[1.9.3]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.9.3
+[1.8.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.8.0
+[1.7.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.7.0
+[1.6.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.6.0
+[1.5.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.5.0
+[1.4.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.4.0
+[1.1.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.1.0
