@@ -287,17 +287,33 @@ merge_changelog() {
       sub(/^[[:space:]]*-[[:space:]]*/, "", t)
       return t
     }
+    # Collect every PR reference inside a parenthesised group, so "(#1, #2)" and
+    # "(#1) (#2)" both register fully. Bare mentions in prose ("see issue #3")
+    # are ignored on purpose: treating those as references would suppress a real
+    # entry for that number and lose the change.
+    function collect_prs(line, out,   rest, group) {
+      rest = line
+      while (match(rest, /\([^)]*#[0-9]+[^)]*\)/)) {
+        group = substr(rest, RSTART, RLENGTH)
+        rest = substr(rest, RSTART + RLENGTH)
+        while (match(group, /#[0-9]+/)) {
+          out[substr(group, RSTART, RLENGTH)] = 1
+          group = substr(group, RSTART + RLENGTH)
+        }
+      }
+    }
     # heading == "" holds content written before the first "###" subheading.
-    function emit(heading, is_preamble,   body, n, lines, j, line, pr, is_bullet, prev_is_bullet) {
+    function emit(heading, is_preamble,   body, n, lines, j, line, pr, covered, line_prs, is_bullet, prev_is_bullet) {
       body = hand[heading]
       n = split(gen[heading], lines, "\n")
       for (j = 1; j <= n; j++) {
         line = lines[j]
         if (line == "") continue
-        if (match(line, /\(#[0-9]+\)/)) {
-          pr = substr(line, RSTART, RLENGTH)
-          if (pr in hand_pr) continue
-        }
+        delete line_prs
+        collect_prs(line, line_prs)
+        covered = 0
+        for (pr in line_prs) if (pr in hand_pr) covered = 1
+        if (covered) continue
         # Exact key match only: a substring test would drop a generated entry
         # merely quoted inside a longer hand-written line.
         if (bullet_key(line) in hand_key) continue
@@ -336,7 +352,7 @@ merge_changelog() {
       if (file_index == 1) {
         hand[heading] = hand[heading] $0 "\n"
         hand_key[bullet_key($0)] = 1
-        if (match($0, /\(#[0-9]+\)/)) hand_pr[substr($0, RSTART, RLENGTH)] = 1
+        collect_prs($0, hand_pr)
       } else {
         gen[heading] = gen[heading] $0 "\n"
       }
