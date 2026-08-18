@@ -129,7 +129,7 @@ If generated or non-reviewable files are causing the limit violations, you can e
       coverage/**
 \`\`\`
 
-Default exclude patterns (lock files, node_modules, dist, etc.) are applied automatically.
+Default exclude patterns (lock files, node_modules, dist, etc.) are applied when \`use_default_excludes: "true"\` (the default).
 
 </details>
 

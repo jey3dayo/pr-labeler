@@ -25,4 +25,6 @@ export interface AnalysisConfig {
   maxAddedLines: number;
   maxFileCount: number;
   excludePatterns: string[];
+  /** デフォルト除外パターンを適用するか。省略時は true（後方互換） */
+  useDefaultExcludes?: boolean;
 }

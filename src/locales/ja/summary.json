@@ -151,7 +151,7 @@
     "excludeConfig": {
       "title": "分析対象からの除外設定",
       "intro": "自動生成ファイルなどレビュー対象外のファイルが制限超過の原因の場合は、ワークフローの`additional_exclude_patterns`入力で分析対象から除外できます：",
-      "note": "ロックファイルや node_modules、dist などのデフォルト除外パターンは自動的に適用されます。"
+      "note": "ロックファイルや node_modules、dist などのデフォルト除外パターンは`use_default_excludes: \"true\"`（既定値）のとき適用されます。"
     }
   },
   "bestPractices": {

@@ -36,7 +36,10 @@ function createInitialState(files: DiffFile[], config: AnalysisConfig): Internal
         exceedsFileCount: false,
       },
     },
-    excludePatterns: [...getDefaultExcludePatterns(), ...config.excludePatterns],
+    excludePatterns: [
+      ...(config.useDefaultExcludes === false ? [] : getDefaultExcludePatterns()),
+      ...config.excludePatterns,
+    ],
   };
 }
 
