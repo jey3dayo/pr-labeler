@@ -91,7 +91,17 @@ describe('PatternMatcher', () => {
     it('should include spec-driven metadata and documentation patterns', () => {
       const patterns = getDefaultExcludePatterns();
 
-      const metadataPatterns = ['.claude/**', '.codex/**', '.kiro/**', 'docs/**', 'documentation/**'];
+      const metadataPatterns = [
+        '.claude/**',
+        '.codex/**',
+        '.kiro/**',
+        'docs/**',
+        'documentation/**',
+        'CHANGELOG.md',
+        'TODO.md',
+        'todo.txt',
+        'done.txt',
+      ];
 
       metadataPatterns.forEach(pattern => {
         expect(patterns).toContain(pattern);
@@ -166,6 +176,29 @@ describe('PatternMatcher', () => {
       expect(isExcluded('src/index.ts', defaultPatterns)).toBe(false);
       expect(isExcluded('README.md', defaultPatterns)).toBe(false);
       expect(isExcluded('src/components/Button.tsx', defaultPatterns)).toBe(false);
+    });
+
+    it('should exclude fixed-name changelog/todo files by default (root and nested)', () => {
+      const defaultPatterns = getDefaultExcludePatterns();
+
+      // Root-level
+      expect(isExcluded('CHANGELOG.md', defaultPatterns)).toBe(true);
+      expect(isExcluded('TODO.md', defaultPatterns)).toBe(true);
+      expect(isExcluded('todo.txt', defaultPatterns)).toBe(true);
+      expect(isExcluded('done.txt', defaultPatterns)).toBe(true);
+
+      // Nested (matchBase applies to slash-free patterns, so any directory depth matches)
+      expect(isExcluded('packages/a/CHANGELOG.md', defaultPatterns)).toBe(true);
+      expect(isExcluded('docs/TODO.md', defaultPatterns)).toBe(true);
+      expect(isExcluded('notes/todo.txt', defaultPatterns)).toBe(true);
+      expect(isExcluded('notes/done.txt', defaultPatterns)).toBe(true);
+
+      // Other markdown files are NOT excluded by this default (only the fixed names above are).
+      // Note: docs/foo.md is still excluded, but via the separate `docs/**` pattern, not markdown-by-extension.
+      expect(isExcluded('README.md', defaultPatterns)).toBe(false);
+      expect(isExcluded('packages/a/README.md', defaultPatterns)).toBe(false);
+      expect(isExcluded('src/components/Button.mdx', defaultPatterns)).toBe(false);
+      expect(isExcluded('notes/random.md', defaultPatterns)).toBe(false);
     });
 
     it('should work with custom patterns', () => {

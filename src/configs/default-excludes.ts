@@ -101,6 +101,10 @@ export const DEFAULT_EXCLUDE_PATTERNS: string[] = [
   // Documentation
   'docs/**',
   'documentation/**',
+  'CHANGELOG.md',
+  'TODO.md',
+  'todo.txt',
+  'done.txt',
 
   // Generated files
   '*.generated.*',

@@ -429,6 +429,41 @@ describe('FileMetrics', () => {
       }
     });
 
+    it('should exclude markdown files by default but include them when useDefaultExcludes is false', async () => {
+      const files: DiffFile[] = [
+        { filename: 'src/index.ts', additions: 100, deletions: 20, status: 'modified' },
+        { filename: 'CHANGELOG.md', additions: 500, deletions: 100, status: 'modified' },
+      ];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     100 file',
+        stderr: '',
+      });
+
+      const excludedResult = await analyzeFiles(files, { ...config, excludePatterns: [] }, 'token', context);
+
+      expect(excludedResult.isOk()).toBe(true);
+      if (excludedResult.isOk()) {
+        expect(excludedResult.value.metrics.filesExcluded).toContain('CHANGELOG.md');
+        expect(excludedResult.value.metrics.filesAnalyzed).toHaveLength(1);
+      }
+
+      const includedResult = await analyzeFiles(
+        files,
+        { ...config, excludePatterns: [], useDefaultExcludes: false },
+        'token',
+        context,
+      );
+
+      expect(includedResult.isOk()).toBe(true);
+      if (includedResult.isOk()) {
+        expect(includedResult.value.metrics.filesExcluded).not.toContain('CHANGELOG.md');
+        expect(includedResult.value.metrics.filesAnalyzed).toHaveLength(2);
+      }
+    });
+
     it('should apply default exclude patterns when useDefaultExcludes is omitted', async () => {
       const files: DiffFile[] = [
         { filename: 'src/index.ts', additions: 100, deletions: 20, status: 'modified' },
