@@ -506,7 +506,6 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 [1.11.3]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.3
 [1.11.2]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.2
 [1.11.1]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.1
-[1.11.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.0
 [1.10.2]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.10.2
 [1.10.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.10.0
 [1.9.4]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.9.4
