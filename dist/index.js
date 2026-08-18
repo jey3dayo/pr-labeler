@@ -274445,7 +274445,7 @@ function parseComplexityMessage(message) {
 function hasSyntaxError(messages) {
     return messages.some(m => m.fatal === true || m.message.toLowerCase().includes('parsing error'));
 }
-function analyzeFile(filePath, options) {
+function analyzeFile(filePath, options, eslintContext) {
     const opts = mergeAnalysisOptions(options);
     return index_cjs/* ResultAsync */.EN.fromPromise((async () => {
         try {
@@ -274468,11 +274468,17 @@ function analyzeFile(filePath, options) {
                 details: `Failed to stat file ${filePath}: ${helpers_ensureError(error).message}`,
             });
         }
-        const hasTsconfig = hasTsconfigJson();
-        if (!hasTsconfig) {
-            warning('tsconfig.json not found. Using default parser options for complexity analysis.');
+        let eslint;
+        if (eslintContext) {
+            ({ eslint } = eslintContext);
         }
-        const eslint = createESLintInstance(hasTsconfig);
+        else {
+            const hasTsconfig = hasTsconfigJson();
+            if (!hasTsconfig) {
+                warning('tsconfig.json not found. Using default parser options for complexity analysis.');
+            }
+            eslint = createESLintInstance(hasTsconfig);
+        }
         const results = await eslint.lintFiles([filePath]);
         if (!results || results.length === 0) {
             throw createComplexityAnalysisError('analysis_failed', {
@@ -274528,8 +274534,13 @@ function analyzeFiles(filePaths, options) {
         const concurrency = Math.max(1, Math.min(raw, 8));
         const limit = p_limit_default()(concurrency);
         info(`Analyzing ${filePaths.length} files with concurrency ${concurrency}`);
+        const hasTsconfig = hasTsconfigJson();
+        if (!hasTsconfig) {
+            warning('tsconfig.json not found. Using default parser options for complexity analysis.');
+        }
+        const eslint = createESLintInstance(hasTsconfig);
         const promises = filePaths.map(filePath => limit(async () => {
-            const result = await analyzeFile(filePath, opts);
+            const result = await analyzeFile(filePath, opts, { eslint, hasTsconfig });
             if (result.isOk()) {
                 return { status: 'fulfilled', value: result.value };
             }
@@ -274568,7 +274579,6 @@ function analyzeFiles(filePaths, options) {
                 details: `No files could be analyzed. Analyzed: ${successful.length}, Skipped: ${skippedFiles.length}`,
             });
         }
-        const hasTsconfig = hasTsconfigJson();
         const completeMetrics = {
             ...baseMetrics,
             skippedFiles,
@@ -277837,6 +277847,7 @@ function analyzePullRequest(context) {
         const { files, strategy } = diffResult.value;
         logInfoI18n('analysis.retrievedFiles', { count: files.length, strategy });
         logInfoI18n('analysis.analyzingFiles');
+        const excludePatterns = [...new Set([...config.additionalExcludePatterns, ...labelerConfig.exclude.additional])];
         const analysisResult = await analyze_files_analyzeFiles(files, {
             fileSizeLimit: config.fileSizeLimit,
             fileSizeLimitEnabled: config.fileSizeLimitEnabled,
@@ -277846,7 +277857,7 @@ function analyzePullRequest(context) {
             fileCountLimitEnabled: config.prFilesLimitEnabled,
             maxAddedLines: config.prAdditionsLimit,
             maxFileCount: config.prFilesLimit,
-            excludePatterns: config.additionalExcludePatterns,
+            excludePatterns,
             useDefaultExcludes: config.useDefaultExcludes,
         }, token, {
             owner: prContext.owner,
@@ -278123,10 +278134,6 @@ async function getCurrentLabels(token, context) {
     const resultAsync = github_label_utils_fetchCurrentLabels(token, context.owner, context.repo, context.pullNumber);
     return resultAsync;
 }
-async function getCurrentLabelsGraceful(token, context) {
-    const result = await github_label_utils_fetchCurrentLabels(token, context.owner, context.repo, context.pullNumber);
-    return result.match(labels => labels, _error => []);
-}
 
 ;// CONCATENATED MODULE: ./src/label-manager.ts
 
@@ -278172,14 +278179,14 @@ async function label_manager_getCurrentLabels(token, context) {
 }
 async function getCurrentPRLabels(token, context) {
     actions_io_logDebug(`Getting current labels for PR #${context.pullNumber}`);
-    const labels = await getCurrentLabelsGraceful(token, context);
-    if (labels.length > 0) {
-        actions_io_logDebug(`Found ${labels.length} labels: ${labels.join(', ')}`);
-    }
-    else {
+    const result = await getCurrentLabels(token, context);
+    if (result.isErr()) {
         actions_io_logWarning('Failed to get labels (will use violations only)');
+        return undefined;
     }
-    return labels.length > 0 ? labels : undefined;
+    const labels = result.value;
+    actions_io_logDebug(`Found ${labels.length} labels: ${labels.join(', ')}`);
+    return labels;
 }
 async function modifyLabels(labels, token, context, operation) {
     if (labels.length === 0) {

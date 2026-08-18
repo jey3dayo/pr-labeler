@@ -12,7 +12,7 @@ import type { ConfigurationError, GitHubAPIError, Violations } from './errors/in
 import { createConfigurationError, createGitHubAPIError, ensureError } from './errors/index.js';
 import type { AnalysisResult } from './file-metrics';
 import type { PRContext } from './types';
-import { getCurrentLabels as fetchCurrentLabels, getCurrentLabelsGraceful } from './utils/github-label-utils.js';
+import { getCurrentLabels as fetchCurrentLabels } from './utils/github-label-utils.js';
 import { calculateSizeLabel } from './utils/size-label-utils.js';
 
 /**
@@ -124,15 +124,16 @@ export async function getCurrentLabels(token: string, context: PRContext): Promi
 export async function getCurrentPRLabels(token: string, context: PRContext): Promise<string[] | undefined> {
   logDebug(`Getting current labels for PR #${context.pullNumber}`);
 
-  const labels = await getCurrentLabelsGraceful(token, context);
+  const result = await fetchCurrentLabels(token, context);
 
-  if (labels.length > 0) {
-    logDebug(`Found ${labels.length} labels: ${labels.join(', ')}`);
-  } else {
+  if (result.isErr()) {
     logWarning('Failed to get labels (will use violations only)');
+    return undefined;
   }
 
-  return labels.length > 0 ? labels : undefined;
+  const labels = result.value;
+  logDebug(`Found ${labels.length} labels: ${labels.join(', ')}`);
+  return labels;
 }
 
 /**

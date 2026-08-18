@@ -38,6 +38,7 @@ export function analyzePullRequest(context: InitializationArtifacts): ResultAsyn
       logInfoI18n('analysis.retrievedFiles', { count: files.length, strategy });
 
       logInfoI18n('analysis.analyzingFiles');
+      const excludePatterns = [...new Set([...config.additionalExcludePatterns, ...labelerConfig.exclude.additional])];
       const analysisResult = await analyzeFiles(
         files,
         {
@@ -49,7 +50,7 @@ export function analyzePullRequest(context: InitializationArtifacts): ResultAsyn
           fileCountLimitEnabled: config.prFilesLimitEnabled,
           maxAddedLines: config.prAdditionsLimit,
           maxFileCount: config.prFilesLimit,
-          excludePatterns: config.additionalExcludePatterns,
+          excludePatterns,
           useDefaultExcludes: config.useDefaultExcludes,
         },
         token,

@@ -13,6 +13,7 @@ import { initializeI18n, resetI18n } from '../src/i18n.js';
 import {
   addLabels,
   getCurrentLabels,
+  getCurrentPRLabels,
   getDetailLabels,
   LabelConfig,
   removeLabels,
@@ -277,6 +278,34 @@ describe('LabelManager', () => {
       if (result.isErr()) {
         expect(result.error.type).toBe('GitHubAPIError');
       }
+    });
+  });
+
+  describe('getCurrentPRLabels', () => {
+    it('returns an empty array when the PR genuinely has no labels', async () => {
+      mockListLabels.mockResolvedValue({ data: [] });
+
+      const result = await getCurrentPRLabels('token', {
+        owner: 'owner',
+        repo: 'repo',
+        pullNumber: 123,
+      });
+
+      expect(result).toEqual([]);
+      expect(core.warning).not.toHaveBeenCalled();
+    });
+
+    it('returns undefined and warns when label retrieval fails', async () => {
+      mockListLabels.mockRejectedValue(new Error('API error'));
+
+      const result = await getCurrentPRLabels('token', {
+        owner: 'owner',
+        repo: 'repo',
+        pullNumber: 123,
+      });
+
+      expect(result).toBeUndefined();
+      expect(core.warning).toHaveBeenCalled();
     });
   });
 

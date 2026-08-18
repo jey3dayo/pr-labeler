@@ -176,6 +176,62 @@ describe('workflow/stages/analysis', () => {
     expect(complexityAnalyzeMock).toHaveBeenCalled();
   });
 
+  it('merges YAML exclude.additional patterns with the input additionalExcludePatterns', async () => {
+    const context = {
+      ...baseContext,
+      config: {
+        ...baseContext.config,
+        additionalExcludePatterns: ['dist/**', 'shared/**'],
+        complexityEnabled: false,
+      },
+      labelerConfig: {
+        ...baseContext.labelerConfig,
+        exclude: { additional: ['*.generated.ts', 'shared/**'] },
+      },
+    } satisfies InitializationArtifacts;
+
+    getDiffFilesMock.mockResolvedValue(
+      ok({
+        files: [{ filename: 'src/app.ts', status: 'modified' }],
+        strategy: 'comparison',
+      }) as any,
+    );
+
+    analyzeFilesMock.mockResolvedValue(
+      ok({
+        metrics: {
+          totalFiles: 1,
+          totalAdditions: 10,
+          excludedAdditions: 0,
+          filesAnalyzed: [{ path: 'src/app.ts', size: 100, lines: 10, additions: 10, deletions: 0 }],
+          filesExcluded: [],
+          filesSkippedBinary: [],
+          filesWithErrors: [],
+        },
+        violations: {
+          largeFiles: [],
+          exceedsFileLines: [],
+          exceedsAdditions: false,
+          exceedsFileCount: false,
+        },
+      }) as any,
+    );
+
+    const result = await analyzePullRequest(context);
+
+    expect(result.isOk()).toBe(true);
+    expect(analyzeFilesMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        excludePatterns: expect.arrayContaining(['dist/**', 'shared/**', '*.generated.ts']),
+      }),
+      expect.anything(),
+      expect.anything(),
+    );
+    const [, options] = analyzeFilesMock.mock.calls[0] as [unknown, { excludePatterns: string[] }, unknown, unknown];
+    expect(options.excludePatterns).toHaveLength(3);
+  });
+
   it('propagates diff retrieval errors', async () => {
     getDiffFilesMock.mockResolvedValue(err({ type: 'DiffError', message: 'diff failed', source: 'local-git' }) as any);
 
