@@ -1409,8 +1409,8 @@ t('errors', 'myError', { file: 'test.ts', line: 42, message: 'syntax error' });
 ## 📚 関連ドキュメント
 
 - [README.md](../README.md) - 基本的な使用方法
-- [action.yml](../action.yml) - アクション定義
-- [pattern-matcher.ts](../src/pattern-matcher.ts) - デフォルト除外パターン一覧
-- [src/errors/factories.ts](../src/errors/factories.ts) - エラーファクトリー実装
-- [src/locales/](../src/locales/) - 翻訳リソース
-- [**tests**/error-factories-i18n.test.ts](../__tests__/error-factories-i18n.test.ts) - i18nテスト
+- [action.yml](../../action.yml) - アクション定義
+- [pattern-matcher.ts](../../src/pattern-matcher.ts) - デフォルト除外パターン一覧
+- [src/errors/factories.ts](../../src/errors/factories.ts) - エラーファクトリー実装
+- [src/locales/](../../src/locales/) - 翻訳リソース
+- [**tests**/error-factories-i18n.test.ts](../../__tests__/error-factories-i18n.test.ts) - i18nテスト
