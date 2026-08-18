@@ -56,7 +56,8 @@ pre-push:
         - "package.json"
         - "pnpm-lock.yaml"
         - "tsconfig.json"
-      run: pnpm build && git diff --exit-code dist/
+      # porcelain で未追跡ファイルも検出する（git diff は untracked を見ない）
+      run: pnpm build && test -z "$(git status --porcelain -- dist/)"
 
     - name: docs:lint
       glob:
