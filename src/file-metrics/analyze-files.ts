@@ -168,6 +168,11 @@ export async function analyzeFiles(
         if (!skippedFile) {
           continue;
         }
+        if (isExcluded(skippedFile.filename, state.excludePatterns)) {
+          state.result.metrics.filesExcluded.push(skippedFile.filename);
+          state.result.metrics.excludedAdditions += skippedFile.additions;
+          continue;
+        }
         state.result.metrics.filesSkippedByLimit.push(skippedFile.filename);
         state.result.metrics.totalAdditions += skippedFile.additions;
       }
