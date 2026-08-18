@@ -23,6 +23,8 @@ const INITIAL_RETRY_DELAY_MS = 1000;
  * @param context - PR context (owner, repo, pullNumber)
  * @param decisions - Label decisions (labels to add/remove)
  * @param config - Label policy configuration
+ * @param managedLabels - Custom violation label names configured outside the auto/* namespace;
+ *   treated like auto/* labels for stale-label cleanup so a resolved violation's custom label is removed
  * @returns LabelUpdate with applied changes or GitHubAPIError
  */
 export function applyLabels(
@@ -30,13 +32,14 @@ export function applyLabels(
   context: PRContext,
   decisions: LabelDecisions,
   config: LabelPolicyConfig,
+  managedLabels?: readonly string[],
 ): ResultAsync<LabelUpdate, GitHubAPIError> {
   const octokit = github.getOctokit(token);
 
   // Get current labels
   return getCurrentLabels(octokit, context).andThen(currentLabels => {
     // Calculate diff based on namespace policies
-    const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies);
+    const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies, managedLabels);
 
     core.info(`Label diff: +${diff.toAdd.length} labels, -${diff.toRemove.length} labels`);
 
@@ -93,12 +96,14 @@ type LabelDiff = { toAdd: string[]; toRemove: string[] };
  * @param decisions - Label decisions
  * @param currentLabels - Current labels on PR
  * @param policies - Namespace policies
+ * @param managedLabels - Custom violation label names to clean up like auto/* labels when resolved
  * @returns Diff with labels to add and remove
  */
 function calculateLabelDiff(
   decisions: LabelDecisions,
   currentLabels: string[],
   policies: Record<string, 'replace' | 'additive'>,
+  managedLabels: readonly string[] = [],
 ): LabelDiff {
   const toAdd: string[] = [];
   const toRemove: string[] = [];
@@ -129,9 +134,10 @@ function calculateLabelDiff(
     }
   }
 
-  // Remove auto/* labels that are no longer in decisions
+  // Remove auto/* labels and configured custom violation labels that are no longer in decisions
   for (const currentLabel of currentLabels) {
-    if (currentLabel.startsWith(AUTO_LABEL_PREFIX) && !decisions.labelsToAdd.includes(currentLabel)) {
+    const isManaged = currentLabel.startsWith(AUTO_LABEL_PREFIX) || managedLabels.includes(currentLabel);
+    if (isManaged && !decisions.labelsToAdd.includes(currentLabel)) {
       if (!toRemove.includes(currentLabel)) {
         toRemove.push(currentLabel);
       }

@@ -23,6 +23,7 @@ import { calculateSizeLabel } from './utils/size-label-utils.js';
  * @param config - Labeler configuration
  * @param violations - Violations detected during file analysis
  * @param prContext - Optional PR context with CI status and commit messages
+ * @param violationLabels - Custom violation label names (falls back to VIOLATION_LABELS defaults when omitted)
  * @returns LabelDecisions with labels to add/remove and reasoning
  */
 export function decideLabels(
@@ -30,6 +31,7 @@ export function decideLabels(
   config: LabelerConfig,
   violations: Violations,
   prContext?: PRContext,
+  violationLabels?: ViolationLabelNames,
 ): Result<LabelDecisions, never> {
   const reasoning: LabelReasoning[] = [];
   const labelsToAdd: string[] = [];
@@ -97,9 +99,9 @@ export function decideLabels(
   }
 
   // 5. Decide violation labels (if violations exist)
-  const violationLabels = decideViolationLabels(violations);
-  labelsToAdd.push(...violationLabels.labels);
-  reasoning.push(...violationLabels.reasoning);
+  const violationLabelsResult = decideViolationLabels(violations, violationLabels);
+  labelsToAdd.push(...violationLabelsResult.labels);
+  reasoning.push(...violationLabelsResult.reasoning);
 
   // Determine labels to remove based on namespace policies
   const labelsToRemove = determineLabelsToRemove(labelsToAdd, config.labels.namespace_policies);
@@ -239,23 +241,43 @@ function determineLabelsToRemove(labelsToAdd: string[], policies: Record<string,
 }
 
 /**
+ * Custom violation label names (action input `*_label` params)
+ * Falls back to VIOLATION_LABELS.* defaults per-field when a field is omitted.
+ */
+export interface ViolationLabelNames {
+  largeFiles?: string;
+  tooManyFiles?: string;
+  tooManyLines?: string;
+  excessiveChanges?: string;
+}
+
+/**
  * Decide violation labels based on detected violations
  *
  * @param violations - Violations detected during file analysis
+ * @param violationLabels - Custom violation label names (falls back to VIOLATION_LABELS defaults when omitted)
  * @returns Violation labels and reasoning
  */
-export function decideViolationLabels(violations: Violations): {
+export function decideViolationLabels(
+  violations: Violations,
+  violationLabels?: ViolationLabelNames,
+): {
   labels: string[];
   reasoning: LabelReasoning[];
 } {
   const labels: string[] = [];
   const reasoning: LabelReasoning[] = [];
 
+  const largeFilesLabel = violationLabels?.largeFiles || VIOLATION_LABELS.largeFiles;
+  const tooManyLinesLabel = violationLabels?.tooManyLines || VIOLATION_LABELS.tooManyLines;
+  const excessiveChangesLabel = violationLabels?.excessiveChanges || VIOLATION_LABELS.excessiveChanges;
+  const tooManyFilesLabel = violationLabels?.tooManyFiles || VIOLATION_LABELS.tooManyFiles;
+
   // auto/large-files - Individual files too large
   if (violations.largeFiles.length > 0) {
-    labels.push(VIOLATION_LABELS.largeFiles);
+    labels.push(largeFilesLabel);
     reasoning.push({
-      label: VIOLATION_LABELS.largeFiles,
+      label: largeFilesLabel,
       reason: t('labels', 'reasoning.largeFiles', { count: violations.largeFiles.length }),
       category: 'violation',
       matchedFiles: violations.largeFiles.map(v => v.file),
@@ -264,9 +286,9 @@ export function decideViolationLabels(violations: Violations): {
 
   // auto/too-many-lines - Individual files exceed line limits
   if (violations.exceedsFileLines.length > 0) {
-    labels.push(VIOLATION_LABELS.tooManyLines);
+    labels.push(tooManyLinesLabel);
     reasoning.push({
-      label: VIOLATION_LABELS.tooManyLines,
+      label: tooManyLinesLabel,
       reason: t('labels', 'reasoning.tooManyLines', { count: violations.exceedsFileLines.length }),
       category: 'violation',
       matchedFiles: violations.exceedsFileLines.map(v => v.file),
@@ -275,9 +297,9 @@ export function decideViolationLabels(violations: Violations): {
 
   // auto/excessive-changes - Total additions exceed limit
   if (violations.exceedsAdditions) {
-    labels.push(VIOLATION_LABELS.excessiveChanges);
+    labels.push(excessiveChangesLabel);
     reasoning.push({
-      label: VIOLATION_LABELS.excessiveChanges,
+      label: excessiveChangesLabel,
       reason: t('labels', 'reasoning.excessiveChanges'),
       category: 'violation',
       matchedFiles: [],
@@ -286,9 +308,9 @@ export function decideViolationLabels(violations: Violations): {
 
   // auto/too-many-files - Too many files changed
   if (violations.exceedsFileCount) {
-    labels.push(VIOLATION_LABELS.tooManyFiles);
+    labels.push(tooManyFilesLabel);
     reasoning.push({
-      label: VIOLATION_LABELS.tooManyFiles,
+      label: tooManyFilesLabel,
       reason: t('labels', 'reasoning.tooManyFiles'),
       category: 'violation',
       matchedFiles: [],

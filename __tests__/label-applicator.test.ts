@@ -264,5 +264,78 @@ describe('Label Applicator', () => {
       // size/M should be added
       expect(update.added).toContain('size/M');
     });
+
+    it('should remove a custom-named violation label when the violation is resolved', async () => {
+      const mockListLabels = vi.fn().mockResolvedValue({
+        data: [{ name: 'quality/large-files' }, { name: 'wip' }],
+      });
+      const mockAddLabels = vi.fn().mockResolvedValue({});
+      const mockRemoveLabel = vi.fn().mockResolvedValue({});
+
+      const mockOctokit = {
+        rest: {
+          issues: {
+            listLabelsOnIssue: mockListLabels,
+            addLabels: mockAddLabels,
+            removeLabel: mockRemoveLabel,
+          },
+        },
+      };
+
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
+
+      const decisions: LabelDecisions = {
+        labelsToAdd: [],
+        labelsToRemove: [],
+        reasoning: [],
+      };
+
+      const result = await applyLabels('token', mockContext, decisions, DEFAULT_LABELER_CONFIG.labels, [
+        'quality/large-files',
+      ]);
+      expect(result.isOk()).toBe(true);
+
+      const update = result._unsafeUnwrap();
+      // Custom violation label with a resolved violation should be removed
+      expect(update.removed).toContain('quality/large-files');
+      // Unrelated user-applied label should not be touched
+      expect(update.removed).not.toContain('wip');
+      expect(mockRemoveLabel).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not remove a custom-named violation label while the violation is still active', async () => {
+      const mockListLabels = vi.fn().mockResolvedValue({
+        data: [{ name: 'quality/large-files' }],
+      });
+      const mockAddLabels = vi.fn().mockResolvedValue({});
+      const mockRemoveLabel = vi.fn().mockResolvedValue({});
+
+      const mockOctokit = {
+        rest: {
+          issues: {
+            listLabelsOnIssue: mockListLabels,
+            addLabels: mockAddLabels,
+            removeLabel: mockRemoveLabel,
+          },
+        },
+      };
+
+      vi.mocked(github.getOctokit).mockReturnValue(mockOctokit as any);
+
+      const decisions: LabelDecisions = {
+        labelsToAdd: ['quality/large-files'],
+        labelsToRemove: [],
+        reasoning: [],
+      };
+
+      const result = await applyLabels('token', mockContext, decisions, DEFAULT_LABELER_CONFIG.labels, [
+        'quality/large-files',
+      ]);
+      expect(result.isOk()).toBe(true);
+
+      const update = result._unsafeUnwrap();
+      expect(update.removed).not.toContain('quality/large-files');
+      expect(mockRemoveLabel).not.toHaveBeenCalled();
+    });
   });
 });

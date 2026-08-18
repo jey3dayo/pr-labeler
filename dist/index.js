@@ -283906,10 +283906,10 @@ async function tryAddLabel(octokit, context, label, result) {
 
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY_MS = 1000;
-function applyLabels(token, context, decisions, config) {
+function applyLabels(token, context, decisions, config, managedLabels) {
     const octokit = getOctokit(token);
     return label_applicator_getCurrentLabels(octokit, context).andThen(currentLabels => {
-        const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies);
+        const diff = calculateLabelDiff(decisions, currentLabels, config.namespace_policies, managedLabels);
         info(`Label diff: +${diff.toAdd.length} labels, -${diff.toRemove.length} labels`);
         const apiCalls = 1;
         return applyLabelChanges(octokit, context, diff, config.create_missing).map(result => ({
@@ -283929,7 +283929,7 @@ function label_applicator_getCurrentLabels(octokit, context) {
         return factories_createGitHubAPIError(`Failed to get current labels: ${helpers_ensureError(error).message}`, extractErrorStatus(error));
     }).map(response => response.data.map(label => label.name));
 }
-function calculateLabelDiff(decisions, currentLabels, policies) {
+function calculateLabelDiff(decisions, currentLabels, policies, managedLabels = []) {
     const toAdd = [];
     const toRemove = [];
     for (const label of decisions.labelsToAdd) {
@@ -283953,7 +283953,8 @@ function calculateLabelDiff(decisions, currentLabels, policies) {
         }
     }
     for (const currentLabel of currentLabels) {
-        if (currentLabel.startsWith(label_defaults_AUTO_LABEL_PREFIX) && !decisions.labelsToAdd.includes(currentLabel)) {
+        const isManaged = currentLabel.startsWith(label_defaults_AUTO_LABEL_PREFIX) || managedLabels.includes(currentLabel);
+        if (isManaged && !decisions.labelsToAdd.includes(currentLabel)) {
             if (!toRemove.includes(currentLabel)) {
                 toRemove.push(currentLabel);
             }
@@ -284158,7 +284159,7 @@ function getRiskAffectedFiles(files, config) {
 
 
 
-function decideLabels(metrics, config, violations, prContext) {
+function decideLabels(metrics, config, violations, prContext, violationLabels) {
     const reasoning = [];
     const labelsToAdd = [];
     if (config.size.enabled) {
@@ -284212,9 +284213,9 @@ function decideLabels(metrics, config, violations, prContext) {
             });
         }
     }
-    const violationLabels = decideViolationLabels(violations);
-    labelsToAdd.push(...violationLabels.labels);
-    reasoning.push(...violationLabels.reasoning);
+    const violationLabelsResult = decideViolationLabels(violations, violationLabels);
+    labelsToAdd.push(...violationLabelsResult.labels);
+    reasoning.push(...violationLabelsResult.reasoning);
     const labelsToRemove = determineLabelsToRemove(labelsToAdd, config.labels.namespace_policies);
     return (0,index_cjs.ok)({
         labelsToAdd,
@@ -284283,40 +284284,44 @@ function determineLabelsToRemove(labelsToAdd, policies) {
     }
     return Array.from(namespacesToReplace);
 }
-function decideViolationLabels(violations) {
+function decideViolationLabels(violations, violationLabels) {
     const labels = [];
     const reasoning = [];
+    const largeFilesLabel = violationLabels?.largeFiles || label_defaults_VIOLATION_LABELS.largeFiles;
+    const tooManyLinesLabel = violationLabels?.tooManyLines || label_defaults_VIOLATION_LABELS.tooManyLines;
+    const excessiveChangesLabel = violationLabels?.excessiveChanges || label_defaults_VIOLATION_LABELS.excessiveChanges;
+    const tooManyFilesLabel = violationLabels?.tooManyFiles || label_defaults_VIOLATION_LABELS.tooManyFiles;
     if (violations.largeFiles.length > 0) {
-        labels.push(label_defaults_VIOLATION_LABELS.largeFiles);
+        labels.push(largeFilesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.largeFiles,
+            label: largeFilesLabel,
             reason: i18n_t('labels', 'reasoning.largeFiles', { count: violations.largeFiles.length }),
             category: 'violation',
             matchedFiles: violations.largeFiles.map(v => v.file),
         });
     }
     if (violations.exceedsFileLines.length > 0) {
-        labels.push(label_defaults_VIOLATION_LABELS.tooManyLines);
+        labels.push(tooManyLinesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.tooManyLines,
+            label: tooManyLinesLabel,
             reason: i18n_t('labels', 'reasoning.tooManyLines', { count: violations.exceedsFileLines.length }),
             category: 'violation',
             matchedFiles: violations.exceedsFileLines.map(v => v.file),
         });
     }
     if (violations.exceedsAdditions) {
-        labels.push(label_defaults_VIOLATION_LABELS.excessiveChanges);
+        labels.push(excessiveChangesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.excessiveChanges,
+            label: excessiveChangesLabel,
             reason: i18n_t('labels', 'reasoning.excessiveChanges'),
             category: 'violation',
             matchedFiles: [],
         });
     }
     if (violations.exceedsFileCount) {
-        labels.push(label_defaults_VIOLATION_LABELS.tooManyFiles);
+        labels.push(tooManyFilesLabel);
         reasoning.push({
-            label: label_defaults_VIOLATION_LABELS.tooManyFiles,
+            label: tooManyFilesLabel,
             reason: i18n_t('labels', 'reasoning.tooManyFiles'),
             category: 'violation',
             matchedFiles: [],
@@ -284461,7 +284466,12 @@ function applyLabelsStage(context, artifacts) {
             pullNumber: prContext.pullNumber,
         };
         await enrichContextWithCIStatus(octokit, prContext, labelerConfig, extendedPRContext);
-        const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext);
+        const labelerDecisions = decideLabels(prMetrics, labelerConfig, analysis.violations, extendedPRContext, {
+            largeFiles: config.largeFilesLabel,
+            tooManyFiles: config.tooManyFilesLabel,
+            tooManyLines: config.tooManyLinesLabel,
+            excessiveChanges: config.excessiveChangesLabel,
+        });
         if (labelerDecisions.isOk()) {
             const decisions = labelerDecisions.value;
             logInfoI18n('labels.labelsToAdd', { labels: decisions.labelsToAdd.join(', ') || 'none' });
@@ -284472,7 +284482,7 @@ function applyLabelsStage(context, artifacts) {
             }
             else {
                 logInfoI18n('labels.applying');
-                const applyResult = await applyLabels(token, { owner: prContext.owner, repo: prContext.repo, pullNumber: prContext.pullNumber }, decisions, labelerConfig.labels);
+                const applyResult = await applyLabels(token, { owner: prContext.owner, repo: prContext.repo, pullNumber: prContext.pullNumber }, decisions, labelerConfig.labels, [config.largeFilesLabel, config.tooManyFilesLabel, config.tooManyLinesLabel, config.excessiveChangesLabel]);
                 if (applyResult.isErr()) {
                     if (applyResult.error.status === 403) {
                         logWarningI18n('labels.skipped');

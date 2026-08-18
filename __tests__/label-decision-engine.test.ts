@@ -736,6 +736,57 @@ describe('Label Decision Engine', () => {
       expect(riskReasoning?.matchedFiles).toContain('src/core.ts');
       expect(riskReasoning?.matchedFiles).toContain('package.json');
     });
+
+    it('should apply custom violation label names passed through decideLabels', () => {
+      const metrics: PRMetrics = {
+        totalAdditions: 100,
+        excludedAdditions: 0,
+        files: [{ path: 'large.ts', size: 5000, lines: 150, additions: 100, deletions: 10 }],
+        allFiles: ['large.ts'],
+      };
+      const violations = {
+        ...emptyViolations,
+        largeFiles: [
+          {
+            file: 'large.ts',
+            actualValue: 2048000,
+            limit: 1048576,
+            violationType: 'size' as const,
+            severity: 'critical' as const,
+          },
+        ],
+        exceedsFileCount: true,
+      };
+
+      const result = decideLabels(metrics, config, violations, undefined, {
+        largeFiles: 'custom/large-files',
+        tooManyFiles: 'custom/too-many-files',
+      });
+      const decisions = result._unsafeUnwrap();
+
+      expect(decisions.labelsToAdd).toContain('custom/large-files');
+      expect(decisions.labelsToAdd).toContain('custom/too-many-files');
+      expect(decisions.labelsToAdd).not.toContain('auto/large-files');
+      expect(decisions.labelsToAdd).not.toContain('auto/too-many-files');
+    });
+
+    it('should fall back to auto/* violation labels when custom names are not passed', () => {
+      const metrics: PRMetrics = {
+        totalAdditions: 100,
+        excludedAdditions: 0,
+        files: [{ path: 'large.ts', size: 5000, lines: 150, additions: 100, deletions: 10 }],
+        allFiles: ['large.ts'],
+      };
+      const violations = {
+        ...emptyViolations,
+        exceedsFileCount: true,
+      };
+
+      const result = decideLabels(metrics, config, violations);
+      const decisions = result._unsafeUnwrap();
+
+      expect(decisions.labelsToAdd).toContain('auto/too-many-files');
+    });
   });
 
   describe('decideViolationLabels', () => {
@@ -839,6 +890,64 @@ describe('Label Decision Engine', () => {
       expect(result.labels).toContain('auto/excessive-changes');
       expect(result.labels).toContain('auto/too-many-files');
       expect(result.reasoning).toHaveLength(4);
+    });
+
+    it('should use custom violation label names when provided', () => {
+      const violations = {
+        largeFiles: [
+          {
+            file: 'large.ts',
+            actualValue: 2048000,
+            limit: 1048576,
+            violationType: 'size' as const,
+            severity: 'critical' as const,
+          },
+        ],
+        exceedsFileLines: [
+          {
+            file: 'long.ts',
+            actualValue: 600,
+            limit: 500,
+            violationType: 'lines' as const,
+            severity: 'warning' as const,
+          },
+        ],
+        exceedsAdditions: true,
+        exceedsFileCount: true,
+      };
+      const result = decideViolationLabels(violations, {
+        largeFiles: 'custom/large-files',
+        tooManyFiles: 'custom/too-many-files',
+        tooManyLines: 'custom/too-many-lines',
+        excessiveChanges: 'custom/excessive-changes',
+      });
+      expect(result.labels).toEqual(
+        expect.arrayContaining([
+          'custom/large-files',
+          'custom/too-many-lines',
+          'custom/excessive-changes',
+          'custom/too-many-files',
+        ]),
+      );
+      expect(result.labels).not.toContain('auto/large-files');
+      expect(result.reasoning.every(r => r.label.startsWith('custom/'))).toBe(true);
+    });
+
+    it('should fall back to auto/* defaults when custom labels are not provided', () => {
+      const violations = {
+        ...emptyViolations,
+        largeFiles: [
+          {
+            file: 'large.ts',
+            actualValue: 2048000,
+            limit: 1048576,
+            violationType: 'size' as const,
+            severity: 'critical' as const,
+          },
+        ],
+      };
+      const result = decideViolationLabels(violations, {});
+      expect(result.labels).toContain('auto/large-files');
     });
   });
 });
