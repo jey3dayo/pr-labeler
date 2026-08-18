@@ -429,7 +429,7 @@ describe('FileMetrics', () => {
       }
     });
 
-    it('should exclude markdown files by default but include them when useDefaultExcludes is false', async () => {
+    it('should exclude fixed-name housekeeping files (CHANGELOG.md) by default but include them when useDefaultExcludes is false', async () => {
       const files: DiffFile[] = [
         { filename: 'src/index.ts', additions: 100, deletions: 20, status: 'modified' },
         { filename: 'CHANGELOG.md', additions: 500, deletions: 100, status: 'modified' },
