@@ -16,7 +16,8 @@ export interface FetchRepositoryConfigParams {
   token: string;
   owner: string;
   repo: string;
-  ref: string;
+  /** Omit to read from the repository default branch */
+  ref?: string;
 }
 
 /**
@@ -31,7 +32,9 @@ export function fetchRepositoryConfig(params: FetchRepositoryConfigParams): Resu
       owner,
       repo,
       path: CONFIG_FILE_PATH,
-      ref,
+      // An empty ref would be serialized as `?ref=`, so omit it entirely to let
+      // the API resolve the repository default branch.
+      ...(ref ? { ref } : {}),
     }),
     error => {
       const status = extractErrorStatus(error);

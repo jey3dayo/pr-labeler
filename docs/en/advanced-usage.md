@@ -30,6 +30,12 @@ When handling PRs from forks, permissions are restricted. Use the `pull_request_
 - **Mitigation**: This action only reads files and applies labels; it does not execute code from PRs
 - **Best Practice**: Review fork PRs before approving workflows
 
+#### Check out the base branch, not the PR head
+
+Under `pull_request_target`, check out the **base** branch (the `actions/checkout` default). Checking out `github.event.pull_request.head.sha` would let a fork PR supply its own `.github/directory-labeler.yml` (the directory labeling config, which is read from the local checkout), so the PR could choose its own labeling policy while the workflow runs with base repository write permissions.
+
+For the same reason, `.github/pr-labeler.yml` is read from the base ref (falling back to the default branch) whenever the event is `pull_request_target`. One consequence: a fork PR that edits `.github/pr-labeler.yml` will not preview its new configuration — the base configuration is applied instead. Under the plain `pull_request` event the head configuration is still used, so same-repository PRs can preview configuration changes.
+
 ### Example Configuration
 
 ```yaml
@@ -49,10 +55,9 @@ jobs:
       contents: read        # File reading
 
     steps:
+      # IMPORTANT: keep the base branch checkout (the default) so configuration
+      # files come from the base repository, not from the fork PR
       - uses: actions/checkout@v4
-        with:
-          # IMPORTANT: Check out the PR's code, not the base branch
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: jey3dayo/pr-insights-labeler@v1
         with:

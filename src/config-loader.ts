@@ -15,14 +15,16 @@ export { CONFIG_FILE_PATH, mergeWithDefaults, validateLabelerConfig };
 
 /**
  * Load labeler configuration from repository
+ *
+ * @param ref - Commit SHA or ref to read from. Omit to read from the repository default branch.
  */
 export function loadConfig(
   token: string,
   owner: string,
   repo: string,
-  ref: string,
+  ref?: string,
 ): ResultAsync<LabelerConfig, ConfigurationError> {
-  const params: FetchRepositoryConfigParams = { token, owner, repo, ref };
+  const params: FetchRepositoryConfigParams = { token, owner, repo, ...(ref ? { ref } : {}) };
 
   return fetchRepositoryConfig(params).andThen(content => parseYamlConfig(content));
 }
