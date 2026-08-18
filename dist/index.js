@@ -274622,7 +274622,7 @@ var external_node_util_ = __nccwpck_require__(57975);
 
 
 
-const execAsync = (0,external_node_util_.promisify)(external_node_child_process_namespaceObject.exec);
+const execFileAsync = (0,external_node_util_.promisify)(external_node_child_process_namespaceObject.execFile);
 function parseGitDiffLine(line) {
     const parts = line.trim().split('\t');
     if (parts.length !== 3) {
@@ -274661,8 +274661,7 @@ function parseGitDiffLine(line) {
 async function getLocalGitDiff(context) {
     try {
         actions_io_logDebug('Attempting to get diff using local git command');
-        const command = `git diff --numstat -M -C --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
-        const { stdout, stderr } = await execAsync(command, {
+        const { stdout, stderr } = await execFileAsync('git', ['diff', '--numstat', '-M', '-C', '--diff-filter=ACMR', `${context.baseSha}...${context.headSha}`], {
             cwd: getEnvVar('GITHUB_WORKSPACE') || process.cwd(),
             maxBuffer: 16 * 1024 * 1024,
         });
@@ -277541,7 +277540,7 @@ async function isBinaryFile(filePath) {
 
 
 
-const execFileAsync = (0,external_node_util_.promisify)(external_node_child_process_namespaceObject.execFile);
+const file_size_service_execFileAsync = (0,external_node_util_.promisify)(external_node_child_process_namespaceObject.execFile);
 async function runProbes(probes) {
     for (const probe of probes) {
         const size = await probe();
@@ -277569,7 +277568,7 @@ function createFsStatProbe(filePath) {
 function createGitLsTreeProbe(filePath) {
     return async () => {
         try {
-            const { stdout } = await execFileAsync('git', ['ls-tree', '-l', 'HEAD', filePath]);
+            const { stdout } = await file_size_service_execFileAsync('git', ['ls-tree', '-l', 'HEAD', filePath]);
             const tabParts = stdout.trim().split('\t');
             if (tabParts.length >= 2 && tabParts[0]) {
                 const metaParts = tabParts[0].trim().split(/\s+/);
@@ -277997,7 +277996,7 @@ async function findExistingComment(token, context) {
             per_page: 100,
         })) {
             for (const comment of data) {
-                if (comment.body?.includes(COMMENT_SIGNATURE)) {
+                if (comment.body?.includes(COMMENT_SIGNATURE) && comment.user?.type === 'Bot') {
                     actions_io_logDebug(`Found existing comment with ID ${comment.id}`);
                     return (0,index_cjs.ok)(comment.id);
                 }

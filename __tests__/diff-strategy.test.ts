@@ -347,7 +347,8 @@ invalid line
       await getDiffFiles(context, 'test-token');
 
       expect(mockExecAsync).toHaveBeenCalledWith(
-        expect.stringContaining('git diff --numstat -M -C --diff-filter=ACMR'),
+        'git',
+        ['diff', '--numstat', '-M', '-C', '--diff-filter=ACMR', `${context.baseSha}...${context.headSha}`],
         expect.objectContaining({
           cwd: expect.any(String),
           maxBuffer: 16 * 1024 * 1024,

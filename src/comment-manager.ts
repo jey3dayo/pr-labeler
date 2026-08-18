@@ -121,9 +121,12 @@ export async function findExistingComment(
       issue_number: context.pullNumber,
       per_page: 100,
     })) {
-      // Search for comment with our signature
+      // Search for comment with our signature, posted by a bot account.
+      // Restricting to type 'Bot' (rather than a fixed login) blocks third-party
+      // spoofing of the signature while still allowing GitHub App-issued tokens,
+      // which also post as bot accounts, to be recognized.
       for (const comment of data) {
-        if (comment.body?.includes(COMMENT_SIGNATURE)) {
+        if (comment.body?.includes(COMMENT_SIGNATURE) && comment.user?.type === 'Bot') {
           logDebug(`Found existing comment with ID ${comment.id}`);
           return ok(comment.id);
         }
