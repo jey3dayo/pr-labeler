@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2026-08-18
+
+### ✨ Added
+
+- exclude fixed-name housekeeping files (`CHANGELOG.md`, `TODO.md`, `todo.txt`, `done.txt`) from size/line analysis by default; they grow mechanically and are not review-relevant. Opt out with `use_default_excludes: "false"` (#157)
+
 ## [1.11.5] - 2026-08-18
 
 ### 🔒 Security
@@ -528,6 +534,7 @@ PRメトリクス分析に基づいた高度な自動ラベル付け機能を追
 
 [1.0.1]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.0.1
 [1.0.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.0.0
+[1.12.0]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.12.0
 [1.11.5]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.5
 [1.11.4]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.4
 [1.11.3]: https://github.com/jey3dayo/pr-insights-labeler/releases/tag/v1.11.3
