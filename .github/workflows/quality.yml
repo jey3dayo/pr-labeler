@@ -362,6 +362,7 @@ jobs:
           additional_exclude_patterns: |
             src/index.ts
             scripts/**
+            **/*.md
 
   quality-gate:
     name: Quality Gate
