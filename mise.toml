@@ -7,6 +7,7 @@ _.path = ['./node_modules/.bin']
 node = "24.12"
 pnpm = "11.22.0"
 fd = 'latest'
+lefthook = "latest"
 
 [tasks]
 # === 統合タスク ===

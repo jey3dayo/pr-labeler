@@ -355,6 +355,7 @@ jobs:
           fail_on_pr_size: ""
           additional_exclude_patterns: |
             src/index.ts
+            scripts/**
 
   quality-gate:
     name: Quality Gate

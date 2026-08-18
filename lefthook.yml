@@ -1,0 +1,66 @@
+# ローカルフックの CI 相当ゲート
+# pre-commit: staged ファイルの自動整形のみ（高速）
+# pre-push:   .github/workflows/quality.yml の code-quality / docs-quality 相当
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: prettier
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,md,yml,yaml}"
+      run: pnpm exec prettier --write --ignore-unknown --log-level warn {staged_files}
+      stage_fixed: true
+
+    - name: eslint
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs}"
+      run: pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
+
+pre-push:
+  piped: true
+  jobs:
+    - name: prettier
+      glob:
+        - "*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,md,yml,yaml}"
+      run: pnpm prettier
+
+    - name: eslint
+      glob:
+        - "{src,__tests__,scripts}/**/*.{ts,js}"
+        - "*.{js,cjs,mjs,ts}"
+        - "package.json"
+      run: pnpm eslint
+
+    - name: type-check
+      glob:
+        - "{src,__tests__,scripts}/**/*.ts"
+        - "tsconfig*.json"
+        - "vitest.config.ts"
+        - "package.json"
+      run: pnpm type-check
+
+    - name: test
+      glob:
+        - "{src,__tests__}/**/*.ts"
+        - "vitest.config.ts"
+        - "action.yml"
+        - "package.json"
+        - "pnpm-lock.yaml"
+      # pnpm test は lint を含むが、前段の prettier/eslint/type-check と重複するため vitest のみ
+      run: pnpm test:vitest
+
+    # CI の "Verify dist/ build" と同じく、再ビルドして dist/ の乖離も検出する。
+    # 乖離があれば push を止め、dist/ の再コミットを促す
+    - name: build
+      glob:
+        - "{src,dist}/**"
+        - "package.json"
+        - "pnpm-lock.yaml"
+        - "tsconfig.json"
+      # porcelain で未追跡ファイルも検出する（git diff は untracked を見ない）
+      run: pnpm build && test -z "$(git status --porcelain -- dist/)"
+
+    - name: docs:lint
+      glob:
+        - "*.md"
+        - ".markdownlint-cli2.jsonc"
+      run: mise run docs:lint
