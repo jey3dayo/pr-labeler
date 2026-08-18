@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Temp files are registered here so a single trap removes them on every exit
+# path, including `set -e` aborts and interrupts, not just the happy path.
+TEMP_FILES=()
+TEMP_FILE_RESULT=
+cleanup_temp_files() {
+  if [ ${#TEMP_FILES[@]} -gt 0 ]; then
+    rm -f "${TEMP_FILES[@]}"
+  fi
+}
+# Only EXIT cleans up: a bare INT/TERM handler would run and then let the
+# script carry on to commit, tag, push and publish the release.
+trap cleanup_temp_files EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+# Sets TEMP_FILE_RESULT instead of echoing: a command substitution would run
+# this in a subshell, so the TEMP_FILES registration would never reach the trap.
+new_temp_file() {
+  local file
+  file=$(mktemp)
+  TEMP_FILES+=("$file")
+  TEMP_FILE_RESULT=$file
+}
+
 # Helper functions (no colors for compatibility)
 info() { echo "ℹ $1"; }
 success() { echo "✓ $1"; }
@@ -252,6 +276,94 @@ extract_unreleased() {
   ' CHANGELOG.md | trim_blank_lines
 }
 
+# Merge a hand-written [Unreleased] body (file $1) with the commit-derived
+# changelog (file $2), section by section. Generated entries already covered by
+# the hand-written text are dropped; everything else is kept, so commits that
+# nobody wrote up by hand still reach the release notes.
+merge_changelog() {
+  awk '
+    function bullet_key(line,   t) {
+      t = line
+      sub(/^[[:space:]]*-[[:space:]]*/, "", t)
+      return t
+    }
+    # Collect every PR reference inside a parenthesised group, so "(#1, #2)" and
+    # "(#1) (#2)" both register fully. Bare mentions in prose ("see issue #3")
+    # are ignored on purpose: treating those as references would suppress a real
+    # entry for that number and lose the change.
+    function collect_prs(line, out,   rest, group) {
+      rest = line
+      while (match(rest, /\([^)]*#[0-9]+[^)]*\)/)) {
+        group = substr(rest, RSTART, RLENGTH)
+        rest = substr(rest, RSTART + RLENGTH)
+        while (match(group, /#[0-9]+/)) {
+          out[substr(group, RSTART, RLENGTH)] = 1
+          group = substr(group, RSTART + RLENGTH)
+        }
+      }
+    }
+    # heading == "" holds content written before the first "###" subheading.
+    function emit(heading, is_preamble,   body, n, lines, j, line, pr, covered, line_prs, is_bullet, prev_is_bullet) {
+      body = hand[heading]
+      n = split(gen[heading], lines, "\n")
+      for (j = 1; j <= n; j++) {
+        line = lines[j]
+        if (line == "") continue
+        delete line_prs
+        collect_prs(line, line_prs)
+        covered = 0
+        for (pr in line_prs) if (pr in hand_pr) covered = 1
+        if (covered) continue
+        # Exact key match only: a substring test would drop a generated entry
+        # merely quoted inside a longer hand-written line.
+        if (bullet_key(line) in hand_key) continue
+        body = body line "\n"
+      }
+      if (body == "") return
+      if (!is_preamble) {
+        print heading
+        print ""
+      }
+      # Blank lines were stripped while parsing, so restore the one markdown
+      # requires between prose and an adjacent list.
+      n = split(body, lines, "\n")
+      prev_is_bullet = -1
+      for (j = 1; j <= n; j++) {
+        line = lines[j]
+        if (line == "") continue
+        is_bullet = (line ~ /^[[:space:]]*-[[:space:]]/)
+        if (prev_is_bullet != -1 && is_bullet != prev_is_bullet) print ""
+        print line
+        prev_is_bullet = is_bullet
+      }
+      print ""
+    }
+    FNR == 1 { file_index++; heading = "" }
+    /^###/ {
+      heading = $0
+      if (!(heading in seen_heading)) {
+        seen_heading[heading] = 1
+        order[++heading_count] = heading
+      }
+      next
+    }
+    /^[[:space:]]*$/ { next }
+    {
+      if (file_index == 1) {
+        hand[heading] = hand[heading] $0 "\n"
+        hand_key[bullet_key($0)] = 1
+        collect_prs($0, hand_pr)
+      } else {
+        gen[heading] = gen[heading] $0 "\n"
+      }
+    }
+    END {
+      emit("", 1)
+      for (i = 1; i <= heading_count; i++) emit(order[i], 0)
+    }
+  ' "$1" "$2"
+}
+
 update_changelog() {
   local new_version=$1
   local changelog_content=$2
@@ -259,8 +371,8 @@ update_changelog() {
   date=$(date +%Y-%m-%d)
 
   local temp_file stripped
-  temp_file=$(mktemp)
-  stripped=$(mktemp)
+  new_temp_file; temp_file=$TEMP_FILE_RESULT
+  new_temp_file; stripped=$TEMP_FILE_RESULT
 
   # Consume the `## [Unreleased]` section. Its content is folded into the new
   # version section by the caller, so leaving the heading here would strand it
@@ -288,7 +400,6 @@ update_changelog() {
   } > "$temp_file"
 
   mv "$temp_file" CHANGELOG.md
-  rm -f "$stripped"
   success "Updated CHANGELOG.md"
 }
 
@@ -488,15 +599,20 @@ main() {
 - Minor updates and improvements"
   fi
 
-  # A hand-written [Unreleased] section is curated by a human and wins over the
-  # commit-derived list, which would otherwise duplicate the same entries.
+  # A hand-written [Unreleased] section is curated by a human, so its wording
+  # wins, but the commit-derived entries it does not cover are merged in rather
+  # than discarded -- otherwise commits nobody wrote up by hand would silently
+  # vanish from the release notes.
   local unreleased_content
   unreleased_content=$(extract_unreleased)
   if [[ -n $unreleased_content ]]; then
-    warn "Found a hand-written [Unreleased] section; using it instead of the generated changelog."
-    info "Generated from commits (for reference only):"
-    echo "$changelog_content"
-    changelog_content=$unreleased_content
+    info "Merging the hand-written [Unreleased] section with the generated changelog..."
+    local hand_file gen_file
+    new_temp_file; hand_file=$TEMP_FILE_RESULT
+    new_temp_file; gen_file=$TEMP_FILE_RESULT
+    printf '%s\n' "$unreleased_content" > "$hand_file"
+    printf '%s\n' "$changelog_content" > "$gen_file"
+    changelog_content=$(merge_changelog "$hand_file" "$gen_file")
   fi
 
   echo ""
