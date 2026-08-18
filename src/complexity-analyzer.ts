@@ -124,6 +124,7 @@ function hasSyntaxError(messages: Linter.LintMessage[]): boolean {
 function analyzeFile(
   filePath: string,
   options?: Partial<AnalysisOptions>,
+  eslintContext?: { eslint: ESLint; hasTsconfig: boolean },
 ): ResultAsync<FileComplexity, ComplexityAnalysisError> {
   const opts = mergeAnalysisOptions(options);
 
@@ -152,12 +153,18 @@ function analyzeFile(
       }
 
       // 2. Run ESLint complexity rule
-      const hasTsconfig = hasTsconfigJson();
-      if (!hasTsconfig) {
-        core.warning('tsconfig.json not found. Using default parser options for complexity analysis.');
+      // Reuse the shared ESLint instance from analyzeFiles when provided, since
+      // hasTsconfig is invariant for the duration of a single analysis run.
+      let eslint: ESLint;
+      if (eslintContext) {
+        ({ eslint } = eslintContext);
+      } else {
+        const hasTsconfig = hasTsconfigJson();
+        if (!hasTsconfig) {
+          core.warning('tsconfig.json not found. Using default parser options for complexity analysis.');
+        }
+        eslint = createESLintInstance(hasTsconfig);
       }
-
-      const eslint = createESLintInstance(hasTsconfig);
 
       const results = await eslint.lintFiles([filePath]);
 
@@ -244,10 +251,18 @@ function analyzeFiles(
 
       core.info(`Analyzing ${filePaths.length} files with concurrency ${concurrency}`);
 
+      // hasTsconfig is invariant for this analysis run, so determine it once and
+      // reuse a single ESLint instance across all files instead of recreating it per file.
+      const hasTsconfig = hasTsconfigJson();
+      if (!hasTsconfig) {
+        core.warning('tsconfig.json not found. Using default parser options for complexity analysis.');
+      }
+      const eslint = createESLintInstance(hasTsconfig);
+
       // 各ファイルの解析を並列実行
       const promises = filePaths.map(filePath =>
         limit(async () => {
-          const result = await analyzeFile(filePath, opts);
+          const result = await analyzeFile(filePath, opts, { eslint, hasTsconfig });
 
           if (result.isOk()) {
             return { status: 'fulfilled' as const, value: result.value };
@@ -297,7 +312,6 @@ function analyzeFiles(
       }
 
       // 完全なComplexityMetricsを構築
-      const hasTsconfig = hasTsconfigJson();
       const completeMetrics: ComplexityMetrics = {
         ...baseMetrics,
         skippedFiles,

@@ -51,20 +51,3 @@ export async function getCurrentLabels(token: string, context: PRContext): Promi
   const resultAsync = fetchCurrentLabels(token, context.owner, context.repo, context.pullNumber);
   return resultAsync;
 }
-
-/**
- * Get current labels with graceful degradation (for label-manager compatibility)
- * Returns empty array on errors instead of failing
- *
- * @param token - GitHub API token
- * @param context - PR context
- * @returns Array of current label names (empty on error)
- */
-export async function getCurrentLabelsGraceful(token: string, context: PRContext): Promise<string[]> {
-  const result = await fetchCurrentLabels(token, context.owner, context.repo, context.pullNumber);
-
-  return result.match(
-    labels => labels,
-    _error => [],
-  );
-}
