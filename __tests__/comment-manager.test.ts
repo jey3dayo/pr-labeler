@@ -626,7 +626,7 @@ describe('CommentManager', () => {
         createPaginateIterator([
           [
             { id: 1, body: 'Regular comment' },
-            { id: 2, body: `Some content\n${COMMENT_SIGNATURE}` },
+            { id: 2, body: `Some content\n${COMMENT_SIGNATURE}`, user: { login: 'github-actions[bot]', type: 'Bot' } },
             { id: 3, body: 'Another comment' },
           ],
         ]),
@@ -641,6 +641,25 @@ describe('CommentManager', () => {
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         expect(result.value).toBe(2);
+      }
+    });
+
+    it('should ignore a comment with the signature posted by a non-bot user', async () => {
+      mockPaginateIterator.mockReturnValue(
+        createPaginateIterator([
+          [{ id: 2, body: `Some content\n${COMMENT_SIGNATURE}`, user: { login: 'some-user', type: 'User' } }],
+        ]),
+      );
+
+      const result = await findExistingComment('token', {
+        owner: 'owner',
+        repo: 'repo',
+        pullNumber: 123,
+      });
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value).toBeNull();
       }
     });
 
@@ -674,7 +693,7 @@ describe('CommentManager', () => {
             body: `Comment ${i + 1}`,
           })),
           [
-            { id: 101, body: `Match\n${COMMENT_SIGNATURE}` },
+            { id: 101, body: `Match\n${COMMENT_SIGNATURE}`, user: { login: 'github-actions[bot]', type: 'Bot' } },
             { id: 102, body: 'Last comment' },
           ],
         ]),
@@ -851,7 +870,11 @@ describe('CommentManager', () => {
         },
       };
 
-      mockPaginateIterator.mockReturnValue(createPaginateIterator([[{ id: 456, body: `Old\n${COMMENT_SIGNATURE}` }]]));
+      mockPaginateIterator.mockReturnValue(
+        createPaginateIterator([
+          [{ id: 456, body: `Old\n${COMMENT_SIGNATURE}`, user: { login: 'github-actions[bot]', type: 'Bot' } }],
+        ]),
+      );
       mockUpdateComment.mockResolvedValue({ data: { id: 456 } });
 
       const result = await manageComment(analysisResult, config, 'token', {
@@ -917,7 +940,9 @@ describe('CommentManager', () => {
       };
 
       mockPaginateIterator.mockReturnValueOnce(
-        createPaginateIterator([[{ id: 789, body: `Old\n${COMMENT_SIGNATURE}` }]]),
+        createPaginateIterator([
+          [{ id: 789, body: `Old\n${COMMENT_SIGNATURE}`, user: { login: 'github-actions[bot]', type: 'Bot' } }],
+        ]),
       );
       mockDeleteComment.mockResolvedValue({});
 
@@ -958,7 +983,11 @@ describe('CommentManager', () => {
       };
 
       // Should delete existing comment if present
-      mockPaginateIterator.mockReturnValue(createPaginateIterator([[{ id: 999, body: `Old\n${COMMENT_SIGNATURE}` }]]));
+      mockPaginateIterator.mockReturnValue(
+        createPaginateIterator([
+          [{ id: 999, body: `Old\n${COMMENT_SIGNATURE}`, user: { login: 'github-actions[bot]', type: 'Bot' } }],
+        ]),
+      );
       mockDeleteComment.mockResolvedValue({});
 
       const result = await manageComment(analysisResult, config, 'token', {

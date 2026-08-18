@@ -2,7 +2,7 @@
  * Diff strategy - retrieves PR diff files using local git or GitHub API
  */
 
-import { exec } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
 import * as github from '@actions/github';
@@ -12,8 +12,8 @@ import { getEnvVar, logDebug, logInfo, logWarning } from './actions-io.js';
 import type { DiffError } from './errors/index.js';
 import { createDiffError, ensureError } from './errors/index.js';
 
-// Create execAsync using promisify
-const execAsync = promisify(exec);
+// Create execFileAsync using promisify
+const execFileAsync = promisify(execFile);
 
 /**
  * Diff file information
@@ -101,12 +101,16 @@ async function getLocalGitDiff(context: PullRequestContext): Promise<Result<Diff
     // Use git diff with numstat to get file changes
     // --diff-filter=ACMR filters: Added, Copied, Modified, Renamed (excludes Deleted)
     // -M/-C enables rename and copy detection for better accuracy
-    const command = `git diff --numstat -M -C --diff-filter=ACMR ${context.baseSha}...${context.headSha}`;
-
-    const { stdout, stderr } = await execAsync(command, {
-      cwd: getEnvVar('GITHUB_WORKSPACE') || process.cwd(),
-      maxBuffer: 16 * 1024 * 1024, // 16MB buffer for large diffs
-    });
+    // execFile with an argument array (rather than a shell string) avoids shell
+    // interpolation of the SHA values.
+    const { stdout, stderr } = await execFileAsync(
+      'git',
+      ['diff', '--numstat', '-M', '-C', '--diff-filter=ACMR', `${context.baseSha}...${context.headSha}`],
+      {
+        cwd: getEnvVar('GITHUB_WORKSPACE') || process.cwd(),
+        maxBuffer: 16 * 1024 * 1024, // 16MB buffer for large diffs
+      },
+    );
 
     if (stderr) {
       logWarning(`Git command stderr: ${stderr}`);
