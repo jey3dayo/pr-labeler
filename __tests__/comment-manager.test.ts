@@ -91,6 +91,7 @@ describe('CommentManager', () => {
             filesAnalyzed: [],
             filesExcluded: ['package-lock.json'],
             filesSkippedBinary: ['image.png'],
+            filesSkippedByLimit: [],
             filesWithErrors: [],
           },
           violations: {
@@ -116,6 +117,7 @@ describe('CommentManager', () => {
             filesAnalyzed: [],
             filesExcluded: ['package-lock.json'],
             filesSkippedBinary: ['image.png'],
+            filesSkippedByLimit: [],
             filesWithErrors: [],
           },
           violations: {
@@ -144,6 +146,7 @@ describe('CommentManager', () => {
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
+            filesSkippedByLimit: [],
             filesWithErrors: ['src/error1.ts', 'src/error2.ts'],
           },
           violations: {
@@ -169,6 +172,7 @@ describe('CommentManager', () => {
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
+            filesSkippedByLimit: [],
             filesWithErrors: ['src/error1.ts', 'src/error2.ts'],
           },
           violations: {
@@ -197,6 +201,7 @@ describe('CommentManager', () => {
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
+            filesSkippedByLimit: [],
             filesWithErrors: [],
           },
           violations: {
@@ -225,6 +230,7 @@ describe('CommentManager', () => {
             filesAnalyzed: [],
             filesExcluded: ['package-lock.json'],
             filesSkippedBinary: ['image.png'],
+            filesSkippedByLimit: [],
             filesWithErrors: [],
           },
           violations: {
@@ -263,6 +269,7 @@ describe('CommentManager', () => {
             ],
             filesExcluded: [],
             filesSkippedBinary: [],
+            filesSkippedByLimit: [],
             filesWithErrors: [],
           },
           violations: {
@@ -338,6 +345,7 @@ describe('CommentManager', () => {
             ],
             filesExcluded: [],
             filesSkippedBinary: [],
+            filesSkippedByLimit: [],
             filesWithErrors: [],
           },
           violations: {
@@ -361,6 +369,7 @@ describe('CommentManager', () => {
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
+            filesSkippedByLimit: [],
             filesWithErrors: ['src/error1.ts', 'src/error2.ts'],
           },
           violations: {
@@ -385,6 +394,7 @@ describe('CommentManager', () => {
           filesAnalyzed: [],
           filesExcluded: ['package-lock.json'],
           filesSkippedBinary: ['image.png'],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -430,6 +440,7 @@ describe('CommentManager', () => {
           ],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -515,6 +526,7 @@ describe('CommentManager', () => {
           ],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -554,6 +566,7 @@ describe('CommentManager', () => {
           ],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -577,6 +590,7 @@ describe('CommentManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -602,6 +616,7 @@ describe('CommentManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: ['src/error1.ts', 'src/error2.ts'],
         },
         violations: {
@@ -821,6 +836,7 @@ describe('CommentManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -860,6 +876,7 @@ describe('CommentManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -904,6 +921,7 @@ describe('CommentManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {
@@ -972,6 +990,7 @@ describe('CommentManager', () => {
           filesAnalyzed: [],
           filesExcluded: [],
           filesSkippedBinary: [],
+          filesSkippedByLimit: [],
           filesWithErrors: [],
         },
         violations: {

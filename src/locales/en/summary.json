@@ -17,6 +17,7 @@
     "excludedFilesDetail": "Excluded from Analysis ({{count}})",
     "binaryFilesSkipped": "Binary files skipped",
     "filesWithErrors": "Files with errors",
+    "filesSkippedByLimit": "Skipped due to file count limit",
     "analysisTime": "Analysis Time"
   },
   "violations": {

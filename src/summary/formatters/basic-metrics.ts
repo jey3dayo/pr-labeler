@@ -52,6 +52,10 @@ function renderBasicMetrics(metrics: AnalysisResult['metrics'], options: RenderB
     output += `- ${t('summary', 'basicMetrics.filesWithErrors')}: **${metrics.filesWithErrors.length}** ⚠️\n`;
   }
 
+  if (metrics.filesSkippedByLimit.length > 0) {
+    output += `- ${t('summary', 'basicMetrics.filesSkippedByLimit')}: **${metrics.filesSkippedByLimit.length}** ⚠️\n`;
+  }
+
   if (includeTimestamp) {
     const now = new Date();
     const dateStr = now

@@ -17,6 +17,7 @@
     "excludedFilesDetail": "分析除外ファイル ({{count}})",
     "binaryFilesSkipped": "バイナリファイルをスキップ",
     "filesWithErrors": "エラーのあるファイル",
+    "filesSkippedByLimit": "ファイル数上限によりスキップ",
     "analysisTime": "分析時刻"
   },
   "violations": {

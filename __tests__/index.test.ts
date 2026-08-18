@@ -242,6 +242,7 @@ describe('PR Insights Labeler', () => {
             filesAnalyzed: [],
             filesExcluded: [],
             filesSkippedBinary: [],
+            filesSkippedByLimit: [],
             filesWithErrors: [],
           },
           violations: {

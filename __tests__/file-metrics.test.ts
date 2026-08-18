@@ -685,6 +685,32 @@ describe('FileMetrics', () => {
         expect(result.value.violations.exceedsFileCount).toBe(true);
         // Should still analyze up to maxFileCount
         expect(result.value.metrics.filesAnalyzed.length).toBeLessThanOrEqual(100);
+        // Files beyond the limit are recorded as skipped and their additions still counted
+        expect(result.value.metrics.filesSkippedByLimit).toHaveLength(50);
+        expect(result.value.metrics.filesSkippedByLimit).toContain('src/file149.ts');
+        expect(result.value.metrics.totalAdditions).toBe(1500);
+      }
+    });
+
+    it('should leave filesSkippedByLimit empty when file count is within the limit', async () => {
+      const files: DiffFile[] = [
+        { filename: 'src/a.ts', additions: 10, deletions: 0, status: 'modified' },
+        { filename: 'src/b.ts', additions: 20, deletions: 0, status: 'modified' },
+      ];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     10 file',
+        stderr: '',
+      });
+
+      const result = await analyzeFiles(files, config, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.metrics.filesSkippedByLimit).toHaveLength(0);
+        expect(result.value.metrics.totalAdditions).toBe(30);
       }
     });
 
