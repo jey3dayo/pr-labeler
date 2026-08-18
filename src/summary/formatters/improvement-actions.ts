@@ -46,7 +46,7 @@ const EXCLUDE_CONFIG_EXAMPLE = [
   '  with:',
   '    additional_exclude_patterns: |',
   '      **/*.generated.ts',
-  '      **/*.lock',
+  '      **/__generated__/**',
   '      coverage/**',
   '```',
 ].join('\n');

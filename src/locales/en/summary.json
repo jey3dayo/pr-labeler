@@ -144,14 +144,14 @@
     },
     "generated": {
       "title": "Handling Generated/Lock Files",
-      "excludeLock": "Exclude lock files (package-lock.json, yarn.lock) from analysis with the `additional_exclude_patterns` input",
+      "excludeLock": "Lock files (package-lock.json, yarn.lock, etc.) are excluded from analysis by the default patterns",
       "manageArtifacts": "Manage build artifacts (dist/, build/) with `.gitignore`",
       "separateGenerated": "Consider updating auto-generated code in separate PRs"
     },
     "excludeConfig": {
       "title": "Excluding Files from Analysis",
       "intro": "If generated or non-reviewable files are causing the limit violations, you can exclude them from analysis with the `additional_exclude_patterns` workflow input:",
-      "note": "Default exclude patterns (node_modules, dist, etc.) are applied when `use_default_excludes: \"true\"` (the default)."
+      "note": "Default exclude patterns (lock files, node_modules, dist, etc.) are applied automatically."
     }
   },
   "bestPractices": {
