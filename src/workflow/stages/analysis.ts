@@ -50,6 +50,7 @@ export function analyzePullRequest(context: InitializationArtifacts): ResultAsyn
           maxAddedLines: config.prAdditionsLimit,
           maxFileCount: config.prFilesLimit,
           excludePatterns: config.additionalExcludePatterns,
+          useDefaultExcludes: config.useDefaultExcludes,
         },
         token,
         {

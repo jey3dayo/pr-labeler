@@ -111,7 +111,7 @@ If generated or non-reviewable files are causing the limit violations, you can e
       coverage/**
 \`\`\`
 
-Default exclude patterns (lock files, node_modules, dist, etc.) are applied automatically.
+Default exclude patterns (lock files, node_modules, dist, etc.) are applied when \`use_default_excludes: "true"\` (the default).
 
 </details>
 
@@ -237,7 +237,7 @@ PRサイズを削減する方法をいくつか紹介します：
       coverage/**
 \`\`\`
 
-ロックファイルや node_modules、dist などのデフォルト除外パターンは自動的に適用されます。
+ロックファイルや node_modules、dist などのデフォルト除外パターンは\`use_default_excludes: "true"\`（既定値）のとき適用されます。
 
 </details>
 

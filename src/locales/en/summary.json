@@ -151,7 +151,7 @@
     "excludeConfig": {
       "title": "Excluding Files from Analysis",
       "intro": "If generated or non-reviewable files are causing the limit violations, you can exclude them from analysis with the `additional_exclude_patterns` workflow input:",
-      "note": "Default exclude patterns (lock files, node_modules, dist, etc.) are applied automatically."
+      "note": "Default exclude patterns (lock files, node_modules, dist, etc.) are applied when `use_default_excludes: \"true\"` (the default)."
     }
   },
   "bestPractices": {

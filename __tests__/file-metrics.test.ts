@@ -402,6 +402,55 @@ describe('FileMetrics', () => {
       }
     });
 
+    it('should not apply default exclude patterns when useDefaultExcludes is false', async () => {
+      const files: DiffFile[] = [
+        { filename: 'src/index.ts', additions: 100, deletions: 20, status: 'modified' },
+        { filename: 'package-lock.json', additions: 500, deletions: 100, status: 'modified' },
+      ];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     100 file',
+        stderr: '',
+      });
+
+      const result = await analyzeFiles(
+        files,
+        { ...config, excludePatterns: [], useDefaultExcludes: false },
+        'token',
+        context,
+      );
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.metrics.filesExcluded).toHaveLength(0);
+        expect(result.value.metrics.filesAnalyzed).toHaveLength(2);
+      }
+    });
+
+    it('should apply default exclude patterns when useDefaultExcludes is omitted', async () => {
+      const files: DiffFile[] = [
+        { filename: 'src/index.ts', additions: 100, deletions: 20, status: 'modified' },
+        { filename: 'package-lock.json', additions: 500, deletions: 100, status: 'modified' },
+      ];
+
+      vi.mocked(fs.stat).mockResolvedValue(createMockStats(1000));
+
+      mockExecAsync.mockResolvedValue({
+        stdout: '     100 file',
+        stderr: '',
+      });
+
+      const result = await analyzeFiles(files, { ...config, excludePatterns: [] }, 'token', context);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.metrics.filesExcluded).toContain('package-lock.json');
+        expect(result.value.metrics.filesAnalyzed).toHaveLength(1);
+      }
+    });
+
     it('should skip binary files', async () => {
       const files: DiffFile[] = [
         { filename: 'src/index.ts', additions: 100, deletions: 20, status: 'modified' },
