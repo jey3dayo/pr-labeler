@@ -44,6 +44,7 @@ const EXCLUDE_CONFIG_EXAMPLE = [
   '```yaml',
   '- uses: jey3dayo/pr-insights-labeler@v1',
   '  with:',
+  '    github_token: ${{ secrets.GITHUB_TOKEN }}',
   '    additional_exclude_patterns: |',
   '      **/*.generated.ts',
   '      **/__generated__/**',

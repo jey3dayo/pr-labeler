@@ -104,6 +104,7 @@ If generated or non-reviewable files are causing the limit violations, you can e
 \`\`\`yaml
 - uses: jey3dayo/pr-insights-labeler@v1
   with:
+    github_token: \${{ secrets.GITHUB_TOKEN }}
     additional_exclude_patterns: |
       **/*.generated.ts
       **/__generated__/**
@@ -229,6 +230,7 @@ PRサイズを削減する方法をいくつか紹介します：
 \`\`\`yaml
 - uses: jey3dayo/pr-insights-labeler@v1
   with:
+    github_token: \${{ secrets.GITHUB_TOKEN }}
     additional_exclude_patterns: |
       **/*.generated.ts
       **/__generated__/**
